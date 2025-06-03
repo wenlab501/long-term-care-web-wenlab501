@@ -208,7 +208,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 
 export default {
   name: 'DesignView',
@@ -234,26 +234,26 @@ export default {
       { name: '900', value: '#212529', textColor: 'white' }
     ])
 
-    onMounted(() => {
-      // 初始化 Bootstrap tabs
-      const triggerTabList = document.querySelectorAll('#nav-tab button')
-      triggerTabList.forEach(triggerEl => {
-        triggerEl.addEventListener('click', (event) => {
-          // 移除所有 active 類別
-          triggerTabList.forEach(tab => tab.classList.remove('active'))
-          document.querySelectorAll('.tab-pane').forEach(pane => {
-            pane.classList.remove('show', 'active')
-          })
+    // onMounted(() => {
+    //   // 初始化 Bootstrap tabs
+    //   const triggerTabList = document.querySelectorAll('#nav-tab button')
+    //   triggerTabList.forEach(triggerEl => {
+    //     triggerEl.addEventListener('click', (event) => {
+    //       // 移除所有 active 類別
+    //       triggerTabList.forEach(tab => tab.classList.remove('active'))
+    //       document.querySelectorAll('.tab-pane').forEach(pane => {
+    //         pane.classList.remove('show', 'active')
+    //       })
           
-          // 添加 active 類別到點擊的 tab
-          event.target.classList.add('active')
-          const targetPane = document.querySelector(event.target.dataset.bsTarget)
-          if (targetPane) {
-            targetPane.classList.add('show', 'active')
-          }
-        })
-      })
-    })
+    //       // 添加 active 類別到點擊的 tab
+    //       event.target.classList.add('active')
+    //       const targetPane = document.querySelector(event.target.dataset.bsTarget)
+    //       if (targetPane) {
+    //         targetPane.classList.add('show', 'active')
+    //       }
+    //     })
+    //   })
+    // })
 
     return {
       primaryColors,

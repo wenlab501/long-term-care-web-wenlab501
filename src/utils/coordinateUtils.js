@@ -1,0 +1,192 @@
+/**
+ * 座標轉換工具 - TWD97 與 WGS84 之間的轉換
+ * 針對台灣地區優化的座標轉換函數
+ */
+
+/**
+ * TWD97 (EPSG:3826) 轉 WGS84 (EPSG:4326) 座標轉換
+ * 使用較精確的轉換參數，適用於台灣地區
+ * @param {number} x - TWD97 X座標 (東距)
+ * @param {number} y - TWD97 Y座標 (北距)  
+ * @returns {Array} [lng, lat] WGS84座標
+ */
+export function twd97ToWgs84Precise(x, y) {
+  // TWD97 TM2分帶投影參數
+  const a = 6378137.0 // GRS80橢球長半軸
+  const f = 1 / 298.257222101 // GRS80橢球扁率
+  const k0 = 0.9999 // 比例因子
+  const lon0 = 121.0 * Math.PI / 180 // 中央經線 121°E
+  const x0 = 250000 // 東偏移量 250km
+  const y0 = 0 // 北偏移量
+  
+  // 計算橢球參數
+  const e2 = f * (2 - f)
+  const e1 = (1 - Math.sqrt(1 - e2)) / (1 + Math.sqrt(1 - e2))
+  
+  // 移除偏移量
+  const x1 = x - x0
+  const y1 = y - y0
+  
+  // 計算子午線弧長參數
+  const M = y1 / k0
+  const mu = M / (a * (1 - e2 / 4 - 3 * e2 * e2 / 64 - 5 * e2 * e2 * e2 / 256))
+  
+  // 計算緯度
+  const phi1 = mu + (3 * e1 / 2 - 27 * e1 * e1 * e1 / 32) * Math.sin(2 * mu) +
+    (21 * e1 * e1 / 16 - 55 * e1 * e1 * e1 * e1 / 32) * Math.sin(4 * mu) +
+    (151 * e1 * e1 * e1 / 96) * Math.sin(6 * mu)
+  
+  // 計算輔助參數
+  const C1 = e2 * Math.cos(phi1) * Math.cos(phi1) / (1 - e2)
+  const T1 = Math.tan(phi1) * Math.tan(phi1)
+  const N1 = a / Math.sqrt(1 - e2 * Math.sin(phi1) * Math.sin(phi1))
+  const R1 = a * (1 - e2) / Math.pow(1 - e2 * Math.sin(phi1) * Math.sin(phi1), 1.5)
+  const D = x1 / (N1 * k0)
+  
+  // 計算經緯度
+  const lat = phi1 - (N1 * Math.tan(phi1) / R1) * (D * D / 2 - (5 + 3 * T1 + 10 * C1 - 4 * C1 * C1 - 9 * e2) * D * D * D * D / 24 +
+    (61 + 90 * T1 + 298 * C1 + 45 * T1 * T1 - 252 * e2 - 3 * C1 * C1) * D * D * D * D * D * D / 720)
+  
+  const lon = lon0 + (D - (1 + 2 * T1 + C1) * D * D * D / 6 + (5 - 2 * C1 + 28 * T1 - 3 * C1 * C1 + 8 * e2 + 24 * T1 * T1) * D * D * D * D * D / 120) / Math.cos(phi1)
+  
+  // 轉換為度數
+  const latDeg = lat * 180 / Math.PI
+  const lonDeg = lon * 180 / Math.PI
+  
+  return [lonDeg, latDeg]
+}
+
+/**
+ * 簡化版TWD97轉WGS84轉換（快速但精度稍低）
+ * @param {number} x - TWD97 X座標
+ * @param {number} y - TWD97 Y座標  
+ * @returns {Array} [lng, lat] WGS84座標
+ */
+export function twd97ToWgs84Simple(x, y) {
+  // 台灣地區的近似轉換參數
+  const offsetX = 250000
+  const offsetY = 0
+  
+  // 移除偏移量
+  const normalizedX = x - offsetX
+  const normalizedY = y - offsetY
+  
+  // 簡化的線性轉換（適用於台灣南部）
+  const lat = 22.0 + normalizedY / 111000
+  const lng = 120.0 + normalizedX / (111000 * Math.cos(lat * Math.PI / 180))
+  
+  return [lng, lat]
+}
+
+/**
+ * 檢測座標系統類型
+ * @param {number} x - X座標
+ * @param {number} y - Y座標
+ * @returns {string} 座標系統類型 ('TWD97', 'WGS84', 'Unknown')
+ */
+export function detectCoordinateSystem(x, y) {
+  // TWD97 TM2分帶座標範圍（台灣地區）
+  if (x >= 140000 && x <= 400000 && y >= 2420000 && y <= 2800000) {
+    return 'TWD97'
+  }
+  
+  // WGS84座標範圍（台灣地區）
+  if (x >= 119.0 && x <= 122.5 && y >= 21.5 && y <= 25.5) {
+    return 'WGS84'
+  }
+  
+  return 'Unknown'
+}
+
+/**
+ * 批量轉換座標陣列
+ * @param {Array} coordinates - 座標陣列
+ * @param {boolean} usePrecise - 是否使用精確轉換
+ * @returns {Array} 轉換後的座標陣列
+ */
+export function batchConvertCoordinates(coordinates, usePrecise = true) {
+  const convertFunction = usePrecise ? twd97ToWgs84Precise : twd97ToWgs84Simple
+  
+  return coordinates.map(coord => {
+    if (Array.isArray(coord) && coord.length >= 2) {
+      const [x, y] = coord
+      const system = detectCoordinateSystem(x, y)
+      
+      if (system === 'TWD97') {
+        return convertFunction(x, y)
+      } else {
+        return [x, y] // 已經是WGS84或未知格式，保持不變
+      }
+    }
+    return coord
+  })
+}
+
+/**
+ * 轉換GeoJSON中的所有座標
+ * @param {Object} geojson - GeoJSON對象
+ * @param {boolean} usePrecise - 是否使用精確轉換
+ * @returns {Object} 轉換後的GeoJSON對象
+ */
+export function convertGeoJSONCoordinates(geojson, usePrecise = true) {
+  const convertedGeojson = JSON.parse(JSON.stringify(geojson)) // 深拷貝
+  
+  const convertCoordinatesRecursive = (coords) => {
+    if (Array.isArray(coords)) {
+      // 檢查是否為座標點 [x, y]
+      if (coords.length === 2 && typeof coords[0] === 'number' && typeof coords[1] === 'number') {
+        const system = detectCoordinateSystem(coords[0], coords[1])
+        if (system === 'TWD97') {
+          const convertFunction = usePrecise ? twd97ToWgs84Precise : twd97ToWgs84Simple
+          return convertFunction(coords[0], coords[1])
+        }
+        return coords
+      } else {
+        // 遞歸處理巢狀陣列
+        return coords.map(coord => convertCoordinatesRecursive(coord))
+      }
+    }
+    return coords
+  }
+  
+  // 轉換所有features的座標
+  if (convertedGeojson.features) {
+    convertedGeojson.features = convertedGeojson.features.map(feature => {
+      if (feature.geometry && feature.geometry.coordinates) {
+        feature.geometry.coordinates = convertCoordinatesRecursive(feature.geometry.coordinates)
+      }
+      return feature
+    })
+  }
+  
+  return convertedGeojson
+}
+
+/**
+ * 計算兩點間距離（公里）
+ * @param {number} lat1 - 第一點緯度
+ * @param {number} lng1 - 第一點經度
+ * @param {number} lat2 - 第二點緯度
+ * @param {number} lng2 - 第二點經度
+ * @returns {number} 距離（公里）
+ */
+export function calculateDistance(lat1, lng1, lat2, lng2) {
+  const R = 6371 // 地球半徑（公里）
+  const dLat = (lat2 - lat1) * Math.PI / 180
+  const dLng = (lng2 - lng1) * Math.PI / 180
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng / 2) * Math.sin(dLng / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  return R * c
+}
+
+/**
+ * 驗證轉換結果是否在台灣範圍內
+ * @param {number} lng - 經度
+ * @param {number} lat - 緯度
+ * @returns {boolean} 是否在台灣範圍內
+ */
+export function isInTaiwanBounds(lng, lat) {
+  return lng >= 119.0 && lng <= 122.5 && lat >= 21.5 && lat <= 25.5
+} 
