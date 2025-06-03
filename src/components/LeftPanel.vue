@@ -6,7 +6,7 @@
     
     <!-- 台南市數據載入按鈕 -->
     <div class="mb-4">
-      <button class="btn btn-success w-100 mb-2" @click="$emit('load-tainan-data')" :disabled="isLoadingData">
+      <button class="btn btn-success mb-2" @click="$emit('load-tainan-data')" :disabled="isLoadingData">
         <i class="fas fa-download"></i>
         {{ isLoadingData ? '載入中...' : '載入台南市數據' }}
       </button>
@@ -17,13 +17,49 @@
 
     <!-- 開始分析按鈕 -->
     <div class="mb-4">
-      <button class="btn btn-analyze w-100 mb-2" @click="$emit('start-analysis')" :disabled="!canStartAnalysis">
+      <button class="btn btn-analyze mb-2" @click="$emit('start-analysis')" :disabled="!canStartAnalysis">
         <i class="fas fa-play"></i>
         開始分析
       </button>
       <small class="text-muted d-block">
         對載入的數據進行分析處理
       </small>
+    </div>
+    
+    <!-- 色票方案選擇 -->
+    <div class="mb-3">
+      <label class="form-label fw-semibold">
+        <i class="fas fa-palette me-1"></i>
+        色票方案
+      </label>
+      <select 
+        class="form-select" 
+        :value="selectedColorScheme" 
+        @change="$emit('update:selectedColorScheme', $event.target.value)">
+        <optgroup label="🐍 Python matplotlib">
+          <option value="viridis">Viridis (預設)</option>
+          <option value="plasma">Plasma</option>
+          <option value="inferno">Inferno</option>
+          <option value="magma">Magma</option>
+          <option value="cividis">Cividis (色盲友善)</option>
+        </optgroup>
+        <optgroup label="🔬 Python seaborn">
+          <option value="seaborn_rocket">Rocket</option>
+          <option value="seaborn_mako">Mako</option>
+        </optgroup>
+        <optgroup label="📊 科學視覺化">
+          <option value="coolwarm">CoolWarm</option>
+          <option value="rdylbu">RdYlBu (發散)</option>
+        </optgroup>
+        <optgroup label="🎨 經典色票">
+          <option value="default">預設</option>
+          <option value="heat">熱力圖</option>
+          <option value="blues">藍色系</option>
+          <option value="greens">綠色系</option>
+          <option value="reds">紅色系</option>
+          <option value="rainbow">彩虹光譜</option>
+        </optgroup>
+      </select>
     </div>
     
     <div class="mb-3">

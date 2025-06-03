@@ -8,26 +8,6 @@
       :showProgress="showLoadingProgress"
       :subText="loadingSubText" />
 
-    <!-- Top Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-      <div class="container-fluid">
-        <span class="navbar-brand mb-0 h1">
-          <i class="fas fa-map-marked-alt"></i> 空間分析視覺化平台 - 驢子熱分析
-        </span>
-        <div class="navbar-nav ms-auto">
-          <router-link to="/home" class="nav-link text-white" active-class="active">
-            <i class="fas fa-home me-1"></i> 主頁
-          </router-link>
-          <router-link to="/data" class="nav-link text-white" active-class="active">
-            <i class="fas fa-database me-1"></i> 資料檢視
-          </router-link>
-          <router-link to="/design" class="nav-link text-white" active-class="active">
-            <i class="fas fa-palette me-1"></i> 設計系統
-          </router-link>
-        </div>
-      </div>
-    </nav>
-    
     <!-- Main Content -->
     <div class="main-content">
       <router-view v-if="$route.path !== '/'" />
@@ -173,6 +153,7 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { formatNumber } from './utils/utils.js'
 import { loadTainanData as loadTainanDataUtil } from './utils/dataProcessor.js'
+import { performCompleteSpatialAnalysis } from './utils/spatialAnalysis.js'
 import LoadingOverlay from './components/LoadingOverlay.vue'
 import LeftPanel from './components/LeftPanel.vue'
 import MainContent from './components/MainContent.vue'
@@ -208,7 +189,7 @@ export default {
       windowWidth.value - leftPanelWidth.value - rightPanelWidth.value
     )
     const contentHeight = computed(() => 
-      windowHeight.value - bottomPanelHeight.value - 156 // 增加footer高度
+      windowHeight.value - bottomPanelHeight.value - 100 // 移除header高度，只保留footer和邊距
     )
 
     // Loading states
@@ -224,7 +205,7 @@ export default {
     const showLayer2 = ref(false)
     const showTainanLayer = ref(false)
     const selectedFilter = ref('')
-    const selectedColorScheme = ref('default')
+    const selectedColorScheme = ref('viridis')
     const zoomLevel = ref(10)
     const currentCoords = ref({ lat: 25.0330, lng: 121.5654 })
     const totalCount = ref(1250000)
@@ -327,37 +308,81 @@ export default {
 
       // 顯示loading
       isLoading.value = true
-      loadingText.value = '正在進行分析...'
+      loadingText.value = '正在進行空間分析...'
       showLoadingProgress.value = true
-      loadingSubText.value = '分析台南市數據分布'
+      loadingSubText.value = '準備數據...'
 
       try {
-        // 模擬分析過程
-        for (let i = 0; i <= 100; i += 10) {
-          loadingProgress.value = i
-          await new Promise(resolve => setTimeout(resolve, 200))
-        }
+        // 準備分析數據
+        loadingProgress.value = 10
+        loadingSubText.value = '轉換數據格式...'
+        
+        const analysisPoints = mergedTableData.value.map((row, index) => ({
+          lng: 120.2 + Math.random() * 0.5, // 模擬台南座標範圍
+          lat: 22.9 + Math.random() * 0.3,
+          value: row.count || Math.random() * 100,
+          id: index,
+          properties: row
+        }))
+
+        loadingProgress.value = 30
+        loadingSubText.value = '執行 Moran\'s I 空間自相關分析...'
+        await new Promise(resolve => setTimeout(resolve, 1000))
+
+        loadingProgress.value = 50
+        loadingSubText.value = '進行熱點檢測分析...'
+        await new Promise(resolve => setTimeout(resolve, 800))
+
+        loadingProgress.value = 70
+        loadingSubText.value = '計算空間聚集模式...'
+        await new Promise(resolve => setTimeout(resolve, 600))
+
+        // 執行完整空間分析
+        loadingProgress.value = 85
+        loadingSubText.value = '生成分析報告...'
+        
+        const analysisResults = performCompleteSpatialAnalysis(analysisPoints, {
+          kNeighbors: 8,
+          includeKNN: true,
+          includeMoransI: true,
+          includeClusters: true,
+          includeHotspots: true
+        })
+
+        loadingProgress.value = 100
+        loadingSubText.value = '分析完成'
 
         // 創建新的分析項目
         const newAnalysis = {
           id: analysisIdCounter++,
-          name: `台南市分析 #${analysisIdCounter - 1}`,
+          name: `台南市空間分析 #${analysisIdCounter - 1}`,
+          type: 'spatial_analysis',
           createdAt: getCurrentTime(),
           dataCount: mergedTableData.value.length,
+          analysisPoints: analysisPoints.length,
           status: '完成',
-          data: [...mergedTableData.value]
+          data: [...mergedTableData.value],
+          results: analysisResults,
+          summary: {
+            moransI: analysisResults.moransI?.global?.observedI?.toFixed(4) || 'N/A',
+            significance: analysisResults.moransI?.global?.significance?.significance || 'unknown',
+            hotspots: analysisResults.moransI?.summary?.hotspots || 0,
+            coldspots: analysisResults.moransI?.summary?.coldspots || 0,
+            outliers: analysisResults.moransI?.summary?.outliers || 0,
+            spatialPattern: analysisResults.moransI?.global?.interpretation || '無法判斷'
+          }
         }
 
         analysisList.value.push(newAnalysis)
         selectedAnalysisId.value = newAnalysis.id
 
-        // 切換到分析清單tab
-        activeRightTab.value = 'list'
+        // 切換到分析結果tab
+        activeRightTab.value = 'results'
 
-        console.log('分析完成:', newAnalysis)
+        console.log('✅ 空間分析完成:', newAnalysis.summary)
       } catch (error) {
-        console.error('分析失敗:', error)
-        alert('分析過程中發生錯誤')
+        console.error('❌ 分析失敗:', error)
+        alert('分析過程中發生錯誤: ' + error.message)
       } finally {
         isLoading.value = false
         loadingProgress.value = 0

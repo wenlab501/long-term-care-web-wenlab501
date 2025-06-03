@@ -1,5 +1,17 @@
 <template>
-  <div id="map" ref="mapContainer" class="h-100 w-100"></div>
+  <div id="map-container" class="h-100 w-100 position-relative">
+    <!-- 底圖切換控制 -->
+    <div class="basemap-control">
+      <select v-model="selectedBasemap" @change="changeBasemap" class="form-select form-select-sm">
+        <option value="osm">OpenStreetMap</option>
+        <option value="satellite">衛星圖</option>
+        <option value="terrain">地形圖</option>
+        <option value="dark">深色模式</option>
+      </select>
+    </div>
+    
+    <div id="map" ref="mapContainer" class="h-100 w-100"></div>
+  </div>
 </template>
 
 <script>
@@ -70,6 +82,60 @@ export default {
     let layer1Markers = []
     let layer2Polygons = []
     let tainanLayer = null
+    let currentTileLayer = null
+    
+    // 底圖選擇
+    const selectedBasemap = ref('osm')
+    
+    // 底圖配置
+    const basemaps = {
+      osm: {
+        url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        options: {
+          maxZoom: 18,
+          attribution: '© OpenStreetMap contributors'
+        }
+      },
+      satellite: {
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        options: {
+          maxZoom: 18,
+          attribution: '© Esri, Maxar, Earthstar Geographics'
+        }
+      },
+      terrain: {
+        url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+        options: {
+          maxZoom: 17,
+          attribution: '© OpenTopoMap contributors'
+        }
+      },
+      dark: {
+        url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+        options: {
+          maxZoom: 18,
+          attribution: '© CartoDB contributors'
+        }
+      }
+    }
+
+    /**
+     * 切換底圖
+     */
+    const changeBasemap = () => {
+      if (map && currentTileLayer) {
+        map.removeLayer(currentTileLayer)
+      }
+      
+      const basemap = basemaps[selectedBasemap.value]
+      currentTileLayer = L.tileLayer(basemap.url, basemap.options)
+      
+      if (map) {
+        currentTileLayer.addTo(map)
+      }
+      
+      console.log(`底圖已切換至: ${selectedBasemap.value}`)
+    }
 
     /**
      * 根據數量值獲取徽章樣式類別
@@ -346,11 +412,9 @@ export default {
       // 創建地圖實例（以台北為初始中心）
       map = L.map(mapContainer.value).setView([25.0330, 121.5654], 10)
 
-      // 添加OpenStreetMap圖層
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 18,
-        attribution: '© OpenStreetMap contributors'
-      }).addTo(map)
+      // 添加初始底圖
+      const basemap = basemaps[selectedBasemap.value]
+      currentTileLayer = L.tileLayer(basemap.url, basemap.options).addTo(map)
 
       // 創建初始圖層
       createLayer1Markers()
@@ -489,6 +553,8 @@ export default {
     // 暴露給父組件的方法
     return {
       mapContainer,
+      selectedBasemap,
+      changeBasemap,
       invalidateSize,
       fitToTainanBounds,
       highlightFeature,
@@ -501,9 +567,28 @@ export default {
 <style scoped>
 /* 地圖容器樣式 */
 #map {
-  border-radius: 0.5rem;
+  border: none;
   overflow: hidden;
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* 底圖切換控制器 */
+.basemap-control {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
+}
+
+.basemap-control select {
+  border: none;
+  background: transparent;
+  font-size: 0.875rem;
+  min-width: 120px;
 }
 
 /* 自定義tooltip樣式 */

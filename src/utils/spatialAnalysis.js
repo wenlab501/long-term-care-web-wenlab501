@@ -625,4 +625,497 @@ export function testCoordinateTransformation() {
 if (typeof window !== 'undefined') {
   console.log('🌐 座標轉換模組已載入，執行測試...')
   setTimeout(testCoordinateTransformation, 1000)
+}
+
+/**
+ * 計算完整的 Moran's I 空間自相關分析
+ * @param {Array} points - 點數據 [{lng, lat, value}, ...]
+ * @param {number} k - K最近鄰數量
+ * @returns {Object} Moran's I 分析結果
+ */
+export function calculateCompleteMoransI(points, k = 8) {
+  try {
+    console.log(`🔍 開始計算完整 Moran's I 分析 (K=${k})`)
+    
+    if (!points || points.length < 3) {
+      throw new Error('至少需要3個數據點進行Moran\'s I分析')
+    }
+
+    // 1. 建立空間權重矩陣
+    const spatialWeights = buildSpatialWeights(points, k)
+    
+    // 2. 計算全域 Moran's I
+    const globalMoransI = calculateGlobalMoransI(points, spatialWeights)
+    
+    // 3. 計算局部 Moran's I (LISA)
+    const localMoransI = calculateLocalMoransI(points, k)
+    
+    // 4. 分析空間聚集模式
+    const clusterAnalysis = analyzeSpatialClusters(localMoransI, globalMoransI.expectedI)
+    
+    // 5. 計算統計顯著性
+    const significance = calculateMoransISignificance(globalMoransI)
+    
+    const result = {
+      global: {
+        ...globalMoransI,
+        significance,
+        interpretation: interpretMoransI(globalMoransI.observedI, significance)
+      },
+      local: localMoransI,
+      clusters: clusterAnalysis,
+      summary: {
+        totalPoints: points.length,
+        kNeighbors: k,
+        spatialAutocorrelation: globalMoransI.observedI > globalMoransI.expectedI ? 'positive' : 'negative',
+        significantClusters: clusterAnalysis.significantClusters,
+        hotspots: clusterAnalysis.hotspots,
+        coldspots: clusterAnalysis.coldspots,
+        outliers: clusterAnalysis.outliers
+      }
+    }
+    
+    console.log('✅ Moran\'s I 分析完成:', result.summary)
+    return result
+    
+  } catch (error) {
+    console.error('❌ Moran\'s I 分析失敗:', error)
+    throw error
+  }
+}
+
+/**
+ * 建立空間權重矩陣
+ * @param {Array} points - 點數據
+ * @param {number} k - K最近鄰數量
+ * @returns {Array} 權重矩陣
+ */
+function buildSpatialWeights(points, k) {
+  const n = points.length
+  const weights = Array(n).fill(null).map(() => Array(n).fill(0))
+  
+  for (let i = 0; i < n; i++) {
+    // 計算與所有其他點的距離
+    const distances = []
+    for (let j = 0; j < n; j++) {
+      if (i !== j) {
+        const dist = calculateDistance(points[i], points[j])
+        distances.push({ index: j, distance: dist })
+      }
+    }
+    
+    // 排序並選擇K個最近鄰
+    distances.sort((a, b) => a.distance - b.distance)
+    const kNearest = distances.slice(0, Math.min(k, distances.length))
+    
+    // 設定權重（使用行標準化）
+    const totalWeight = kNearest.length
+    for (const neighbor of kNearest) {
+      weights[i][neighbor.index] = 1 / totalWeight
+    }
+  }
+  
+  return weights
+}
+
+/**
+ * 計算全域 Moran's I
+ * @param {Array} points - 點數據
+ * @param {Array} weights - 權重矩陣
+ * @returns {Object} 全域 Moran's I 結果
+ */
+function calculateGlobalMoransI(points, weights) {
+  const n = points.length
+  const values = points.map(p => p.value)
+  
+  // 計算平均值
+  const mean = values.reduce((sum, val) => sum + val, 0) / n
+  
+  // 計算分子 (numerator)
+  let numerator = 0
+  let totalWeight = 0
+  
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      if (i !== j && weights[i][j] > 0) {
+        numerator += weights[i][j] * (values[i] - mean) * (values[j] - mean)
+        totalWeight += weights[i][j]
+      }
+    }
+  }
+  
+  // 計算分母 (denominator)
+  const denominator = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0)
+  
+  // 計算觀測值 Moran's I
+  const observedI = totalWeight > 0 ? (n / totalWeight) * (numerator / denominator) : 0
+  
+  // 計算期望值 Moran's I
+  const expectedI = -1 / (n - 1)
+  
+  // 計算變異數（簡化版）
+  const variance = calculateMoransIVariance(n, totalWeight)
+  
+  return {
+    observedI,
+    expectedI,
+    variance,
+    zScore: (observedI - expectedI) / Math.sqrt(variance),
+    numerator,
+    denominator: denominator / n,
+    totalWeight
+  }
+}
+
+/**
+ * 計算 Moran's I 變異數
+ * @param {number} n - 樣本數
+ * @param {number} totalWeight - 總權重
+ * @returns {number} 變異數
+ */
+function calculateMoransIVariance(n, totalWeight) {
+  // 簡化的變異數計算
+  const s1 = totalWeight * 2 // 權重平方和
+  const s2 = totalWeight // 權重和的平方
+  
+  const b2 = n * n / ((n - 1) * (n - 2) * (n - 3))
+  const expectedI = -1 / (n - 1)
+  
+  const variance = (n * ((n * n - 3 * n + 3) * s1 - n * s2 + 3 * totalWeight * totalWeight) - 
+                   b2 * ((n * n - n) * s1 - 2 * n * s2 + 6 * totalWeight * totalWeight)) / 
+                   ((n - 1) * (n - 2) * (n - 3) * totalWeight * totalWeight) - expectedI * expectedI
+  
+  return Math.max(variance, 1e-10) // 避免負變異數
+}
+
+/**
+ * 分析空間聚集模式
+ * @param {Array} localResults - 局部 Moran's I 結果
+ * @param {number} expectedI - 期望值
+ * @returns {Object} 聚集分析結果
+ */
+function analyzeSpatialClusters(localResults, expectedI) {
+  const hotspots = [] // 高-高聚集
+  const coldspots = [] // 低-低聚集
+  const outliers = [] // 空間異常值
+  const significantClusters = []
+  
+  localResults.forEach((result, index) => {
+    const { localMoransI, pValue, value, spatialLag } = result
+    
+    // 判斷顯著性 (p < 0.05)
+    const isSignificant = pValue < 0.05
+    
+    if (isSignificant) {
+      significantClusters.push(index)
+      
+      if (localMoransI > expectedI) {
+        // 正空間自相關
+        if (value > 0 && spatialLag > 0) {
+          hotspots.push(index) // 高-高聚集
+        } else if (value < 0 && spatialLag < 0) {
+          coldspots.push(index) // 低-低聚集
+        }
+      } else {
+        // 負空間自相關（異常值）
+        outliers.push(index)
+      }
+    }
+  })
+  
+  return {
+    hotspots,
+    coldspots,
+    outliers,
+    significantClusters,
+    summary: {
+      significantClusters: significantClusters.length,
+      hotspots: hotspots.length,
+      coldspots: coldspots.length,
+      outliers: outliers.length,
+      totalPoints: localResults.length
+    }
+  }
+}
+
+/**
+ * 計算 Moran's I 統計顯著性
+ * @param {Object} globalResult - 全域 Moran's I 結果
+ * @returns {Object} 顯著性結果
+ */
+function calculateMoransISignificance(globalResult) {
+  const { zScore } = globalResult
+  
+  // 計算 p 值 (雙尾檢定)
+  const pValue = 2 * (1 - normalCDF(Math.abs(zScore)))
+  
+  // 判斷顯著性水準
+  let significance = 'not significant'
+  if (pValue < 0.001) significance = 'highly significant (p < 0.001)'
+  else if (pValue < 0.01) significance = 'very significant (p < 0.01)'
+  else if (pValue < 0.05) significance = 'significant (p < 0.05)'
+  else if (pValue < 0.1) significance = 'marginally significant (p < 0.1)'
+  
+  return {
+    pValue,
+    zScore,
+    significance,
+    isSignificant: pValue < 0.05,
+    confidenceLevel: (1 - pValue) * 100
+  }
+}
+
+/**
+ * 解釋 Moran's I 結果
+ * @param {number} observedI - 觀測值
+ * @param {Object} significance - 顯著性結果
+ * @returns {string} 解釋文字
+ */
+function interpretMoransI(observedI, significance) {
+  const { isSignificant } = significance
+  
+  if (!isSignificant) {
+    return '無顯著空間自相關性，數據呈現隨機分布模式'
+  }
+  
+  if (observedI > 0) {
+    if (observedI > 0.3) return '強正向空間自相關，數據呈現明顯聚集模式'
+    else if (observedI > 0.1) return '中等正向空間自相關，數據呈現聚集傾向'
+    else return '弱正向空間自相關，數據有輕微聚集特徵'
+  } else {
+    if (observedI < -0.3) return '強負向空間自相關，數據呈現明顯分散模式'
+    else if (observedI < -0.1) return '中等負向空間自相關，數據呈現分散傾向'
+    else return '弱負向空間自相關，數據有輕微分散特徵'
+  }
+}
+
+/**
+ * 標準常態分佈累積分佈函數 (CDF)
+ * @param {number} x - 輸入值
+ * @returns {number} 累積機率
+ */
+function normalCDF(x) {
+  return 0.5 * (1 + erf(x / Math.sqrt(2)))
+}
+
+/**
+ * 誤差函數近似
+ * @param {number} x - 輸入值
+ * @returns {number} 誤差函數值
+ */
+function erf(x) {
+  // Abramowitz and Stegun approximation
+  const a1 = 0.254829592
+  const a2 = -0.284496736
+  const a3 = 1.421413741
+  const a4 = -1.453152027
+  const a5 = 1.061405429
+  const p = 0.3275911
+  
+  const sign = x >= 0 ? 1 : -1
+  x = Math.abs(x)
+  
+  const t = 1.0 / (1.0 + p * x)
+  const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x)
+  
+  return sign * y
+}
+
+/**
+ * 執行完整的空間分析套件
+ * @param {Array} points - 點數據
+ * @param {Object} options - 分析選項
+ * @returns {Object} 完整分析結果
+ */
+export function performCompleteSpatialAnalysis(points, options = {}) {
+  const {
+    kNeighbors = 8,
+    includeKNN = true,
+    includeMoransI = true,
+    includeClusters = true,
+    includeHotspots = true
+  } = options
+  
+  console.log('🚀 開始執行完整空間分析')
+  console.log(`📊 分析參數: K=${kNeighbors}, 點數=${points.length}`)
+  
+  const results = {
+    metadata: {
+      analysisDate: new Date().toISOString(),
+      pointCount: points.length,
+      kNeighbors,
+      analysisOptions: options
+    }
+  }
+  
+  try {
+    // 1. K最近鄰分析
+    if (includeKNN) {
+      const coords = points.map(p => [p.lng, p.lat])
+      results.knn = {
+        results: calculateAllKNearestNeighbors(coords, kNeighbors),
+        summary: summarizeKNNResults(coords, kNeighbors)
+      }
+    }
+    
+    // 2. Moran's I 空間自相關分析
+    if (includeMoransI) {
+      results.moransI = calculateCompleteMoransI(points, kNeighbors)
+    }
+    
+    // 3. 空間聚集檢測
+    if (includeClusters) {
+      results.clusters = detectSpatialClusters(points, kNeighbors, 0.5)
+    }
+    
+    // 4. 熱點分析
+    if (includeHotspots) {
+      results.hotspots = detectHotspots(points, kNeighbors)
+    }
+    
+    // 5. 生成綜合報告
+    results.report = generateSpatialAnalysisReport(results)
+    
+    console.log('✅ 完整空間分析完成')
+    return results
+    
+  } catch (error) {
+    console.error('❌ 空間分析失敗:', error)
+    throw error
+  }
+}
+
+/**
+ * K最近鄰結果摘要
+ * @param {Array} coords - 座標陣列
+ * @param {number} k - K值
+ * @returns {Object} 摘要統計
+ */
+function summarizeKNNResults(coords, k) {
+  const knnResults = calculateAllKNearestNeighbors(coords, k)
+  const allDistances = knnResults.flatMap(result => 
+    result.neighbors.map(neighbor => neighbor.distance)
+  )
+  
+  return {
+    totalPoints: coords.length,
+    kValue: k,
+    averageDistance: allDistances.reduce((sum, d) => sum + d, 0) / allDistances.length,
+    minDistance: Math.min(...allDistances),
+    maxDistance: Math.max(...allDistances),
+    standardDeviation: calculateStandardDeviation(allDistances)
+  }
+}
+
+/**
+ * 熱點檢測 (Getis-Ord Gi*)
+ * @param {Array} points - 點數據
+ * @param {number} k - K最近鄰數量
+ * @returns {Array} 熱點分析結果
+ */
+function detectHotspots(points, k) {
+  const results = []
+  
+  for (let i = 0; i < points.length; i++) {
+    const coords = points.map(p => [p.lng, p.lat])
+    const neighbors = calculateKNearestNeighbors(coords, i, k)
+    
+    // 計算局部統計量
+    const neighborValues = neighbors.map(neighbor => points[neighbor.index].value)
+    const localSum = neighborValues.reduce((sum, val) => sum + val, 0)
+    const localMean = localSum / neighborValues.length
+    
+    // 計算 Z 分數
+    const globalMean = points.reduce((sum, p) => sum + p.value, 0) / points.length
+    const globalStd = calculateStandardDeviation(points.map(p => p.value))
+    
+    const zScore = (localMean - globalMean) / (globalStd / Math.sqrt(neighborValues.length))
+    
+    results.push({
+      index: i,
+      point: points[i],
+      localMean,
+      zScore,
+      pValue: 2 * (1 - normalCDF(Math.abs(zScore))),
+      type: zScore > 1.96 ? 'hotspot' : zScore < -1.96 ? 'coldspot' : 'neutral'
+    })
+  }
+  
+  return results
+}
+
+/**
+ * 生成空間分析報告
+ * @param {Object} results - 分析結果
+ * @returns {Object} 分析報告
+ */
+function generateSpatialAnalysisReport(results) {
+  const report = {
+    executiveSummary: [],
+    keyFindings: [],
+    recommendations: [],
+    technicalDetails: {}
+  }
+  
+  // Moran's I 報告
+  if (results.moransI) {
+    const { global, summary } = results.moransI
+    report.keyFindings.push({
+      type: 'spatial_autocorrelation',
+      title: '空間自相關性分析',
+      value: global.observedI.toFixed(4),
+      interpretation: global.interpretation,
+      significance: global.significance.significance
+    })
+    
+    if (summary.hotspots > 0) {
+      report.keyFindings.push({
+        type: 'hotspots',
+        title: '熱點區域檢測',
+        value: summary.hotspots,
+        description: `發現 ${summary.hotspots} 個顯著熱點區域`
+      })
+    }
+    
+    if (summary.coldspots > 0) {
+      report.keyFindings.push({
+        type: 'coldspots',
+        title: '冷點區域檢測',
+        value: summary.coldspots,
+        description: `發現 ${summary.coldspots} 個顯著冷點區域`
+      })
+    }
+  }
+  
+  // K最近鄰報告
+  if (results.knn) {
+    const { summary } = results.knn
+    report.technicalDetails.nearestNeighbor = {
+      averageDistance: summary.averageDistance.toFixed(2) + ' km',
+      kValue: summary.kValue,
+      totalPoints: summary.totalPoints
+    }
+  }
+  
+  // 綜合建議
+  if (results.moransI && results.moransI.global.significance.isSignificant) {
+    if (results.moransI.global.observedI > 0) {
+      report.recommendations.push('數據呈現空間聚集模式，建議進行熱點分析以識別重點區域')
+    } else {
+      report.recommendations.push('數據呈現空間分散模式，建議檢查數據分布的均勻性')
+    }
+  }
+  
+  return report
+}
+
+/**
+ * 計算標準差
+ * @param {Array} values - 數值陣列
+ * @returns {number} 標準差
+ */
+function calculateStandardDeviation(values) {
+  const mean = values.reduce((sum, val) => sum + val, 0) / values.length
+  const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length
+  return Math.sqrt(variance)
 } 
