@@ -1,0 +1,201 @@
+/**
+ * 🎨 主題顏色配置文件 (Theme Colors Configuration)
+ * 
+ * 用途說明：
+ * - 統一管理整個系統的顏色變數
+ * - 方便進行主題切換和顏色調整
+ * - 提供字體大小的統一配置
+ * - 支援暗色/亮色主題
+ */
+
+/* =============================================================================
+   🎯 基礎顏色變數 (Base Color Variables)
+   ============================================================================= */
+
+:root {
+  /* 📌 主要品牌色彩 (Primary Brand Colors) */
+  --primary-color: #007bff;           /* 主要藍色 */
+  --primary-hover: #0056b3;           /* 主要藍色懸停 */
+  --primary-light: #e3f2fd;          /* 主要藍色淺色 */
+  --primary-dark: #003c71;           /* 主要藍色深色 */
+  
+  /* 📌 次要色彩 (Secondary Colors) */
+  --secondary-color: #6c757d;        /* 次要灰色 */
+  --secondary-hover: #545b62;        /* 次要灰色懸停 */
+  --secondary-light: #f8f9fa;        /* 次要灰色淺色 */
+  --secondary-dark: #343a40;         /* 次要灰色深色 */
+  
+  /* 📌 成功/錯誤/警告色彩 (Status Colors) */
+  --success-color: #28a745;          /* 成功綠色 */
+  --success-hover: #218838;          /* 成功綠色懸停 */
+  --success-light: #d4edda;          /* 成功綠色淺色 */
+  
+  --danger-color: #dc3545;           /* 錯誤紅色 */
+  --danger-hover: #c82333;           /* 錯誤紅色懸停 */
+  --danger-light: #f8d7da;           /* 錯誤紅色淺色 */
+  
+  --warning-color: #ffc107;          /* 警告黃色 */
+  --warning-hover: #e0a800;          /* 警告黃色懸停 */
+  --warning-light: #fff3cd;          /* 警告黃色淺色 */
+  
+  --info-color: #17a2b8;             /* 資訊青色 */
+  --info-hover: #138496;             /* 資訊青色懸停 */
+  --info-light: #d1ecf1;             /* 資訊青色淺色 */
+  
+  /* 📌 背景色彩 (Background Colors) */
+  --bg-primary: #ffffff;             /* 主要背景 */
+  --bg-secondary: #f8f9fa;           /* 次要背景 */
+  --bg-tertiary: #e9ecef;            /* 第三背景 */
+  --bg-dark: #212529;                /* 深色背景 */
+  --bg-light: #f8f9fa;               /* 淺色背景 */
+  
+  /* 📌 文字色彩 (Text Colors) */
+  --text-primary: #212529;           /* 主要文字 */
+  --text-secondary: #6c757d;         /* 次要文字 */
+  --text-muted: #6c757d;             /* 淡化文字 */
+  --text-light: #ffffff;             /* 淺色文字 */
+  --text-dark: #212529;              /* 深色文字 */
+  
+  /* 📌 邊框色彩 (Border Colors) */
+  --border-color: #dee2e6;           /* 主要邊框 */
+  --border-light: #e9ecef;           /* 淺色邊框 */
+  --border-dark: #adb5bd;            /* 深色邊框 */
+  
+  /* 📌 面板相關色彩 (Panel Colors) */
+  --panel-bg: #ffffff;               /* 面板背景 */
+  --panel-border: #dee2e6;           /* 面板邊框 */
+  --panel-shadow: rgba(0,0,0,0.1);   /* 面板陰影 */
+  --panel-hover: #f8f9fa;            /* 面板懸停 */
+  
+  /* 📌 按鈕色彩 (Button Colors) */
+  --btn-bg: #007bff;                 /* 按鈕背景 */
+  --btn-hover: #0056b3;              /* 按鈕懸停 */
+  --btn-active: #004085;             /* 按鈕激活 */
+  --btn-disabled: #6c757d;           /* 按鈕禁用 */
+  
+  /* 📌 輸入框色彩 (Input Colors) */
+  --input-bg: #ffffff;               /* 輸入框背景 */
+  --input-border: #ced4da;           /* 輸入框邊框 */
+  --input-focus: #80bdff;            /* 輸入框焦點 */
+  --input-placeholder: #6c757d;      /* 輸入框佔位符 */
+  
+  /* 📌 地圖相關色彩 (Map Colors) */
+  --map-bg: #f0f0f0;                 /* 地圖背景 */
+  --map-border: #ddd;                /* 地圖邊框 */
+  --marker-primary: #007bff;         /* 主要標記 */
+  --marker-secondary: #28a745;       /* 次要標記 */
+  --marker-highlight: #ffc107;       /* 高亮標記 */
+  
+  /* 📌 拖拉調整器色彩 (Resizer Colors) */
+  --resizer-bg: #dee2e6;             /* 調整器背景 */
+  --resizer-hover: #007bff;          /* 調整器懸停 */
+  --resizer-active: #0056b3;         /* 調整器激活 */
+}
+
+/* =============================================================================
+   📝 字體大小變數 (Font Size Variables)
+   ============================================================================= */
+
+:root {
+  /* 📌 標題字體大小 (Heading Font Sizes) */
+  --font-size-h1: 2.5rem;            /* 40px */
+  --font-size-h2: 2rem;              /* 32px */
+  --font-size-h3: 1.75rem;           /* 28px */
+  --font-size-h4: 1.5rem;            /* 24px */
+  --font-size-h5: 1.25rem;           /* 20px */
+  --font-size-h6: 1rem;              /* 16px */
+  
+  /* 📌 內文字體大小 (Body Font Sizes) */
+  --font-size-base: 1rem;            /* 16px 基準大小 */
+  --font-size-large: 1.125rem;       /* 18px 大字體 */
+  --font-size-small: 0.875rem;       /* 14px 小字體 */
+  --font-size-xs: 0.75rem;           /* 12px 極小字體 */
+  
+  /* 📌 按鈕字體大小 (Button Font Sizes) */
+  --font-size-btn-lg: 1.125rem;      /* 大按鈕 */
+  --font-size-btn: 1rem;             /* 普通按鈕 */
+  --font-size-btn-sm: 0.875rem;      /* 小按鈕 */
+  
+  /* 📌 輸入框字體大小 (Input Font Sizes) */
+  --font-size-input-lg: 1.125rem;    /* 大輸入框 */
+  --font-size-input: 1rem;           /* 普通輸入框 */
+  --font-size-input-sm: 0.875rem;    /* 小輸入框 */
+  
+  /* 📌 標籤和提示文字 (Label & Hint Font Sizes) */
+  --font-size-label: 0.875rem;       /* 標籤文字 */
+  --font-size-hint: 0.75rem;         /* 提示文字 */
+  --font-size-caption: 0.75rem;      /* 說明文字 */
+}
+
+/* =============================================================================
+   🌙 暗色主題 (Dark Theme)
+   ============================================================================= */
+
+[data-theme="dark"] {
+  /* 📌 重新定義暗色主題的顏色變數 */
+  --bg-primary: #1a1a1a;             /* 暗色主要背景 */
+  --bg-secondary: #2d2d2d;           /* 暗色次要背景 */
+  --bg-tertiary: #404040;            /* 暗色第三背景 */
+  
+  --text-primary: #ffffff;           /* 暗色主要文字 */
+  --text-secondary: #b0b0b0;         /* 暗色次要文字 */
+  --text-muted: #808080;             /* 暗色淡化文字 */
+  
+  --border-color: #404040;           /* 暗色邊框 */
+  --border-light: #2d2d2d;          /* 暗色淺邊框 */
+  --border-dark: #666666;            /* 暗色深邊框 */
+  
+  --panel-bg: #2d2d2d;               /* 暗色面板背景 */
+  --panel-border: #404040;           /* 暗色面板邊框 */
+  --panel-shadow: rgba(0,0,0,0.5);   /* 暗色面板陰影 */
+  --panel-hover: #404040;            /* 暗色面板懸停 */
+  
+  --input-bg: #2d2d2d;               /* 暗色輸入框背景 */
+  --input-border: #404040;           /* 暗色輸入框邊框 */
+  
+  --map-bg: #1a1a1a;                 /* 暗色地圖背景 */
+  --map-border: #404040;             /* 暗色地圖邊框 */
+}
+
+/* =============================================================================
+   🎨 色彩工具類別 (Color Utility Classes)
+   ============================================================================= */
+
+/* 📌 背景色彩類別 */
+.bg-theme-primary { background-color: var(--bg-primary) !important; }
+.bg-theme-secondary { background-color: var(--bg-secondary) !important; }
+.bg-theme-tertiary { background-color: var(--bg-tertiary) !important; }
+
+/* 📌 文字色彩類別 */
+.text-theme-primary { color: var(--text-primary) !important; }
+.text-theme-secondary { color: var(--text-secondary) !important; }
+.text-theme-muted { color: var(--text-muted) !important; }
+
+/* 📌 邊框色彩類別 */
+.border-theme { border-color: var(--border-color) !important; }
+.border-theme-light { border-color: var(--border-light) !important; }
+.border-theme-dark { border-color: var(--border-dark) !important; }
+
+/* =============================================================================
+   📝 字體大小工具類別 (Font Size Utility Classes)
+   ============================================================================= */
+
+.fs-h1 { font-size: var(--font-size-h1); }
+.fs-h2 { font-size: var(--font-size-h2); }
+.fs-h3 { font-size: var(--font-size-h3); }
+.fs-h4 { font-size: var(--font-size-h4); }
+.fs-h5 { font-size: var(--font-size-h5); }
+.fs-h6 { font-size: var(--font-size-h6); }
+
+.fs-base { font-size: var(--font-size-base); }
+.fs-large { font-size: var(--font-size-large); }
+.fs-small { font-size: var(--font-size-small); }
+.fs-xs { font-size: var(--font-size-xs); }
+
+.fs-btn-lg { font-size: var(--font-size-btn-lg); }
+.fs-btn { font-size: var(--font-size-btn); }
+.fs-btn-sm { font-size: var(--font-size-btn-sm); }
+
+.fs-label { font-size: var(--font-size-label); }
+.fs-hint { font-size: var(--font-size-hint); }
+.fs-caption { font-size: var(--font-size-caption); } 

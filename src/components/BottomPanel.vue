@@ -44,8 +44,6 @@
           :currentCoords="currentCoords"
           :bottomPanelHeight="bottomPanelHeight"
           :isLoadingData="isLoadingData"
-          :showLayer1="showLayer1"
-          :showLayer2="showLayer2"
           :showTainanLayer="showTainanLayer"
           :selectedColorScheme="selectedColorScheme"
           :maxCount="maxCount"
@@ -114,14 +112,6 @@ export default {
       default: false
     },
     // 圖層狀態
-    showLayer1: {
-      type: Boolean,
-      default: false
-    },
-    showLayer2: {
-      type: Boolean,
-      default: false
-    },
     showTainanLayer: {
       type: Boolean,
       default: false

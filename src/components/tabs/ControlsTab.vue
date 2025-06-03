@@ -56,7 +56,7 @@
       </div>
     </div>
 
-    <!-- 圖層狀態卡片 -->
+    <!-- 📊 圖層狀態卡片 (Layer Status Card) -->
     <div class="row mb-4">
       <div class="col-12">
         <div class="card bg-dark text-white">
@@ -66,20 +66,8 @@
             </h6>
           </div>
           <div class="card-body">
-            <div class="row">
-              <div class="col-md-4">
-                <LayerStatusIndicator 
-                  :isActive="showLayer1"
-                  label="商店標記"
-                  icon="store" />
-              </div>
-              <div class="col-md-4">
-                <LayerStatusIndicator 
-                  :isActive="showLayer2"
-                  label="熱點區域"
-                  icon="fire" />
-              </div>
-              <div class="col-md-4">
+            <div class="row justify-content-center">
+              <div class="col-md-6">
                 <LayerStatusIndicator 
                   :isActive="showTainanLayer"
                   label="台南市區域"
@@ -170,14 +158,6 @@ export default {
       type: Boolean,
       default: false
     },
-    showLayer1: {
-      type: Boolean,
-      default: false
-    },
-    showLayer2: {
-      type: Boolean,
-      default: false
-    },
     showTainanLayer: {
       type: Boolean,
       default: false
@@ -211,8 +191,6 @@ export default {
      */
     const getActiveLayersCount = () => {
       let count = 0
-      if (props.showLayer1) count++
-      if (props.showLayer2) count++
       if (props.showTainanLayer) count++
       return count
     }

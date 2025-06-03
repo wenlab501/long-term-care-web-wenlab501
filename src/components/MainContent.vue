@@ -1,6 +1,6 @@
 <template>
-  <div class="d-flex flex-column" :style="{ width: mainPanelWidth + 'px' }">
-    <!-- Tab Navigation -->
+  <div class="d-flex flex-column h-100">
+    <!-- 📑 標籤導航 (Tab Navigation) -->
     <div class="bg-white border-bottom">
       <ul class="nav nav-tabs">
         <li class="nav-item">
@@ -16,16 +16,15 @@
       </ul>
     </div>
 
-    <!-- Tab Content -->
+    <!-- 📱 標籤內容 (Tab Content) -->
     <div class="flex-grow-1" :style="{ height: contentHeight + 'px' }">
-      <!-- Map Tab -->
+      <!-- 🗺️ 地圖標籤 (Map Tab) -->
       <div v-show="activeTab === 'map'" class="h-100">
         <MapView 
           ref="mapView"
-          :showLayer1="showLayer1"
-          :showLayer2="showLayer2"
           :showTainanLayer="showTainanLayer"
           :selectedFilter="selectedFilter"
+          :selectedColorScheme="selectedColorScheme"
           :zoomLevel="zoomLevel"
           :tainanGeoJSONData="tainanGeoJSONData"
           :maxCount="maxCount"
@@ -34,7 +33,7 @@
           @update:activeMarkers="$emit('update:activeMarkers', $event)" />
       </div>
       
-      <!-- Dashboard Tab -->
+      <!-- 📊 儀表板標籤 (Dashboard Tab) -->
       <div v-show="activeTab === 'dashboard'" class="h-100">
         <DashboardView 
           ref="dashboardView"
@@ -49,81 +48,197 @@
 </template>
 
 <script>
+/**
+ * 🏠 MainContent.vue - 主要內容區域組件
+ * 
+ * 功能說明：
+ * 1. 📑 提供地圖和儀表板的標籤切換
+ * 2. 🗺️ 管理地圖視圖組件
+ * 3. 📊 管理儀表板視圖組件
+ * 4. 📏 響應面板大小變化
+ */
 import { ref, watch, nextTick } from 'vue'
 import MapView from './MapView.vue'
 import DashboardView from './DashboardView.vue'
 
 export default {
   name: 'MainContent',
+  
+  /**
+   * 🧩 組件註冊 (Component Registration)
+   */
   components: {
     MapView,
     DashboardView
   },
+  
+  /**
+   * 🔧 組件屬性定義 (Component Props)
+   */
   props: {
-    activeTab: String,
-    mainPanelWidth: Number,
-    contentHeight: Number,
-    showLayer1: Boolean,
-    showLayer2: Boolean,
-    showTainanLayer: Boolean,
-    selectedFilter: String,
-    zoomLevel: Number,
-    tainanGeoJSONData: Object,
-    maxCount: Number,
-    mergedTableData: Array,
-    averageCount: Number,
-    dataRegionsCount: Number
+    /** 📑 活躍的標籤 */
+    activeTab: {
+      type: String,
+      default: 'map',
+      required: true
+    },
+    
+    /** 📏 主面板寬度百分比 */
+    mainPanelWidth: {
+      type: Number,
+      default: 60,
+      required: true
+    },
+    
+    /** 📏 內容區域高度 */
+    contentHeight: {
+      type: Number,
+      default: 500,
+      required: true
+    },
+    
+    /** 🗺️ 台南圖層顯示狀態 */
+    showTainanLayer: {
+      type: Boolean,
+      default: false,
+      required: true
+    },
+    
+    /** 🔍 選擇的篩選條件 */
+    selectedFilter: {
+      type: String,
+      default: '',
+      required: true
+    },
+    
+    /** 🎨 選擇的色票方案 */
+    selectedColorScheme: {
+      type: String,
+      default: 'viridis',
+      required: true
+    },
+    
+    /** 🔍 地圖縮放級別 */
+    zoomLevel: {
+      type: Number,
+      default: 10,
+      required: true
+    },
+    
+    /** 📊 台南GeoJSON數據 */
+    tainanGeoJSONData: {
+      type: Object,
+      default: null
+    },
+    
+    /** 📊 最大計數值 */
+    maxCount: {
+      type: Number,
+      default: 0,
+      required: true
+    },
+    
+    /** 📋 合併的表格數據 */
+    mergedTableData: {
+      type: Array,
+      default: () => [],
+      required: true
+    },
+    
+    /** 📊 平均計數值 */
+    averageCount: {
+      type: Number,
+      default: 0,
+      required: true
+    },
+    
+    /** 📊 有數據的區域數量 */
+    dataRegionsCount: {
+      type: Number,
+      default: 0,
+      required: true
+    }
   },
+  
+  /**
+   * 📡 組件事件定義 (Component Events)
+   */
   emits: [
     'update:activeTab',
     'update:zoomLevel',
     'update:currentCoords',
     'update:activeMarkers'
   ],
+  
+  /**
+   * 🔧 組件設定函數 (Component Setup)
+   */
   setup(props) {
+    // 📚 組件引用 (Component References)
     const mapView = ref(null)
     const dashboardView = ref(null)
 
-    // Watch for tab changes and trigger appropriate actions
+    /**
+     * 👀 監聽標籤變化 (Watch Tab Changes)
+     * 當切換標籤時觸發相應的更新動作
+     */
     watch(() => props.activeTab, (newTab) => {
       nextTick(() => {
         if (newTab === 'map' && mapView.value) {
+          // 🗺️ 刷新地圖大小
           mapView.value.invalidateSize()
         } else if (newTab === 'dashboard' && dashboardView.value) {
+          // 📊 刷新圖表
           dashboardView.value.refreshCharts()
         }
       })
     })
 
-    // Watch for panel size changes
+    /**
+     * 👀 監聽面板大小變化 (Watch Panel Size Changes)
+     * 當面板大小變化時更新子組件
+     */
     watch([() => props.mainPanelWidth, () => props.contentHeight], () => {
       nextTick(() => {
         if (props.activeTab === 'map' && mapView.value) {
+          // 🗺️ 重新計算地圖大小
           mapView.value.invalidateSize()
         } else if (props.activeTab === 'dashboard' && dashboardView.value) {
+          // 📊 重新計算圖表大小
           dashboardView.value.refreshCharts()
         }
       })
     })
 
+    /**
+     * 🎯 高亮地圖上的特徵 (Highlight Feature on Map)
+     * @param {string} code2 - 行政區代碼
+     */
     const highlightFeature = (code2) => {
       if (mapView.value) {
         mapView.value.highlightFeature(code2)
       }
     }
 
+    /**
+     * 🔄 重置地圖視圖 (Reset Map View)
+     */
     const resetView = () => {
       if (mapView.value) {
         mapView.value.resetView()
       }
     }
 
+    /**
+     * 🗺️ 適應台南邊界 (Fit to Tainan Bounds)
+     */
     const fitToTainanBounds = () => {
       if (mapView.value) {
         mapView.value.fitToTainanBounds()
       }
     }
 
+    // 📤 返回數據和方法 (Return Data and Methods)
     return {
       mapView,
       dashboardView,
@@ -133,4 +248,42 @@ export default {
     }
   }
 }
-</script> 
+</script>
+
+<style scoped>
+/**
+ * 🎨 主要內容區域樣式 (Main Content Styles)
+ */
+
+/* 📑 標籤導航樣式 */
+.nav-tabs {
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--bg-secondary);
+}
+
+.nav-tabs .nav-link {
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+  padding: var(--spacing-3) var(--spacing-4);
+  transition: var(--transition-colors);
+}
+
+.nav-tabs .nav-link.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+  background-color: var(--bg-primary);
+}
+
+.nav-tabs .nav-link:hover {
+  color: var(--primary-hover);
+  border-bottom-color: var(--primary-hover);
+}
+
+/* 📱 內容區域樣式 */
+.flex-grow-1 {
+  overflow: hidden;
+}
+</style> 

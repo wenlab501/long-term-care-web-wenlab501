@@ -1,648 +1,756 @@
-@import './variables.css';
+/**
+ * 🎨 共用樣式表 (Common Styles)
+ * 
+ * 用途說明：
+ * - 提供全系統的基礎樣式定義
+ * - 整合Bootstrap和自定義主題
+ * - 定義面板佈局和拖拉調整功能
+ * - 提供響應式設計支援
+ */
+
+/* =============================================================================
+   📦 引入依賴 (Dependencies Import)
+   ============================================================================= */
+
+@import './variables.css';                    /* 基礎變數定義 */
+@import './theme-colors.css';                 /* 主題顏色配置 */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
 
-/* 基礎重置 */
+/* =============================================================================
+   🔧 基礎重置和全局設定 (Base Reset & Global Settings)
+   ============================================================================= */
+
 * {
-  box-sizing: border-box;
+  box-sizing: border-box;                     /* 統一盒模型 */
 }
 
 html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  font-family: var(--font-family-primary);
-  font-size: var(--font-size-base);
-  line-height: var(--line-height-normal);
-  color: var(--text-primary);
-  background-color: var(--bg-primary);
+  height: 100%;                               /* 全高度佈局 */
+  margin: 0;                                  /* 移除預設邊距 */
+  padding: 0;                                 /* 移除預設內距 */
+  font-family: var(--font-family-primary);    /* 使用主要字體 */
+  font-size: var(--font-size-base);          /* 基礎字體大小 */
+  line-height: var(--line-height-normal);    /* 行高設定 */
+  color: var(--text-primary);                /* 主要文字顏色 */
+  background-color: var(--bg-primary);       /* 主要背景顏色 */
 }
 
-/* 全局Layout */
+/* =============================================================================
+   🏗️ 應用程式佈局 (Application Layout)
+   ============================================================================= */
+
 #app {
-  height: 100vh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+  height: 100vh;                              /* 全螢幕高度 */
+  overflow: hidden;                           /* 防止滾動 */
+  display: flex;                              /* 彈性佈局 */
+  flex-direction: column;                     /* 垂直排列 */
 }
 
 .main-content {
-  flex: 1;
-  overflow: hidden;
+  flex: 1;                                    /* 佔用剩餘空間 */
+  overflow: hidden;                           /* 防止內容溢出 */
 }
 
 .main-content .container-fluid {
-  height: calc(100vh - 112px); /* 減去導航欄和footer高度 */
+  height: calc(100vh - 116px);                /* 計算可用高度（扣除導航欄56px+頁腳60px） */
 }
 
-/* Footer樣式 */
+/* =============================================================================
+   🦶 頁腳樣式 (Footer Styles)
+   ============================================================================= */
+
 .app-footer {
-  background-color: var(--bg-dark);
-  color: var(--text-on-dark);
-  padding: var(--spacing-4) 0;
-  text-align: center;
-  font-size: var(--font-size-sm);
-  border-top: 1px solid var(--border-normal);
+  background-color: var(--bg-dark);          /* 深色背景 */
+  color: var(--text-light);                  /* 淺色文字 */
+  padding: var(--spacing-4) 0;               /* 上下內距 */
+  text-align: center;                        /* 文字置中 */
+  font-size: var(--font-size-sm);            /* 小字體 */
+  border-top: 1px solid var(--border-color); /* 上邊框 */
+  min-height: 60px;                          /* 最小高度 */
+  display: flex;                             /* 彈性佈局 */
+  align-items: center;                       /* 垂直置中 */
+  justify-content: center;                   /* 水平置中 */
 }
 
 .app-footer a {
-  color: var(--text-on-dark);
-  text-decoration: none;
-  transition: var(--transition-colors);
+  color: var(--text-light);                  /* 連結顏色 */
+  text-decoration: none;                     /* 移除底線 */
+  transition: var(--transition-colors);      /* 顏色轉換效果 */
 }
 
 .app-footer a:hover {
-  color: var(--color-primary-300);
-  text-decoration: underline;
+  color: var(--primary-light);               /* 懸停時的顏色 */
+  text-decoration: underline;                /* 懸停時顯示底線 */
 }
 
-/* Loading 全屏樣式 */
+/* =============================================================================
+   ⏳ 載入覆蓋層樣式 (Loading Overlay Styles)
+   ============================================================================= */
+
 .loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: var(--bg-overlay-heavy);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: var(--z-index-loading);
+  position: fixed;                           /* 固定定位 */
+  top: 0;                                    /* 頂部對齊 */
+  left: 0;                                   /* 左側對齊 */
+  width: 100%;                               /* 全寬度 */
+  height: 100%;                              /* 全高度 */
+  background-color: var(--bg-overlay-heavy); /* 半透明背景 */
+  display: flex;                             /* 彈性佈局 */
+  align-items: center;                       /* 垂直置中 */
+  justify-content: center;                   /* 水平置中 */
+  z-index: var(--z-index-loading);          /* 最高層級 */
+  backdrop-filter: blur(2px);               /* 背景模糊效果 */
 }
 
 .loading-content {
-  text-align: center;
-  color: var(--text-on-dark);
+  text-align: center;                        /* 文字置中 */
+  color: var(--text-light);                  /* 淺色文字 */
+  background-color: var(--panel-bg);         /* 面板背景 */
+  padding: var(--spacing-6);                 /* 內距 */
+  border-radius: var(--radius-lg);           /* 圓角 */
+  box-shadow: var(--shadow-lg);              /* 陰影效果 */
+  min-width: 300px;                          /* 最小寬度 */
 }
 
 .loading-spinner {
-  width: 3rem;
-  height: 3rem;
-  margin: 0 auto var(--spacing-4);
+  width: 3rem;                               /* 旋轉器寬度 */
+  height: 3rem;                              /* 旋轉器高度 */
+  margin: 0 auto var(--spacing-4);           /* 置中並設定下邊距 */
 }
 
 .loading-text {
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-xl);            /* 載入文字大小 */
+  font-weight: var(--font-weight-medium);    /* 中等字重 */
+  color: var(--text-primary);               /* 主要文字顏色 */
+  margin-bottom: var(--spacing-2);           /* 下邊距 */
 }
 
 .loading-progress {
-  width: 300px;
-  margin: var(--spacing-4) auto 0;
+  width: 300px;                              /* 進度條寬度 */
+  margin: var(--spacing-4) auto 0;           /* 置中並設定上邊距 */
 }
 
-/* Tab樣式增強 */
+.loading-subtext {
+  font-size: var(--font-size-small);         /* 小字體 */
+  color: var(--text-secondary);             /* 次要文字顏色 */
+  margin-top: var(--spacing-2);             /* 上邊距 */
+}
+
+/* =============================================================================
+   📑 分頁標籤樣式 (Tab Navigation Styles)
+   ============================================================================= */
+
+/* 標準分頁標籤 */
 .nav-tabs {
-  border-bottom: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light); /* 底部邊框 */
 }
 
 .nav-tabs .nav-link {
-  border: none;
-  border-bottom: 2px solid transparent;
-  color: var(--text-secondary);
-  background: none;
-  font-weight: var(--font-weight-medium);
-  padding: var(--spacing-3) var(--spacing-4);
-  transition: var(--transition-colors);
+  border: none;                              /* 移除預設邊框 */
+  border-bottom: 2px solid transparent;      /* 透明底部邊框 */
+  color: var(--text-secondary);             /* 次要文字顏色 */
+  background: none;                          /* 無背景 */
+  font-weight: var(--font-weight-medium);    /* 中等字重 */
+  padding: var(--spacing-3) var(--spacing-4); /* 內距設定 */
+  transition: var(--transition-colors);      /* 顏色轉換效果 */
+  font-size: var(--font-size-base);         /* 基礎字體大小 */
 }
 
 .nav-tabs .nav-link.active {
-  border-bottom-color: var(--color-primary-500);
-  color: var(--color-primary-600);
-  background-color: var(--color-primary-50);
+  border-bottom-color: var(--primary-color); /* 啟用狀態底部邊框 */
+  color: var(--primary-color);               /* 啟用狀態文字顏色 */
+  background-color: var(--primary-light);    /* 啟用狀態背景 */
 }
 
 .nav-tabs .nav-link:hover {
-  border-bottom-color: var(--color-primary-400);
-  color: var(--color-primary-600);
+  border-bottom-color: var(--primary-hover); /* 懸停狀態邊框 */
+  color: var(--primary-hover);               /* 懸停狀態文字 */
 }
 
-/* Dark tabs for bottom panel */
+/* 深色分頁標籤（底部面板使用） */
 .nav-dark .nav-link {
-  color: var(--text-on-dark) !important;
-  font-weight: var(--font-weight-medium);
-  padding: var(--spacing-3) var(--spacing-4);
-  transition: var(--transition-base);
+  color: var(--text-light) !important;       /* 淺色文字 */
+  font-weight: var(--font-weight-medium);    /* 中等字重 */
+  padding: var(--spacing-3) var(--spacing-4); /* 內距設定 */
+  transition: var(--transition-base);        /* 基礎轉換效果 */
 }
 
 .nav-dark .nav-link:hover {
-  color: var(--text-on-dark) !important;
-  background-color: var(--bg-overlay-light);
+  color: var(--text-light) !important;       /* 懸停時保持淺色 */
+  background-color: var(--bg-overlay-light); /* 淺色覆蓋背景 */
 }
 
 .nav-dark .nav-link.active {
-  color: var(--text-on-dark) !important;
-  background-color: var(--color-primary-600);
+  color: var(--text-light) !important;       /* 啟用狀態文字 */
+  background-color: var(--primary-color);    /* 啟用狀態背景 */
 }
 
-/* Right panel pills */
+/* 藥丸式分頁標籤（右側面板使用） */
 .nav-pills .nav-link {
-  font-size: var(--font-size-sm);
-  padding: var(--spacing-2) var(--spacing-4);
-  font-weight: var(--font-weight-medium);
-  border-radius: var(--radius-base);
-  transition: var(--transition-base);
+  font-size: var(--font-size-sm);            /* 小字體 */
+  padding: var(--spacing-2) var(--spacing-4); /* 內距設定 */
+  font-weight: var(--font-weight-medium);    /* 中等字重 */
+  border-radius: var(--radius-base);         /* 圓角 */
+  transition: var(--transition-base);        /* 基礎轉換效果 */
+  margin-bottom: var(--spacing-1);          /* 下邊距 */
 }
 
 .nav-pills .nav-link.active {
-  background-color: var(--color-primary-500);
-  color: var(--text-on-primary);
+  background-color: var(--primary-color);    /* 啟用狀態背景 */
+  color: var(--text-light);                 /* 啟用狀態文字 */
 }
 
-/* 表格增強樣式 */
+/* =============================================================================
+   📊 表格樣式增強 (Enhanced Table Styles)
+   ============================================================================= */
+
 .table-container {
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-lg);           /* 大圓角 */
+  overflow: hidden;                          /* 隱藏溢出 */
+  box-shadow: var(--shadow-md);              /* 中等陰影 */
+  background-color: var(--panel-bg);        /* 面板背景 */
 }
 
 .table-responsive {
-  border-radius: var(--radius-lg);
-  overflow-y: auto;
-  max-height: calc(100% - 60px);
+  border-radius: var(--radius-lg);           /* 大圓角 */
+  overflow-y: auto;                          /* 垂直滾動 */
+  max-height: calc(100% - 60px);             /* 最大高度（扣除搜尋區域） */
 }
 
 .table-dark {
-  --bs-table-bg: transparent;
-  margin-bottom: 0;
+  --bs-table-bg: transparent;                /* 透明背景 */
+  margin-bottom: 0;                          /* 移除下邊距 */
 }
 
 .table-dark th {
-  background-color: var(--color-gray-600);
-  border-color: var(--border-normal);
-  position: sticky;
-  top: 0;
-  z-index: var(--z-index-sticky);
-  font-weight: var(--font-weight-semibold);
-  text-transform: uppercase;
-  font-size: var(--font-size-xs);
-  letter-spacing: 0.5px;
+  background-color: var(--secondary-dark);   /* 表頭背景 */
+  border-color: var(--border-color);         /* 邊框顏色 */
+  position: sticky;                          /* 黏性定位 */
+  top: 0;                                    /* 頂部對齊 */
+  z-index: var(--z-index-sticky);           /* 層級設定 */
+  font-weight: var(--font-weight-semibold);  /* 半粗體 */
+  text-transform: uppercase;                 /* 大寫轉換 */
+  font-size: var(--font-size-xs);           /* 極小字體 */
+  letter-spacing: 0.5px;                    /* 字母間距 */
+  color: var(--text-light);                 /* 淺色文字 */
 }
 
 .table-dark th.sortable {
-  cursor: pointer;
-  user-select: none;
-  transition: var(--transition-base);
+  cursor: pointer;                           /* 指標游標 */
+  user-select: none;                         /* 禁止選取 */
+  transition: var(--transition-base);        /* 基礎轉換效果 */
 }
 
 .table-dark th.sortable:hover {
-  background-color: var(--color-gray-500);
+  background-color: var(--secondary-hover);  /* 懸停背景 */
 }
 
 .table-dark th.sortable i {
-  margin-left: var(--spacing-2);
-  font-size: var(--font-size-xs);
-  opacity: 0.7;
+  margin-left: var(--spacing-2);            /* 左邊距 */
+  font-size: var(--font-size-xs);           /* 極小字體 */
+  opacity: 0.7;                             /* 透明度 */
 }
 
 .table-dark th.sortable:hover i {
-  opacity: 1;
-}
-
-.table-dark td {
-  border-color: var(--border-normal);
-  vertical-align: middle;
-  font-size: var(--font-size-sm);
+  opacity: 1;                               /* 懸停時完全不透明 */
 }
 
 .table-striped > tbody > tr:nth-of-type(odd) > td {
-  background-color: var(--bg-overlay-light);
+  background-color: rgba(0,0,0,0.05);       /* 斑馬條紋背景 */
 }
 
 .table-dark tbody tr:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--bg-overlay-light); /* 行懸停背景 */
+  cursor: pointer;                           /* 指標游標 */
 }
 
-/* 搜尋框樣式 */
+/* =============================================================================
+   🔍 搜尋容器樣式 (Search Container Styles)
+   ============================================================================= */
+
 .search-container {
-  background-color: #495057;
-  padding: 0.75rem;
-  border-radius: 0.5rem 0.5rem 0 0;
+  padding: var(--spacing-3);                 /* 內距設定 */
+  background-color: var(--bg-secondary);    /* 次要背景 */
+  border-bottom: 1px solid var(--border-color); /* 底部邊框 */
 }
 
 .search-container input.form-control {
-  background-color: #6c757d;
-  border-color: #adb5bd;
-  color: white;
-  border-radius: 0.375rem;
+  background-color: var(--input-bg);        /* 輸入框背景 */
+  border-color: var(--input-border);        /* 輸入框邊框 */
+  color: var(--text-primary);               /* 文字顏色 */
+  font-size: var(--font-size-input);        /* 輸入框字體大小 */
 }
 
 .search-container input.form-control:focus {
-  background-color: #6c757d;
-  border-color: #007bff;
-  color: white;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  border-color: var(--input-focus);         /* 焦點邊框顏色 */
+  box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25); /* 焦點陰影 */
 }
 
 .search-container input.form-control::placeholder {
-  color: #adb5bd;
+  color: var(--input-placeholder);          /* 佔位符顏色 */
+  opacity: 0.8;                             /* 透明度 */
 }
 
-/* Badge增強樣式 */
+/* =============================================================================
+   🏷️ 徽章和標籤樣式 (Badge & Label Styles)
+   ============================================================================= */
+
 .badge {
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.375rem 0.75rem;
-  border-radius: 0.375rem;
+  font-size: var(--font-size-xs);           /* 極小字體 */
+  font-weight: var(--font-weight-medium);    /* 中等字重 */
+  padding: 0.25em 0.6em;                    /* 內距設定 */
+  border-radius: var(--radius-sm);          /* 小圓角 */
 }
 
 .badge-count {
-  font-family: 'Courier New', monospace;
-  font-weight: 700;
+  background-color: var(--primary-color);   /* 計數徽章背景 */
+  color: var(--text-light);                 /* 淺色文字 */
+  font-size: var(--font-size-caption);      /* 說明文字大小 */
 }
 
-/* 按鈕增強樣式 */
+/* =============================================================================
+   🔘 按鈕樣式增強 (Enhanced Button Styles)
+   ============================================================================= */
+
 .btn {
-  font-weight: 500;
-  border-radius: 0.375rem;
-  transition: all 0.2s ease-in-out;
+  font-weight: var(--font-weight-medium);    /* 中等字重 */
+  border-radius: var(--radius-base);         /* 基礎圓角 */
+  transition: var(--transition-base);        /* 基礎轉換效果 */
+  font-size: var(--font-size-btn);          /* 按鈕字體大小 */
 }
 
 .btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  opacity: 0.6;                             /* 禁用狀態透明度 */
+  cursor: not-allowed;                       /* 禁用游標 */
 }
 
 .btn.active {
-  background-color: #007bff;
-  border-color: #007bff;
-  color: white;
-  transform: translateY(-1px);
-  box-shadow: 0 0.25rem 0.5rem rgba(0, 123, 255, 0.25);
+  transform: translateY(1px);               /* 啟用狀態下移效果 */
+  box-shadow: var(--shadow-sm);             /* 小陰影 */
 }
 
+/* 分析按鈕特殊樣式 */
 .btn-analyze {
-  background: linear-gradient(45deg, #28a745, #20c997);
-  border: none;
-  color: white;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  background: linear-gradient(135deg, var(--success-color), var(--success-hover)); /* 漸層背景 */
+  color: var(--text-light);                 /* 淺色文字 */
+  border: none;                             /* 無邊框 */
+  font-weight: var(--font-weight-semibold); /* 半粗體 */
+  text-transform: uppercase;                /* 大寫轉換 */
+  letter-spacing: 0.5px;                   /* 字母間距 */
 }
 
 .btn-analyze:hover {
-  background: linear-gradient(45deg, #218838, #1abc9c);
-  transform: translateY(-2px);
-  box-shadow: 0 0.5rem 1rem rgba(40, 167, 69, 0.3);
+  background: linear-gradient(135deg, var(--success-hover), var(--success-color)); /* 懸停漸層 */
+  transform: translateY(-1px);              /* 懸停上移效果 */
+  box-shadow: var(--shadow-md);             /* 中等陰影 */
 }
 
-/* 卡片增強樣式 */
+/* =============================================================================
+   📋 卡片樣式 (Card Styles)
+   ============================================================================= */
+
 .card {
-  border-radius: 0.75rem;
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-  transition: all 0.2s ease-in-out;
-  border: 1px solid rgba(0, 0, 0, 0.125);
+  border: 1px solid var(--panel-border);    /* 邊框設定 */
+  border-radius: var(--radius-lg);          /* 大圓角 */
+  box-shadow: var(--panel-shadow);          /* 面板陰影 */
+  background-color: var(--panel-bg);        /* 面板背景 */
+  transition: var(--transition-base);       /* 基礎轉換效果 */
 }
 
 .card:hover {
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);             /* 懸停時大陰影 */
+  transform: translateY(-2px);              /* 懸停上移效果 */
 }
 
 .card-header {
-  background-color: #f8f9fa;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
-  border-radius: 0.75rem 0.75rem 0 0 !important;
-  font-weight: 600;
+  background-color: var(--bg-secondary);    /* 次要背景 */
+  border-bottom: 1px solid var(--panel-border); /* 底部邊框 */
+  font-weight: var(--font-weight-semibold); /* 半粗體 */
+  color: var(--text-primary);               /* 主要文字顏色 */
 }
 
 /* 統計卡片樣式 */
 .stats-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
+  text-align: center;                       /* 文字置中 */
+  padding: var(--spacing-4);                /* 內距設定 */
+  border-radius: var(--radius-lg);          /* 大圓角 */
 }
 
 .stats-card .card-body {
-  padding: 1.5rem;
+  padding: var(--spacing-3);                /* 卡片內容內距 */
 }
 
 .stats-value {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
+  font-size: var(--font-size-h2);           /* 大字體 */
+  font-weight: var(--font-weight-bold);     /* 粗體 */
+  color: var(--primary-color);              /* 主要顏色 */
+  margin-bottom: var(--spacing-1);          /* 下邊距 */
 }
 
 .stats-label {
-  font-size: 0.875rem;
-  opacity: 0.9;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-size: var(--font-size-small);        /* 小字體 */
+  color: var(--text-secondary);             /* 次要文字顏色 */
+  text-transform: uppercase;                /* 大寫轉換 */
+  letter-spacing: 0.5px;                   /* 字母間距 */
 }
 
-/* Chart容器樣式 - 修復破圖問題 */
+/* =============================================================================
+   📈 圖表容器樣式 (Chart Container Styles)
+   ============================================================================= */
+
 .chart-container {
-  background-color: white;
-  border-radius: 0.75rem;
-  padding: 1rem;
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-  position: relative;
-  overflow: hidden;
-  height: 100%;
-  min-height: 250px;
+  background-color: var(--panel-bg);        /* 面板背景 */
+  border-radius: var(--radius-lg);          /* 大圓角 */
+  box-shadow: var(--panel-shadow);          /* 面板陰影 */
+  padding: var(--spacing-4);                /* 內距設定 */
+  margin-bottom: var(--spacing-4);          /* 下邊距 */
+  height: 100%;                             /* 全高度 */
+  display: flex;                            /* 彈性佈局 */
+  flex-direction: column;                   /* 垂直排列 */
 }
 
 .chart-content {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  overflow: hidden;
+  flex: 1;                                  /* 佔用剩餘空間 */
+  display: flex;                            /* 彈性佈局 */
+  align-items: center;                      /* 垂直置中 */
+  justify-content: center;                  /* 水平置中 */
+  min-height: 200px;                        /* 最小高度 */
 }
 
-/* Dashboard容器樣式 */
+/* 儀表板容器樣式 */
 .dashboard-container {
-  position: relative;
-  overflow: auto;
+  height: 100%;                             /* 全高度 */
+  overflow-y: auto;                         /* 垂直滾動 */
 }
 
 .charts-row {
-  min-height: 0;
-  flex: 1;
+  margin-bottom: var(--spacing-4);          /* 下邊距 */
 }
 
 .charts-row .card {
-  height: 100%;
+  height: 100%;                             /* 全高度 */
+  margin-bottom: var(--spacing-3);          /* 下邊距 */
 }
 
 .charts-row .card-body {
-  height: calc(100% - 60px);
-  padding: 0;
+  display: flex;                            /* 彈性佈局 */
+  flex-direction: column;                   /* 垂直排列 */
+  height: calc(100% - 60px);                /* 計算高度 */
 }
 
-/* 分析項目列表樣式 */
+/* =============================================================================
+   📑 分析項目樣式 (Analysis Item Styles)
+   ============================================================================= */
+
 .analysis-item {
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin-bottom: 0.75rem;
-  transition: all 0.2s ease-in-out;
+  border: 1px solid var(--panel-border);    /* 邊框設定 */
+  border-radius: var(--radius-base);        /* 基礎圓角 */
+  padding: var(--spacing-3);                /* 內距設定 */
+  margin-bottom: var(--spacing-3);          /* 下邊距 */
+  background-color: var(--panel-bg);        /* 面板背景 */
+  cursor: pointer;                          /* 指標游標 */
+  transition: var(--transition-base);       /* 基礎轉換效果 */
 }
 
 .analysis-item:hover {
-  background-color: #e9ecef;
-  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+  background-color: var(--panel-hover);     /* 懸停背景 */
+  border-color: var(--primary-color);       /* 懸停邊框 */
+  box-shadow: var(--shadow-sm);             /* 小陰影 */
 }
 
 .analysis-item.active {
-  border-color: #007bff;
-  background-color: rgba(0, 123, 255, 0.1);
+  border-color: var(--primary-color);       /* 啟用邊框 */
+  background-color: var(--primary-light);   /* 啟用背景 */
 }
 
 .analysis-item-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
+  display: flex;                            /* 彈性佈局 */
+  justify-content: space-between;           /* 兩端對齊 */
+  align-items: center;                      /* 垂直置中 */
+  margin-bottom: var(--spacing-2);          /* 下邊距 */
 }
 
 .analysis-item-title {
-  font-weight: 600;
-  color: #495057;
-  margin: 0;
+  font-weight: var(--font-weight-semibold); /* 半粗體 */
+  color: var(--text-primary);               /* 主要文字顏色 */
+  font-size: var(--font-size-base);         /* 基礎字體大小 */
 }
 
 .analysis-item-time {
-  font-size: 0.8rem;
-  color: #6c757d;
+  font-size: var(--font-size-small);        /* 小字體 */
+  color: var(--text-muted);                 /* 淡化文字顏色 */
 }
 
 .analysis-item-actions {
-  display: flex;
-  gap: 0.5rem;
+  display: flex;                            /* 彈性佈局 */
+  gap: var(--spacing-2);                    /* 間隔設定 */
+  margin-top: var(--spacing-2);             /* 上邊距 */
 }
 
-/* Tooltip樣式 */
+/* =============================================================================
+   🗺️ 地圖相關樣式 (Map Related Styles)
+   ============================================================================= */
+
 .leaflet-tooltip {
-  background-color: rgba(0, 0, 0, 0.9);
-  color: white;
-  border: none;
-  border-radius: 0.375rem;
-  padding: 0.75rem;
-  font-size: 0.875rem;
-  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.3);
+  background-color: var(--panel-bg);        /* 工具提示背景 */
+  border: 1px solid var(--panel-border);    /* 工具提示邊框 */
+  border-radius: var(--radius-sm);          /* 小圓角 */
+  color: var(--text-primary);               /* 文字顏色 */
+  font-size: var(--font-size-small);        /* 小字體 */
+  padding: var(--spacing-2);                /* 內距設定 */
+  box-shadow: var(--shadow-md);             /* 中等陰影 */
 }
 
-.leaflet-tooltip-top:before {
-  border-top-color: rgba(0, 0, 0, 0.9);
-}
-
-.leaflet-tooltip-bottom:before {
-  border-bottom-color: rgba(0, 0, 0, 0.9);
-}
-
-.leaflet-tooltip-left:before {
-  border-left-color: rgba(0, 0, 0, 0.9);
-}
-
+/* 工具提示箭頭樣式 */
+.leaflet-tooltip-top:before,
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-left:before,
 .leaflet-tooltip-right:before {
-  border-right-color: rgba(0, 0, 0, 0.9);
+  border-color: var(--panel-border);        /* 箭頭邊框顏色 */
 }
 
-/* 調整大小拖拽控制項 */
+/* =============================================================================
+   🔧 拖拉調整器樣式 (Resizer Styles) - 支援0-100%範圍
+   ============================================================================= */
+
 .resizer {
-  background-color: #dee2e6;
-  transition: background-color 0.2s ease;
-  position: relative;
+  background-color: var(--resizer-bg);       /* 調整器背景 */
+  transition: var(--transition-base);        /* 基礎轉換效果 */
+  position: relative;                        /* 相對定位 */
+  z-index: var(--z-index-resizer);          /* 層級設定 */
 }
 
 .resizer:hover {
-  background-color: #007bff;
+  background-color: var(--resizer-hover);    /* 懸停背景 */
+  cursor: col-resize;                        /* 調整游標 */
 }
 
+/* 垂直調整器（左右面板） */
 .resizer-vertical {
-  width: 6px;
-  cursor: col-resize;
-  border-left: 1px solid #adb5bd;
-  border-right: 1px solid #adb5bd;
+  width: 4px;                               /* 調整器寬度 */
+  height: 100%;                             /* 全高度 */
+  cursor: col-resize;                       /* 列調整游標 */
+  flex-shrink: 0;                           /* 不縮小 */
 }
 
+/* 水平調整器（上下面板） */
 .resizer-horizontal {
-  height: 6px;
-  cursor: row-resize;
-  border-top: 1px solid #adb5bd;
-  border-bottom: 1px solid #adb5bd;
-  width: 100%;
+  height: 4px;                              /* 調整器高度 */
+  width: 100%;                              /* 全寬度 */
+  cursor: row-resize;                       /* 行調整游標 */
+  flex-shrink: 0;                           /* 不縮小 */
 }
 
+/* 調整器懸停效果指示器 */
 .resizer-vertical:hover::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 2px;
-  height: 20px;
-  background-color: white;
-  border-radius: 1px;
+  content: '';                              /* 空內容 */
+  position: absolute;                       /* 絕對定位 */
+  top: 50%;                                 /* 垂直置中 */
+  left: 50%;                                /* 水平置中 */
+  transform: translate(-50%, -50%);         /* 居中變換 */
+  width: 2px;                               /* 指示器寬度 */
+  height: 40px;                             /* 指示器高度 */
+  background-color: var(--resizer-active);  /* 啟用顏色 */
+  border-radius: 1px;                       /* 小圓角 */
 }
 
 .resizer-horizontal:hover::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 20px;
-  height: 2px;
-  background-color: white;
-  border-radius: 1px;
+  content: '';                              /* 空內容 */
+  position: absolute;                       /* 絕對定位 */
+  top: 50%;                                 /* 垂直置中 */
+  left: 50%;                                /* 水平置中 */
+  transform: translate(-50%, -50%);         /* 居中變換 */
+  width: 40px;                              /* 指示器寬度 */
+  height: 2px;                              /* 指示器高度 */
+  background-color: var(--resizer-active);  /* 啟用顏色 */
+  border-radius: 1px;                       /* 小圓角 */
 }
 
-/* 面板樣式 */
-.panel-left, .panel-right, .panel-main {
-  min-width: 0;
+/* =============================================================================
+   📱 面板佈局系統 (Panel Layout System) - 支援0-100%調整
+   ============================================================================= */
+
+.panel-left, 
+.panel-right, 
+.panel-main {
+  height: 100%;                             /* 全高度 */
+  overflow: hidden;                         /* 隱藏溢出 */
+  /* 移除寬度限制，支援0-100%調整 */
 }
 
 .panel-main {
-  flex-grow: 1;
+  flex: 1;                                  /* 佔用剩餘空間 */
+  min-width: 0;                             /* 允許縮小到0 */
 }
 
-/* 防止拖拽時選取文字 */
-.resizer {
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
+/* 調整器在拖拉時的樣式 */
+.resizer.dragging {
+  background-color: var(--resizer-active);  /* 拖拉時的顏色 */
 }
 
-/* 空狀態樣式 */
+.resizer.dragging::after {
+  background-color: var(--resizer-active);  /* 拖拉時指示器顏色 */
+}
+
+/* =============================================================================
+   🎭 空狀態樣式 (Empty State Styles)
+   ============================================================================= */
+
 .empty-state {
-  text-align: center;
-  color: #6c757d;
-  padding: 3rem 1rem;
+  text-align: center;                       /* 文字置中 */
+  padding: var(--spacing-6);                /* 內距設定 */
+  color: var(--text-muted);                 /* 淡化文字顏色 */
 }
 
 .empty-state-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  opacity: 0.5;
+  font-size: 3rem;                          /* 大圖示 */
+  margin-bottom: var(--spacing-4);          /* 下邊距 */
+  opacity: 0.5;                             /* 透明度 */
 }
 
 .empty-state-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+  font-size: var(--font-size-h5);           /* H5字體大小 */
+  font-weight: var(--font-weight-semibold); /* 半粗體 */
+  margin-bottom: var(--spacing-2);          /* 下邊距 */
 }
 
 .empty-state-text {
-  font-size: 1rem;
-  margin-bottom: 0;
+  font-size: var(--font-size-small);        /* 小字體 */
+  color: var(--text-secondary);             /* 次要文字顏色 */
 }
 
-/* 滾動條樣式 - 加強自動滾動條 */
+/* =============================================================================
+   📜 自定義滾動條樣式 (Custom Scrollbar Styles)
+   ============================================================================= */
+
 .custom-scroll {
-  overflow-y: auto;
-  overflow-x: hidden;
+  scrollbar-width: thin;                    /* Firefox滾動條寬度 */
+  scrollbar-color: var(--border-dark) var(--bg-secondary); /* Firefox滾動條顏色 */
 }
 
+/* WebKit瀏覽器滾動條樣式 */
 .custom-scroll::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 8px;                               /* 滾動條寬度 */
+  height: 8px;                              /* 滾動條高度 */
 }
 
 .custom-scroll::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
+  background: var(--bg-secondary);          /* 滾動軌道背景 */
+  border-radius: var(--radius-sm);          /* 小圓角 */
 }
 
 .custom-scroll::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 4px;
+  background: var(--border-dark);           /* 滾動把手背景 */
+  border-radius: var(--radius-sm);          /* 小圓角 */
 }
 
 .custom-scroll::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: var(--secondary-color);       /* 懸停時把手背景 */
 }
 
-/* 控制面板自動滾動條 */
+/* 應用自定義滾動條到特定區域 */
 .panel-left .custom-scroll,
-.panel-right .custom-scroll {
-  height: 100%;
-  max-height: calc(100vh - 200px);
+.panel-right .custom-scroll,
+.table-responsive,
+.dashboard-container {
+  scrollbar-width: thin;                    /* 細滾動條 */
+  scrollbar-color: var(--border-dark) transparent; /* 滾動條顏色 */
 }
 
-/* 底部控制面板滾動條 */
 .tab-content .custom-scroll {
-  scrollbar-width: thin;
-  scrollbar-color: #c1c1c1 #f1f1f1;
+  max-height: calc(100vh - 200px);          /* 最大高度 */
+  overflow-y: auto;                         /* 垂直滾動 */
 }
 
-/* Firefox滾動條樣式 */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #c1c1c1 #f1f1f1;
+/* 防止所有元素被選取（在拖拉時） */
+.no-select {
+  -webkit-user-select: none;                /* Safari */
+  -moz-user-select: none;                   /* Firefox */
+  -ms-user-select: none;                    /* IE10+/Edge */
+  user-select: none;                        /* 標準語法 */
 }
 
-/* 響應式調整 */
+/* =============================================================================
+   📱 響應式設計 (Responsive Design)
+   ============================================================================= */
+
 @media (max-width: 768px) {
   .panel-left, .panel-right {
-    min-width: 100px;
+    min-width: 250px;                       /* 行動裝置最小寬度 */
   }
   
   .main-content .container-fluid {
-    height: calc(100vh - 112px);
+    height: calc(100vh - 140px);             /* 行動裝置調整高度 */
   }
   
   .table-responsive {
-    font-size: 0.8rem;
+    font-size: var(--font-size-small);      /* 行動裝置小字體 */
   }
   
   .nav-pills .nav-link {
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
+    padding: var(--spacing-1) var(--spacing-2); /* 行動裝置小內距 */
+    font-size: var(--font-size-xs);         /* 極小字體 */
   }
-  
+
   .analysis-item {
-    padding: 0.75rem;
+    padding: var(--spacing-2);              /* 行動裝置小內距 */
   }
-  
+
   .stats-value {
-    font-size: 1.5rem;
+    font-size: var(--font-size-h4);         /* 行動裝置調整統計數值大小 */
   }
 
   .chart-container {
-    min-height: 200px;
+    min-height: 150px;                      /* 行動裝置圖表最小高度 */
   }
 }
 
-/* 動畫效果 */
+/* =============================================================================
+   🎬 動畫效果 (Animation Effects)
+   ============================================================================= */
+
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }                      /* 起始透明 */
+  to { opacity: 1; }                        /* 結束不透明 */
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%, 100% { opacity: 1; }                 /* 起始和結束完全不透明 */
+  50% { opacity: 0.5; }                    /* 中間半透明 */
 }
 
 .fade-in {
-  animation: fadeIn 0.3s ease-out;
+  animation: fadeIn 0.3s ease-in-out;      /* 淡入動畫 */
 }
 
 .pulse {
-  animation: pulse 1.5s infinite;
+  animation: pulse 2s infinite;            /* 脈動動畫 */
 }
 
-/* 徽章顏色覆蓋 */
+/* =============================================================================
+   🎨 狀態顏色類別 (Status Color Classes)
+   ============================================================================= */
+
 .bg-success {
-  background-color: #198754 !important;
+  background-color: var(--success-color) !important; /* 成功背景 */
+  color: var(--text-light) !important;      /* 淺色文字 */
 }
 
 .bg-warning {
-  background-color: #ffc107 !important;
-  color: #000 !important;
+  background-color: var(--warning-color) !important; /* 警告背景 */
+  color: var(--text-dark) !important;       /* 深色文字 */
 }
 
 .bg-danger {
-  background-color: #dc3545 !important;
+  background-color: var(--danger-color) !important; /* 危險背景 */
+  color: var(--text-light) !important;      /* 淺色文字 */
 }
 
 .bg-secondary {
-  background-color: #6c757d !important;
+  background-color: var(--secondary-color) !important; /* 次要背景 */
+  color: var(--text-light) !important;      /* 淺色文字 */
 }
 
 .bg-info {
-  background-color: #0dcaf0 !important;
-  color: #000 !important;
+  background-color: var(--info-color) !important; /* 資訊背景 */
+  color: var(--text-light) !important;      /* 淺色文字 */
 } 
