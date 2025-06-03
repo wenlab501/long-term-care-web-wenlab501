@@ -323,7 +323,7 @@ export default {
             case 'Point':
               coords = feature.geometry.coordinates
               break
-            case 'Polygon':
+            case 'Polygon': {
               // 取多邊形中心點（簡化）
               const ring = feature.geometry.coordinates[0]
               if (ring && ring.length > 0) {
@@ -332,6 +332,7 @@ export default {
                 coords = [sumLng / ring.length, sumLat / ring.length]
               }
               break
+            }
             default:
               // 其他類型暫時跳過
               return

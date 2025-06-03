@@ -73,7 +73,7 @@
           <h6><i class="fas fa-shapes me-2"></i>幾何類型分布</h6>
           <div class="row g-2">
             <div 
-              v-for="(type, index) in geometryTypes" 
+              v-for="type in geometryTypes" 
               :key="type.name"
               class="col-12"
             >
