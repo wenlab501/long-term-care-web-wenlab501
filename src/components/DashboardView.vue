@@ -416,11 +416,11 @@ export default {
         const newPointerEvents = dragging ? 'none' : 'auto';
         if (barChart.value) {
           barChart.value.style.pointerEvents = newPointerEvents;
-          // console.log('Bar chart pointer-events set to:', newPointerEvents);
+          console.log('DashboardView: BarChart pointer-events set to:', newPointerEvents, '(dragging:', dragging, ')');
         }
         if (pieChart.value) {
           pieChart.value.style.pointerEvents = newPointerEvents;
-          // console.log('Pie chart pointer-events set to:', newPointerEvents);
+          console.log('DashboardView: PieChart pointer-events set to:', newPointerEvents, '(dragging:', dragging, ')');
         }
       });
     }, { immediate: true });

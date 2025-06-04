@@ -16,8 +16,8 @@
       <!-- 🚀 路由視圖（非首頁） - 使用Bootstrap佈局 -->
       <div v-if="$route.path !== '/'" class="flex-grow-1">
         <router-view />
-      </div>
-      
+          </div>
+          
       <!-- 🏠 首頁內容（空間分析平台） - 使用Bootstrap grid系統 -->
       <div v-if="$route.path === '/'" class="flex-grow-1 d-flex flex-column overflow-hidden">
         <div class="d-flex flex-row flex-grow-1 overflow-hidden">
@@ -40,85 +40,65 @@
                 @update:showTainanLayer="showTainanLayer = $event"
                 @update:selectedFilter="selectedFilter = $event"
                 />
-            </div>
-            
+        </div>
+        
             <!-- 🔧 左側拖曳調整器 (Left Resizer) - 增強視覺效果 -->
             <div class="my-resizer my-resizer-vertical border-end" 
-                 :class="{ 'dragging': isDragging }"
+                 :class="{ 'dragging': isSidePanelDragging }"
                  @mousedown="startResize('left', $event)"
                  title="拖曳調整左側面板寬度">
-            </div>
-          </div>
-
-          <!-- 🗺️ 主要顯示區域 (Main Display Area) - Bootstrap flex column -->
-          <div class="d-flex flex-column flex-grow-1 overflow-hidden h-100">
-            <MainContent 
-              ref="mainContent"
-              :activeTab="activeTab"
-              :mainPanelWidth="mainPanelWidth"
-              :contentHeight="contentHeight"
-              :showTainanLayer="showTainanLayer"
-              :selectedFilter="selectedFilter"
-              :selectedColorScheme="selectedColorScheme"
-              :selectedBorderColor="selectedBorderColor"
-              :selectedBorderWeight="selectedBorderWeight"
-              :zoomLevel="zoomLevel"
-              :tainanGeoJSONData="tainanGeoJSONData"
-              :maxCount="maxCount"
-              :mergedTableData="mergedTableData"
-              :averageCount="averageCount"
-              :dataRegionsCount="dataRegionsCount"
-              :isPanelDragging="isDragging"
-              @update:activeTab="activeTab = $event"
-              @update:zoomLevel="zoomLevel = $event"
-              @update:currentCoords="currentCoords = $event"
-              @update:activeMarkers="activeMarkers = $event" />
-            
-            <!-- 🔧 水平拖曳調整器 (Horizontal Resizer) - Bootstrap邊框樣式 -->
-            <div class="my-resizer my-resizer-horizontal border-top" 
-                 :class="{ 'dragging': isDragging }"
-                 @mousedown="startResize('bottom', $event)"
-                 title="拖曳調整底部面板高度">
+              </div>
             </div>
             
-            <!-- 📊 底部控制面板 (Bottom Control Panel) - Bootstrap卡片樣式 -->
-            <BottomPanel 
-              :activeBottomTab="activeBottomTab"
-              :bottomPanelHeight="actualBottomPanelPixelHeight"
-              :mergedTableData="mergedTableData"
-              :sortedAndFilteredTableData="sortedAndFilteredTableData"
-              :tableSearchQuery="tableSearchQuery"
-              :sortField="sortField"
-              :sortDirection="sortDirection"
-              :zoomLevel="zoomLevel"
-              :currentCoords="currentCoords"
-              :isLoadingData="isLoadingData"
-              :showTainanLayer="showTainanLayer"
-              :selectedColorScheme="selectedColorScheme"
-              :selectedBorderColor="selectedBorderColor"
-              :selectedBorderWeight="selectedBorderWeight"
-              :maxCount="maxCount"
-              :isPanelDragging="isDragging"
-              @update:activeBottomTab="activeBottomTab = $event"
-              @update:tableSearchQuery="tableSearchQuery = $event"
-              @sort-table="sortTable"
-              @highlight-on-map="highlightOnMap"
-              @update:zoomLevel="zoomLevel = $event"
-              @update:selectedColorScheme="selectedColorScheme = $event"
-              @update:selectedBorderColor="selectedBorderColor = $event"
-              @update:selectedBorderWeight="selectedBorderWeight = $event"
-              @reset-view="resetView" />
-          </div>
+          <!-- 🌟 新的主要顯示區域組件 (New Main Display Area Component) -->
+          <MainDisplayArea
+            ref="mainDisplayAreaRef"
+            class="d-flex flex-column flex-grow-1 overflow-hidden h-100"
+            :style="{ width: mainPanelWidthPx }"
+            :activeTab="activeTab"
+            :activeBottomTab="activeBottomTab"
+            :mainPanelWidth="mainPanelWidth" 
+            :showTainanLayer="showTainanLayer"
+            :selectedFilter="selectedFilter"
+            :selectedColorScheme="selectedColorScheme"
+            :selectedBorderColor="selectedBorderColor"
+            :selectedBorderWeight="selectedBorderWeight"
+            :zoomLevel="zoomLevel"
+            :currentCoords="currentCoords"
+            :tainanGeoJSONData="tainanGeoJSONData"
+            :maxCount="maxCount"
+            :mergedTableData="mergedTableData"
+            :averageCount="averageCount"
+            :dataRegionsCount="dataRegionsCount"
+            :activeMarkers="activeMarkers"
+            :isLoadingData="isLoadingData"
+            :tableSearchQuery="tableSearchQuery"
+            :sortField="sortField"
+            :sortDirection="sortDirection"
+            :isSidePanelDragging="isSidePanelDragging"
+            @update:activeTab="activeTab = $event"
+            @update:activeBottomTab="activeBottomTab = $event"
+            @update:zoomLevel="zoomLevel = $event"
+            @update:currentCoords="currentCoords = $event"
+            @update:activeMarkers="activeMarkers = $event"
+            @update:tableSearchQuery="tableSearchQuery = $event"
+            @sort-table="sortTable"
+            @highlight-on-map="highlightOnMap"
+            @update:selectedColorScheme="selectedColorScheme = $event"
+            @update:selectedBorderColor="selectedBorderColor = $event"
+            @update:selectedBorderWeight="selectedBorderWeight = $event"
+            @reset-view="resetView"
+          />
 
           <!-- 📈 右側控制面板 (Right Control Panel) - Bootstrap responsive -->
           <div class="d-flex h-100" :style="{ width: rightPanelWidthPx }" v-show="rightPanelWidth > 0">
             
             <!-- 🔧 右側拖曳調整器 (Right Resizer) - Bootstrap邊框 -->
             <div class="my-resizer my-resizer-vertical border-start" 
-                 :class="{ 'dragging': isDragging }"
+                 :class="{ 'dragging': isSidePanelDragging }"
                  @mousedown="startResize('right', $event)"
                  title="拖曳調整右側面板寬度">
-            </div>
+        </div>
             
             <div class="flex-grow-1">
               <RightPanel 
@@ -141,28 +121,28 @@
                 @select-analysis="selectAnalysis"
                 @view-analysis="viewAnalysis"
                 @delete-analysis="deleteAnalysis" />
+                </div>
+              </div>
+              </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
+            
     <!-- 🦶 頁腳區域 (Footer Area) - Bootstrap sticky footer，緊貼底部無空隙 -->
     <footer class="my-app-footer bg-dark text-light py-2 mt-auto">
       <div class="container-fluid">
         <div class="row">
           <div class="col-md-6 text-md-start text-center">
             <small>© 2024 空間分析視覺化平台. All rights reserved.</small>
-          </div>
+                  </div>
           <div class="col-md-6 text-md-end text-center">
             <small>
               Powered by <a href="https://vuejs.org/" target="_blank" class="text-light text-decoration-none">Vue.js</a> & 
               <a href="https://leafletjs.com/" target="_blank" class="text-light text-decoration-none">Leaflet</a> & 
               <a href="https://d3js.org/" target="_blank" class="text-light text-decoration-none">D3.js</a>
             </small>
-          </div>
-        </div>
-      </div>
+                </div>
+              </div>
+              </div>
     </footer>
   </div>
 </template>
@@ -187,8 +167,7 @@ import { performCompleteSpatialAnalysis } from '../utils/spatialAnalysis.js'
 // 🧩 組件引入
 import LoadingOverlay from '../components/LoadingOverlay.vue'
 import LeftPanel from '../components/LeftPanel.vue'
-import MainContent from '../components/MainContent.vue'
-import BottomPanel from '../components/BottomPanel.vue'
+import MainDisplayArea from '../components/MainDisplayArea.vue'
 import RightPanel from '../components/RightPanel.vue'
 
 export default {
@@ -200,8 +179,7 @@ export default {
   components: {
     LoadingOverlay,
     LeftPanel,
-    MainContent,
-    BottomPanel,
+    MainDisplayArea,
     RightPanel
   },
   
@@ -210,7 +188,7 @@ export default {
    */
   setup() {
     // 📚 元件引用 (Component References)
-    const mainContent = ref(null)
+    const mainDisplayAreaRef = ref(null)
 
     // 📑 分頁狀態 (Tab States)
     const activeTab = ref('map')
@@ -220,7 +198,6 @@ export default {
     // 📏 面板大小狀態 - 使用百分比系統 (Panel Size States - Percentage Based)
     const leftPanelWidth = ref(20)        // 左側面板寬度百分比 (0-100%)
     const rightPanelWidth = ref(20)       // 右側面板寬度百分比 (0-100%)
-    const bottomPanelHeightPercent = ref(30) // 底部面板高度百分比 (0-100%)
     const windowWidth = ref(window.innerWidth)
     const windowHeight = ref(window.innerHeight)
 
@@ -229,16 +206,6 @@ export default {
     const rightPanelWidthPx = computed(() => `${rightPanelWidth.value}%`)
     const mainPanelWidth = computed(() => 100 - leftPanelWidth.value - rightPanelWidth.value)
     const mainPanelWidthPx = computed(() => `${mainPanelWidth.value}%`)
-
-    const middleSectionTotalHeight = computed(() => windowHeight.value - 116) // 116 for header/footer etc.
-
-    const actualBottomPanelPixelHeight = computed(() => {
-      return (bottomPanelHeightPercent.value / 100) * middleSectionTotalHeight.value;
-    });
-
-    const contentHeight = computed(() => {
-      return middleSectionTotalHeight.value - actualBottomPanelPixelHeight.value;
-    });
 
     // ⏳ 載入狀態 (Loading States)
     const isLoading = ref(false)
@@ -276,7 +243,7 @@ export default {
     const sortDirection = ref('asc')
     
     // 🔧 拖曳狀態 (Drag States)
-    const isDragging = ref(false)
+    const isSidePanelDragging = ref(false)
 
     // 🧮 統計計算屬性 (Statistical Computed Properties)
     const totalDataPoints = computed(() => {
@@ -321,7 +288,7 @@ export default {
           if (sortField.value === 'count' || sortField.value === 'id') {
             aVal = Number(aVal) || 0
             bVal = Number(bVal) || 0
-          } else {
+        } else {
             // 字串類型
             aVal = String(aVal || '').toLowerCase()
             bVal = String(bVal || '').toLowerCase()
@@ -329,7 +296,7 @@ export default {
           
           if (sortDirection.value === 'asc') {
             return aVal > bVal ? 1 : aVal < bVal ? -1 : 0
-          } else {
+        } else {
             return aVal < bVal ? 1 : aVal > bVal ? -1 : 0
           }
         })
@@ -347,7 +314,7 @@ export default {
       if (sortField.value === field) {
         // 切換排序方向
         sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'
-      } else {
+        } else {
         // 新欄位，預設升序
         sortField.value = field
         sortDirection.value = 'asc'
@@ -563,9 +530,9 @@ export default {
     const highlightOnMap = (row) => {
       console.log('🎯 highlightOnMap 被調用:', row)
       console.log('🎯 row.code2:', row.code2)
-      console.log('🎯 mainContent.value:', mainContent.value)
+      console.log('🎯 mainDisplayAreaRef.value:', mainDisplayAreaRef.value)
       
-      if (mainContent.value) {
+      if (mainDisplayAreaRef.value) {
         // 先切換到地圖分頁（如果當前不在地圖分頁）
         if (activeTab.value !== 'map') {
           console.log('🎯 切換到地圖分頁...')
@@ -574,16 +541,16 @@ export default {
           // 等待分頁切換完成後再進行高亮
           setTimeout(() => {
             console.log('🎯 延遲調用 highlightFeature...')
-            mainContent.value.highlightFeature(row.code2)
+            mainDisplayAreaRef.value.highlightFeature(row.code2)
           }, 300)
         } else {
           console.log('🎯 直接調用 highlightFeature...')
-          mainContent.value.highlightFeature(row.code2)
+          mainDisplayAreaRef.value.highlightFeature(row.code2)
         }
         
-        console.log(`🎯 定位到 ${row.name || row.code2}`)
+        console.log(`🎯 定位到 ${row.name || row.code2} via MainDisplayArea`)
       } else {
-        console.error('❌ mainContent.value 為 null')
+        console.error('❌ mainDisplayAreaRef.value 為 null for highlightOnMap')
       }
     }
 
@@ -591,8 +558,8 @@ export default {
      * 🗺️ 適應地圖到數據範圍 (Fit Map to Data)
      */
     const fitMapToData = () => {
-      if (mainContent.value) {
-        mainContent.value.fitToTainanBounds()
+      if (mainDisplayAreaRef.value) {
+        mainDisplayAreaRef.value.fitToTainanBounds()
       }
     }
 
@@ -600,8 +567,8 @@ export default {
      * 🔄 重置地圖視圖 (Reset Map View)
      */
     const resetView = () => {
-      if (mainContent.value) {
-        mainContent.value.resetView()
+      if (mainDisplayAreaRef.value) {
+        mainDisplayAreaRef.value.resetMapView()
       }
     }
 
@@ -629,33 +596,27 @@ export default {
       event.preventDefault()
       event.stopPropagation()
       
-      isDragging.value = true
+      isSidePanelDragging.value = true
       document.body.classList.add('my-no-select')
       
       // 記錄初始位置和面板尺寸
       const startX = event.clientX
-      const startY = event.clientY
       const startLeftWidth = leftPanelWidth.value
       const startRightWidth = rightPanelWidth.value
-      const startBottomPercent = bottomPanelHeightPercent.value // Use percentage
       
       // 獲取窗口尺寸以計算百分比
-      const windowWidth = window.innerWidth
+      const currentWindowWidth = windowWidth.value
       
       console.log(`🔧 開始調整 ${direction} 方向，初始值:`, {
         leftWidth: startLeftWidth,
         rightWidth: startRightWidth,
-        bottomPercent: startBottomPercent // Log percentage
       })
 
       const handleMouseMove = (moveEvent) => {
         moveEvent.preventDefault()
         
         const deltaX = moveEvent.clientX - startX
-        const deltaY = moveEvent.clientY - startY
-        
-        // 計算百分比變化量
-        const deltaXPercent = (deltaX / windowWidth) * 100
+        const deltaXPercent = (deltaX / currentWindowWidth) * 100
         
         if (direction === 'left') {
           // 調整左側面板寬度 (0-100%) - 修復拖拽方向，向右拖拽增加寬度
@@ -665,21 +626,11 @@ export default {
           // 調整右側面板寬度 (0-100%) - 向左拖拽增加寬度，向右拖拽減少寬度
           const newWidth = Math.max(0, Math.min(100, startRightWidth - deltaXPercent))
           rightPanelWidth.value = newWidth
-        } else if (direction === 'bottom') {
-          const currentMiddleSectionHeight = middleSectionTotalHeight.value
-          if (currentMiddleSectionHeight === 0) return;
-
-          const deltaPercent = (deltaY / currentMiddleSectionHeight) * 100
-          // 調整拖拉方向：向上拖動 (deltaY < 0) 增加高度百分比，向下拖動 (deltaY > 0) 減少高度百分比。
-          let newPercent = startBottomPercent - deltaPercent 
-          // 限制在 0% 到 100% 之間
-          newPercent = Math.max(0, Math.min(100, newPercent))
-          bottomPanelHeightPercent.value = newPercent
         }
       }
 
       const handleMouseUp = () => {
-        isDragging.value = false
+        isSidePanelDragging.value = false
         document.body.classList.remove('my-no-select')
         document.removeEventListener('mousemove', handleMouseMove)
         document.removeEventListener('mouseup', handleMouseUp)
@@ -690,7 +641,6 @@ export default {
         console.log('✅ 拖曳調整完成，最終值:', {
           leftWidth: leftPanelWidth.value,
           rightWidth: rightPanelWidth.value,
-          bottomPercent: bottomPanelHeightPercent.value, // Log percentage
           mainWidth: mainPanelWidth.value
         })
       }
@@ -708,13 +658,9 @@ export default {
       leftPanelWidth.value = Math.max(0, Math.min(100, leftPanelWidth.value))
       rightPanelWidth.value = Math.max(0, Math.min(100, rightPanelWidth.value))
       
-      // 底部面板高度百分比限制 (0-100%)
-      bottomPanelHeightPercent.value = Math.max(0, Math.min(100, bottomPanelHeightPercent.value))
-      
       // 四捨五入到一位小數
       leftPanelWidth.value = Math.round(leftPanelWidth.value * 10) / 10
       rightPanelWidth.value = Math.round(rightPanelWidth.value * 10) / 10
-      bottomPanelHeightPercent.value = Math.round(bottomPanelHeightPercent.value * 10) / 10
     }
 
     // 📏 視窗大小變化處理 (Window Resize Handler)
@@ -730,9 +676,6 @@ export default {
      * 🚀 組件掛載 (Component Mounted)
      */
     onMounted(() => {
-      // 初始化時 bottomPanelHeightPercent 已經是 30%
-      // 無需再計算像素值進行初始化
-      
       window.addEventListener('resize', handleWindowResize)
       console.log('🚀 空間分析平台已初始化')
     })
@@ -747,7 +690,7 @@ export default {
     // 📤 返回響應式數據和函數 (Return Reactive Data and Functions)
     return {
       // 📚 元件引用
-      mainContent,
+      mainDisplayAreaRef,
       
       // 📑 分頁狀態
       activeTab,
@@ -785,13 +728,10 @@ export default {
       // 📏 面板尺寸（百分比系統）
       leftPanelWidth,
       rightPanelWidth,
-      bottomPanelHeightPercent,
-      actualBottomPanelPixelHeight,
       leftPanelWidthPx,
       rightPanelWidthPx,
       mainPanelWidth,
       mainPanelWidthPx,
-      contentHeight,
       
       // 📊 台南數據
       tainanDataSummary,
@@ -829,7 +769,7 @@ export default {
       
       // 🔧 拖拽調整功能
       startResize,
-      isDragging,
+      isSidePanelDragging,
       validatePanelSizes,
       
       // 🛠️ 工具函數
@@ -925,4 +865,4 @@ body.my-no-select * {
     max-height: 8px;
   }
 }
-</style>
+</style> 

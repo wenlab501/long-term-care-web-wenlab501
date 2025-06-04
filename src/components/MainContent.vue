@@ -228,14 +228,14 @@ export default {
         if (dashboardContainerRef.value) {
           if (dragging && tab === 'dashboard') {
             dashboardContainerRef.value.style.pointerEvents = 'none';
-            console.log('Dashboard pointer-events set to none');
+            console.log('MainContent: Dashboard container pointer-events set to none');
           } else {
             dashboardContainerRef.value.style.pointerEvents = 'auto';
-            console.log('Dashboard pointer-events set to auto');
+            console.log('MainContent: Dashboard container pointer-events set to auto (dragging:', dragging, ', tab:', tab, ')');
           }
         }
       });
-    }, { immediate: true }); // Run immediately to set initial state if dashboard is default
+    }, { immediate: true });
 
     /**
      * 👀 監聽標籤變化 (Watch Tab Changes)
