@@ -2,22 +2,22 @@
   <div class="my-right-panel bg-light border-start h-100 d-flex flex-column custom-scroll">
 
     <!-- 右側Tab導航 -->
-    <div class="">
-      <ul class="nav nav-pills nav-fill">
+    <div class="bg-light">
+      <ul class="nav nav-tabs nav-fill small">
         <li class="nav-item">
           <button 
-            class="nav-link" 
-            :class="{ active: activeRightTab === 'results' }" 
+            class="nav-link text-dark border-0"
+            :class="{ 'active bg-white text-primary fw-bold': activeRightTab === 'results' }" 
             @click="$emit('update:activeRightTab', 'results')">
-            分析結果
+            <i class="fas fa-chart-line me-1"></i>分析結果
           </button>
         </li>
         <li class="nav-item">
           <button 
-            class="nav-link" 
-            :class="{ active: activeRightTab === 'list' }" 
+            class="nav-link text-dark border-0"
+            :class="{ 'active bg-white text-primary fw-bold': activeRightTab === 'list' }" 
             @click="$emit('update:activeRightTab', 'list')">
-            分析清單
+            <i class="fas fa-list-alt me-1"></i>分析清單
           </button>
         </li>
       </ul>

@@ -2,28 +2,28 @@
   <div class="bg-white text-dark border-top" :style="{ height: bottomPanelHeight + 'px' }">
     <!-- 底部Tab導航 -->
     <div class="bg-light">
-      <ul class="nav nav-tabs">
+      <ul class="nav nav-tabs nav-fill small">
         <li class="nav-item">
           <button 
-            class="nav-link text-dark border-0" 
-            :class="{ active: activeBottomTab === 'table', 'bg-primary text-white': activeBottomTab === 'table' }" 
+            class="nav-link text-dark border-0"
+            :class="{ 'active bg-white text-primary fw-bold': activeBottomTab === 'table' }"
             @click="$emit('update:activeBottomTab', 'table')">
-            數據表格
+            <i class="fas fa-table me-1"></i>數據表格
           </button>
         </li>
         <li class="nav-item">
           <button 
-            class="nav-link text-dark border-0" 
-            :class="{ active: activeBottomTab === 'controls', 'bg-primary text-white': activeBottomTab === 'controls' }" 
-            @click="$emit('update:activeBottomTab', 'controls')">
-            控制面板
+            class="nav-link text-dark border-0"
+            :class="{ 'active bg-white text-primary fw-bold': activeBottomTab === 'style' }"
+            @click="$emit('update:activeBottomTab', 'style')">
+            <i class="fas fa-palette me-1"></i>地圖樣式
           </button>
         </li>
       </ul>
     </div>
     
     <!-- 底部Tab內容 -->
-    <div class="tab-content h-100 overflow-hidden">
+    <div ref="bottomTabContentRef" class="tab-content h-100 overflow-auto p-3">
       <!-- 數據表格Tab -->
       <div v-show="activeBottomTab === 'table'" class="h-100">
         <DataTableTab
@@ -37,93 +37,86 @@
           @highlight-on-map="$emit('highlight-on-map', $event)" />
       </div>
       
-      <!-- 控制面板Tab -->
-      <div v-show="activeBottomTab === 'controls'" class="h-100">
-        <ControlsTab
-          :zoomLevel="zoomLevel"
-          :currentCoords="currentCoords"
-          :bottomPanelHeight="bottomPanelHeight"
-          :isLoadingData="isLoadingData"
-          :showTainanLayer="showTainanLayer"
-          :selectedColorScheme="selectedColorScheme"
-          :maxCount="maxCount"
-          @update:zoomLevel="$emit('update:zoomLevel', $event)"
-          @update:selectedColorScheme="$emit('update:selectedColorScheme', $event)"
-          @reset-view="$emit('reset-view')" />
+      <!-- 新的樣式設定 Tab -->
+      <div v-show="activeBottomTab === 'style'" class="container-fluid mt-2">
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label for="bottomColorSchemeSelect" class="form-label small fw-medium">色票方案:</label>
+            <select 
+              id="bottomColorSchemeSelect" 
+              class="form-select form-select-sm"
+              :value="selectedColorScheme"
+              @change="$emit('update:selectedColorScheme', $event.target.value)">
+              <option v-for="(scheme, key) in appColorSchemes" :key="key" :value="key">
+                {{ scheme.name }}
+              </option>
+            </select>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label for="bottomBorderColorSelect" class="form-label small fw-medium">框線顏色:</label>
+            <select 
+              id="bottomBorderColorSelect" 
+              class="form-select form-select-sm"
+              :value="selectedBorderColor"
+              @change="$emit('update:selectedBorderColor', $event.target.value)">
+              <option value="#000000">黑色</option>
+              <option value="#666666">深灰色</option>
+              <option value="#CCCCCC">淺灰色</option>
+              <option value="#FFFFFF">白色</option>
+              <option value="#FF0000">紅色</option>
+              <option value="#0000FF">藍色</option>
+              <option value="#008000">綠色</option>
+              <option value="transparent">無框線 (Transparent)</option>
+            </select>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label for="bottomBorderWeightSelect" class="form-label small fw-medium">框線粗細 (px):</label>
+            <select 
+              id="bottomBorderWeightSelect" 
+              class="form-select form-select-sm"
+              :value="selectedBorderWeight"
+              @change="$emit('update:selectedBorderWeight', parseInt($event.target.value))">
+              <option value="0">0 (無)</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+            </select>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { computed, ref, watch, nextTick } from 'vue'
 import DataTableTab from './tabs/DataTableTab.vue'
-import ControlsTab from './tabs/ControlsTab.vue'
+import { COLOR_SCHEMES } from '../utils/dataProcessor.js'
 
 export default {
   name: 'BottomPanel',
   components: {
     DataTableTab,
-    ControlsTab
   },
   props: {
-    // Tab狀態
-    activeBottomTab: {
-      type: String,
-      default: 'table'
-    },
-    // 面板尺寸
-    bottomPanelHeight: {
-      type: Number,
-      default: 300
-    },
-    // 表格數據
-    mergedTableData: {
-      type: Array,
-      default: () => []
-    },
-    sortedAndFilteredTableData: {
-      type: Array,
-      default: () => []
-    },
-    tableSearchQuery: {
-      type: String,
-      default: ''
-    },
-    sortField: {
-      type: String,
-      default: ''
-    },
-    sortDirection: {
-      type: String,
-      default: 'asc'
-    },
-    // 地圖控制
-    zoomLevel: {
-      type: Number,
-      default: 10
-    },
-    currentCoords: {
-      type: Object,
-      default: () => ({ lat: 0, lng: 0 })
-    },
-    // 系統狀態
-    isLoadingData: {
-      type: Boolean,
-      default: false
-    },
-    // 圖層狀態
-    showTainanLayer: {
-      type: Boolean,
-      default: false
-    },
-    selectedColorScheme: {
-      type: String,
-      default: ''
-    },
-    maxCount: {
-      type: Number,
-      default: 0
-    }
+    activeBottomTab: { type: String, default: 'table' },
+    bottomPanelHeight: { type: Number, default: 300 },
+    mergedTableData: { type: Array, default: () => [] },
+    sortedAndFilteredTableData: { type: Array, default: () => [] },
+    tableSearchQuery: { type: String, default: '' },
+    sortField: { type: String, default: '' },
+    sortDirection: { type: String, default: 'asc' },
+    zoomLevel: { type: Number, default: 10 },
+    currentCoords: { type: Object, default: () => ({ lat: 0, lng: 0 }) },
+    isLoadingData: { type: Boolean, default: false },
+    showTainanLayer: { type: Boolean, default: false },
+    selectedColorScheme: { type: String, default: 'viridis' },
+    selectedBorderColor: { type: String, default: '#666666' },
+    selectedBorderWeight: { type: Number, default: 1 },
+    maxCount: { type: Number, default: 0 },
+    isPanelDragging: { type: Boolean, default: false }
   },
   emits: [
     'update:activeBottomTab',
@@ -132,7 +125,26 @@ export default {
     'highlight-on-map',
     'update:zoomLevel',
     'update:selectedColorScheme',
+    'update:selectedBorderColor',
+    'update:selectedBorderWeight',
     'reset-view'
-  ]
+  ],
+  setup(props) {
+    const appColorSchemes = computed(() => COLOR_SCHEMES)
+    const bottomTabContentRef = ref(null)
+
+    watch(() => props.isPanelDragging, (dragging) => {
+      nextTick(() => {
+        if (bottomTabContentRef.value) {
+          bottomTabContentRef.value.style.pointerEvents = dragging ? 'none' : 'auto';
+        }
+      });
+    }, { immediate: true });
+
+    return {
+      appColorSchemes,
+      bottomTabContentRef
+    }
+  }
 }
 </script> 

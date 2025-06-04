@@ -1,35 +1,37 @@
 <template>
   <div id="map-container" class="h-100 w-100 position-relative">
-    <!-- 🎛️ 底圖控制區 (Basemap Control) -->
-    <div class="basemap-control card shadow-sm" style="top: 80px; right: 15px;">
-      <div class="card-body p-2">
-        <label for="basemap-select" class="form-label mb-1 small fw-medium">底圖選擇</label>
+    <!-- 🗺️ 地圖容器 -->
+    <div id="leaflet-map" ref="mapContainer" class="h-100 w-100"></div>
+
+    <!-- ✨ 新的底部中央地圖控制項 ✨ -->
+    <div class="map-bottom-controls">
+      <div class="basemap-select-group">
+        <label for="basemap-select" class="form-label mb-0 small fw-medium me-2">底圖:</label>
         <select 
           id="basemap-select"
           class="form-select form-select-sm" 
           v-model="selectedBasemap" 
-          @change="changeBasemap">
+          @change="changeBasemap"
+          style="width: auto; min-width: 120px;">
           <option value="osm">OpenStreetMap</option>
-          <option value="satellite">衛星圖</option>
+          <option value="esri_street">Esri Street</option>
+          <option value="bing_road">Bing Maps Road</option>
+          <option value="bing_aerial">Bing Maps Aerial</option>
+          <!-- <option value="google_road">Google Maps Road</option> -->
+          <!-- <option value="google_satellite">Google Maps Satellite</option> -->
           <option value="terrain">地形圖</option>
-          <option value="dark">深色模式</option>
+          <option value="aerial">空照圖 (Esri)</option>
+          <option value="blank">空白無地圖</option>
         </select>
-        
-        <!-- 🎯 顯示全部按鈕 -->
-        <div class="mt-2">
-          <button 
-            class="btn btn-outline-primary btn-sm w-100"
-            @click="showAllFeatures"
-            :disabled="!tainanGeoJSONData || !showTainanLayer">
-            <i class="fas fa-expand-arrows-alt me-1"></i>
-            顯示全部
-          </button>
-        </div>
       </div>
+      <button 
+        class="btn btn-outline-primary btn-sm"
+        @click="showAllFeatures"
+        :disabled="!tainanGeoJSONData || !showTainanLayer"
+        title="顯示全部資料範圍">
+        <i class="fas fa-expand-arrows-alt me-1"></i>顯示全部
+      </button>
     </div>
-    
-    <!-- 🗺️ 地圖容器 -->
-    <div id="leaflet-map" ref="mapContainer" class="h-100 w-100"></div>
   </div>
 </template>
 
@@ -57,6 +59,8 @@ export default {
     showTainanLayer: { type: Boolean, default: false },
     selectedFilter: { type: String, default: '' },
     selectedColorScheme: { type: String, default: 'viridis' },
+    selectedBorderColor: { type: String, default: '#666666' },
+    selectedBorderWeight: { type: Number, default: 1 },
     zoomLevel: { type: Number, default: 10 },
     tainanGeoJSONData: { type: Object, default: null },
     maxCount: { type: Number, default: 0 }
@@ -75,19 +79,35 @@ export default {
     const basemaps = {
       osm: {
         url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        attribution: '© OpenStreetMap contributors'
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       },
-      satellite: {
-        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-        attribution: '© Esri'
+      esri_street: {
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012'
+      },
+      bing_road: {
+        url: 'https://t{s}.ssl.ak.dynamic.tiles.virtualearth.net/comp/ch/{q}?mkt=en-US&it=G,L&shading=hill&og=30&n=z',
+        subdomains: ['0', '1', '2', '3', '4'],
+        attribution: '&copy; <a href="https://www.bing.com/maps">Bing Maps</a>, Microsoft',
+        note: "Bing Maps 可能需要 API 金鑰或特定插件才能穩定運作。"
+      },
+      bing_aerial: {
+        url: 'https://ecn.t{s}.tiles.virtualearth.net/tiles/a{q}.jpeg?g=587&mkt=en-US',
+        subdomains: ['0', '1', '2', '3', '4'],
+        attribution: '&copy; <a href="https://www.bing.com/maps">Bing Maps</a>, Microsoft, Maxar',
+        note: "Bing Maps 可能需要 API 金鑰或特定插件才能穩定運作。"
       },
       terrain: {
         url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-        attribution: '© OpenTopoMap'
+        attribution: '&copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
       },
-      dark: {
-        url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-        attribution: '© CartoDB'
+      aerial: {
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+      },
+      blank: {
+        url: '',
+        attribution: ''
       }
     }
     
@@ -114,9 +134,12 @@ export default {
         map = L.map(mapContainer.value, {
           center: [22.9908, 120.2133], // 台南市中心
           zoom: props.zoomLevel,
-          zoomControl: true,
+          zoomControl: false, // 先禁用默認的縮放控件
           attributionControl: true
         })
+        
+        // 手動添加縮放控件到右下角
+        L.control.zoom({ position: 'bottomright' }).addTo(map)
         
         mapStatus.value = '載入底圖...'
         
@@ -146,16 +169,30 @@ export default {
     const loadBasemap = () => {
       if (currentTileLayer) {
         map.removeLayer(currentTileLayer)
+        currentTileLayer = null
       }
       
-      const basemap = basemaps[selectedBasemap.value]
-      currentTileLayer = L.tileLayer(basemap.url, {
-        attribution: basemap.attribution,
+      const basemapConfig = basemaps[selectedBasemap.value]
+      
+      if (selectedBasemap.value === 'blank' || !basemapConfig || !basemapConfig.url) {
+        console.log('底圖已切換至: 空白無地圖')
+        if (map.attributionControl) {
+          map.attributionControl.setPrefix('');
+        }
+        return;
+      }
+      
+      currentTileLayer = L.tileLayer(basemapConfig.url, {
+        attribution: basemapConfig.attribution,
+        subdomains: basemapConfig.subdomains || 'abc',
         maxZoom: 18
       })
       
       currentTileLayer.addTo(map)
       console.log(`底圖已切換至: ${selectedBasemap.value}`)
+      if (basemapConfig.note) {
+        console.warn(basemapConfig.note);
+      }
     }
     
     // 切換底圖
@@ -168,7 +205,8 @@ export default {
     // 創建台南圖層
     const createTainanLayer = () => {
       console.log('創建台南圖層...')
-      
+      console.log('🎨 Border Color:', props.selectedBorderColor, 'Weight:', props.selectedBorderWeight);
+
       // 清除現有圖層
       if (tainanLayer) {
         map.removeLayer(tainanLayer)
@@ -184,9 +222,9 @@ export default {
               
               return {
                 fillColor: color,
-                weight: 2,
+                weight: props.selectedBorderWeight,
                 opacity: 1,
-                color: '#666',
+                color: props.selectedBorderColor,
                 fillOpacity: 0.7
               }
             },
@@ -320,10 +358,8 @@ export default {
             duration: 1.0
           })
           
-          // 等待地圖移動完成後顯示tooltip
-          setTimeout(() => {
-            layer.openPopup()
-          }, 1100)
+          // 立即顯示tooltip
+          layer.openPopup()
           
           console.log(`🎯 已定位到區域: ${feature.properties.name || code2}`)
         }
@@ -391,6 +427,16 @@ export default {
       createTainanLayer()
     })
     
+    watch(() => props.selectedBorderColor, () => {
+      console.log('框線顏色變更:', props.selectedBorderColor);
+      createTainanLayer();
+    });
+
+    watch(() => props.selectedBorderWeight, () => {
+      console.log('框線粗細變更:', props.selectedBorderWeight);
+      createTainanLayer();
+    });
+    
     watch(() => props.zoomLevel, (newZoom) => {
       if (map && map.getZoom() !== newZoom) {
         map.setZoom(newZoom)
@@ -436,24 +482,34 @@ export default {
   position: relative;
   height: 100%;
   width: 100%;
-  background-color: #f0f0f0;
+  background-color: #f0f0f0; /* Fallback background */
 }
 
 #leaflet-map {
-  height: 100% !important;
+  height: 100% !important; /* Ensure Leaflet map takes full dimensions */
   width: 100% !important;
-  z-index: 1;
+  z-index: 1; /* Base z-index for the map */
 }
 
-/* 底圖控制樣式 */
-.basemap-control {
+/* ✨ 新的底部中央地圖控制項樣式 ✨ */
+.map-bottom-controls {
   position: absolute;
-  z-index: 1000;
-  min-width: 160px;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000; /* Above map tiles */
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 10px 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
-.basemap-control select {
-  font-size: 0.875rem;
+.basemap-select-group {
+  display: flex;
+  align-items: center;
 }
 
 /* 自定義工具提示樣式 */

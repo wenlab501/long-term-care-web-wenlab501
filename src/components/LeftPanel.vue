@@ -10,12 +10,13 @@
     </div>
 
     <!-- 🎛️ 主控制區域 (Main Control Area) - 使用緊湊樣式 -->
-    <div class="flex-grow-1 overflow-auto">
+    <div class="flex-grow-1 overflow-auto p-3">
       
       <!-- 📥 拖曳上傳區域 (Drag Upload Area) - 去除卡片包裝 -->
-      <div class="p-3">
+      <div class="mb-3">
+        <h6 class="text-muted small text-uppercase mb-2">數據上傳</h6>
         <div 
-          class="my-drag-upload-area border border-dashed rounded text-center bg-white"
+          class="my-drag-upload-area border border-dashed rounded text-center bg-white p-3"
           :class="{ 'border-primary bg-light': isDragOver }"
           @drop="handleDrop"
           @dragover.prevent="handleDragOver"
@@ -24,13 +25,12 @@
           @click="triggerFileInput">
           
           <div class="mb-2">
-            <i class="fas fa-cloud-upload-alt fa-lg"></i>
+            <i class="fas fa-cloud-upload-alt fa-lg text-muted"></i>
           </div>
           
           <div class="my-font-size-sm mb-1">xlsx檔案上傳</div>
-          <div class="my-font-size-sm">拖曳檔案到這裡或點擊上傳</div>
+          <div class="my-font-size-xs text-muted">拖曳檔案或點擊此處</div>
           
-          <!-- 隱藏的檔案輸入框 -->
           <input
             ref="fileInput"
             type="file"
@@ -40,17 +40,16 @@
             @change="handleFileSelect">
         </div>
         
-        <!-- 📁 上傳檔案列表 (Uploaded Files List) -->
         <div v-if="uploadedFiles.length > 0" class="mt-2">
           <div class="list-group list-group-flush">
             <div v-for="file in uploadedFiles" :key="file.id" 
-                 class="list-group-item list-group-item-action p-2 d-flex justify-content-between align-items-center bg-white">
+                 class="list-group-item list-group-item-action p-2 d-flex justify-content-between align-items-center bg-white rounded mb-1 shadow-sm">
               <div class="flex-grow-1 me-2">
-                <div class="small fw-medium">{{ file.name }}</div>
+                <div class="small fw-medium text-truncate" :title="file.name">{{ file.name }}</div>
                 <small class="text-muted">{{ formatFileSize(file.size) }}</small>
               </div>
               <button 
-                class="btn btn-outline-danger btn-sm" 
+                class="btn btn-outline-danger btn-sm border-0" 
                 @click="removeFile(file.id)"
                 title="移除檔案">
                 <i class="fas fa-times"></i>
@@ -61,7 +60,8 @@
       </div>
 
       <!-- 📥 數據載入區域 (Data Loading Section) -->
-      <div class="px-3 pb-3">
+      <div class="mb-3">
+        <h6 class="text-muted small text-uppercase mb-2">數據處理</h6>
         <div class="d-grid">
           <button 
             class="btn btn-success" 
@@ -71,19 +71,20 @@
               <span class="spinner-border spinner-border-sm me-1" role="status"></span>
               載入中...
             </span>
-            <span v-else>載入數據</span>
+            <span v-else><i class="fas fa-database me-1"></i> 載入預設數據</span>
           </button>
         </div>
       </div>
 
       <!-- 🔬 分析控制區域 (Analysis Control Section) -->
-      <div class="px-3 pb-3">
+      <div class="mb-3">
+         <h6 class="text-muted small text-uppercase mb-2">空間分析</h6>
         <div class="d-grid">
           <button 
             class="btn btn-primary" 
             @click="$emit('start-analysis')" 
             :disabled="!canStartAnalysis">
-            開始分析
+            <i class="fas fa-cogs me-1"></i> 開始分析
           </button>
         </div>
       </div>
@@ -159,13 +160,6 @@ export default {
       default: 0,
       required: true
     },
-    
-    /** 🎨 選擇的色票方案 */
-    selectedColorScheme: {
-      type: String,
-      default: 'viridis',
-      required: true
-    }
   },
   
   /**
@@ -180,7 +174,6 @@ export default {
     'files-uploaded',             // 檔案上傳事件
     'update:zoomLevel',            // 更新地圖縮放級別
     'update:activeMarkers',        // 更新活躍標記數量
-    'update:selectedColorScheme'    // 更新色票方案
   ],
 
   /**

@@ -30,7 +30,6 @@
                 :canStartAnalysis="canStartAnalysis"
                 :showTainanLayer="showTainanLayer"
                 :selectedFilter="selectedFilter"
-                :selectedColorScheme="selectedColorScheme"
                 :leftPanelWidth="leftPanelWidth"
                 :zoomLevel="zoomLevel"
                 :activeMarkers="activeMarkers"
@@ -40,7 +39,7 @@
                 @start-analysis="startAnalysis"
                 @update:showTainanLayer="showTainanLayer = $event"
                 @update:selectedFilter="selectedFilter = $event"
-                @update:selectedColorScheme="selectedColorScheme = $event" />
+                />
             </div>
             
             <!-- 🔧 左側拖曳調整器 (Left Resizer) - 增強視覺效果 -->
@@ -61,12 +60,15 @@
               :showTainanLayer="showTainanLayer"
               :selectedFilter="selectedFilter"
               :selectedColorScheme="selectedColorScheme"
+              :selectedBorderColor="selectedBorderColor"
+              :selectedBorderWeight="selectedBorderWeight"
               :zoomLevel="zoomLevel"
               :tainanGeoJSONData="tainanGeoJSONData"
               :maxCount="maxCount"
               :mergedTableData="mergedTableData"
               :averageCount="averageCount"
               :dataRegionsCount="dataRegionsCount"
+              :isPanelDragging="isDragging"
               @update:activeTab="activeTab = $event"
               @update:zoomLevel="zoomLevel = $event"
               @update:currentCoords="currentCoords = $event"
@@ -82,7 +84,7 @@
             <!-- 📊 底部控制面板 (Bottom Control Panel) - Bootstrap卡片樣式 -->
             <BottomPanel 
               :activeBottomTab="activeBottomTab"
-              :bottomPanelHeight="bottomPanelHeight"
+              :bottomPanelHeight="actualBottomPanelPixelHeight"
               :mergedTableData="mergedTableData"
               :sortedAndFilteredTableData="sortedAndFilteredTableData"
               :tableSearchQuery="tableSearchQuery"
@@ -93,13 +95,18 @@
               :isLoadingData="isLoadingData"
               :showTainanLayer="showTainanLayer"
               :selectedColorScheme="selectedColorScheme"
+              :selectedBorderColor="selectedBorderColor"
+              :selectedBorderWeight="selectedBorderWeight"
               :maxCount="maxCount"
+              :isPanelDragging="isDragging"
               @update:activeBottomTab="activeBottomTab = $event"
               @update:tableSearchQuery="tableSearchQuery = $event"
               @sort-table="sortTable"
               @highlight-on-map="highlightOnMap"
               @update:zoomLevel="zoomLevel = $event"
               @update:selectedColorScheme="selectedColorScheme = $event"
+              @update:selectedBorderColor="selectedBorderColor = $event"
+              @update:selectedBorderWeight="selectedBorderWeight = $event"
               @reset-view="resetView" />
           </div>
 
@@ -211,9 +218,9 @@ export default {
     const activeRightTab = ref('results')
 
     // 📏 面板大小狀態 - 使用百分比系統 (Panel Size States - Percentage Based)
-    const leftPanelWidth = ref(20)        // 左側面板寬度百分比 (10-100%)
-    const rightPanelWidth = ref(20)       // 右側面板寬度百分比 (10-100%)
-    const bottomPanelHeight = ref(null)   // 底部面板高度像素值，將在掛載時初始化
+    const leftPanelWidth = ref(20)        // 左側面板寬度百分比 (0-100%)
+    const rightPanelWidth = ref(20)       // 右側面板寬度百分比 (0-100%)
+    const bottomPanelHeightPercent = ref(30) // 底部面板高度百分比 (0-100%)
     const windowWidth = ref(window.innerWidth)
     const windowHeight = ref(window.innerHeight)
 
@@ -222,9 +229,16 @@ export default {
     const rightPanelWidthPx = computed(() => `${rightPanelWidth.value}%`)
     const mainPanelWidth = computed(() => 100 - leftPanelWidth.value - rightPanelWidth.value)
     const mainPanelWidthPx = computed(() => `${mainPanelWidth.value}%`)
-    const contentHeight = computed(() => 
-      bottomPanelHeight.value ? windowHeight.value - bottomPanelHeight.value - 116 : windowHeight.value - 116
-    )
+
+    const middleSectionTotalHeight = computed(() => windowHeight.value - 116) // 116 for header/footer etc.
+
+    const actualBottomPanelPixelHeight = computed(() => {
+      return (bottomPanelHeightPercent.value / 100) * middleSectionTotalHeight.value;
+    });
+
+    const contentHeight = computed(() => {
+      return middleSectionTotalHeight.value - actualBottomPanelPixelHeight.value;
+    });
 
     // ⏳ 載入狀態 (Loading States)
     const isLoading = ref(false)
@@ -235,10 +249,11 @@ export default {
     const loadingSubText = ref('')
 
     // 🗺️ 地圖和圖層狀態 (Map and Layer States)
-    // 注意：已移除showLayer1和showLayer2（商店標記和熱點區域）
     const showTainanLayer = ref(false)
     const selectedFilter = ref('')
     const selectedColorScheme = ref('viridis')
+    const selectedBorderColor = ref('#666666')
+    const selectedBorderWeight = ref(1)
     const zoomLevel = ref(10)
     const currentCoords = ref({ lat: 25.0330, lng: 121.5654 })
     const totalCount = ref(1250000)
@@ -622,7 +637,7 @@ export default {
       const startY = event.clientY
       const startLeftWidth = leftPanelWidth.value
       const startRightWidth = rightPanelWidth.value
-      const startBottomHeight = bottomPanelHeight.value
+      const startBottomPercent = bottomPanelHeightPercent.value // Use percentage
       
       // 獲取窗口尺寸以計算百分比
       const windowWidth = window.innerWidth
@@ -630,7 +645,7 @@ export default {
       console.log(`🔧 開始調整 ${direction} 方向，初始值:`, {
         leftWidth: startLeftWidth,
         rightWidth: startRightWidth,
-        bottomHeight: startBottomHeight
+        bottomPercent: startBottomPercent // Log percentage
       })
 
       const handleMouseMove = (moveEvent) => {
@@ -643,20 +658,23 @@ export default {
         const deltaXPercent = (deltaX / windowWidth) * 100
         
         if (direction === 'left') {
-          // 調整左側面板寬度 (10-100%) - 修復拖拽方向，向右拖拽增加寬度
-          const newWidth = Math.max(10, Math.min(100, startLeftWidth + deltaXPercent))
+          // 調整左側面板寬度 (0-100%) - 修復拖拽方向，向右拖拽增加寬度
+          const newWidth = Math.max(0, Math.min(100, startLeftWidth + deltaXPercent))
           leftPanelWidth.value = newWidth
         } else if (direction === 'right') {
-          // 調整右側面板寬度 (10-100%) - 向左拖拽增加寬度，向右拖拽減少寬度
-          const newWidth = Math.max(10, Math.min(100, startRightWidth - deltaXPercent))
+          // 調整右側面板寬度 (0-100%) - 向左拖拽增加寬度，向右拖拽減少寬度
+          const newWidth = Math.max(0, Math.min(100, startRightWidth - deltaXPercent))
           rightPanelWidth.value = newWidth
         } else if (direction === 'bottom') {
-          // 調整底部面板高度 (10-100%) - 修復拖拽邏輯，確保可到100%
-          const viewportHeight = windowHeight.value - 116 // 扣除header和footer
-          const deltaYPercent = (deltaY / viewportHeight) * 100
-          const currentHeightPercent = (startBottomHeight / viewportHeight) * 100
-          const newHeightPercent = Math.max(10, Math.min(100, currentHeightPercent - deltaYPercent))
-          bottomPanelHeight.value = (newHeightPercent / 100) * viewportHeight
+          const currentMiddleSectionHeight = middleSectionTotalHeight.value
+          if (currentMiddleSectionHeight === 0) return;
+
+          const deltaPercent = (deltaY / currentMiddleSectionHeight) * 100
+          // 調整拖拉方向：向上拖動 (deltaY < 0) 增加高度百分比，向下拖動 (deltaY > 0) 減少高度百分比。
+          let newPercent = startBottomPercent - deltaPercent 
+          // 限制在 0% 到 100% 之間
+          newPercent = Math.max(0, Math.min(100, newPercent))
+          bottomPanelHeightPercent.value = newPercent
         }
       }
 
@@ -672,7 +690,7 @@ export default {
         console.log('✅ 拖曳調整完成，最終值:', {
           leftWidth: leftPanelWidth.value,
           rightWidth: rightPanelWidth.value,
-          bottomHeight: bottomPanelHeight.value,
+          bottomPercent: bottomPanelHeightPercent.value, // Log percentage
           mainWidth: mainPanelWidth.value
         })
       }
@@ -683,24 +701,20 @@ export default {
     
     /**
      * ✅ 驗證面板尺寸 (Validate Panel Sizes)
-     * 確保面板尺寸在合理範圍內 (10-100%)
+     * 確保面板尺寸在合理範圍內 (0-100%)
      */
     const validatePanelSizes = () => {
-      // 確保各面板在10-100%範圍內
-      leftPanelWidth.value = Math.max(10, Math.min(100, leftPanelWidth.value))
-      rightPanelWidth.value = Math.max(10, Math.min(100, rightPanelWidth.value))
+      // 確保各面板在0-100%範圍內 (左右面板的最小寬度仍可討論，暫定0)
+      leftPanelWidth.value = Math.max(0, Math.min(100, leftPanelWidth.value))
+      rightPanelWidth.value = Math.max(0, Math.min(100, rightPanelWidth.value))
       
-      // 底部面板高度限制 (10-100%)
-      if (bottomPanelHeight.value !== null) {
-        const viewportHeight = windowHeight.value - 116 // 扣除header和footer
-        const minHeight = (10 / 100) * viewportHeight
-        const maxHeight = (100 / 100) * viewportHeight
-        bottomPanelHeight.value = Math.max(minHeight, Math.min(maxHeight, bottomPanelHeight.value))
-      }
+      // 底部面板高度百分比限制 (0-100%)
+      bottomPanelHeightPercent.value = Math.max(0, Math.min(100, bottomPanelHeightPercent.value))
       
       // 四捨五入到一位小數
       leftPanelWidth.value = Math.round(leftPanelWidth.value * 10) / 10
       rightPanelWidth.value = Math.round(rightPanelWidth.value * 10) / 10
+      bottomPanelHeightPercent.value = Math.round(bottomPanelHeightPercent.value * 10) / 10
     }
 
     // 📏 視窗大小變化處理 (Window Resize Handler)
@@ -716,9 +730,8 @@ export default {
      * 🚀 組件掛載 (Component Mounted)
      */
     onMounted(() => {
-      // 初始化底部面板高度為30%
-      const viewportHeight = windowHeight.value - 116 // 扣除header和footer
-      bottomPanelHeight.value = (30 / 100) * viewportHeight
+      // 初始化時 bottomPanelHeightPercent 已經是 30%
+      // 無需再計算像素值進行初始化
       
       window.addEventListener('resize', handleWindowResize)
       console.log('🚀 空間分析平台已初始化')
@@ -753,6 +766,8 @@ export default {
       showTainanLayer,
       selectedFilter,
       selectedColorScheme,
+      selectedBorderColor,
+      selectedBorderWeight,
       
       // 🗺️ 地圖狀態
       zoomLevel,
@@ -770,7 +785,8 @@ export default {
       // 📏 面板尺寸（百分比系統）
       leftPanelWidth,
       rightPanelWidth,
-      bottomPanelHeight,
+      bottomPanelHeightPercent,
+      actualBottomPanelPixelHeight,
       leftPanelWidthPx,
       rightPanelWidthPx,
       mainPanelWidth,

@@ -3,41 +3,21 @@
     <!-- 📱 標籤內容 (Tab Content) - 地圖滿版顯示 -->
     <div class="flex-grow-1 overflow-hidden position-relative">
       
-      <!-- 🎛️ 浮動導航按鈕 (Floating Navigation Buttons) - 僅在地圖頁面顯示 -->
-      <div v-if="activeTab === 'map'" class="position-absolute top-0 end-0 m-3" style="z-index: 1000;">
-        <div class="btn-group" role="group">
+      <!-- 🎛️ 統一的導航按鈕 (Unified Navigation Buttons) - 左上角 -->
+      <div class="position-absolute top-0 start-0 m-3" style="z-index: 1000;">
+        <div class="btn-group shadow-sm" role="group">
           <button 
-            class="btn btn-primary btn-sm"
-            :class="{ 'active': activeTab === 'map' }" 
+            class="btn btn-light btn-sm"
+            :class="{ 'btn-primary active': activeTab === 'map', 'text-primary': activeTab !== 'map' }" 
             @click="$emit('update:activeTab', 'map')">
             <i class="fas fa-map me-1"></i> 地圖視圖
           </button>
           <button 
-            class="btn btn-success btn-sm"
-            :class="{ 'active': activeTab === 'dashboard' }" 
+            class="btn btn-light btn-sm"
+            :class="{ 'btn-success active': activeTab === 'dashboard', 'text-success': activeTab !== 'dashboard' }" 
             @click="$emit('update:activeTab', 'dashboard')">
             <i class="fas fa-chart-bar me-1"></i> 數據儀表板
           </button>
-        </div>
-      </div>
-
-      <!-- 🎛️ 固定導航條 (Fixed Navigation Bar) - 僅在數據儀表版頁面顯示 -->
-      <div v-if="activeTab === 'dashboard'" class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm position-sticky top-0" style="z-index: 1000;">
-        <div class="container-fluid">
-          <div class="navbar-nav">
-            <button 
-              class="btn btn-primary btn-sm me-2"
-              :class="{ 'active': activeTab === 'map' }" 
-              @click="$emit('update:activeTab', 'map')">
-              <i class="fas fa-map me-1"></i> 地圖視圖
-            </button>
-            <button 
-              class="btn btn-success btn-sm"
-              :class="{ 'active': activeTab === 'dashboard' }" 
-              @click="$emit('update:activeTab', 'dashboard')">
-              <i class="fas fa-chart-bar me-1"></i> 數據儀表板
-            </button>
-          </div>
         </div>
       </div>
       
@@ -48,6 +28,8 @@
           :showTainanLayer="showTainanLayer"
           :selectedFilter="selectedFilter"
           :selectedColorScheme="selectedColorScheme"
+          :selectedBorderColor="selectedBorderColor"
+          :selectedBorderWeight="selectedBorderWeight"
           :zoomLevel="zoomLevel"
           :tainanGeoJSONData="tainanGeoJSONData"
           :maxCount="maxCount"
@@ -57,14 +39,19 @@
       </div>
       
       <!-- 📊 儀表板標籤 (Dashboard Tab) -->
-      <div v-if="activeTab === 'dashboard'" class="h-100 overflow-auto">
+      <div v-if="activeTab === 'dashboard'" 
+           ref="dashboardContainerRef" 
+           class="h-100 overflow-auto p-3 pt-5">
+        <!-- 為按鈕組留出空間 -->
+        <div style="height: 40px;"></div> 
         <DashboardView 
           ref="dashboardView"
           :mergedTableData="mergedTableData"
           :maxCount="maxCount"
           :averageCount="averageCount"
           :dataRegionsCount="dataRegionsCount"
-          :containerHeight="contentHeight" />
+          :containerHeight="contentHeight"
+          :isPanelDragging="isPanelDragging" />
       </div>
 
       <!-- 🐛 調試信息 (Debug Info) - 當沒有匹配的標籤時顯示 -->
@@ -117,6 +104,11 @@ export default {
       default: 'map',
       required: true
     },
+    /** 🛠️ 是否正在拖曳面板 */
+    isPanelDragging: {
+      type: Boolean,
+      default: false
+    },
     
     /** 📏 主面板寬度百分比 */
     mainPanelWidth: {
@@ -150,6 +142,20 @@ export default {
     selectedColorScheme: {
       type: String,
       default: 'viridis',
+      required: true
+    },
+    
+    /** 🎨 選擇的邊框顏色 */
+    selectedBorderColor: {
+      type: String,
+      default: '#666666',
+      required: true
+    },
+    
+    /** 🎨 選擇的邊框寬度 */
+    selectedBorderWeight: {
+      type: Number,
+      default: 1,
       required: true
     },
     
@@ -212,6 +218,24 @@ export default {
     // 📚 組件引用 (Component References)
     const mapView = ref(null)
     const dashboardView = ref(null)
+    const dashboardContainerRef = ref(null)
+
+    /**
+     * 👀 監聽拖曳狀態和標籤變化以調整儀表板容器的指針事件
+     */
+    watch([() => props.isPanelDragging, () => props.activeTab], ([dragging, tab]) => {
+      nextTick(() => {
+        if (dashboardContainerRef.value) {
+          if (dragging && tab === 'dashboard') {
+            dashboardContainerRef.value.style.pointerEvents = 'none';
+            console.log('Dashboard pointer-events set to none');
+          } else {
+            dashboardContainerRef.value.style.pointerEvents = 'auto';
+            console.log('Dashboard pointer-events set to auto');
+          }
+        }
+      });
+    }, { immediate: true }); // Run immediately to set initial state if dashboard is default
 
     /**
      * 👀 監聽標籤變化 (Watch Tab Changes)
@@ -277,6 +301,7 @@ export default {
     return {
       mapView,
       dashboardView,
+      dashboardContainerRef,
       highlightFeature,
       resetView,
       fitToTainanBounds

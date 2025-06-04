@@ -129,6 +129,11 @@ export default {
       type: Number,
       default: 500,
       required: true
+    },
+    /** 🛠️ 是否正在拖曳面板 */
+    isPanelDragging: {
+      type: Boolean,
+      default: false
     }
   },
   
@@ -404,6 +409,23 @@ export default {
     })
 
     /**
+     * 👀 監聽面板拖曳狀態以調整圖表的指針事件
+     */
+    watch(() => props.isPanelDragging, (dragging) => {
+      nextTick(() => {
+        const newPointerEvents = dragging ? 'none' : 'auto';
+        if (barChart.value) {
+          barChart.value.style.pointerEvents = newPointerEvents;
+          // console.log('Bar chart pointer-events set to:', newPointerEvents);
+        }
+        if (pieChart.value) {
+          pieChart.value.style.pointerEvents = newPointerEvents;
+          // console.log('Pie chart pointer-events set to:', newPointerEvents);
+        }
+      });
+    }, { immediate: true });
+
+    /**
      * 🚀 組件掛載 (Component Mounted)
      */
     onMounted(() => {
@@ -464,15 +486,20 @@ export default {
 
 /* 📈 圖表容器樣式 */
 .chart-container {
-  height: 300px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
+  width: 100%;
+  height: 300px; /* 預設圖表高度 */
+  background-color: #ffffff; /* 圖表背景色 */
+  border-radius: 0.25rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); /* 細微陰影 */
 }
 
 .chart-content {
   width: 100%;
   height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* 📋 卡片樣式增強 */
