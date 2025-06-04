@@ -1,60 +1,60 @@
 <template>
-  <div class="bg-light border-end flex-grow-1 my-custom-scroll">
+  <!-- 🎛️ 左側控制面板 - 簡化版本，減少卡片使用，節省空間 -->
+  <div class="bg-light border-end h-100 d-flex flex-column">
     
     <!-- 📋 面板標題區域 (Panel Header Section) -->
-    <h1 class="p-3">
-      <div class="my-font-size-xl">
+    <div class="p-3 border-bottom bg-primary text-white">
+      <h1 class="h5 mb-0 fw-bold d-flex align-items-center">
+        <i class="fas fa-chart-area me-2"></i>
         登革熱空間分析
-      </div>
-    </h1>
+      </h1>
+    </div>
 
-    <!-- 📥 拖曳上傳區域 (Drag Upload Area) -->
-    <div class="mb-4">
-      <div 
-        class="my-drag-upload-area"
-        :class="{ 'dragover': isDragOver }"
-        @drop="handleDrop"
-        @dragover.prevent="handleDragOver"
-        @dragenter.prevent="handleDragEnter"
-        @dragleave="handleDragLeave"
-        @click="triggerFileInput">
-        
-        <div class="my-drag-upload-icon">
-          <i class="fas fa-cloud-upload-alt"></i>
-        </div>
-        
-        <div class="my-drag-upload-text">
-          拖曳檔案到這裡或點擊上傳
-        </div>
-        
-        <div class="my-drag-upload-subtext">
-          支援 GeoJSON、CSV、Excel 檔案格式
-        </div>
-        
-        <!-- 隱藏的檔案輸入框 -->
-        <input
-          ref="fileInput"
-          type="file"
-          style="display: none"
-          accept=".geojson,.json,.csv,.xlsx,.xls"
-          multiple
-          @change="handleFileSelect">
-      </div>
+    <!-- 🎛️ 主控制區域 (Main Control Area) - 使用緊湊樣式 -->
+    <div class="flex-grow-1 p-3 overflow-auto">
       
-      <!-- 上傳檔案列表 -->
-      <div v-if="uploadedFiles.length > 0" class="mb-3">
-        <h6 class="text-secondary mb-2">
-          <i class="fas fa-list"></i> 已上傳檔案
+      <!-- 📥 拖曳上傳區域 (Drag Upload Area) - 去除卡片包裝 -->
+      <div class="mb-4">
+        <h6 class="text-secondary mb-2 d-flex align-items-center">
+          <i class="fas fa-cloud-upload-alt me-2"></i>檔案上傳
         </h6>
-        <div v-for="file in uploadedFiles" :key="file.id" class="my-uploaded-file-item">
-          <div class="d-flex align-items-center justify-content-between">
-            <div class="flex-grow-1">
-              <div class="fw-medium">{{ file.name }}</div>
-              <small class="text-muted">{{ formatFileSize(file.size) }} • {{ file.type }}</small>
-            </div>
-            <div class="ms-2">
+        <div 
+          class="my-drag-upload-area border border-2 border-dashed rounded p-3 text-center bg-white"
+          :class="{ 'border-primary bg-light': isDragOver }"
+          @drop="handleDrop"
+          @dragover.prevent="handleDragOver"
+          @dragenter.prevent="handleDragEnter"
+          @dragleave="handleDragLeave"
+          @click="triggerFileInput">
+          
+          <div class="mb-2">
+            <i class="fas fa-cloud-upload-alt fa-lg text-muted"></i>
+          </div>
+          
+          <div class="small fw-medium mb-1">拖曳檔案到這裡或點擊上傳</div>
+          <div class="text-muted small">支援 GeoJSON、CSV、Excel</div>
+          
+          <!-- 隱藏的檔案輸入框 -->
+          <input
+            ref="fileInput"
+            type="file"
+            class="d-none"
+            accept=".geojson,.json,.csv,.xlsx,.xls"
+            multiple
+            @change="handleFileSelect">
+        </div>
+        
+        <!-- 📁 上傳檔案列表 (Uploaded Files List) -->
+        <div v-if="uploadedFiles.length > 0" class="mt-2">
+          <div class="list-group list-group-flush">
+            <div v-for="file in uploadedFiles" :key="file.id" 
+                 class="list-group-item list-group-item-action p-2 d-flex justify-content-between align-items-center bg-white">
+              <div class="flex-grow-1 me-2">
+                <div class="small fw-medium">{{ file.name }}</div>
+                <small class="text-muted">{{ formatFileSize(file.size) }}</small>
+              </div>
               <button 
-                class="btn btn-sm btn-outline-danger" 
+                class="btn btn-outline-danger btn-sm" 
                 @click="removeFile(file.id)"
                 title="移除檔案">
                 <i class="fas fa-times"></i>
@@ -63,118 +63,148 @@
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- 📥 數據載入區域 (Data Loading Section) -->
-    <div class="mb-4">
-      <button 
-        class="my-btn btn-success mb-2" 
-        @click="$emit('load-tainan-data')" 
-        :disabled="isLoadingData">
-        <i class="fas fa-download"></i>
-        {{ isLoadingData ? '載入中...' : '載入台南市數據' }}
-      </button>
-      <small class="text-muted d-block">
-        載入GeoJSON和Excel數據進行合併
-      </small>
-    </div>
-
-    <!-- 🔬 分析控制區域 (Analysis Control Section) -->
-    <div class="mb-4">
-      <button 
-        class="my-btn my-btn-analyze mb-2" 
-        @click="$emit('start-analysis')" 
-        :disabled="!canStartAnalysis">
-        <i class="fas fa-play"></i>
-        開始分析
-      </button>
-      <small class="text-muted d-block">
-        對載入的數據進行空間自相關分析
-      </small>
-    </div>
-    
-    <!-- 🗺️ 圖層控制區域 (Layer Control Section) -->
-    <div class="mb-3">
-      <label class="form-label fw-semibold">
-        <i class="fas fa-layer-group me-1"></i>
-        圖層控制
-      </label>
-      <!-- 台南市區域圖層：主要的分析圖層 -->
-      <div class="form-check">
-        <input 
-          class="form-check-input" 
-          type="checkbox" 
-          id="tainan-layer" 
-          :checked="showTainanLayer" 
-          @change="handleTainanLayerToggle">
-        <label class="form-check-label" for="tainan-layer">
-          <i class="fas fa-map me-1"></i>
-          台南市區域
-        </label>
-      </div>
-      <small class="text-muted d-block mt-1">
-        顯示/隱藏台南市行政區域邊界和數據視覺化
-      </small>
-    </div>
-    
-    <!-- 🔍 篩選條件區域 (Filter Control Section) -->
-    <div class="mb-3">
-      <label class="form-label fw-semibold">
-        <i class="fas fa-filter me-1"></i>
-        數據篩選
-      </label>
-      <select 
-        class="form-select" 
-        :value="selectedFilter" 
-        @change="handleFilterChange">
-        <option value="">全部數據</option>
-        <option value="high">高值區域 (>平均值)</option>
-        <option value="medium">中值區域 (平均值±0.5標準差)</option>
-        <option value="low">低值區域 (&lt;平均值)</option>
-        <option value="outliers">異常值區域</option>
-      </select>
-      <small class="text-muted d-block mt-1">
-        根據數據值範圍篩選顯示的區域
-      </small>
-    </div>
-    
-    <!-- 📊 狀態信息區域 (Status Information Section) -->
-    <div class="my-card bg-theme-secondary border-theme mt-4">
-      <div class="card-body p-3">
-        <h6 class="card-title text-primary mb-2">
-          <i class="fas fa-info-circle"></i> 系統狀態
+      <!-- 📥 數據載入區域 (Data Loading Section) -->
+      <div class="mb-4">
+        <h6 class="text-secondary mb-2 d-flex align-items-center">
+          <i class="fas fa-download me-2"></i>數據載入
         </h6>
+        <div class="d-grid">
+          <button 
+            class="btn btn-success" 
+            @click="$emit('load-tainan-data')" 
+            :disabled="isLoadingData">
+            <i class="fas fa-download me-2"></i>
+            <span v-if="isLoadingData">
+              <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+              載入中...
+            </span>
+            <span v-else>載入台南市數據</span>
+          </button>
+        </div>
+        <small class="text-muted d-block mt-1">載入GeoJSON和Excel數據進行合併</small>
+      </div>
+
+      <!-- 🔬 分析控制區域 (Analysis Control Section) -->
+      <div class="mb-4">
+        <h6 class="text-secondary mb-2 d-flex align-items-center">
+          <i class="fas fa-microscope me-2"></i>空間分析
+        </h6>
+        <div class="d-grid">
+          <button 
+            class="btn btn-primary" 
+            @click="$emit('start-analysis')" 
+            :disabled="!canStartAnalysis">
+            <i class="fas fa-play me-2"></i>開始分析
+          </button>
+        </div>
+        <small class="text-muted d-block mt-1">對載入的數據進行空間自相關分析</small>
+      </div>
+      
+      <!-- 🗺️ 圖層控制區域 (Layer Control Section) -->
+      <div class="mb-4">
+        <h6 class="text-secondary mb-2 d-flex align-items-center">
+          <i class="fas fa-layer-group me-2"></i>圖層控制
+        </h6>
+        <div class="bg-white p-2 rounded border">
+          <div class="form-check">
+            <input 
+              class="form-check-input" 
+              type="checkbox" 
+              id="tainan-layer" 
+              :checked="showTainanLayer" 
+              @change="handleTainanLayerToggle">
+            <label class="form-check-label small" for="tainan-layer">
+              <i class="fas fa-map me-1"></i>台南市區域
+            </label>
+          </div>
+        </div>
+        <small class="text-muted d-block mt-1">顯示/隱藏台南市行政區域邊界</small>
+      </div>
+      
+      <!-- 🔍 篩選條件區域 (Filter Control Section) -->
+      <div class="mb-4">
+        <h6 class="text-secondary mb-2 d-flex align-items-center">
+          <i class="fas fa-filter me-2"></i>數據篩選
+        </h6>
+        <select 
+          class="form-select form-select-sm" 
+          :value="selectedFilter" 
+          @change="handleFilterChange">
+          <option value="">全部數據</option>
+          <option value="high">高值區域 (>平均值)</option>
+          <option value="medium">中值區域 (平均值±0.5標準差)</option>
+          <option value="low">低值區域 (&lt;平均值)</option>
+          <option value="outliers">異常值區域</option>
+        </select>
+        <small class="text-muted d-block mt-1">根據數據值範圍篩選顯示的區域</small>
+      </div>
+
+      <!-- 🎨 色票選擇區域 (Color Scheme Selection) -->
+      <div class="mb-4">
+        <h6 class="text-secondary mb-2 d-flex align-items-center">
+          <i class="fas fa-palette me-2"></i>色票方案
+        </h6>
+        <select 
+          class="form-select form-select-sm" 
+          :value="selectedColorScheme" 
+          @change="handleColorSchemeChange">
+          <option value="viridis">Viridis (紫-藍-綠-黃)</option>
+          <option value="plasma">Plasma (紫-粉-橘-黃)</option>
+          <option value="inferno">Inferno (黑-紫-紅-黃)</option>
+          <option value="magma">Magma (黑-紫-粉-白)</option>
+          <option value="cool">Cool (青-藍-紫)</option>
+        </select>
+        <small class="text-muted d-block mt-1">選擇地圖視覺化的色彩方案</small>
+      </div>
+    </div>
+    
+    <!-- 📊 狀態信息區域 (Status Information Section) - 簡化版本 -->
+    <div class="mt-auto p-3 border-top bg-white">
+      <h6 class="text-secondary mb-2 d-flex align-items-center">
+        <i class="fas fa-info-circle me-2"></i>系統狀態
+      </h6>
+      
+      <div class="row g-2 small">
+        <!-- 📏 面板寬度資訊 -->
+        <div class="col-12">
+          <div class="d-flex justify-content-between">
+            <span class="text-muted">
+              <i class="fas fa-arrows-alt-h me-1"></i>面板寬度:
+            </span>
+            <strong>{{ leftPanelWidth.toFixed(1) }}%</strong>
+          </div>
+        </div>
         
-        <!-- 面板寬度資訊 -->
-        <small class="text-muted d-block">
-          <i class="fas fa-arrows-alt-h me-1"></i>
-          面板寬度: {{ leftPanelWidth.toFixed(1) }}%
-        </small>
+        <!-- 📊 台南數據狀態 -->
+        <div class="col-12" v-if="tainanDataSummary">
+          <div class="d-flex justify-content-between">
+            <span class="text-muted">
+              <i class="fas fa-database me-1"></i>載入區域:
+            </span>
+            <strong>{{ tainanDataSummary.totalRegions }}</strong>
+          </div>
+        </div>
         
-        <!-- 台南數據狀態 -->
-        <small class="text-muted d-block" v-if="tainanDataSummary">
-          <i class="fas fa-database me-1"></i>
-          台南數據: {{ tainanDataSummary.mergedCount }}/{{ tainanDataSummary.totalFeatures }} 
-          ({{ tainanDataSummary.mergeRate }}%)
-        </small>
+        <!-- 🗺️ 地圖狀態 -->
+        <div class="col-12">
+          <div class="d-flex justify-content-between">
+            <span class="text-muted">
+              <i class="fas fa-search-plus me-1"></i>縮放級別:
+            </span>
+            <strong>{{ zoomLevel }}</strong>
+          </div>
+        </div>
         
-        <!-- 分析項目計數 -->
-        <small class="text-muted d-block">
-          <i class="fas fa-chart-line me-1"></i>
-          分析項目: {{ analysisList.length }} 個
-        </small>
-        
-        <!-- 數據載入狀態 -->
-        <small class="text-muted d-block">
-          <i class="fas fa-circle me-1" :class="getDataStatusClass()"></i>
-          數據狀態: {{ getDataStatusText() }}
-        </small>
-        
-        <!-- 上傳檔案狀態 -->
-        <small class="text-muted d-block" v-if="uploadedFiles.length > 0">
-          <i class="fas fa-file me-1"></i>
-          上傳檔案: {{ uploadedFiles.length }} 個
-        </small>
+        <!-- 📈 活躍標記數量 -->
+        <div class="col-12" v-if="activeMarkers > 0">
+          <div class="d-flex justify-content-between">
+            <span class="text-muted">
+              <i class="fas fa-map-marker-alt me-1"></i>顯示要素:
+            </span>
+            <strong>{{ activeMarkers.toLocaleString() }}</strong>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -248,6 +278,27 @@ export default {
       type: Array,
       default: () => [],
       required: true
+    },
+    
+    /** 🗺️ 地圖縮放級別 */
+    zoomLevel: {
+      type: Number,
+      default: 10,
+      required: true
+    },
+    
+    /** 📈 活躍標記數量 */
+    activeMarkers: {
+      type: Number,
+      default: 0,
+      required: true
+    },
+    
+    /** 🎨 選擇的色票方案 */
+    selectedColorScheme: {
+      type: String,
+      default: 'viridis',
+      required: true
     }
   },
   
@@ -260,7 +311,10 @@ export default {
     'start-analysis',        // 開始分析事件
     'update:showTainanLayer',     // 更新台南圖層顯示狀態
     'update:selectedFilter',      // 更新篩選條件
-    'files-uploaded'             // 檔案上傳事件
+    'files-uploaded',             // 檔案上傳事件
+    'update:zoomLevel',            // 更新地圖縮放級別
+    'update:activeMarkers',        // 更新活躍標記數量
+    'update:selectedColorScheme'    // 更新色票方案
   ],
 
   /**
@@ -384,7 +438,7 @@ export default {
     }
     
     /**
-     * 🏷️ 取得檔案類型標籤
+     * ��️ 取得檔案類型標籤
      * @param {File} file - 檔案物件
      * @returns {string} 檔案類型標籤
      */
@@ -428,6 +482,36 @@ export default {
       }
     }
     
+    /**
+     * 🗺️ 處理台南圖層顯示切換
+     * @param {Event} event - 核取方塊變更事件
+     */
+    const handleTainanLayerToggle = (event) => {
+      const isVisible = event.target.checked
+      console.log('🗺️ 台南圖層顯示狀態:', isVisible)
+      emit('update:showTainanLayer', isVisible)
+    }
+    
+    /**
+     * 🔍 處理篩選條件變更
+     * @param {Event} event - 選擇框變更事件
+     */
+    const handleFilterChange = (event) => {
+      const newFilter = event.target.value
+      console.log('🔍 篩選條件變更:', newFilter)
+      emit('update:selectedFilter', newFilter)
+    }
+    
+    /**
+     * 🎨 處理色票方案變更
+     * @param {Event} event - 選擇框變更事件
+     */
+    const handleColorSchemeChange = (event) => {
+      const newScheme = event.target.value
+      console.log('🎨 色票方案變更:', newScheme)
+      emit('update:selectedColorScheme', newScheme)
+    }
+    
     return {
       // 拖曳上傳相關
       isDragOver,
@@ -440,7 +524,10 @@ export default {
       handleDragLeave,
       handleDrop,
       formatFileSize,
-      removeFile
+      removeFile,
+      handleTainanLayerToggle,
+      handleFilterChange,
+      handleColorSchemeChange
     }
   },
   
@@ -448,26 +535,6 @@ export default {
    * 🔧 組件方法定義 (Component Methods)
    */
   methods: {
-    /**
-     * 🗺️ 處理台南圖層顯示切換
-     * @param {Event} event - 核取方塊變更事件
-     */
-    handleTainanLayerToggle(event) {
-      const isVisible = event.target.checked
-      console.log('🗺️ 台南圖層顯示狀態:', isVisible)
-      this.$emit('update:showTainanLayer', isVisible)
-    },
-    
-    /**
-     * 🔍 處理篩選條件變更
-     * @param {Event} event - 選擇框變更事件
-     */
-    handleFilterChange(event) {
-      const newFilter = event.target.value
-      console.log('🔍 篩選條件變更:', newFilter)
-      this.$emit('update:selectedFilter', newFilter)
-    },
-    
     /**
      * 📊 取得數據狀態的CSS類別
      * @returns {string} 狀態指示燈的CSS類別
@@ -503,120 +570,78 @@ export default {
 /**
  * 🎨 左側面板樣式 (Left Panel Styles)
  * 
- * 使用新的主題色彩變數系統
+ * 主要使用Bootstrap樣式，僅保留必要的自定義樣式
+ * 優先使用Bootstrap utility classes而非自定義CSS
  */
 
-/* 📝 標題樣式 */
-.my-title-xl {
+/* 📋 面板基礎樣式 - 必要的高度設定 */
+.bg-light {
+  height: 100vh; /* 垂直滿版 - 必須保留此設定 */
+}
+
+/* 📝 自定義字體大小類別 - 與CSS變數系統整合 */
+.my-font-size-xl {
   font-size: var(--my-font-size-xl);
 }
 
-
-/* 📋 面板基礎樣式 */
-.bg-light {
-  background-color: var(--my-panel-bg) !important;
-  height: 100vh; /* 垂直滿版 */
+/* 📁 拖曳上傳區域樣式 - Bootstrap無法提供的互動效果 */
+.my-drag-upload-area {
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.border-end {
-  border-color: var(--my-panel-border) !important;
+.my-drag-upload-area:hover {
+  background-color: var(--bs-light) !important;
+  border-color: var(--bs-primary) !important;
 }
 
-/* 🔘 按鈕樣式增強 */
-.my-btn {
-  font-size: var(--my-font-size-btn);
-  font-weight: var(--my-font-weight-medium);
-  border-radius: var(--my-radius-base);
-  transition: var(--my-transition-base);
+.my-drag-upload-area.border-primary {
+  background-color: rgba(var(--bs-primary-rgb), 0.1) !important;
 }
 
-.my-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* 📝 表單控制項樣式 */
-.form-select,
-.form-check-input {
-  font-size: var(--my-font-size-input);
-  border-color: var(--my-input-border);
-  transition: var(--my-transition-base);
-}
-
-.form-select:focus,
-.form-check-input:focus {
-  border-color: var(--my-input-focus);
-  box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
-}
-
-/* 📇 卡片樣式 */
-.my-card {
-  border-radius: var(--my-radius-lg);
-  box-shadow: var(--my-shadow-sm);
-  transition: var(--my-transition-base);
-}
-
-.my-card:hover {
-  box-shadow: var(--my-shadow-md);
-}
-
-/* 📁 上傳檔案項目樣式 */
-.my-uploaded-file-item {
-  background-color: var(--my-bg-light);
-  border: 1px solid var(--my-border-light);
-  border-radius: var(--my-radius-base);
-  padding: var(--my-spacing-3);
-  margin-bottom: var(--my-spacing-2);
-  transition: var(--my-transition-base);
-}
-
-.my-uploaded-file-item:hover {
-  background-color: var(--my-bg-secondary);
-  border-color: var(--my-primary-color);
-}
-
-.my-uploaded-file-item .fw-medium {
-  font-weight: var(--my-font-weight-medium);
-  color: var(--my-text-primary);
-  font-size: var(--my-font-size-sm);
-}
-
-.my-uploaded-file-item small {
-  color: var(--my-text-muted);
-  font-size: var(--my-font-size-xs);
-}
-
-.my-uploaded-file-item .btn-outline-danger {
-  font-size: var(--my-font-size-xs);
-  padding: var(--my-spacing-1) var(--my-spacing-2);
-  border-radius: var(--my-radius-sm);
-}
-
-/* 📊 狀態指示器 */
+/* 📊 狀態指示器顏色 - 與Bootstrap主題整合 */
 .text-warning {
-  color: var(--my-warning-color) !important;
+  color: var(--bs-warning) !important;
 }
 
 .text-success {
-  color: var(--my-success-color) !important;
+  color: var(--bs-success) !important;
 }
 
 .text-secondary {
-  color: var(--my-text-secondary) !important;
+  color: var(--bs-secondary) !important;
 }
 
-/* 📱 響應式設計 */
+/* 📱 響應式設計 - 使用Bootstrap斷點 */
 @media (max-width: 768px) {
-  .my-uploaded-file-item {
-    padding: var(--my-spacing-2);
+  .card-body {
+    padding: 1rem;
   }
   
-  .my-uploaded-file-item .fw-medium {
-    font-size: var(--my-font-size-xs);
-  }
-  
-  .my-uploaded-file-item small {
-    font-size: 0.7rem;
+  .list-group-item {
+    padding: 0.75rem;
   }
 }
+
+/* 
+================================================================================
+🗑️ 以下是未使用的CSS樣式 (可以安全移除，但保留備查)
+================================================================================
+
+未使用的樣式包括：
+1. .my-btn - 已改用Bootstrap按鈕類別
+2. .form-select, .form-check-input 自定義樣式 - Bootstrap預設樣式已足夠
+3. .my-card - 已改用Bootstrap .card
+4. .my-uploaded-file-item - 已改用Bootstrap .list-group-item
+5. 大部分邊距和間距設定 - 已改用Bootstrap spacing utilities (p-*, m-*, etc.)
+6. 顏色相關自定義變數 - 已改用Bootstrap顏色系統
+
+保留的必要樣式：
+1. .bg-light 的 height: 100vh - 確保面板垂直滿版
+2. .my-font-size-xl - 自定義字體大小
+3. .my-drag-upload-area 相關樣式 - 互動效果
+4. 狀態指示器顏色 - 保持一致性
+
+================================================================================
+*/
 </style> 

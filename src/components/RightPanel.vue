@@ -1,5 +1,5 @@
 <template>
-  <div class="my-right-panel bg-light border-start p-3 flex-grow-1 custom-scroll">
+  <div class="my-right-panel bg-light border-start p-3 h-100 d-flex flex-column custom-scroll">
     <h5 class="text-primary fw-bold mb-3">
       <i class="fas fa-chart-line"></i> 右側控制面版
     </h5>
@@ -27,7 +27,7 @@
     </div>
     
     <!-- 右側Tab內容 -->
-    <div class="tab-content flex-grow-1">
+    <div class="tab-content flex-grow-1 overflow-auto">
       <!-- 分析結果Tab -->
       <div v-show="activeRightTab === 'results'" class="h-100">
         <AnalysisResultsTab
@@ -56,7 +56,7 @@
     </div>
     
     <!-- 面板狀態資訊 -->
-    <div class="mt-3">
+    <div class="mt-auto">
       <div class="card bg-light border-0">
         <div class="card-body p-2">
           <SystemInfo 
@@ -172,7 +172,25 @@ export default {
 
 /* 📋 面板基礎樣式 */
 .my-right-panel {
-  height: 100vh; /* 垂直滿版 */
   overflow-y: auto; /* 內容溢出時可滾動 */
+}
+
+/* 📋 自定義滾動條 */
+.custom-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }
 </style> 

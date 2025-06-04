@@ -1,33 +1,55 @@
 <template>
   <div id="map-container" class="h-100 w-100 position-relative">
-    <!-- 🗺️ 底圖切換控制 (Basemap Control) -->
-    <div class="basemap-control">
-      <select v-model="selectedBasemap" @change="changeBasemap" class="form-select form-select-sm">
-        <option value="osm">OpenStreetMap</option>
-        <option value="google-roadmap">Google 道路圖</option>
-        <option value="google-satellite">Google 衛星圖</option>
-        <option value="google-hybrid">Google 混合圖</option>
-        <option value="esri-world">Esri 世界地圖</option>
-        <option value="esri-satellite">Esri 衛星圖</option>
-        <option value="esri-topo">Esri 地形圖</option>
-        <option value="bing-roadmap">Bing 道路圖</option>
-        <option value="bing-aerial">Bing 航拍圖</option>
-        <option value="terrain">OpenTopo 地形圖</option>
-        <option value="dark">深色模式</option>
-        <option value="blank">空白地圖</option>
-      </select>
-      
-      <!-- 顯示全部按鈕 -->
-      <div class="mt-2">
-        <button 
-          class="btn btn-outline-primary btn-sm w-100"
-          @click="showAllFeatures"
-          :disabled="!tainanLayer"
-          title="縮放至顯示所有要素"
-        >
-          <i class="fas fa-expand-arrows-alt me-1"></i>
-          顯示全部
-        </button>
+    <!-- 🎛️ 底圖控制區 (Basemap Control) - 使用Bootstrap卡片樣式 -->
+    <div class="basemap-control card shadow-sm">
+      <div class="card-body p-2">
+        <!-- 🗺️ 底圖選擇器 (Basemap Selector) -->
+        <label for="basemap-select" class="form-label mb-1 small fw-medium">底圖選擇</label>
+        <select 
+          id="basemap-select"
+          class="form-select form-select-sm" 
+          :value="selectedBasemap" 
+          @change="changeBasemap">
+          <option value="osm">OpenStreetMap</option>
+          <option value="google-roadmap">Google 道路圖</option>
+          <option value="google-satellite">Google 衛星圖</option>
+          <option value="google-hybrid">Google 混合圖</option>
+          <option value="esri-world">Esri 世界地圖</option>
+          <option value="esri-satellite">Esri 衛星圖</option>
+          <option value="esri-topo">Esri 地形圖</option>
+          <option value="bing-roadmap">Bing 道路圖</option>
+          <option value="bing-aerial">Bing 航空圖</option>
+          <option value="terrain">OpenTopo 地形圖</option>
+          <option value="dark">深色模式</option>
+          <option value="blank">空白地圖</option>
+        </select>
+        
+        <!-- 🎯 顯示全部按鈕 (Show All Features Button) - 使用Bootstrap按鈕樣式 -->
+        <div class="mt-2">
+          <button 
+            class="btn btn-outline-primary btn-sm w-100 d-flex align-items-center justify-content-center"
+            @click="showAllFeatures"
+            :disabled="!tainanGeoJSONData || !showTainanLayer"
+            title="縮放地圖以顯示所有載入的地理要素"
+          >
+            <i class="fas fa-expand-arrows-alt me-1"></i>
+            <span>顯示全部</span>
+          </button>
+          
+          <!-- 📊 數據狀態提示 (Data Status Indicator) -->
+          <div v-if="!tainanGeoJSONData" class="mt-1">
+            <small class="text-muted d-block text-center">
+              <i class="fas fa-info-circle me-1"></i>
+              請先載入數據
+            </small>
+          </div>
+          <div v-else-if="showTainanLayer && tainanGeoJSONData" class="mt-1">
+            <small class="text-success d-block text-center">
+              <i class="fas fa-check-circle me-1"></i>
+              {{ getTotalFeatureCount() }} 個要素已載入
+            </small>
+          </div>
+        </div>
       </div>
     </div>
     
@@ -48,7 +70,7 @@
  * 5. 🔍 提供數據篩選功能
  * 6. 🎯 支援地圖互動和高亮功能
  */
-import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, watch, nextTick, computed } from 'vue'
 import L from 'leaflet'
 import { getColorByCount } from '../utils/dataProcessor.js'
 
@@ -531,11 +553,50 @@ export default {
 
     /**
      * 🎯 顯示所有要素 (Show All Features)
+     * 縮放地圖以顯示所有載入的地理要素，確保用戶能看到完整的數據範圍
      */
     const showAllFeatures = () => {
-      if (tainanLayer) {
-        map.fitBounds(tainanLayer.getBounds())
-        console.log('🗺️ 地圖已適應所有要素')
+      try {
+        // 檢查台南圖層是否存在且有效
+        if (!tainanLayer) {
+          console.warn('⚠️ 台南圖層未載入，無法執行顯示全部功能')
+          return
+        }
+
+        // 檢查地圖實例是否存在
+        if (!map) {
+          console.warn('⚠️ 地圖實例不存在，無法執行顯示全部功能')
+          return
+        }
+
+        // 檢查圖層是否有邊界數據
+        const bounds = tainanLayer.getBounds()
+        if (!bounds.isValid()) {
+          console.warn('⚠️ 圖層邊界無效，無法執行顯示全部功能')
+          return
+        }
+
+        // 縮放到圖層邊界，添加適當的內邊距
+        const padding = {
+          paddingTopLeft: [20, 20],      // 左上角內邊距
+          paddingBottomRight: [20, 80]   // 右下角內邊距（為底圖控制留空間）
+        }
+
+        map.fitBounds(bounds, padding)
+        
+        // 記錄成功執行
+        const featureCount = props.tainanGeoJSONData?.features?.length || 0
+        console.log(`🗺️ 地圖已適應所有要素 (${featureCount} 個要素)`)
+        console.log('📍 邊界範圍:', bounds.toBBoxString())
+        
+        // 發出事件通知父組件
+        const center = map.getCenter()
+        const zoomLevel = map.getZoom()
+        emit('update:zoomLevel', zoomLevel)
+        emit('update:currentCoords', { lat: center.lat, lng: center.lng })
+        
+      } catch (error) {
+        console.error('❌ 執行顯示全部功能時發生錯誤:', error)
       }
     }
 
@@ -612,7 +673,15 @@ export default {
       resetView,
       fitToTainanBounds,
       invalidateSize,
-      showAllFeatures
+      showAllFeatures,
+      // 🗺️ 暴露tainanLayer狀態給模板使用
+      tainanLayer: computed(() => tainanLayer),
+      getTotalFeatureCount: () => {
+        if (props.tainanGeoJSONData && props.tainanGeoJSONData.features) {
+          return props.tainanGeoJSONData.features.length
+        }
+        return 0
+      }
     }
   }
 }

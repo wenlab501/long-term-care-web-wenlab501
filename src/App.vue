@@ -1,5 +1,7 @@
 <template>
-  <div id="app">
+  <!-- 🏠 App.vue - 主應用程式組件，使用Bootstrap實現滿版無空隙佈局 -->
+  <div id="app" class="d-flex flex-column vh-100">
+    
     <!-- 📥 載入覆蓋層 (Loading Overlay) -->
     <LoadingOverlay 
       :isVisible="isLoading" 
@@ -8,40 +10,49 @@
       :showProgress="showLoadingProgress"
       :subText="loadingSubText" />
 
-    <!-- 📱 主要內容區域 (Main Content Area) -->
-    <div class="my-main-content">
+    <!-- 📱 主要內容區域 (Main Content Area) - 使用Bootstrap flex-grow-1佔滿剩餘空間 -->
+    <div class="flex-grow-1 d-flex flex-column overflow-hidden">
       
-      <!-- 🚀 路由視圖（非首頁） -->
-      <router-view v-if="$route.path !== '/'" />
+      <!-- 🚀 路由視圖（非首頁） - 使用Bootstrap佈局 -->
+      <div v-if="$route.path !== '/'" class="flex-grow-1">
+        <router-view />
+      </div>
       
-      <!-- 🏠 首頁內容（空間分析平台） -->
-      <div v-if="$route.path === '/'" class="container-fluid my-main-container p-0">
-        <div class="row h-100 g-0">
+      <!-- 🏠 首頁內容（空間分析平台） - 使用Bootstrap grid系統 -->
+      <div v-if="$route.path === '/'" class="flex-grow-1 d-flex flex-column overflow-hidden">
+        <div class="d-flex flex-row flex-grow-1 overflow-hidden">
           
-          <!-- 🎛️ 左側控制面板 (Left Control Panel) -->
-          <div class="my-panel-left d-flex" :style="{ width: leftPanelWidthPx }">
-            <LeftPanel 
-              :isLoadingData="isLoadingData"
-              :canStartAnalysis="canStartAnalysis"
-              :showTainanLayer="showTainanLayer"
-              :selectedFilter="selectedFilter"
-              :leftPanelWidth="leftPanelWidth"
-              :tainanDataSummary="tainanDataSummary"
-              :analysisList="analysisList"
-              @load-tainan-data="loadTainanData"
-              @start-analysis="startAnalysis"
-              @update:showTainanLayer="showTainanLayer = $event"
-              @update:selectedFilter="selectedFilter = $event" />
+          <!-- 🎛️ 左側控制面板 (Left Control Panel) - Bootstrap responsive column -->
+          <div class="d-flex h-100" :style="{ width: leftPanelWidthPx }" v-show="leftPanelWidth > 0">
+            <div class="flex-grow-1">
+              <LeftPanel 
+                :isLoadingData="isLoadingData"
+                :canStartAnalysis="canStartAnalysis"
+                :showTainanLayer="showTainanLayer"
+                :selectedFilter="selectedFilter"
+                :selectedColorScheme="selectedColorScheme"
+                :leftPanelWidth="leftPanelWidth"
+                :zoomLevel="zoomLevel"
+                :activeMarkers="activeMarkers"
+                :tainanDataSummary="tainanDataSummary"
+                :analysisList="analysisList"
+                @load-tainan-data="loadTainanData"
+                @start-analysis="startAnalysis"
+                @update:showTainanLayer="showTainanLayer = $event"
+                @update:selectedFilter="selectedFilter = $event"
+                @update:selectedColorScheme="selectedColorScheme = $event" />
+            </div>
             
-            <!-- 🔧 左側拖曳調整器 (Left Resizer) -->
-            <div class="my-resizer my-resizer-vertical" 
-                 @mousedown="startResize($event, 'left')"
+            <!-- 🔧 左側拖曳調整器 (Left Resizer) - 增強視覺效果 -->
+            <div class="my-resizer my-resizer-vertical border-end" 
+                 :class="{ 'dragging': isDragging }"
+                 @mousedown="startResize('left', $event)"
                  title="拖曳調整左側面板寬度">
             </div>
           </div>
 
-          <!-- 🗺️ 主要顯示區域 (Main Display Area) -->
-          <div class="my-panel-main d-flex flex-column" :style="{ width: mainPanelWidthPx }">
+          <!-- 🗺️ 主要顯示區域 (Main Display Area) - Bootstrap flex column -->
+          <div class="d-flex flex-column flex-grow-1 overflow-hidden h-100">
             <MainContent 
               ref="mainContent"
               :activeTab="activeTab"
@@ -61,13 +72,14 @@
               @update:currentCoords="currentCoords = $event"
               @update:activeMarkers="activeMarkers = $event" />
             
-            <!-- 🔧 水平拖曳調整器 (Horizontal Resizer) -->
-            <div class="my-resizer my-resizer-horizontal" 
-                 @mousedown="startResize($event, 'horizontal')"
+            <!-- 🔧 水平拖曳調整器 (Horizontal Resizer) - Bootstrap邊框樣式 -->
+            <div class="my-resizer my-resizer-horizontal border-top" 
+                 :class="{ 'dragging': isDragging }"
+                 @mousedown="startResize('bottom', $event)"
                  title="拖曳調整底部面板高度">
             </div>
             
-            <!-- 📊 底部控制面板 (Bottom Control Panel) -->
+            <!-- 📊 底部控制面板 (Bottom Control Panel) - Bootstrap卡片樣式 -->
             <BottomPanel 
               :activeBottomTab="activeBottomTab"
               :bottomPanelHeight="bottomPanelHeight"
@@ -91,42 +103,45 @@
               @reset-view="resetView" />
           </div>
 
-          <!-- 📈 右側控制面板 (Right Control Panel) -->
-          <div class="my-panel-right d-flex" :style="{ width: rightPanelWidthPx }">
+          <!-- 📈 右側控制面板 (Right Control Panel) - Bootstrap responsive -->
+          <div class="d-flex h-100" :style="{ width: rightPanelWidthPx }" v-show="rightPanelWidth > 0">
             
-            <!-- 🔧 右側拖曳調整器 (Right Resizer) -->
-            <div class="my-resizer my-resizer-vertical" 
-                 @mousedown="startResize($event, 'right')"
+            <!-- 🔧 右側拖曳調整器 (Right Resizer) - Bootstrap邊框 -->
+            <div class="my-resizer my-resizer-vertical border-start" 
+                 :class="{ 'dragging': isDragging }"
+                 @mousedown="startResize('right', $event)"
                  title="拖曳調整右側面板寬度">
             </div>
             
-            <RightPanel 
-              :activeRightTab="activeRightTab"
-              :totalCount="totalCount"
-              :activeMarkers="activeMarkers"
-              :tainanDataSummary="tainanDataSummary"
-              :mergedTableData="mergedTableData"
-              :maxCount="maxCount"
-              :averageCount="averageCount"
-              :dataRegionsCount="dataRegionsCount"
-              :showTainanLayer="showTainanLayer"
-              :analysisList="analysisList"
-              :selectedAnalysisId="selectedAnalysisId"
-              :rightPanelWidth="rightPanelWidth"
-              @update:activeRightTab="activeRightTab = $event"
-              @fit-map-to-data="fitMapToData"
-              @clear-tainan-data="clearTainanData"
-              @switch-to-dashboard="switchToDashboard"
-              @select-analysis="selectAnalysis"
-              @view-analysis="viewAnalysis"
-              @delete-analysis="deleteAnalysis" />
+            <div class="flex-grow-1">
+              <RightPanel 
+                :activeRightTab="activeRightTab"
+                :totalCount="totalCount"
+                :activeMarkers="activeMarkers"
+                :tainanDataSummary="tainanDataSummary"
+                :mergedTableData="mergedTableData"
+                :maxCount="maxCount"
+                :averageCount="averageCount"
+                :dataRegionsCount="dataRegionsCount"
+                :showTainanLayer="showTainanLayer"
+                :analysisList="analysisList"
+                :selectedAnalysisId="selectedAnalysisId"
+                :rightPanelWidth="rightPanelWidth"
+                @update:activeRightTab="activeRightTab = $event"
+                @fit-map-to-data="fitMapToData"
+                @clear-tainan-data="clearTainanData"
+                @switch-to-dashboard="switchToDashboard"
+                @select-analysis="selectAnalysis"
+                @view-analysis="viewAnalysis"
+                @delete-analysis="deleteAnalysis" />
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 🦶 頁腳區域 (Footer Area) -->
-    <footer class="my-app-footer">
+    <!-- 🦶 頁腳區域 (Footer Area) - Bootstrap sticky footer，緊貼底部無空隙 -->
+    <footer class="my-app-footer bg-dark text-light py-2 mt-auto">
       <div class="container-fluid">
         <div class="row">
           <div class="col-md-6 text-md-start text-center">
@@ -134,9 +149,9 @@
           </div>
           <div class="col-md-6 text-md-end text-center">
             <small>
-              Powered by <a href="https://vuejs.org/" target="_blank">Vue.js</a> & 
-              <a href="https://leafletjs.com/" target="_blank">Leaflet</a> & 
-              <a href="https://d3js.org/" target="_blank">D3.js</a>
+              Powered by <a href="https://vuejs.org/" target="_blank" class="text-light text-decoration-none">Vue.js</a> & 
+              <a href="https://leafletjs.com/" target="_blank" class="text-light text-decoration-none">Leaflet</a> & 
+              <a href="https://d3js.org/" target="_blank" class="text-light text-decoration-none">D3.js</a>
             </small>
           </div>
         </div>
@@ -196,9 +211,9 @@ export default {
     const activeRightTab = ref('results')
 
     // 📏 面板大小狀態 - 使用百分比系統 (Panel Size States - Percentage Based)
-    const leftPanelWidth = ref(20)        // 左側面板寬度百分比 (0-100%)
-    const rightPanelWidth = ref(20)       // 右側面板寬度百分比 (0-100%)
-    const bottomPanelHeight = ref(300)    // 底部面板高度像素值
+    const leftPanelWidth = ref(20)        // 左側面板寬度百分比 (10-100%)
+    const rightPanelWidth = ref(20)       // 右側面板寬度百分比 (10-100%)
+    const bottomPanelHeight = ref(null)   // 底部面板高度像素值，將在掛載時初始化
     const windowWidth = ref(window.innerWidth)
     const windowHeight = ref(window.innerHeight)
 
@@ -208,7 +223,7 @@ export default {
     const mainPanelWidth = computed(() => 100 - leftPanelWidth.value - rightPanelWidth.value)
     const mainPanelWidthPx = computed(() => `${mainPanelWidth.value}%`)
     const contentHeight = computed(() => 
-      windowHeight.value - bottomPanelHeight.value - 116 // 扣除導航欄和頁腳高度
+      bottomPanelHeight.value ? windowHeight.value - bottomPanelHeight.value - 116 : windowHeight.value - 116
     )
 
     // ⏳ 載入狀態 (Loading States)
@@ -244,6 +259,9 @@ export default {
     // 📋 表格排序 (Table Sorting)
     const sortField = ref('')
     const sortDirection = ref('asc')
+    
+    // 🔧 拖曳狀態 (Drag States)
+    const isDragging = ref(false)
 
     // 🧮 統計計算屬性 (Statistical Computed Properties)
     const totalDataPoints = computed(() => {
@@ -564,190 +582,103 @@ export default {
       return new Date().toLocaleString('zh-TW')
     }
 
-    // 🔧 拖拉調整功能 - 支援0-100%範圍 (Resize Functionality - 0-100% Range)
-    let isResizing = false
-    let resizeType = ''
-    let startX = 0
-    let startY = 0
-    let startWidth = 0
-    let startHeight = 0
+    // 🔧 拖拽調整功能 (Drag Resize Functions)
     
-    // 拖拉狀態
-    const isDragging = ref(false)
-
     /**
-     * 🔧 開始拖拉調整 (Start Resize)
-     * @param {Event} event - 滑鼠事件
-     * @param {string} type - 調整類型 ('left', 'right', 'horizontal')
+     * 🔧 開始調整面板大小 (Start Panel Resize)
+     * 改進版本的拖曳系統，提供更流暢的體驗
      */
-    const startResize = (event, type) => {
-      isResizing = true
+    const startResize = (direction, event) => {
+      event.preventDefault()
+      event.stopPropagation()
+      
       isDragging.value = true
-      resizeType = type
-      startX = event.clientX
-      startY = event.clientY
-      
-      if (type === 'left') {
-        startWidth = leftPanelWidth.value
-      } else if (type === 'right') {
-        startWidth = rightPanelWidth.value
-      } else if (type === 'horizontal') {
-        startHeight = bottomPanelHeight.value
-      }
-      
-      // 添加事件監聽器
-      document.addEventListener('mousemove', handleResize, { passive: false })
-      document.addEventListener('mouseup', stopResize)
-      document.addEventListener('mouseleave', stopResize) // 滑鼠離開視窗時停止
-      
-      // 添加視覺反饋
       document.body.classList.add('my-no-select')
-      document.body.style.cursor = type === 'horizontal' ? 'row-resize' : 'col-resize'
       
-      // 添加調整器的拖拽狀態
-      const resizer = event.target
-      resizer.classList.add('dragging')
+      // 記錄初始位置和面板尺寸
+      const startX = event.clientX
+      const startY = event.clientY
+      const startLeftWidth = leftPanelWidth.value
+      const startRightWidth = rightPanelWidth.value
+      const startBottomHeight = bottomPanelHeight.value
       
-      event.preventDefault()
-      event.stopPropagation()
-    }
-
-    /**
-     * 🔧 處理拖拉調整 (Handle Resize)
-     * 支援完全彈性的0-100%範圍調整，改善精確度和流暢度
-     */
-    const handleResize = (event) => {
-      if (!isResizing) return
+      // 獲取窗口尺寸以計算百分比
+      const windowWidth = window.innerWidth
       
-      event.preventDefault()
-      event.stopPropagation()
-      
-      if (resizeType === 'left') {
-        // 左側面板：計算百分比變化，更精確的計算
-        const deltaX = event.clientX - startX
-        const containerWidth = windowWidth.value
-        const deltaPercent = (deltaX / containerWidth) * 100
-        let newWidth = startWidth + deltaPercent
-        
-        // 限制範圍：5% 到 80%，並確保右側面板至少有 15%
-        const maxWidth = Math.min(80, 100 - rightPanelWidth.value - 5)
-        newWidth = Math.max(5, Math.min(maxWidth, newWidth))
-        
-        // 四捨五入到小數點後一位，提高精確度
-        leftPanelWidth.value = Math.round(newWidth * 10) / 10
-        
-      } else if (resizeType === 'right') {
-        // 右側面板：計算百分比變化（反向），更精確的計算
-        const deltaX = event.clientX - startX
-        const containerWidth = windowWidth.value
-        const deltaPercent = (deltaX / containerWidth) * 100
-        let newWidth = startWidth - deltaPercent
-        
-        // 限制範圍：5% 到 80%，並確保左側面板至少有 15%
-        const maxWidth = Math.min(80, 100 - leftPanelWidth.value - 5)
-        newWidth = Math.max(5, Math.min(maxWidth, newWidth))
-        
-        // 四捨五入到小數點後一位
-        rightPanelWidth.value = Math.round(newWidth * 10) / 10
-        
-      } else if (resizeType === 'horizontal') {
-        // 底部面板：像素調整，改善計算
-        const deltaY = event.clientY - startY
-        const containerHeight = windowHeight.value
-        let newHeight = startHeight - deltaY
-        
-        // 限制範圍：100px 到 80% 視窗高度
-        const minHeight = 100
-        const maxHeight = containerHeight * 0.8
-        newHeight = Math.max(minHeight, Math.min(maxHeight, newHeight))
-        
-        bottomPanelHeight.value = Math.round(newHeight)
-      }
-    }
-
-    /**
-     * 🔧 停止拖拉調整 (Stop Resize)
-     */
-    const stopResize = () => {
-      if (!isResizing) return
-      
-      isResizing = false
-      isDragging.value = false
-      resizeType = ''
-      
-      // 移除事件監聽器
-      document.removeEventListener('mousemove', handleResize)
-      document.removeEventListener('mouseup', stopResize)
-      document.removeEventListener('mouseleave', stopResize)
-      
-      // 移除視覺反饋
-      document.body.classList.remove('my-no-select')
-      document.body.style.cursor = ''
-      
-      // 移除所有調整器的拖拽狀態
-      document.querySelectorAll('.my-resizer').forEach(resizer => {
-        resizer.classList.remove('dragging')
+      console.log(`🔧 開始調整 ${direction} 方向，初始值:`, {
+        leftWidth: startLeftWidth,
+        rightWidth: startRightWidth,
+        bottomHeight: startBottomHeight
       })
-      
-      // 確保面板比例合理
-      validatePanelSizes()
+
+      const handleMouseMove = (moveEvent) => {
+        moveEvent.preventDefault()
+        
+        const deltaX = moveEvent.clientX - startX
+        const deltaY = moveEvent.clientY - startY
+        
+        // 計算百分比變化量
+        const deltaXPercent = (deltaX / windowWidth) * 100
+        
+        if (direction === 'left') {
+          // 調整左側面板寬度 (10-100%) - 修復拖拽方向，向右拖拽增加寬度
+          const newWidth = Math.max(10, Math.min(100, startLeftWidth + deltaXPercent))
+          leftPanelWidth.value = newWidth
+        } else if (direction === 'right') {
+          // 調整右側面板寬度 (10-100%) - 向左拖拽增加寬度，向右拖拽減少寬度
+          const newWidth = Math.max(10, Math.min(100, startRightWidth - deltaXPercent))
+          rightPanelWidth.value = newWidth
+        } else if (direction === 'bottom') {
+          // 調整底部面板高度 (10-100%) - 修復拖拽邏輯，確保可到100%
+          const viewportHeight = windowHeight.value - 116 // 扣除header和footer
+          const deltaYPercent = (deltaY / viewportHeight) * 100
+          const currentHeightPercent = (startBottomHeight / viewportHeight) * 100
+          const newHeightPercent = Math.max(10, Math.min(100, currentHeightPercent - deltaYPercent))
+          bottomPanelHeight.value = (newHeightPercent / 100) * viewportHeight
+        }
+      }
+
+      const handleMouseUp = () => {
+        isDragging.value = false
+        document.body.classList.remove('my-no-select')
+        document.removeEventListener('mousemove', handleMouseMove)
+        document.removeEventListener('mouseup', handleMouseUp)
+        
+        // 驗證最終尺寸
+        validatePanelSizes()
+        
+        console.log('✅ 拖曳調整完成，最終值:', {
+          leftWidth: leftPanelWidth.value,
+          rightWidth: rightPanelWidth.value,
+          bottomHeight: bottomPanelHeight.value,
+          mainWidth: mainPanelWidth.value
+        })
+      }
+
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
     }
     
     /**
-     * 🔧 驗證和調整面板尺寸 (Validate Panel Sizes)
-     * 確保所有面板尺寸都在合理範圍內
+     * ✅ 驗證面板尺寸 (Validate Panel Sizes)
+     * 確保面板尺寸在合理範圍內 (10-100%)
      */
     const validatePanelSizes = () => {
-      const totalHorizontal = leftPanelWidth.value + rightPanelWidth.value
+      // 確保各面板在10-100%範圍內
+      leftPanelWidth.value = Math.max(10, Math.min(100, leftPanelWidth.value))
+      rightPanelWidth.value = Math.max(10, Math.min(100, rightPanelWidth.value))
       
-      // 如果水平面板總和超過 90%，調整比例
-      if (totalHorizontal > 90) {
-        const ratio = 90 / totalHorizontal
-        leftPanelWidth.value = Math.round(leftPanelWidth.value * ratio * 10) / 10
-        rightPanelWidth.value = Math.round(rightPanelWidth.value * ratio * 10) / 10
+      // 底部面板高度限制 (10-100%)
+      if (bottomPanelHeight.value !== null) {
+        const viewportHeight = windowHeight.value - 116 // 扣除header和footer
+        const minHeight = (10 / 100) * viewportHeight
+        const maxHeight = (100 / 100) * viewportHeight
+        bottomPanelHeight.value = Math.max(minHeight, Math.min(maxHeight, bottomPanelHeight.value))
       }
       
-      // 確保最小寬度
-      if (leftPanelWidth.value < 5) leftPanelWidth.value = 5
-      if (rightPanelWidth.value < 5) rightPanelWidth.value = 5
-      
-      // 確保中間面板至少有 10%
-      const remainingWidth = 100 - leftPanelWidth.value - rightPanelWidth.value
-      if (remainingWidth < 10) {
-        const adjustment = (10 - remainingWidth) / 2
-        leftPanelWidth.value = Math.max(5, leftPanelWidth.value - adjustment)
-        rightPanelWidth.value = Math.max(5, rightPanelWidth.value - adjustment)
-      }
-    }
-
-    /**
-     * 🔧 快速調整面板尺寸 (Quick Panel Resize)
-     * 提供預設的面板佈局
-     */
-    const quickResize = (layout) => {
-      switch (layout) {
-        case 'balanced':
-          leftPanelWidth.value = 25
-          rightPanelWidth.value = 25
-          break
-        case 'left-focus':
-          leftPanelWidth.value = 40
-          rightPanelWidth.value = 15
-          break
-        case 'right-focus':
-          leftPanelWidth.value = 15
-          rightPanelWidth.value = 40
-          break
-        case 'minimal':
-          leftPanelWidth.value = 10
-          rightPanelWidth.value = 10
-          break
-        case 'full-map':
-          leftPanelWidth.value = 5
-          rightPanelWidth.value = 5
-          break
-      }
-      validatePanelSizes()
+      // 四捨五入到一位小數
+      leftPanelWidth.value = Math.round(leftPanelWidth.value * 10) / 10
+      rightPanelWidth.value = Math.round(rightPanelWidth.value * 10) / 10
     }
 
     // 📏 視窗大小變化處理 (Window Resize Handler)
@@ -763,6 +694,10 @@ export default {
      * 🚀 組件掛載 (Component Mounted)
      */
     onMounted(() => {
+      // 初始化底部面板高度為30%
+      const viewportHeight = windowHeight.value - 116 // 扣除header和footer
+      bottomPanelHeight.value = (30 / 100) * viewportHeight
+      
       window.addEventListener('resize', handleWindowResize)
       console.log('🚀 空間分析平台已初始化')
     })
@@ -854,10 +789,9 @@ export default {
       // 📋 表格功能
       sortTable,
       
-      // 🔧 拖拉調整功能
+      // 🔧 拖拽調整功能
       startResize,
       isDragging,
-      quickResize,
       validatePanelSizes,
       
       // 🛠️ 工具函數
@@ -872,16 +806,11 @@ export default {
 /**
  * 🎨 應用程式全域樣式 (Application Global Styles)
  * 
- * 引入共用CSS並定義全域樣式
+ * 引入共用CSS並定義全域樣式，主要使用Bootstrap佈局系統
  */
 @import './assets/css/common.css';
 
-/* 📱 主容器樣式 (Main Container Styles) */
-.my-main-container {
-  height: 100vh; /* 垂直滿版 */
-}
-
-/* 📱 全域防止選取樣式 (Global No-Select Style) */
+/* 📱 全域防止選取樣式 (Global No-Select Style) - 拖曳時使用 */
 .my-no-select {
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -889,85 +818,40 @@ export default {
   user-select: none;
 }
 
-/* 🔧 拖拉調整時的游標樣式 (Cursor Styles During Resize) */
-.resizer-vertical {
-  cursor: col-resize;
-}
-
-.resizer-horizontal {
-  cursor: row-resize;
-}
-
-/* 🔧 拖拉調整增強樣式 (Enhanced Resize Styles) */
-.my-resizer {
-  position: relative;
-  transition: all 0.2s ease;
-  z-index: 10;
-}
-
-.my-resizer:hover {
-  background-color: var(--my-primary-color) !important;
-  box-shadow: 0 0 8px rgba(var(--my-primary-rgb), 0.3);
-}
-
-.my-resizer.dragging {
-  background-color: var(--my-primary-color) !important;
-  box-shadow: 0 0 12px rgba(var(--my-primary-rgb), 0.5);
-  z-index: 1000;
-}
-
+/* 🔧 拖拉調整器樣式 (Resize Handle Styles) */
+/* 🔧 垂直拖曳調整器 (Vertical Resizer) */
 .my-resizer-vertical {
   min-width: 4px;
   max-width: 4px;
+  cursor: col-resize;
+  background-color: #dee2e6;
+  transition: all 0.2s ease;
 }
 
 .my-resizer-vertical:hover,
 .my-resizer-vertical.dragging {
   min-width: 6px;
   max-width: 6px;
+  background-color: #007bff;
 }
 
+/* 🔧 水平拖曳調整器 (Horizontal Resizer) */
 .my-resizer-horizontal {
   min-height: 4px;
   max-height: 4px;
+  cursor: row-resize;
+  background-color: #dee2e6;
+  transition: all 0.2s ease;
 }
 
 .my-resizer-horizontal:hover,
 .my-resizer-horizontal.dragging {
   min-height: 6px;
   max-height: 6px;
+  background-color: #007bff;
 }
 
-/* 拖拉時的指示線 */
-.my-resizer-vertical:hover::before,
-.my-resizer-vertical.dragging::before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 2px;
-  height: 30px;
-  background-color: var(--my-text-light);
-  border-radius: 1px;
-  box-shadow: 0 0 4px rgba(0,0,0,0.3);
-}
-
-.my-resizer-horizontal:hover::before,
-.my-resizer-horizontal.dragging::before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 30px;
-  height: 2px;
-  background-color: var(--my-text-light);
-  border-radius: 1px;
-  box-shadow: 0 0 4px rgba(0,0,0,0.3);
-}
-
-/* 拖拉時的全域樣式 */
+/* 🔧 拖拉時的全域樣式 (Global Dragging Styles) */
 body.my-no-select {
   cursor: inherit !important;
 }
@@ -979,14 +863,7 @@ body.my-no-select * {
   user-select: none !important;
 }
 
-/* 面板過渡動畫 */
-.my-panel-left, 
-.my-panel-right, 
-.my-panel-main {
-  transition: width 0.1s ease-out;
-}
-
-/* 響應式設計 */
+/* 📱 響應式設計 (Responsive Design) - 使用Bootstrap斷點 */
 @media (max-width: 768px) {
   .my-resizer-vertical {
     min-width: 6px;
