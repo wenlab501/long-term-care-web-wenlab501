@@ -84,7 +84,7 @@ const props = defineProps({
   
   // Panel dimensions (from HomeView for main area)
   mainPanelWidth: Number, // This is the width of the entire middle column
-  // windowHeight will be used internally, or passed if header/footer height is dynamic
+  dynamicMainAreaHeight: { type: Number, required: true }, // Added new prop
   
   // Data and map states (passed through)
   showTainanLayer: Boolean,
@@ -129,7 +129,7 @@ const bottomPanelRef = ref(null);
 // --- Internal Vertical Resizing Logic ---
 const bottomPanelHeightPercent = ref(30); // Default 30% for bottom panel
 const isVerticalDragging = ref(false);
-const internalWindowHeight = ref(window.innerHeight); // Track window height for calculations
+// const internalWindowHeight = ref(window.innerHeight); // Removed
 
 // Computed property to determine if any dragging is occurring that affects this area
 const isOverallDragging = computed(() => {
@@ -137,15 +137,18 @@ const isOverallDragging = computed(() => {
 });
 
 const middleSectionTotalHeight = computed(() => {
-  const totalHeight = internalWindowHeight.value - 116;
-  console.log(`MDA: middleSectionTotalHeight calculated: ${totalHeight} (window: ${internalWindowHeight.value})`);
-  return totalHeight;
+  // const totalHeight = internalWindowHeight.value - 40;
+  const totalHeight = props.dynamicMainAreaHeight;
+  console.log(`MDA: middleSectionTotalHeight (from prop): ${totalHeight}`);
+  return Math.max(totalHeight, 0); // Ensure it's not negative if prop is bad
 });
 
 const actualBottomPanelPixelHeight = computed(() => {
   const pixelHeight = (bottomPanelHeightPercent.value / 100) * middleSectionTotalHeight.value;
   console.log(`MDA: actualBottomPanelPixelHeight calculated: ${pixelHeight} (percent: ${bottomPanelHeightPercent.value}%, totalMiddle: ${middleSectionTotalHeight.value})`);
   return pixelHeight;
+  // document.removeEventListener('mousemove', handleMouseMove);
+  // document.removeEventListener('mouseup', handleMouseUp);
 });
 
 const contentHeight = computed(() => { // For MainContent
@@ -190,22 +193,22 @@ const startVerticalResize = (event) => {
   document.addEventListener('mouseup', handleMouseUp);
 };
 
-const handleWindowResize = () => {
-  internalWindowHeight.value = window.innerHeight;
-  // Optional: re-validate bottomPanelHeightPercent if needed, but it's a percentage.
-};
+// const handleWindowResize = () => { // Removed
+//   internalWindowHeight.value = window.innerHeight;
+// };
 
 watch(() => props.activeTab, (newTab, oldTab) => {
   console.log(`MDA Watcher: activeTab changed from "${oldTab}" to "${newTab}". Current bottomPanelHeightPercent: ${bottomPanelHeightPercent.value}%`);
 });
 
 onMounted(() => {
-  window.addEventListener('resize', handleWindowResize);
-  handleWindowResize(); // Initial calculation
+  // window.addEventListener('resize', handleWindowResize); // Removed
+  // handleWindowResize(); // Removed
+  // Initial calculations will rely on prop being correct from HomeView
 });
 
 onUnmounted(() => {
-  window.removeEventListener('resize', handleWindowResize);
+  // window.removeEventListener('resize', handleWindowResize); // Removed
 });
 
 // --- Methods to be called from parent (HomeView) ---

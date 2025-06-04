@@ -1,16 +1,16 @@
 <template>
   <!-- 🎛️ 左側控制面板 - 簡化版本，減少卡片使用，節省空間 -->
-  <div class="bg-light border-end h-100 d-flex flex-column">
+  <div class="bg-light border-end h-100 d-flex flex-column" style="overflow: hidden;">
     
     <!-- 📋 面板標題區域 (Panel Header Section) -->
-    <div class="p-3">
-      <h1 class="my-font-size-xl">
+    <div class="p-3" style="min-width: 0;">
+      <h1 class="my-font-size-xl" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
         登革熱空間分析
       </h1>
     </div>
 
     <!-- 🎛️ 主控制區域 (Main Control Area) - 使用緊湊樣式 -->
-    <div class="flex-grow-1 overflow-auto p-3">
+    <div class="flex-grow-1 overflow-auto p-3" style="min-width: 0;">
       
       <!-- 📥 拖曳上傳區域 (Drag Upload Area) - 去除卡片包裝 -->
       <div class="mb-3">

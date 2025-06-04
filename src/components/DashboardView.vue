@@ -1,6 +1,6 @@
 <template>
   <div class="h-100 dashboard-container bg-theme-primary">
-    <div class="p-3">
+    <div class="p-3 d-flex flex-column h-100">
       
       <!-- 📊 統計卡片行 (Statistics Cards Row) -->
       <div class="row mb-4">
@@ -39,30 +39,30 @@
       </div>
 
       <!-- 📈 圖表行 (Charts Row) -->
-      <div class="row charts-row">
-        <div class="col-md-6 mb-3">
-          <div class="card">
+      <div class="row charts-row flex-grow-1 overflow-hidden">
+        <div class="col-md-6 mb-3 d-flex flex-column h-100">
+          <div class="card d-flex flex-column flex-grow-1">
             <div class="card-header bg-theme-secondary">
               <h6 class="mb-0 text-theme-primary">
                 <i class="fas fa-chart-bar"></i> 數據分布 - 柱狀圖
               </h6>
             </div>
-            <div class="card-body">
-              <div class="chart-container">
+            <div class="card-body flex-grow-1 overflow-hidden position-relative">
+              <div class="chart-container h-100">
                 <div ref="barChart" class="chart-content"></div>
               </div>
             </div>
           </div>
         </div>
-        <div class="col-md-6 mb-3">
-          <div class="card">
+        <div class="col-md-6 mb-3 d-flex flex-column h-100">
+          <div class="card d-flex flex-column flex-grow-1">
             <div class="card-header bg-theme-secondary">
               <h6 class="mb-0 text-theme-primary">
                 <i class="fas fa-chart-pie"></i> 區域比例 - 圓餅圖
               </h6>
             </div>
-            <div class="card-body">
-              <div class="chart-container">
+            <div class="card-body flex-grow-1 overflow-hidden position-relative">
+              <div class="chart-container h-100">
                 <div ref="pieChart" class="chart-content"></div>
               </div>
             </div>
@@ -413,14 +413,13 @@ export default {
      */
     watch(() => props.isPanelDragging, (dragging) => {
       nextTick(() => {
-        const newPointerEvents = dragging ? 'none' : 'auto';
         if (barChart.value) {
-          barChart.value.style.pointerEvents = newPointerEvents;
-          console.log('DashboardView: BarChart pointer-events set to:', newPointerEvents, '(dragging:', dragging, ')');
+          barChart.value.style.pointerEvents = dragging ? 'none' : 'auto';
+          console.log(`DashboardView: Bar chart pointer-events set to ${barChart.value.style.pointerEvents}`);
         }
         if (pieChart.value) {
-          pieChart.value.style.pointerEvents = newPointerEvents;
-          console.log('DashboardView: PieChart pointer-events set to:', newPointerEvents, '(dragging:', dragging, ')');
+          pieChart.value.style.pointerEvents = dragging ? 'none' : 'auto';
+          console.log(`DashboardView: Pie chart pointer-events set to ${pieChart.value.style.pointerEvents}`);
         }
       });
     }, { immediate: true });
@@ -488,7 +487,7 @@ export default {
 .chart-container {
   position: relative;
   width: 100%;
-  height: 300px; /* 預設圖表高度 */
+  /* height is now 100% via class h-100, fixed height removed */
   background-color: #ffffff; /* 圖表背景色 */
   border-radius: 0.25rem;
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); /* 細微陰影 */
@@ -526,9 +525,7 @@ export default {
     font-size: var(--font-size-h4);
   }
   
-  .chart-container {
-    height: 250px;
-  }
+  /* .chart-container height is now responsive */
   
   .stats-label {
     font-size: var(--font-size-xs);

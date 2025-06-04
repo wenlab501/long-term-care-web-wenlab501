@@ -1,8 +1,8 @@
 <template>
-  <div class="my-right-panel bg-light border-start h-100 d-flex flex-column custom-scroll">
+  <div class="my-right-panel bg-light border-start h-100 d-flex flex-column custom-scroll" style="overflow: hidden;">
 
     <!-- 右側Tab導航 -->
-    <div class="bg-light">
+    <div class="bg-light" style="min-width: 0;">
       <ul class="nav nav-tabs nav-fill small">
         <li class="nav-item">
           <button 
@@ -24,7 +24,7 @@
     </div>
     
     <!-- 右側Tab內容 -->
-    <div class="tab-content flex-grow-1 overflow-auto p-3 ">
+    <div class="tab-content flex-grow-1 overflow-auto p-3" style="min-width: 0;">
       <!-- 分析結果Tab -->
       <div v-show="activeRightTab === 'results'" class="h-100">
         <AnalysisResultsTab

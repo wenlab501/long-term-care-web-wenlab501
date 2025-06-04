@@ -22,39 +22,38 @@
       <div v-if="$route.path === '/'" class="flex-grow-1 d-flex flex-column overflow-hidden">
         <div class="d-flex flex-row flex-grow-1 overflow-hidden">
           
-          <!-- 🎛️ 左側控制面板 (Left Control Panel) - Bootstrap responsive column -->
-          <div class="d-flex h-100" :style="{ width: leftPanelWidthPx }" v-show="leftPanelWidth > 0">
-            <div class="flex-grow-1">
-              <LeftPanel 
-                :isLoadingData="isLoadingData"
-                :canStartAnalysis="canStartAnalysis"
-                :showTainanLayer="showTainanLayer"
-                :selectedFilter="selectedFilter"
-                :leftPanelWidth="leftPanelWidth"
-                :zoomLevel="zoomLevel"
-                :activeMarkers="activeMarkers"
-                :tainanDataSummary="tainanDataSummary"
-                :analysisList="analysisList"
-                @load-tainan-data="loadTainanData"
-                @start-analysis="startAnalysis"
-                @update:showTainanLayer="showTainanLayer = $event"
-                @update:selectedFilter="selectedFilter = $event"
-                />
-        </div>
+          <!-- 🎛️ 左側控制面板 (Left Control Panel) - Wrapper for content only -->
+          <div class="h-100 overflow-auto" :style="{ width: leftPanelWidthPx }" v-if="leftPanelWidth > 0">
+            <LeftPanel 
+              :isLoadingData="isLoadingData"
+              :canStartAnalysis="canStartAnalysis"
+              :showTainanLayer="showTainanLayer"
+              :selectedFilter="selectedFilter"
+              :leftPanelWidth="leftPanelWidth"
+              :zoomLevel="zoomLevel"
+              :activeMarkers="activeMarkers"
+              :tainanDataSummary="tainanDataSummary"
+              :analysisList="analysisList"
+              @load-tainan-data="loadTainanData"
+              @start-analysis="startAnalysis"
+              @update:showTainanLayer="showTainanLayer = $event"
+              @update:selectedFilter="selectedFilter = $event"
+            />
+          </div>
         
-            <!-- 🔧 左側拖曳調整器 (Left Resizer) - 增強視覺效果 -->
-            <div class="my-resizer my-resizer-vertical border-end" 
-                 :class="{ 'dragging': isSidePanelDragging }"
-                 @mousedown="startResize('left', $event)"
-                 title="拖曳調整左側面板寬度">
-              </div>
-            </div>
+          <!-- 🔧 左側拖曳調整器 (Left Resizer) - Now a direct child of the flex row -->
+          <div class="my-resizer my-resizer-vertical border-start border-end" 
+               :class="{ 'dragging': isSidePanelDragging }"
+               @mousedown="startResize('left', $event)"
+               title="拖曳調整左側面板寬度">
+          </div>
             
           <!-- 🌟 新的主要顯示區域組件 (New Main Display Area Component) -->
           <MainDisplayArea
             ref="mainDisplayAreaRef"
             class="d-flex flex-column flex-grow-1 overflow-hidden h-100"
-            :style="{ width: mainPanelWidthPx }"
+            :style="{ width: mainPanelWidthPx, 'min-width': '0px' }"
+            :dynamicMainAreaHeight="calculatedMainDisplayAreaHeight"
             :activeTab="activeTab"
             :activeBottomTab="activeBottomTab"
             :mainPanelWidth="mainPanelWidth" 
@@ -90,45 +89,42 @@
             @reset-view="resetView"
           />
 
-          <!-- 📈 右側控制面板 (Right Control Panel) - Bootstrap responsive -->
-          <div class="d-flex h-100" :style="{ width: rightPanelWidthPx }" v-show="rightPanelWidth > 0">
-            
-            <!-- 🔧 右側拖曳調整器 (Right Resizer) - Bootstrap邊框 -->
-            <div class="my-resizer my-resizer-vertical border-start" 
-                 :class="{ 'dragging': isSidePanelDragging }"
-                 @mousedown="startResize('right', $event)"
-                 title="拖曳調整右側面板寬度">
+          <!-- 🔧 右側拖曳調整器 (Right Resizer) - Now a direct child of the flex row -->
+          <div class="my-resizer my-resizer-vertical border-start border-end" 
+               :class="{ 'dragging': isSidePanelDragging }"
+               @mousedown="startResize('right', $event)"
+               title="拖曳調整右側面板寬度">
+          </div>
+
+          <!-- 📈 右側控制面板 (Right Control Panel) - Wrapper for content only -->
+          <div class="h-100 overflow-auto" :style="{ width: rightPanelWidthPx }" v-if="rightPanelWidth > 0">
+            <RightPanel 
+              :activeRightTab="activeRightTab"
+              :totalCount="totalCount"
+              :activeMarkers="activeMarkers"
+              :tainanDataSummary="tainanDataSummary"
+              :mergedTableData="mergedTableData"
+              :maxCount="maxCount"
+              :averageCount="averageCount"
+              :dataRegionsCount="dataRegionsCount"
+              :showTainanLayer="showTainanLayer"
+              :analysisList="analysisList"
+              :selectedAnalysisId="selectedAnalysisId"
+              :rightPanelWidth="rightPanelWidth"
+              @update:activeRightTab="activeRightTab = $event"
+              @fit-map-to-data="fitMapToData"
+              @clear-tainan-data="clearTainanData"
+              @switch-to-dashboard="switchToDashboard"
+              @select-analysis="selectAnalysis"
+              @view-analysis="viewAnalysis"
+              @delete-analysis="deleteAnalysis" />
+          </div>
         </div>
-            
-            <div class="flex-grow-1">
-              <RightPanel 
-                :activeRightTab="activeRightTab"
-                :totalCount="totalCount"
-                :activeMarkers="activeMarkers"
-                :tainanDataSummary="tainanDataSummary"
-                :mergedTableData="mergedTableData"
-                :maxCount="maxCount"
-                :averageCount="averageCount"
-                :dataRegionsCount="dataRegionsCount"
-                :showTainanLayer="showTainanLayer"
-                :analysisList="analysisList"
-                :selectedAnalysisId="selectedAnalysisId"
-                :rightPanelWidth="rightPanelWidth"
-                @update:activeRightTab="activeRightTab = $event"
-                @fit-map-to-data="fitMapToData"
-                @clear-tainan-data="clearTainanData"
-                @switch-to-dashboard="switchToDashboard"
-                @select-analysis="selectAnalysis"
-                @view-analysis="viewAnalysis"
-                @delete-analysis="deleteAnalysis" />
-                </div>
-              </div>
-              </div>
-              </div>
-            </div>
-            
+      </div>
+    </div>
+    
     <!-- 🦶 頁腳區域 (Footer Area) - Bootstrap sticky footer，緊貼底部無空隙 -->
-    <footer class="my-app-footer bg-dark text-light py-2 mt-auto">
+    <footer class="my-app-footer bg-dark text-light py-2 mt-auto" ref="appFooterRef">
       <div class="container-fluid">
         <div class="row">
           <div class="col-md-6 text-md-start text-center">
@@ -159,7 +155,7 @@
  * 5. 🔧 支援拖拉調整面板大小（完全彈性0-100%範圍）
  * 6. 📈 執行Moran's I空間自相關分析
  */
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue'
 import { formatNumber } from '../utils/utils.js'
 import { loadTainanData as loadTainanDataUtil } from '../utils/dataProcessor.js'
 import { performCompleteSpatialAnalysis } from '../utils/spatialAnalysis.js'
@@ -189,6 +185,7 @@ export default {
   setup() {
     // 📚 元件引用 (Component References)
     const mainDisplayAreaRef = ref(null)
+    const appFooterRef = ref(null)
 
     // 📑 分頁狀態 (Tab States)
     const activeTab = ref('map')
@@ -200,12 +197,17 @@ export default {
     const rightPanelWidth = ref(20)       // 右側面板寬度百分比 (0-100%)
     const windowWidth = ref(window.innerWidth)
     const windowHeight = ref(window.innerHeight)
+    const footerHeight = ref(0)
 
     // 🧮 計算屬性 - 面板尺寸 (Computed Properties - Panel Dimensions)
     const leftPanelWidthPx = computed(() => `${leftPanelWidth.value}%`)
     const rightPanelWidthPx = computed(() => `${rightPanelWidth.value}%`)
     const mainPanelWidth = computed(() => 100 - leftPanelWidth.value - rightPanelWidth.value)
     const mainPanelWidthPx = computed(() => `${mainPanelWidth.value}%`)
+
+    const calculatedMainDisplayAreaHeight = computed(() => {
+      return windowHeight.value - footerHeight.value;
+    });
 
     // ⏳ 載入狀態 (Loading States)
     const isLoading = ref(false)
@@ -619,12 +621,14 @@ export default {
         const deltaXPercent = (deltaX / currentWindowWidth) * 100
         
         if (direction === 'left') {
-          // 調整左側面板寬度 (0-100%) - 修復拖拽方向，向右拖拽增加寬度
-          const newWidth = Math.max(0, Math.min(100, startLeftWidth + deltaXPercent))
+          let newWidth = startLeftWidth + deltaXPercent
+          // Clamp newWidth: min is 0, max is 100 - current rightPanelWidth (ensuring main panel isn't negative)
+          newWidth = Math.max(0, Math.min(100 - rightPanelWidth.value, newWidth))
           leftPanelWidth.value = newWidth
         } else if (direction === 'right') {
-          // 調整右側面板寬度 (0-100%) - 向左拖拽增加寬度，向右拖拽減少寬度
-          const newWidth = Math.max(0, Math.min(100, startRightWidth - deltaXPercent))
+          let newWidth = startRightWidth - deltaXPercent
+          // Clamp newWidth: min is 0, max is 100 - current leftPanelWidth (ensuring main panel isn't negative)
+          newWidth = Math.max(0, Math.min(100 - leftPanelWidth.value, newWidth))
           rightPanelWidth.value = newWidth
         }
       }
@@ -664,19 +668,22 @@ export default {
     }
 
     // 📏 視窗大小變化處理 (Window Resize Handler)
-    const handleWindowResize = () => {
-      windowWidth.value = window.innerWidth
-      windowHeight.value = window.innerHeight
-      
-      // 視窗大小變化時重新驗證面板尺寸
-      validatePanelSizes()
-    }
+    const handleResize = () => {
+      windowWidth.value = window.innerWidth;
+      windowHeight.value = window.innerHeight;
+      nextTick(() => {
+        if (appFooterRef.value) {
+          footerHeight.value = appFooterRef.value.offsetHeight;
+        }
+      });
+    };
 
     /**
      * 🚀 組件掛載 (Component Mounted)
      */
     onMounted(() => {
-      window.addEventListener('resize', handleWindowResize)
+      window.addEventListener('resize', handleResize);
+      handleResize();
       console.log('🚀 空間分析平台已初始化')
     })
 
@@ -684,7 +691,7 @@ export default {
      * 🗑️ 組件卸載 (Component Unmounted)
      */
     onUnmounted(() => {
-      window.removeEventListener('resize', handleWindowResize)
+      window.removeEventListener('resize', handleResize);
     })
 
     // 📤 返回響應式數據和函數 (Return Reactive Data and Functions)
@@ -774,7 +781,9 @@ export default {
       
       // 🛠️ 工具函數
       formatNumber,
-      getCurrentTime
+      getCurrentTime,
+      appFooterRef,
+      calculatedMainDisplayAreaHeight
     }
   }
 }

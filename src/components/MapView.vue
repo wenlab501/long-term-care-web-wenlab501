@@ -15,10 +15,12 @@
           style="width: auto; min-width: 120px;">
           <option value="osm">OpenStreetMap</option>
           <option value="esri_street">Esri Street</option>
-          <option value="bing_road">Bing Maps Road</option>
-          <option value="bing_aerial">Bing Maps Aerial</option>
-          <!-- <option value="google_road">Google Maps Road</option> -->
-          <!-- <option value="google_satellite">Google Maps Satellite</option> -->
+          <option value="esri_topo">Esri Topo</option>
+          <option value="esri_imagery">Esri World Imagery</option>
+          <option value="google_road">Google Maps 街道</option>
+          <option value="google_satellite">Google Maps 衛星</option>
+          <option value="nlsc_emap">國土規劃中心電子地圖</option>
+          <option value="nlsc_photo">國土規劃中心正射影像</option>
           <option value="terrain">地形圖</option>
           <option value="aerial">空照圖 (Esri)</option>
           <option value="blank">空白無地圖</option>
@@ -85,17 +87,31 @@ export default {
         url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
         attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012'
       },
-      bing_road: {
-        url: 'https://t{s}.ssl.ak.dynamic.tiles.virtualearth.net/comp/ch/{q}?mkt=en-US&it=G,L&shading=hill&og=30&n=z',
-        subdomains: ['0', '1', '2', '3', '4'],
-        attribution: '&copy; <a href="https://www.bing.com/maps">Bing Maps</a>, Microsoft',
-        note: "Bing Maps 可能需要 API 金鑰或特定插件才能穩定運作。"
+      esri_topo: {
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012'
       },
-      bing_aerial: {
-        url: 'https://ecn.t{s}.tiles.virtualearth.net/tiles/a{q}.jpeg?g=587&mkt=en-US',
-        subdomains: ['0', '1', '2', '3', '4'],
-        attribution: '&copy; <a href="https://www.bing.com/maps">Bing Maps</a>, Microsoft, Maxar',
-        note: "Bing Maps 可能需要 API 金鑰或特定插件才能穩定運作。"
+      esri_imagery: {
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+      },
+      google_road: {
+        url: 'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+        attribution: '© Google',
+        note: 'Google Maps 僅供學術/測試用途，正式產品請用官方 API。'
+      },
+      google_satellite: {
+        url: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+        attribution: '© Google',
+        note: 'Google Maps 僅供學術/測試用途，正式產品請用官方 API。'
+      },
+      nlsc_emap: {
+        url: 'https://wmts.nlsc.gov.tw/wmts/EMAP/default/GoogleMapsCompatible/{z}/{y}/{x}',
+        attribution: '© 國土測繪中心(NLSC) 電子地圖'
+      },
+      nlsc_photo: {
+        url: 'https://wmts.nlsc.gov.tw/wmts/PHOTO2/default/GoogleMapsCompatible/{z}/{y}/{x}',
+        attribution: '© 國土測繪中心(NLSC) 正射影像'
       },
       terrain: {
         url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
