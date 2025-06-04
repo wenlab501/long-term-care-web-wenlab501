@@ -36,8 +36,6 @@ App.vue (主應用)
 ### 共用組件 (src/components/common/)
 
 #### 數據顯示組件
-- **BadgeCount.vue**: 數量徽章組件，根據數值大小顯示不同顏色
-- **BadgeStatus.vue**: 狀態徽章組件，顯示成功/失敗狀態
 - **EmptyState.vue**: 空狀態組件，統一的無數據顯示
 - **DataDistributionChart.vue**: 數據分佈圖表組件
 

@@ -3,19 +3,22 @@
     <!-- 📊 數據表格內容 (Data Table Content) -->
     <div v-if="mergedTableData.length > 0" class="h-100 d-flex flex-column">
       <!-- 🔍 搜尋工具列 (Search Toolbar) -->
-      <div class="search-container bg-secondary">
+      <div class="search-container bg-light">
         <div class="d-flex justify-content-between align-items-center">
-          <h6 class="text-white mb-0">
-            <i class="fas fa-table"></i>
-            合併數據表格 ({{ sortedAndFilteredTableData.length }}/{{ mergedTableData.length }} 筆)
-          </h6>
-          <div style="width: 250px;">
+
+          <!-- <div class="my-font-size-sm p-2">
+            {{ sortedAndFilteredTableData.length }}
+            /
+            {{ mergedTableData.length }}
+          </div> -->
+
+          <div class="my-font-size-sm p-2" style="width: 250px;">
             <input 
               type="text" 
               class="form-control form-control-sm" 
               :value="tableSearchQuery" 
               @input="$emit('update:tableSearchQuery', $event.target.value)"
-              placeholder="搜尋 Code2、Name 或 Count...">
+              placeholder="搜尋">
           </div>
         </div>
       </div>
@@ -23,14 +26,11 @@
       <!-- 📋 表格容器 (Table Container) -->
       <div class="table-container flex-grow-1">
         <div class="table-responsive custom-scroll h-100">
-          <table class="table table-sm table-dark table-striped table-hover mb-0">
-            <thead class="table-header-dark">
-              <tr>
+          <table class="table table-sm table-hover mb-0">
+            <thead class="table-light">
+              <tr class="text-center">
                 <th class="sortable" @click="$emit('sort-table', 'id')">
                   ID <i :class="getSortIcon('id')"></i>
-                </th>
-                <th class="sortable" @click="$emit('sort-table', 'code2')">
-                  Code2 <i :class="getSortIcon('code2')"></i>
                 </th>
                 <th class="sortable" @click="$emit('sort-table', 'name')">
                   Name <i :class="getSortIcon('name')"></i>
@@ -44,25 +44,18 @@
                 <th>操作</th>
               </tr>
             </thead>
-            <tbody class="table-body-dark">
-              <tr v-for="row in sortedAndFilteredTableData" :key="row.id" class="fade-in table-row-hover">
-                <td class="text-center">{{ row.id }}</td>
+            <tbody>
+              <tr v-for="row in sortedAndFilteredTableData" :key="row.id" class="fade-in text-center">
+                <td>{{ row.id }}</td>
+                <td>{{ row.name }}</td>
+                <td>{{ row.count }}</td>
+                <td>{{ row.merged }}</td>
                 <td>
-                  <code class="text-info bg-dark px-1 rounded">{{ row.code2 || '-' }}</code>
-                </td>
-                <td class="text-light">{{ row.name || '-' }}</td>
-                <td class="text-center">
-                  <BadgeCount :count="row.count" />
-                </td>
-                <td class="text-center">
-                  <BadgeStatus :status="row.merged" />
-                </td>
-                <td class="text-center">
                   <button 
-                    class="btn btn-outline-light btn-sm" 
+                    class="btn btn-outline-primary btn-sm" 
                     @click="$emit('highlight-on-map', row)" 
                     title="在地圖上高亮">
-                    <i class="fas fa-map-marker-alt"></i>
+                    顯示位置
                   </button>
                 </td>
               </tr>
@@ -73,11 +66,7 @@
     </div>
     
     <!-- 😔 空狀態 (Empty State) -->
-    <EmptyState 
-      v-else
-      icon="table"
-      title="暫無數據"
-      description="請點擊「載入台南市數據」按鈕載入數據" />
+    <div class="my-font-size-2xl text-center p-3">沒有資料</div>
   </div>
 </template>
 
@@ -93,22 +82,10 @@
  * 5. 📱 響應式設計支援
  */
 import { formatNumber } from '../../utils/utils.js'
-import BadgeCount from '../common/BadgeCount.vue'
-import BadgeStatus from '../common/BadgeStatus.vue'
-import EmptyState from '../common/EmptyState.vue'
 
 export default {
   name: 'DataTableTab',
-  
-  /**
-   * 🧩 組件註冊 (Component Registration)
-   */
-  components: {
-    BadgeCount,
-    BadgeStatus,
-    EmptyState
-  },
-  
+
   /**
    * 🔧 組件屬性定義 (Component Props)
    */
@@ -190,112 +167,103 @@ export default {
 .search-container {
   padding: var(--spacing-3);
   border-bottom: 1px solid var(--border-color);
-  background-color: var(--secondary-dark) !important;
 }
 
 .search-container input.form-control {
-  background-color: var(--input-bg);
-  border-color: var(--input-border);
-  color: var(--text-primary);
+  background-color: white;
+  border-color: #ced4da;
+  color: #495057;
 }
 
 .search-container input.form-control:focus {
-  border-color: var(--input-focus);
+  border-color: #007bff;
   box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
 }
 
 .search-container input.form-control::placeholder {
-  color: var(--input-placeholder);
+  color: #6c757d;
 }
 
 /* 📋 表格容器樣式 */
 .table-container {
-  background-color: var(--secondary-dark);
+  background-color: white;
   overflow: hidden;
 }
 
 /* 📊 表格基礎樣式 */
-.table-dark {
-  --bs-table-bg: var(--secondary-dark) !important;
-  --bs-table-color: var(--text-light) !important;
-  background-color: var(--secondary-dark) !important;
-  color: var(--text-light) !important;
+.table {
+  --bs-table-bg: white !important;
+  --bs-table-color: #495057 !important;
+  background-color: white !important;
+  color: #495057 !important;
   margin-bottom: 0;
 }
 
 /* 📋 表格標題樣式 */
-.table-header-dark th {
-  background-color: var(--secondary-dark) !important;
-  color: var(--text-light) !important;
-  border-color: var(--border-color) !important;
-  font-weight: var(--font-weight-semibold);
+.table thead th {
+  background-color: #f8f9fa !important;
+  color: #495057 !important;
+  border-color: #dee2e6 !important;
+  font-weight: 600;
   text-transform: uppercase;
-  font-size: var(--font-size-xs);
+  font-size: 0.75rem;
   letter-spacing: 0.5px;
   position: sticky;
   top: 0;
-  z-index: var(--z-index-sticky);
+  z-index: 10;
 }
 
-.table-header-dark th.sortable {
+.table thead th.sortable {
   cursor: pointer;
   user-select: none;
-  transition: var(--transition-base);
+  transition: all 0.2s ease;
 }
 
-.table-header-dark th.sortable:hover {
-  background-color: var(--secondary-hover) !important;
+.table thead th.sortable:hover {
+  background-color: #e9ecef !important;
 }
 
-.table-header-dark th.sortable i {
-  margin-left: var(--spacing-2);
-  font-size: var(--font-size-xs);
+.table thead th.sortable i {
+  margin-left: 0.25rem;
+  font-size: 0.75rem;
   opacity: 0.7;
 }
 
-.table-header-dark th.sortable:hover i {
+.table thead th.sortable:hover i {
   opacity: 1;
 }
 
 /* 📊 表格內容樣式 */
-.table-body-dark td {
-  background-color: var(--secondary-dark) !important;
-  color: var(--text-light) !important;
-  border-color: rgba(255,255,255,0.1) !important;
-  font-size: var(--font-size-small);
-  padding: var(--spacing-2) var(--spacing-3);
+.table tbody td {
+  background-color: white !important;
+  color: #495057 !important;
+  border-color: #dee2e6 !important;
+  font-size: 0.875rem;
+  padding: 0.5rem 0.75rem;
 }
 
 /* 📋 表格行懸停效果 */
-.table-row-hover:hover td {
-  background-color: var(--bg-overlay-light) !important;
+.table tbody tr:hover td {
+  background-color: #f8f9fa !important;
   cursor: pointer;
 }
 
-/* 🎨 斑馬條紋效果 */
-.table-striped > tbody > tr:nth-of-type(odd) > td {
-  --bs-table-accent-bg: rgba(255,255,255,0.05) !important;
-  background-color: rgba(255,255,255,0.05) !important;
-}
-
 /* 🔘 按鈕樣式 */
-.btn-outline-light {
-  font-size: var(--font-size-xs);
-  padding: var(--spacing-1) var(--spacing-2);
-  border-radius: var(--radius-sm);
-  transition: var(--transition-base);
+.btn-outline-primary {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
 }
 
-.btn-outline-light:hover {
-  background-color: var(--text-light);
-  color: var(--secondary-dark);
+.btn-outline-primary:hover {
   transform: translateY(-1px);
 }
 
 /* 💾 程式碼標籤樣式 */
-code.text-info {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
+code.text-primary {
+  font-size: 0.75rem;
+  font-weight: 500;
 }
 
 /* 🎬 淡入動畫 */
@@ -312,20 +280,20 @@ code.text-info {
 @media (max-width: 768px) {
   .search-container {
     flex-direction: column;
-    gap: var(--spacing-2);
+    gap: 0.5rem;
   }
   
   .search-container > div {
     width: 100% !important;
   }
   
-  .table-dark {
-    font-size: var(--font-size-xs);
+  .table {
+    font-size: 0.75rem;
   }
   
-  .table-header-dark th,
-  .table-body-dark td {
-    padding: var(--spacing-1) var(--spacing-2);
+  .table thead th,
+  .table tbody td {
+    padding: 0.25rem 0.5rem;
   }
 }
 </style> 

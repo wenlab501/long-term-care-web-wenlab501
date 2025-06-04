@@ -1,18 +1,15 @@
 <template>
-  <div class="my-right-panel bg-light border-start p-3 h-100 d-flex flex-column custom-scroll">
-    <h5 class="text-primary fw-bold mb-3">
-      <i class="fas fa-chart-line"></i> 右側控制面版
-    </h5>
-    
+  <div class="my-right-panel bg-light border-start h-100 d-flex flex-column custom-scroll">
+
     <!-- 右側Tab導航 -->
-    <div class="mb-3">
+    <div class="">
       <ul class="nav nav-pills nav-fill">
         <li class="nav-item">
           <button 
             class="nav-link" 
             :class="{ active: activeRightTab === 'results' }" 
             @click="$emit('update:activeRightTab', 'results')">
-            <i class="fas fa-chart-bar"></i> 分析結果
+            分析結果
           </button>
         </li>
         <li class="nav-item">
@@ -20,14 +17,14 @@
             class="nav-link" 
             :class="{ active: activeRightTab === 'list' }" 
             @click="$emit('update:activeRightTab', 'list')">
-            <i class="fas fa-list"></i> 分析清單
+            分析清單
           </button>
         </li>
       </ul>
     </div>
     
     <!-- 右側Tab內容 -->
-    <div class="tab-content flex-grow-1 overflow-auto">
+    <div class="tab-content flex-grow-1 overflow-auto p-3 ">
       <!-- 分析結果Tab -->
       <div v-show="activeRightTab === 'results'" class="h-100">
         <AnalysisResultsTab
@@ -54,36 +51,19 @@
           @delete-analysis="$emit('delete-analysis', $event)" />
       </div>
     </div>
-    
-    <!-- 面板狀態資訊 -->
-    <div class="mt-auto">
-      <div class="card bg-light border-0">
-        <div class="card-body p-2">
-          <SystemInfo 
-            label="面板寬度"
-            :value="`${rightPanelWidth}px`"
-            icon="arrows-alt-h" />
-          <SystemInfo 
-            label="活躍分析"
-            :value="getActiveAnalysisCount()"
-            icon="chart-line" />
-        </div>
-      </div>
-    </div>
+  
   </div>
 </template>
 
 <script>
 import AnalysisResultsTab from './tabs/AnalysisResultsTab.vue'
 import AnalysisListTab from './tabs/AnalysisListTab.vue'
-import SystemInfo from './common/SystemInfo.vue'
 
 export default {
   name: 'RightPanel',
   components: {
     AnalysisResultsTab,
-    AnalysisListTab,
-    SystemInfo
+    AnalysisListTab
   },
   props: {
     // Tab狀態

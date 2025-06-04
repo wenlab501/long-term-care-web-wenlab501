@@ -1,10 +1,11 @@
 <template>
   <div class="p-3 custom-scroll h-100">
     <!-- 地圖控制區域 -->
+     <!-- 
     <div class="row mb-4">
       <div class="col-md-4">
-        <label class="form-label text-white fw-semibold">
-          <i class="fas fa-search-plus"></i> 縮放級別
+        <label class="form-label fw-semibold">
+          縮放級別
         </label>
         <input 
           type="number" 
@@ -15,8 +16,8 @@
           max="18">
       </div>
       <div class="col-md-4">
-        <label class="form-label text-white fw-semibold">
-          <i class="fas fa-map-pin"></i> 地圖中心
+        <label class="form-label fw-semibold">
+          地圖中心
         </label>
         <div class="input-group input-group-sm">
           <span class="input-group-text">經緯度</span>
@@ -26,7 +27,7 @@
             :value="`${currentCoords.lat}, ${currentCoords.lng}`" 
             readonly>
         </div>
-      </div>
+      </div> 
       <div class="col-md-4">
         <label class="form-label text-white">&nbsp;</label>
         <button 
@@ -37,6 +38,7 @@
         </button>
       </div>
     </div>
+    -->
 
     <!-- 色票選擇區域 -->
     <div class="row mb-4">

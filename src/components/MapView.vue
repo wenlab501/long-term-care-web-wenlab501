@@ -1,7 +1,7 @@
 <template>
   <div id="map-container" class="h-100 w-100 position-relative">
-    <!-- 🎛️ 底圖控制區 (Basemap Control) - 使用Bootstrap卡片樣式 -->
-    <div class="basemap-control card shadow-sm">
+    <!-- 🎛️ 底圖控制區 (Basemap Control) - 調整位置到右上角，導航按鈕下方 -->
+    <div class="basemap-control card shadow-sm" style="top: 80px; right: 15px;">
       <div class="card-body p-2">
         <!-- 🗺️ 底圖選擇器 (Basemap Selector) -->
         <label for="basemap-select" class="form-label mb-1 small fw-medium">底圖選擇</label>
@@ -719,13 +719,12 @@ export default {
 /* 🎛️ 底圖控制樣式 */
 .basemap-control {
   position: absolute;
-  top: 10px;
-  right: 10px;
   z-index: 1000;
   background: var(--my-panel-bg);
   padding: var(--my-spacing-2);
   border-radius: var(--my-radius-base);
   box-shadow: var(--my-shadow-md);
+  min-width: 160px; /* 確保有足夠寬度 */
 }
 
 .basemap-control select {

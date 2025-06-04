@@ -424,6 +424,7 @@ export async function loadTainanData() {
     
     // 🔥 步驟 1: 並行載入兩個原始文件（GeoJSON 會自動轉換為 WGS84）
     console.log('📊 步驟 1: 載入 GeoJSON 和 Excel 文件...')
+    
     const [geojsonData, excelData] = await Promise.all([
       loadGeoJSON('/donkey-fever-analysis/data/geojson/台南市區_2.geojson'), // 自動轉換為 WGS84
       loadExcelSheet('/donkey-fever-analysis/data/xlsx/Dengue Daily.xlsx', '15_台南市區_合併位置_2')

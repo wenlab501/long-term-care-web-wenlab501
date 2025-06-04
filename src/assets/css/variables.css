@@ -276,14 +276,14 @@
 /*=====================================
   實用工具類別
 =====================================*/
-.text-xs { font-size: var(--my-font-size-xs); }
-.text-sm { font-size: var(--my-font-size-sm); }
-.text-base { font-size: var(--my-font-size-base); }
-.text-lg { font-size: var(--my-font-size-lg); }
-.text-xl { font-size: var(--my-font-size-xl); }
-.text-2xl { font-size: var(--my-font-size-2xl); }
-.text-3xl { font-size: var(--my-font-size-3xl); }
-.text-4xl { font-size: var(--my-font-size-4xl); }
+.my-text-xs { font-size: var(--my-font-size-xs); }
+.my-text-sm { font-size: var(--my-font-size-sm); }
+.my-text-base { font-size: var(--my-font-size-base); }
+.my-text-lg { font-size: var(--my-font-size-lg); }
+.my-text-xl { font-size: var(--my-font-size-xl); }
+.my-text-2xl { font-size: var(--my-font-size-2xl); }
+.my-text-3xl { font-size: var(--my-font-size-3xl); }
+.my-text-4xl { font-size: var(--my-font-size-4xl); }
 
 .font-light { font-weight: var(--my-font-weight-light); }
 .font-normal { font-weight: var(--my-font-weight-normal); }
@@ -291,30 +291,30 @@
 .font-semibold { font-weight: var(--my-font-weight-semibold); }
 .font-bold { font-weight: var(--my-font-weight-bold); }
 
-.text-primary { color: var(--my-text-primary); }
-.text-secondary { color: var(--my-text-secondary); }
-.text-muted { color: var(--my-text-muted); }
-.text-disabled { color: var(--my-text-disabled); }
+.my-text-primary { color: var(--my-text-primary); }
+.my-text-secondary { color: var(--my-text-secondary); }
+.my-text-muted { color: var(--my-text-muted); }
+.my-text-disabled { color: var(--my-text-disabled); }
 
-.bg-primary { background-color: var(--my-bg-primary); }
-.bg-secondary { background-color: var(--my-bg-secondary); }
-.bg-muted { background-color: var(--my-bg-muted); }
+.my-bg-primary { background-color: var(--my-bg-primary); }
+.my-bg-secondary { background-color: var(--my-bg-secondary); }
+.my-bg-muted { background-color: var(--my-bg-muted); }
 
-.rounded-sm { border-radius: var(--my-radius-sm); }
-.rounded { border-radius: var(--my-radius-base); }
-.rounded-md { border-radius: var(--my-radius-md); }
-.rounded-lg { border-radius: var(--my-radius-lg); }
-.rounded-xl { border-radius: var(--my-radius-xl); }
-.rounded-2xl { border-radius: var(--my-radius-2xl); }
-.rounded-full { border-radius: var(--my-radius-full); }
+.my-rounded-sm { border-radius: var(--my-radius-sm); }
+.my-rounded { border-radius: var(--my-radius-base); }
+.my-rounded-md { border-radius: var(--my-radius-md); }
+.my-rounded-lg { border-radius: var(--my-radius-lg); }
+.my-rounded-xl { border-radius: var(--my-radius-xl); }
+.my-rounded-2xl { border-radius: var(--my-radius-2xl); }
+.my-rounded-full { border-radius: var(--my-radius-full); }
 
-.shadow-sm { box-shadow: var(--my-shadow-sm); }
-.shadow { box-shadow: var(--my-shadow-base); }
-.shadow-md { box-shadow: var(--my-shadow-md); }
-.shadow-lg { box-shadow: var(--my-shadow-lg); }
-.shadow-xl { box-shadow: var(--my-shadow-xl); }
-.shadow-2xl { box-shadow: var(--my-shadow-2xl); }
+.my-shadow-sm { box-shadow: var(--my-shadow-sm); }
+.my-shadow { box-shadow: var(--my-shadow-base); }
+.my-shadow-md { box-shadow: var(--my-shadow-md); }
+.my-shadow-lg { box-shadow: var(--my-shadow-lg); }
+.my-shadow-xl { box-shadow: var(--my-shadow-xl); }
+.my-shadow-2xl { box-shadow: var(--my-shadow-2xl); }
 
-.transition-fast { transition: var(--my-transition-fast); }
-.transition { transition: var(--my-transition-base); }
-.transition-slow { transition: var(--my-transition-slow); } 
+.my-transition-fast { transition: var(--my-transition-fast); }
+.my-transition { transition: var(--my-transition-base); }
+.my-transition-slow { transition: var(--my-transition-slow); } 

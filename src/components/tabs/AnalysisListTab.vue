@@ -13,23 +13,17 @@
     </div>
     
     <!-- 空狀態 -->
-    <EmptyState 
-      v-else
-      icon="list-alt"
-      title="暫無分析項目"
-      description="點擊左側「開始分析」按鈕創建分析項目" />
+    暫無分析項目，點擊左側「開始分析」按鈕創建分析項目
   </div>
 </template>
 
 <script>
 import AnalysisItem from '../common/AnalysisItem.vue'
-import EmptyState from '../common/EmptyState.vue'
 
 export default {
   name: 'AnalysisListTab',
   components: {
-    AnalysisItem,
-    EmptyState
+    AnalysisItem
   },
   props: {
     analysisList: {

@@ -1,22 +1,22 @@
 <template>
-  <div class="bg-secondary text-white" :style="{ height: bottomPanelHeight + 'px' }">
+  <div class="bg-white text-dark border-top" :style="{ height: bottomPanelHeight + 'px' }">
     <!-- 底部Tab導航 -->
-    <div class="bg-secondary border-bottom">
-      <ul class="nav nav-tabs nav-dark">
+    <div class="bg-light">
+      <ul class="nav nav-tabs">
         <li class="nav-item">
           <button 
-            class="nav-link text-white border-0" 
-            :class="{ active: activeBottomTab === 'table', 'bg-primary': activeBottomTab === 'table' }" 
+            class="nav-link text-dark border-0" 
+            :class="{ active: activeBottomTab === 'table', 'bg-primary text-white': activeBottomTab === 'table' }" 
             @click="$emit('update:activeBottomTab', 'table')">
-            <i class="fas fa-table"></i> 數據表格
+            數據表格
           </button>
         </li>
         <li class="nav-item">
           <button 
-            class="nav-link text-white border-0" 
-            :class="{ active: activeBottomTab === 'controls', 'bg-primary': activeBottomTab === 'controls' }" 
+            class="nav-link text-dark border-0" 
+            :class="{ active: activeBottomTab === 'controls', 'bg-primary text-white': activeBottomTab === 'controls' }" 
             @click="$emit('update:activeBottomTab', 'controls')">
-            <i class="fas fa-cog"></i> 控制面板
+            控制面板
           </button>
         </li>
       </ul>

@@ -1,31 +1,26 @@
 <template>
   <div class="d-flex flex-column h-100">
-    <!-- 📑 Bootstrap標籤導航 (Bootstrap Tab Navigation) -->
-    <div class="bg-light border-bottom">
-      <div class="container-fluid p-2">
-        <ul class="nav nav-pills nav-justified">
-          <li class="nav-item">
-            <button 
-              class="nav-link btn-outline-primary"
-              :class="{ 'active': activeTab === 'map', 'btn-primary text-white': activeTab === 'map', 'btn-outline-primary': activeTab !== 'map' }" 
-              @click="$emit('update:activeTab', 'map')">
-              <i class="fas fa-map me-2"></i> 地圖視圖
-            </button>
-          </li>
-          <li class="nav-item ms-2">
-            <button 
-              class="nav-link btn-outline-success"
-              :class="{ 'active': activeTab === 'dashboard', 'btn-success text-white': activeTab === 'dashboard', 'btn-outline-success': activeTab !== 'dashboard' }" 
-              @click="$emit('update:activeTab', 'dashboard')">
-              <i class="fas fa-chart-bar me-2"></i> 數據儀表板
-            </button>
-          </li>
-        </ul>
+    <!-- 📱 標籤內容 (Tab Content) - 地圖滿版顯示 -->
+    <div class="flex-grow-1 overflow-hidden position-relative">
+      
+      <!-- 🎛️ 浮動導航按鈕 (Floating Navigation Buttons) - 位於地圖右上角 -->
+      <div class="position-absolute top-0 end-0 m-3" style="z-index: 1000;">
+        <div class="btn-group" role="group">
+          <button 
+            class="btn btn-primary btn-sm"
+            :class="{ 'active': activeTab === 'map' }" 
+            @click="$emit('update:activeTab', 'map')">
+            <i class="fas fa-map me-1"></i> 地圖視圖
+          </button>
+          <button 
+            class="btn btn-success btn-sm"
+            :class="{ 'active': activeTab === 'dashboard' }" 
+            @click="$emit('update:activeTab', 'dashboard')">
+            <i class="fas fa-chart-bar me-1"></i> 數據儀表板
+          </button>
+        </div>
       </div>
-    </div>
-
-    <!-- 📱 標籤內容 (Tab Content) -->
-    <div class="flex-grow-1 overflow-hidden">
+      
       <!-- 🗺️ 地圖標籤 (Map Tab) -->
       <div v-show="activeTab === 'map'" class="h-100">
         <MapView 
