@@ -7,6 +7,7 @@
         <option value="satellite">衛星圖</option>
         <option value="terrain">地形圖</option>
         <option value="dark">深色模式</option>
+        <option value="blank">空白地圖</option>
       </select>
     </div>
     
@@ -142,6 +143,13 @@ export default {
           maxZoom: 18,
           attribution: '© CartoDB contributors'
         }
+      },
+      blank: {
+        url: null, // 空白地圖不需要底圖圖磚
+        options: {
+          maxZoom: 18,
+          attribution: '© 空間分析視覺化平台'
+        }
       }
     }
 
@@ -151,16 +159,33 @@ export default {
     const changeBasemap = () => {
       if (map && currentTileLayer) {
         map.removeLayer(currentTileLayer)
+        currentTileLayer = null
       }
       
       const basemap = basemaps[selectedBasemap.value]
-      currentTileLayer = L.tileLayer(basemap.url, basemap.options)
       
-      if (map) {
-        currentTileLayer.addTo(map)
+      // 空白地圖不需要底圖圖磚
+      if (selectedBasemap.value === 'blank') {
+        // 設置地圖容器背景色為淺灰色
+        if (map) {
+          const mapContainer = map.getContainer()
+          mapContainer.style.backgroundColor = '#f8f9fa'
+        }
+        console.log('🗺️ 已切換至空白地圖模式')
+      } else {
+        // 恢復地圖容器背景色
+        if (map) {
+          const mapContainer = map.getContainer()
+          mapContainer.style.backgroundColor = ''
+        }
+        
+        // 創建新的圖磚圖層
+        currentTileLayer = L.tileLayer(basemap.url, basemap.options)
+        if (map) {
+          currentTileLayer.addTo(map)
+        }
+        console.log(`🗺️ 底圖已切換至: ${selectedBasemap.value}`)
       }
-      
-      console.log(`🗺️ 底圖已切換至: ${selectedBasemap.value}`)
     }
 
     /**
@@ -298,7 +323,7 @@ export default {
         attributionControl: true
       })
 
-      // 添加初始底圖
+      // 添加初始底圖（會根據selectedBasemap決定是否為空白地圖）
       changeBasemap()
 
       // 地圖事件監聽
@@ -312,6 +337,13 @@ export default {
         const center = map.getCenter()
         emit('update:currentCoords', { lat: center.lat, lng: center.lng })
       })
+
+      // 為空白地圖模式添加特殊處理
+      if (selectedBasemap.value === 'blank') {
+        const mapContainer = map.getContainer()
+        mapContainer.style.backgroundColor = '#f8f9fa'
+        console.log('🗺️ 地圖初始化為空白模式')
+      }
 
       console.log('✅ 地圖初始化完成')
     }
@@ -482,6 +514,20 @@ export default {
 
 #map {
   z-index: 1;
+}
+
+/* 🗺️ 空白地圖樣式 */
+#map.blank-map {
+  background-color: #f8f9fa !important;
+}
+
+#map.blank-map .leaflet-tile-pane {
+  display: none; /* 隱藏底圖圖磚 */
+}
+
+#map.blank-map .leaflet-control-attribution {
+  background-color: rgba(248, 249, 250, 0.8);
+  color: #495057;
 }
 
 /* 🎛️ 底圖控制樣式 */

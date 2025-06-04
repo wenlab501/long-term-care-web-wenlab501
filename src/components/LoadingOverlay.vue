@@ -1,21 +1,19 @@
 <template>
-  <div class="loading-overlay" v-if="isVisible">
-    <div class="loading-content">
-      <div class="loading-spinner">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Loading...</span>
-        </div>
+  <div class="my-loading-overlay" v-if="isVisible">
+    <div class="my-loading-content">
+      <div class="my-loading-spinner spinner-border text-primary" role="status">
+        <span class="visually-hidden">載入中...</span>
       </div>
-      <div class="loading-text">{{ loadingText }}</div>
-      <div class="loading-progress" v-if="showProgress">
+      <div class="my-loading-text">{{ loadingText }}</div>
+      <div class="my-loading-progress" v-if="showProgress && progress >= 0">
         <div class="progress">
-          <div class="progress-bar progress-bar-striped progress-bar-animated" 
+          <div class="progress-bar" 
                role="progressbar" 
                :style="{ width: progress + '%' }"
-               :aria-valuenow="progress" 
+               :aria-valuenow="progress"
                aria-valuemin="0" 
                aria-valuemax="100">
-            {{ progress }}%
+            {{ Math.round(progress) }}%
           </div>
         </div>
       </div>

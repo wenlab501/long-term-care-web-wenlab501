@@ -9,7 +9,7 @@
       :subText="loadingSubText" />
 
     <!-- 📱 主要內容區域 (Main Content Area) -->
-    <div class="main-content">
+    <div class="my-main-content">
       
       <!-- 🚀 路由視圖（非首頁） -->
       <router-view v-if="$route.path !== '/'" />
@@ -19,7 +19,7 @@
         <div class="row h-100 g-0">
           
           <!-- 🎛️ 左側控制面板 (Left Control Panel) -->
-          <div class="panel-left d-flex" :style="{ width: leftPanelWidthPx }">
+          <div class="my-panel-left d-flex" :style="{ width: leftPanelWidthPx }">
             <LeftPanel 
               :isLoadingData="isLoadingData"
               :canStartAnalysis="canStartAnalysis"
@@ -34,14 +34,14 @@
               @update:selectedFilter="selectedFilter = $event" />
             
             <!-- 🔧 左側拖曳調整器 (Left Resizer) -->
-            <div class="resizer resizer-vertical" 
+            <div class="my-resizer my-resizer-vertical" 
                  @mousedown="startResize($event, 'left')"
-                 title="拖曳調整左側面板寬度 (0-100%)">
+                 title="拖曳調整左側面板寬度">
             </div>
           </div>
 
           <!-- 🗺️ 主要顯示區域 (Main Display Area) -->
-          <div class="panel-main d-flex flex-column" :style="{ width: mainPanelWidthPx }">
+          <div class="my-panel-main d-flex flex-column" :style="{ width: mainPanelWidthPx }">
             <MainContent 
               ref="mainContent"
               :activeTab="activeTab"
@@ -62,9 +62,9 @@
               @update:activeMarkers="activeMarkers = $event" />
             
             <!-- 🔧 水平拖曳調整器 (Horizontal Resizer) -->
-            <div class="resizer resizer-horizontal" 
+            <div class="my-resizer my-resizer-horizontal" 
                  @mousedown="startResize($event, 'horizontal')"
-                 title="拖曳調整內容高度 (0-100%)">
+                 title="拖曳調整底部面板高度">
             </div>
             
             <!-- 📊 底部控制面板 (Bottom Control Panel) -->
@@ -92,12 +92,12 @@
           </div>
 
           <!-- 📈 右側控制面板 (Right Control Panel) -->
-          <div class="panel-right d-flex" :style="{ width: rightPanelWidthPx }">
+          <div class="my-panel-right d-flex" :style="{ width: rightPanelWidthPx }">
             
             <!-- 🔧 右側拖曳調整器 (Right Resizer) -->
-            <div class="resizer resizer-vertical" 
+            <div class="my-resizer my-resizer-vertical" 
                  @mousedown="startResize($event, 'right')"
-                 title="拖曳調整右側面板寬度 (0-100%)">
+                 title="拖曳調整右側面板寬度">
             </div>
             
             <RightPanel 
@@ -126,7 +126,7 @@
     </div>
 
     <!-- 🦶 頁腳區域 (Footer Area) -->
-    <footer class="app-footer">
+    <footer class="my-app-footer">
       <div class="container-fluid">
         <div class="row">
           <div class="col-md-6 text-md-start text-center">
@@ -571,6 +571,9 @@ export default {
     let startY = 0
     let startWidth = 0
     let startHeight = 0
+    
+    // 拖拉狀態
+    const isDragging = ref(false)
 
     /**
      * 🔧 開始拖拉調整 (Start Resize)
@@ -579,6 +582,7 @@ export default {
      */
     const startResize = (event, type) => {
       isResizing = true
+      isDragging.value = true
       resizeType = type
       startX = event.clientX
       startY = event.clientY
@@ -591,36 +595,73 @@ export default {
         startHeight = bottomPanelHeight.value
       }
       
-      document.addEventListener('mousemove', handleResize)
+      // 添加事件監聽器
+      document.addEventListener('mousemove', handleResize, { passive: false })
       document.addEventListener('mouseup', stopResize)
-      document.body.classList.add('no-select')  // 防止拖拉時選取文字
+      document.addEventListener('mouseleave', stopResize) // 滑鼠離開視窗時停止
+      
+      // 添加視覺反饋
+      document.body.classList.add('my-no-select')
+      document.body.style.cursor = type === 'horizontal' ? 'row-resize' : 'col-resize'
+      
+      // 添加調整器的拖拽狀態
+      const resizer = event.target
+      resizer.classList.add('dragging')
+      
       event.preventDefault()
+      event.stopPropagation()
     }
 
     /**
      * 🔧 處理拖拉調整 (Handle Resize)
-     * 支援完全彈性的0-100%範圍調整
+     * 支援完全彈性的0-100%範圍調整，改善精確度和流暢度
      */
     const handleResize = (event) => {
       if (!isResizing) return
       
+      event.preventDefault()
+      event.stopPropagation()
+      
       if (resizeType === 'left') {
-        // 左側面板：計算百分比變化
+        // 左側面板：計算百分比變化，更精確的計算
         const deltaX = event.clientX - startX
-        const deltaPercent = (deltaX / windowWidth.value) * 100
-        const newWidth = Math.max(0, Math.min(100, startWidth + deltaPercent))
-        leftPanelWidth.value = newWidth
+        const containerWidth = windowWidth.value
+        const deltaPercent = (deltaX / containerWidth) * 100
+        let newWidth = startWidth + deltaPercent
+        
+        // 限制範圍：5% 到 80%，並確保右側面板至少有 15%
+        const maxWidth = Math.min(80, 100 - rightPanelWidth.value - 5)
+        newWidth = Math.max(5, Math.min(maxWidth, newWidth))
+        
+        // 四捨五入到小數點後一位，提高精確度
+        leftPanelWidth.value = Math.round(newWidth * 10) / 10
+        
       } else if (resizeType === 'right') {
-        // 右側面板：計算百分比變化（反向）
+        // 右側面板：計算百分比變化（反向），更精確的計算
         const deltaX = event.clientX - startX
-        const deltaPercent = (deltaX / windowWidth.value) * 100
-        const newWidth = Math.max(0, Math.min(100, startWidth - deltaPercent))
-        rightPanelWidth.value = newWidth
+        const containerWidth = windowWidth.value
+        const deltaPercent = (deltaX / containerWidth) * 100
+        let newWidth = startWidth - deltaPercent
+        
+        // 限制範圍：5% 到 80%，並確保左側面板至少有 15%
+        const maxWidth = Math.min(80, 100 - leftPanelWidth.value - 5)
+        newWidth = Math.max(5, Math.min(maxWidth, newWidth))
+        
+        // 四捨五入到小數點後一位
+        rightPanelWidth.value = Math.round(newWidth * 10) / 10
+        
       } else if (resizeType === 'horizontal') {
-        // 底部面板：像素調整
+        // 底部面板：像素調整，改善計算
         const deltaY = event.clientY - startY
-        const newHeight = Math.max(50, Math.min(windowHeight.value * 0.8, startHeight - deltaY))
-        bottomPanelHeight.value = newHeight
+        const containerHeight = windowHeight.value
+        let newHeight = startHeight - deltaY
+        
+        // 限制範圍：100px 到 80% 視窗高度
+        const minHeight = 100
+        const maxHeight = containerHeight * 0.8
+        newHeight = Math.max(minHeight, Math.min(maxHeight, newHeight))
+        
+        bottomPanelHeight.value = Math.round(newHeight)
       }
     }
 
@@ -628,17 +669,94 @@ export default {
      * 🔧 停止拖拉調整 (Stop Resize)
      */
     const stopResize = () => {
+      if (!isResizing) return
+      
       isResizing = false
+      isDragging.value = false
       resizeType = ''
+      
+      // 移除事件監聽器
       document.removeEventListener('mousemove', handleResize)
       document.removeEventListener('mouseup', stopResize)
-      document.body.classList.remove('no-select')
+      document.removeEventListener('mouseleave', stopResize)
+      
+      // 移除視覺反饋
+      document.body.classList.remove('my-no-select')
+      document.body.style.cursor = ''
+      
+      // 移除所有調整器的拖拽狀態
+      document.querySelectorAll('.my-resizer').forEach(resizer => {
+        resizer.classList.remove('dragging')
+      })
+      
+      // 確保面板比例合理
+      validatePanelSizes()
+    }
+    
+    /**
+     * 🔧 驗證和調整面板尺寸 (Validate Panel Sizes)
+     * 確保所有面板尺寸都在合理範圍內
+     */
+    const validatePanelSizes = () => {
+      const totalHorizontal = leftPanelWidth.value + rightPanelWidth.value
+      
+      // 如果水平面板總和超過 90%，調整比例
+      if (totalHorizontal > 90) {
+        const ratio = 90 / totalHorizontal
+        leftPanelWidth.value = Math.round(leftPanelWidth.value * ratio * 10) / 10
+        rightPanelWidth.value = Math.round(rightPanelWidth.value * ratio * 10) / 10
+      }
+      
+      // 確保最小寬度
+      if (leftPanelWidth.value < 5) leftPanelWidth.value = 5
+      if (rightPanelWidth.value < 5) rightPanelWidth.value = 5
+      
+      // 確保中間面板至少有 10%
+      const remainingWidth = 100 - leftPanelWidth.value - rightPanelWidth.value
+      if (remainingWidth < 10) {
+        const adjustment = (10 - remainingWidth) / 2
+        leftPanelWidth.value = Math.max(5, leftPanelWidth.value - adjustment)
+        rightPanelWidth.value = Math.max(5, rightPanelWidth.value - adjustment)
+      }
+    }
+
+    /**
+     * 🔧 快速調整面板尺寸 (Quick Panel Resize)
+     * 提供預設的面板佈局
+     */
+    const quickResize = (layout) => {
+      switch (layout) {
+        case 'balanced':
+          leftPanelWidth.value = 25
+          rightPanelWidth.value = 25
+          break
+        case 'left-focus':
+          leftPanelWidth.value = 40
+          rightPanelWidth.value = 15
+          break
+        case 'right-focus':
+          leftPanelWidth.value = 15
+          rightPanelWidth.value = 40
+          break
+        case 'minimal':
+          leftPanelWidth.value = 10
+          rightPanelWidth.value = 10
+          break
+        case 'full-map':
+          leftPanelWidth.value = 5
+          rightPanelWidth.value = 5
+          break
+      }
+      validatePanelSizes()
     }
 
     // 📏 視窗大小變化處理 (Window Resize Handler)
     const handleWindowResize = () => {
       windowWidth.value = window.innerWidth
       windowHeight.value = window.innerHeight
+      
+      // 視窗大小變化時重新驗證面板尺寸
+      validatePanelSizes()
     }
 
     /**
@@ -738,6 +856,9 @@ export default {
       
       // 🔧 拖拉調整功能
       startResize,
+      isDragging,
+      quickResize,
+      validatePanelSizes,
       
       // 🛠️ 工具函數
       formatNumber,
@@ -756,7 +877,7 @@ export default {
 @import './assets/css/common.css';
 
 /* 📱 全域防止選取樣式 (Global No-Select Style) */
-.no-select {
+.my-no-select {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -772,16 +893,116 @@ export default {
   cursor: row-resize;
 }
 
-/* 📱 響應式調整 (Responsive Adjustments) */
+/* 🔧 拖拉調整增強樣式 (Enhanced Resize Styles) */
+.my-resizer {
+  position: relative;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.my-resizer:hover {
+  background-color: var(--primary-color) !important;
+  box-shadow: 0 0 8px rgba(var(--primary-rgb), 0.3);
+}
+
+.my-resizer.dragging {
+  background-color: var(--primary-color) !important;
+  box-shadow: 0 0 12px rgba(var(--primary-rgb), 0.5);
+  z-index: 1000;
+}
+
+.my-resizer-vertical {
+  min-width: 4px;
+  max-width: 4px;
+}
+
+.my-resizer-vertical:hover,
+.my-resizer-vertical.dragging {
+  min-width: 6px;
+  max-width: 6px;
+}
+
+.my-resizer-horizontal {
+  min-height: 4px;
+  max-height: 4px;
+}
+
+.my-resizer-horizontal:hover,
+.my-resizer-horizontal.dragging {
+  min-height: 6px;
+  max-height: 6px;
+}
+
+/* 拖拉時的指示線 */
+.my-resizer-vertical:hover::before,
+.my-resizer-vertical.dragging::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 30px;
+  background-color: var(--text-light);
+  border-radius: 1px;
+  box-shadow: 0 0 4px rgba(0,0,0,0.3);
+}
+
+.my-resizer-horizontal:hover::before,
+.my-resizer-horizontal.dragging::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 30px;
+  height: 2px;
+  background-color: var(--text-light);
+  border-radius: 1px;
+  box-shadow: 0 0 4px rgba(0,0,0,0.3);
+}
+
+/* 拖拉時的全域樣式 */
+body.my-no-select {
+  cursor: inherit !important;
+}
+
+body.my-no-select * {
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+}
+
+/* 面板過渡動畫 */
+.my-panel-left, 
+.my-panel-right, 
+.my-panel-main {
+  transition: width 0.1s ease-out;
+}
+
+/* 響應式設計 */
 @media (max-width: 768px) {
-  .panel-left,
-  .panel-right {
-    min-width: 0;  /* 允許在小螢幕上完全摺疊 */
+  .my-resizer-vertical {
+    min-width: 6px;
+    max-width: 6px;
   }
   
-  .resizer {
-    width: 8px;    /* 在小螢幕上增加拖拉區域 */
-    height: 8px;
+  .my-resizer-horizontal {
+    min-height: 6px;
+    max-height: 6px;
+  }
+  
+  .my-resizer-vertical:hover,
+  .my-resizer-vertical.dragging {
+    min-width: 8px;
+    max-width: 8px;
+  }
+  
+  .my-resizer-horizontal:hover,
+  .my-resizer-horizontal.dragging {
+    min-height: 8px;
+    max-height: 8px;
   }
 }
 </style>

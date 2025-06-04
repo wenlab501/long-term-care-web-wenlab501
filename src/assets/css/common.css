@@ -22,6 +22,7 @@
 
 * {
   box-sizing: border-box;                     /* 統一盒模型 */
+  letter-spacing: 1.2px;
 }
 
 html, body {
@@ -46,12 +47,12 @@ html, body {
   flex-direction: column;                     /* 垂直排列 */
 }
 
-.main-content {
+.my-main-content {
   flex: 1;                                    /* 佔用剩餘空間 */
   overflow: hidden;                           /* 防止內容溢出 */
 }
 
-.main-content .container-fluid {
+.my-main-content .container-fluid {
   height: calc(100vh - 116px);                /* 計算可用高度（扣除導航欄56px+頁腳60px） */
 }
 
@@ -59,7 +60,7 @@ html, body {
    🦶 頁腳樣式 (Footer Styles)
    ============================================================================= */
 
-.app-footer {
+.my-app-footer {
   background-color: var(--bg-dark);          /* 深色背景 */
   color: var(--text-light);                  /* 淺色文字 */
   padding: var(--spacing-4) 0;               /* 上下內距 */
@@ -72,13 +73,13 @@ html, body {
   justify-content: center;                   /* 水平置中 */
 }
 
-.app-footer a {
+.my-app-footer a {
   color: var(--text-light);                  /* 連結顏色 */
   text-decoration: none;                     /* 移除底線 */
   transition: var(--transition-colors);      /* 顏色轉換效果 */
 }
 
-.app-footer a:hover {
+.my-app-footer a:hover {
   color: var(--primary-light);               /* 懸停時的顏色 */
   text-decoration: underline;                /* 懸停時顯示底線 */
 }
@@ -87,7 +88,7 @@ html, body {
    ⏳ 載入覆蓋層樣式 (Loading Overlay Styles)
    ============================================================================= */
 
-.loading-overlay {
+.my-loading-overlay {
   position: fixed;                           /* 固定定位 */
   top: 0;                                    /* 頂部對齊 */
   left: 0;                                   /* 左側對齊 */
@@ -101,7 +102,7 @@ html, body {
   backdrop-filter: blur(2px);               /* 背景模糊效果 */
 }
 
-.loading-content {
+.my-loading-content {
   text-align: center;                        /* 文字置中 */
   color: var(--text-light);                  /* 淺色文字 */
   background-color: var(--panel-bg);         /* 面板背景 */
@@ -111,25 +112,25 @@ html, body {
   min-width: 300px;                          /* 最小寬度 */
 }
 
-.loading-spinner {
+.my-loading-spinner {
   width: 3rem;                               /* 旋轉器寬度 */
   height: 3rem;                              /* 旋轉器高度 */
   margin: 0 auto var(--spacing-4);           /* 置中並設定下邊距 */
 }
 
-.loading-text {
+.my-loading-text {
   font-size: var(--font-size-xl);            /* 載入文字大小 */
   font-weight: var(--font-weight-medium);    /* 中等字重 */
   color: var(--text-primary);               /* 主要文字顏色 */
   margin-bottom: var(--spacing-2);           /* 下邊距 */
 }
 
-.loading-progress {
+.my-loading-progress {
   width: 300px;                              /* 進度條寬度 */
   margin: var(--spacing-4) auto 0;           /* 置中並設定上邊距 */
 }
 
-.loading-subtext {
+.my-loading-subtext {
   font-size: var(--font-size-small);         /* 小字體 */
   color: var(--text-secondary);             /* 次要文字顏色 */
   margin-top: var(--spacing-2);             /* 上邊距 */
@@ -140,11 +141,11 @@ html, body {
    ============================================================================= */
 
 /* 標準分頁標籤 */
-.nav-tabs {
+.my-nav-tabs {
   border-bottom: 1px solid var(--border-light); /* 底部邊框 */
 }
 
-.nav-tabs .nav-link {
+.my-nav-tabs .nav-link {
   border: none;                              /* 移除預設邊框 */
   border-bottom: 2px solid transparent;      /* 透明底部邊框 */
   color: var(--text-secondary);             /* 次要文字顏色 */
@@ -155,37 +156,37 @@ html, body {
   font-size: var(--font-size-base);         /* 基礎字體大小 */
 }
 
-.nav-tabs .nav-link.active {
+.my-nav-tabs .nav-link.active {
   border-bottom-color: var(--primary-color); /* 啟用狀態底部邊框 */
   color: var(--primary-color);               /* 啟用狀態文字顏色 */
   background-color: var(--primary-light);    /* 啟用狀態背景 */
 }
 
-.nav-tabs .nav-link:hover {
+.my-nav-tabs .nav-link:hover {
   border-bottom-color: var(--primary-hover); /* 懸停狀態邊框 */
   color: var(--primary-hover);               /* 懸停狀態文字 */
 }
 
 /* 深色分頁標籤（底部面板使用） */
-.nav-dark .nav-link {
+.my-nav-dark .nav-link {
   color: var(--text-light) !important;       /* 淺色文字 */
   font-weight: var(--font-weight-medium);    /* 中等字重 */
   padding: var(--spacing-3) var(--spacing-4); /* 內距設定 */
   transition: var(--transition-base);        /* 基礎轉換效果 */
 }
 
-.nav-dark .nav-link:hover {
+.my-nav-dark .nav-link:hover {
   color: var(--text-light) !important;       /* 懸停時保持淺色 */
   background-color: var(--bg-overlay-light); /* 淺色覆蓋背景 */
 }
 
-.nav-dark .nav-link.active {
+.my-nav-dark .nav-link.active {
   color: var(--text-light) !important;       /* 啟用狀態文字 */
   background-color: var(--primary-color);    /* 啟用狀態背景 */
 }
 
 /* 藥丸式分頁標籤（右側面板使用） */
-.nav-pills .nav-link {
+.my-nav-pills .nav-link {
   font-size: var(--font-size-sm);            /* 小字體 */
   padding: var(--spacing-2) var(--spacing-4); /* 內距設定 */
   font-weight: var(--font-weight-medium);    /* 中等字重 */
@@ -194,479 +195,532 @@ html, body {
   margin-bottom: var(--spacing-1);          /* 下邊距 */
 }
 
-.nav-pills .nav-link.active {
+.my-nav-pills .nav-link.active {
   background-color: var(--primary-color);    /* 啟用狀態背景 */
   color: var(--text-light);                 /* 啟用狀態文字 */
 }
 
 /* =============================================================================
-   📊 表格樣式增強 (Enhanced Table Styles)
+   📊 表格樣式 (Table Styles)
    ============================================================================= */
 
-.table-container {
+.my-table-container {
+  background-color: var(--panel-bg);         /* 面板背景顏色 */
   border-radius: var(--radius-lg);           /* 大圓角 */
-  overflow: hidden;                          /* 隱藏溢出 */
-  box-shadow: var(--shadow-md);              /* 中等陰影 */
-  background-color: var(--panel-bg);        /* 面板背景 */
+  padding: var(--spacing-4);                 /* 內距 */
+  margin-bottom: var(--spacing-4);           /* 下邊距 */
 }
 
-.table-responsive {
-  border-radius: var(--radius-lg);           /* 大圓角 */
+.my-table-responsive {
+  max-height: 600px;                         /* 最大高度限制 */
   overflow-y: auto;                          /* 垂直滾動 */
-  max-height: calc(100% - 60px);             /* 最大高度（扣除搜尋區域） */
 }
 
-.table-dark {
-  --bs-table-bg: transparent;                /* 透明背景 */
-  margin-bottom: 0;                          /* 移除下邊距 */
+.my-table-dark {
+  --bs-table-bg: var(--bg-dark);            /* 表格背景 */
+  --bs-table-striped-bg: var(--bg-dark-alt); /* 斑馬紋背景 */
 }
 
-.table-dark th {
-  background-color: var(--secondary-dark);   /* 表頭背景 */
-  border-color: var(--border-color);         /* 邊框顏色 */
-  position: sticky;                          /* 黏性定位 */
-  top: 0;                                    /* 頂部對齊 */
-  z-index: var(--z-index-sticky);           /* 層級設定 */
-  font-weight: var(--font-weight-semibold);  /* 半粗體 */
-  text-transform: uppercase;                 /* 大寫轉換 */
-  font-size: var(--font-size-xs);           /* 極小字體 */
-  letter-spacing: 0.5px;                    /* 字母間距 */
-  color: var(--text-light);                 /* 淺色文字 */
+.my-table-dark th {
+  background-color: var(--primary-color);    /* 表頭背景 */
+  color: var(--text-light);                 /* 表頭文字 */
+  font-weight: var(--font-weight-semibold);  /* 表頭字重 */
+  border-color: var(--border-dark);         /* 表頭邊框 */
+  font-size: var(--font-size-sm);           /* 表頭字體大小 */
+  padding: var(--spacing-3);                /* 表頭內距 */
+  position: sticky;                          /* 粘性定位 */
+  top: 0;                                   /* 置頂 */
+  z-index: var(--z-index-sticky);          /* 層級設定 */
 }
 
-.table-dark th.sortable {
-  cursor: pointer;                           /* 指標游標 */
-  user-select: none;                         /* 禁止選取 */
+.my-table-dark th.sortable {
+  cursor: pointer;                           /* 可排序游標 */
+  user-select: none;                         /* 禁止選取文字 */
   transition: var(--transition-base);        /* 基礎轉換效果 */
 }
 
-.table-dark th.sortable:hover {
-  background-color: var(--secondary-hover);  /* 懸停背景 */
+.my-table-dark th.sortable:hover {
+  background-color: var(--primary-hover);    /* 懸停背景 */
 }
 
-.table-dark th.sortable i {
-  margin-left: var(--spacing-2);            /* 左邊距 */
-  font-size: var(--font-size-xs);           /* 極小字體 */
-  opacity: 0.7;                             /* 透明度 */
+.my-table-dark th.sortable i {
+  margin-left: var(--spacing-2);            /* 圖示左邊距 */
+  opacity: 0.7;                             /* 圖示透明度 */
+  transition: var(--transition-base);        /* 基礎轉換效果 */
 }
 
-.table-dark th.sortable:hover i {
-  opacity: 1;                               /* 懸停時完全不透明 */
+.my-table-dark th.sortable:hover i {
+  opacity: 1;                               /* 懸停時圖示不透明 */
 }
 
-.table-striped > tbody > tr:nth-of-type(odd) > td {
-  background-color: rgba(0,0,0,0.05);       /* 斑馬條紋背景 */
+.my-table-striped > tbody > tr:nth-of-type(odd) > td {
+  background-color: var(--bg-dark-alt);     /* 斑馬紋背景 */
 }
 
-.table-dark tbody tr:hover {
-  background-color: var(--bg-overlay-light); /* 行懸停背景 */
-  cursor: pointer;                           /* 指標游標 */
+.my-table-dark tbody tr:hover {
+  background-color: var(--bg-overlay-light); /* 懸停時行背景 */
 }
 
 /* =============================================================================
    🔍 搜尋容器樣式 (Search Container Styles)
    ============================================================================= */
 
-.search-container {
-  padding: var(--spacing-3);                 /* 內距設定 */
-  background-color: var(--bg-secondary);    /* 次要背景 */
-  border-bottom: 1px solid var(--border-color); /* 底部邊框 */
+.my-search-container {
+  position: relative;                        /* 相對定位 */
+  margin-bottom: var(--spacing-4);           /* 下邊距 */
 }
 
-.search-container input.form-control {
+.my-search-container input.form-control {
+  padding-left: var(--spacing-6);            /* 左內距（為圖示留空間） */
+  border-radius: var(--radius-lg);           /* 大圓角 */
+  border: 1px solid var(--border-light);    /* 淺色邊框 */
   background-color: var(--input-bg);        /* 輸入框背景 */
-  border-color: var(--input-border);        /* 輸入框邊框 */
-  color: var(--text-primary);               /* 文字顏色 */
-  font-size: var(--font-size-input);        /* 輸入框字體大小 */
+  transition: var(--transition-base);        /* 基礎轉換效果 */
 }
 
-.search-container input.form-control:focus {
-  border-color: var(--input-focus);         /* 焦點邊框顏色 */
-  box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25); /* 焦點陰影 */
+.my-search-container input.form-control:focus {
+  border-color: var(--primary-color);       /* 聚焦時邊框顏色 */
+  box-shadow: 0 0 0 0.2rem var(--primary-shadow); /* 聚焦陰影 */
 }
 
-.search-container input.form-control::placeholder {
-  color: var(--input-placeholder);          /* 佔位符顏色 */
-  opacity: 0.8;                             /* 透明度 */
+.my-search-container input.form-control::placeholder {
+  color: var(--text-muted);                 /* 占位符顏色 */
+  font-style: italic;                       /* 斜體 */
 }
 
 /* =============================================================================
-   🏷️ 徽章和標籤樣式 (Badge & Label Styles)
+   🏷️ 徽章樣式 (Badge Styles)
    ============================================================================= */
 
-.badge {
-  font-size: var(--font-size-xs);           /* 極小字體 */
+.my-badge {
   font-weight: var(--font-weight-medium);    /* 中等字重 */
-  padding: 0.25em 0.6em;                    /* 內距設定 */
-  border-radius: var(--radius-sm);          /* 小圓角 */
+  padding: var(--spacing-1) var(--spacing-3); /* 內距設定 */
+  border-radius: var(--radius-full);         /* 完全圓角 */
 }
 
-.badge-count {
-  background-color: var(--primary-color);   /* 計數徽章背景 */
-  color: var(--text-light);                 /* 淺色文字 */
-  font-size: var(--font-size-caption);      /* 說明文字大小 */
+.my-badge-count {
+  background-color: var(--primary-color);    /* 計數徽章背景 */
+  color: var(--text-light);                 /* 計數徽章文字 */
+  font-size: var(--font-size-xs);           /* 超小字體 */
+  font-weight: var(--font-weight-bold);      /* 粗體 */
+  padding: var(--spacing-1) var(--spacing-2); /* 緊湊內距 */
+  border-radius: var(--radius-full);         /* 完全圓角 */
+  min-width: 20px;                          /* 最小寬度 */
+  text-align: center;                       /* 文字置中 */
 }
 
 /* =============================================================================
-   🔘 按鈕樣式增強 (Enhanced Button Styles)
+   🔘 按鈕樣式 (Button Styles)
    ============================================================================= */
 
-.btn {
+.my-btn {
   font-weight: var(--font-weight-medium);    /* 中等字重 */
   border-radius: var(--radius-base);         /* 基礎圓角 */
   transition: var(--transition-base);        /* 基礎轉換效果 */
-  font-size: var(--font-size-btn);          /* 按鈕字體大小 */
+  font-size: var(--font-size-sm);           /* 小字體 */
 }
 
-.btn:disabled {
-  opacity: 0.6;                             /* 禁用狀態透明度 */
-  cursor: not-allowed;                       /* 禁用游標 */
+.my-btn:disabled {
+  opacity: 0.6;                             /* 禁用時透明度 */
+  cursor: not-allowed;                      /* 禁用游標 */
 }
 
-.btn.active {
-  transform: translateY(1px);               /* 啟用狀態下移效果 */
-  box-shadow: var(--shadow-sm);             /* 小陰影 */
+.my-btn.active {
+  transform: translateY(1px);               /* 按下效果 */
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); /* 內陰影 */
 }
 
-/* 分析按鈕特殊樣式 */
-.btn-analyze {
-  background: linear-gradient(135deg, var(--success-color), var(--success-hover)); /* 漸層背景 */
-  color: var(--text-light);                 /* 淺色文字 */
+.my-btn-analyze {
+  background: linear-gradient(135deg, 
+              var(--success-color) 0%, 
+              var(--success-dark) 100%);     /* 分析按鈕漸層背景 */
   border: none;                             /* 無邊框 */
+  color: var(--text-light);                /* 淺色文字 */
   font-weight: var(--font-weight-semibold); /* 半粗體 */
-  text-transform: uppercase;                /* 大寫轉換 */
-  letter-spacing: 0.5px;                   /* 字母間距 */
+  transition: var(--transition-base);        /* 基礎轉換效果 */
 }
 
-.btn-analyze:hover {
-  background: linear-gradient(135deg, var(--success-hover), var(--success-color)); /* 懸停漸層 */
-  transform: translateY(-1px);              /* 懸停上移效果 */
+.my-btn-analyze:hover {
+  background: linear-gradient(135deg, 
+              var(--success-dark) 0%, 
+              var(--success-color) 100%);    /* 懸停時漸層方向反轉 */
+  transform: translateY(-1px);              /* 懸停上升效果 */
   box-shadow: var(--shadow-md);             /* 中等陰影 */
 }
 
 /* =============================================================================
-   📋 卡片樣式 (Card Styles)
+   📇 卡片樣式 (Card Styles)
    ============================================================================= */
 
-.card {
-  border: 1px solid var(--panel-border);    /* 邊框設定 */
-  border-radius: var(--radius-lg);          /* 大圓角 */
-  box-shadow: var(--panel-shadow);          /* 面板陰影 */
-  background-color: var(--panel-bg);        /* 面板背景 */
-  transition: var(--transition-base);       /* 基礎轉換效果 */
+.my-card {
+  border: 1px solid var(--border-light);    /* 淺色邊框 */
+  border-radius: var(--radius-lg);           /* 大圓角 */
+  background-color: var(--card-bg);          /* 卡片背景 */
+  box-shadow: var(--shadow-sm);              /* 小陰影 */
+  transition: var(--transition-base);        /* 基礎轉換效果 */
+  overflow: hidden;                          /* 防止內容溢出 */
 }
 
-.card:hover {
-  box-shadow: var(--shadow-lg);             /* 懸停時大陰影 */
-  transform: translateY(-2px);              /* 懸停上移效果 */
+.my-card:hover {
+  box-shadow: var(--shadow-md);              /* 懸停時中等陰影 */
+  transform: translateY(-2px);              /* 懸停上升效果 */
 }
 
-.card-header {
-  background-color: var(--bg-secondary);    /* 次要背景 */
-  border-bottom: 1px solid var(--panel-border); /* 底部邊框 */
-  font-weight: var(--font-weight-semibold); /* 半粗體 */
-  color: var(--text-primary);               /* 主要文字顏色 */
+.my-card-header {
+  background-color: var(--card-header-bg);   /* 卡片頭部背景 */
+  border-bottom: 1px solid var(--border-light); /* 底部邊框 */
+  padding: var(--spacing-4);                 /* 內距 */
+  font-weight: var(--font-weight-semibold);  /* 半粗體 */
 }
 
-/* 統計卡片樣式 */
-.stats-card {
-  text-align: center;                       /* 文字置中 */
-  padding: var(--spacing-4);                /* 內距設定 */
-  border-radius: var(--radius-lg);          /* 大圓角 */
+/* =============================================================================
+   📈 統計卡片樣式 (Stats Card Styles)
+   ============================================================================= */
+
+.my-stats-card {
+  background: linear-gradient(135deg, var(--card-bg) 0%, var(--card-bg-alt) 100%);
+  border: none;                             /* 無邊框 */
+  box-shadow: var(--shadow-lg);             /* 大陰影 */
 }
 
-.stats-card .card-body {
-  padding: var(--spacing-3);                /* 卡片內容內距 */
+.my-stats-card .card-body {
+  padding: var(--spacing-5);                /* 較大內距 */
 }
 
-.stats-value {
-  font-size: var(--font-size-h2);           /* 大字體 */
+.my-stats-value {
+  font-size: var(--font-size-4xl);          /* 超大字體 */
   font-weight: var(--font-weight-bold);     /* 粗體 */
-  color: var(--primary-color);              /* 主要顏色 */
-  margin-bottom: var(--spacing-1);          /* 下邊距 */
+  color: var(--primary-color);             /* 主色調 */
+  line-height: 1;                          /* 行高設為1 */
+  margin-bottom: var(--spacing-1);         /* 下邊距 */
 }
 
-.stats-label {
-  font-size: var(--font-size-small);        /* 小字體 */
-  color: var(--text-secondary);             /* 次要文字顏色 */
-  text-transform: uppercase;                /* 大寫轉換 */
+.my-stats-label {
+  font-size: var(--font-size-sm);           /* 小字體 */
+  color: var(--text-secondary);            /* 次要文字顏色 */
+  font-weight: var(--font-weight-medium);   /* 中等字重 */
+  text-transform: uppercase;               /* 大寫 */
   letter-spacing: 0.5px;                   /* 字母間距 */
 }
 
 /* =============================================================================
-   📈 圖表容器樣式 (Chart Container Styles)
+   📊 圖表容器樣式 (Chart Container Styles)
    ============================================================================= */
 
-.chart-container {
+.my-chart-container {
   background-color: var(--panel-bg);        /* 面板背景 */
   border-radius: var(--radius-lg);          /* 大圓角 */
-  box-shadow: var(--panel-shadow);          /* 面板陰影 */
-  padding: var(--spacing-4);                /* 內距設定 */
+  padding: var(--spacing-4);                /* 內距 */
   margin-bottom: var(--spacing-4);          /* 下邊距 */
-  height: 100%;                             /* 全高度 */
-  display: flex;                            /* 彈性佈局 */
-  flex-direction: column;                   /* 垂直排列 */
+  box-shadow: var(--shadow-sm);             /* 小陰影 */
+  position: relative;                       /* 相對定位 */
+  overflow: hidden;                         /* 防止內容溢出 */
 }
 
-.chart-content {
-  flex: 1;                                  /* 佔用剩餘空間 */
-  display: flex;                            /* 彈性佈局 */
-  align-items: center;                      /* 垂直置中 */
-  justify-content: center;                  /* 水平置中 */
-  min-height: 200px;                        /* 最小高度 */
-}
-
-/* 儀表板容器樣式 */
-.dashboard-container {
-  height: 100%;                             /* 全高度 */
-  overflow-y: auto;                         /* 垂直滾動 */
-}
-
-.charts-row {
-  margin-bottom: var(--spacing-4);          /* 下邊距 */
-}
-
-.charts-row .card {
-  height: 100%;                             /* 全高度 */
-  margin-bottom: var(--spacing-3);          /* 下邊距 */
-}
-
-.charts-row .card-body {
-  display: flex;                            /* 彈性佈局 */
-  flex-direction: column;                   /* 垂直排列 */
-  height: calc(100% - 60px);                /* 計算高度 */
+.my-chart-content {
+  min-height: 300px;                        /* 最小高度 */
+  display: flex;                           /* 彈性佈局 */
+  align-items: center;                     /* 垂直置中 */
+  justify-content: center;                 /* 水平置中 */
+  position: relative;                      /* 相對定位 */
 }
 
 /* =============================================================================
-   📑 分析項目樣式 (Analysis Item Styles)
+   🎛️ 儀表板容器樣式 (Dashboard Container Styles)
    ============================================================================= */
 
-.analysis-item {
-  border: 1px solid var(--panel-border);    /* 邊框設定 */
-  border-radius: var(--radius-base);        /* 基礎圓角 */
-  padding: var(--spacing-3);                /* 內距設定 */
-  margin-bottom: var(--spacing-3);          /* 下邊距 */
-  background-color: var(--panel-bg);        /* 面板背景 */
-  cursor: pointer;                          /* 指標游標 */
-  transition: var(--transition-base);       /* 基礎轉換效果 */
+.my-dashboard-container {
+  height: 100%;                            /* 全高度 */
+  overflow-y: auto;                        /* 垂直滾動 */
 }
 
-.analysis-item:hover {
-  background-color: var(--panel-hover);     /* 懸停背景 */
-  border-color: var(--primary-color);       /* 懸停邊框 */
-  box-shadow: var(--shadow-sm);             /* 小陰影 */
+.my-charts-row {
+  margin-bottom: var(--spacing-4);         /* 下邊距 */
 }
 
-.analysis-item.active {
-  border-color: var(--primary-color);       /* 啟用邊框 */
-  background-color: var(--primary-light);   /* 啟用背景 */
+.my-charts-row .card {
+  height: 100%;                            /* 全高度 */
+  border: none;                            /* 無邊框 */
+  box-shadow: var(--shadow-md);            /* 中等陰影 */
 }
 
-.analysis-item-header {
-  display: flex;                            /* 彈性佈局 */
-  justify-content: space-between;           /* 兩端對齊 */
-  align-items: center;                      /* 垂直置中 */
-  margin-bottom: var(--spacing-2);          /* 下邊距 */
+.my-charts-row .card-body {
+  display: flex;                           /* 彈性佈局 */
+  align-items: center;                     /* 垂直置中 */
+  justify-content: center;                 /* 水平置中 */
+  min-height: 250px;                       /* 最小高度 */
+  background: linear-gradient(135deg, var(--card-bg) 0%, var(--card-bg-alt) 100%);
 }
 
-.analysis-item-title {
+/* =============================================================================
+   📝 分析項目樣式 (Analysis Item Styles)
+   ============================================================================= */
+
+.my-analysis-item {
+  border: 1px solid var(--border-light);   /* 淺色邊框 */
+  border-radius: var(--radius-base);       /* 基礎圓角 */
+  padding: var(--spacing-4);               /* 內距 */
+  margin-bottom: var(--spacing-3);         /* 下邊距 */
+  background-color: var(--card-bg);        /* 卡片背景 */
+  transition: var(--transition-base);      /* 基礎轉換效果 */
+  cursor: pointer;                         /* 游標指針 */
+}
+
+.my-analysis-item:hover {
+  border-color: var(--primary-color);      /* 懸停時邊框顏色 */
+  box-shadow: var(--shadow-sm);            /* 懸停時小陰影 */
+  transform: translateX(2px);              /* 懸停時右移效果 */
+}
+
+.my-analysis-item.active {
+  border-color: var(--primary-color);      /* 啟用時邊框顏色 */
+  background-color: var(--primary-light);  /* 啟用時背景顏色 */
+}
+
+.my-analysis-item-header {
+  display: flex;                           /* 彈性佈局 */
+  justify-content: space-between;          /* 兩端對齊 */
+  align-items: center;                     /* 垂直置中 */
+  margin-bottom: var(--spacing-2);         /* 下邊距 */
+}
+
+.my-analysis-item-title {
   font-weight: var(--font-weight-semibold); /* 半粗體 */
-  color: var(--text-primary);               /* 主要文字顏色 */
-  font-size: var(--font-size-base);         /* 基礎字體大小 */
+  color: var(--text-primary);              /* 主要文字顏色 */
+  font-size: var(--font-size-base);        /* 基礎字體大小 */
 }
 
-.analysis-item-time {
-  font-size: var(--font-size-small);        /* 小字體 */
-  color: var(--text-muted);                 /* 淡化文字顏色 */
+.my-analysis-item-time {
+  font-size: var(--font-size-xs);          /* 超小字體 */
+  color: var(--text-muted);                /* 淡色文字 */
 }
 
-.analysis-item-actions {
-  display: flex;                            /* 彈性佈局 */
-  gap: var(--spacing-2);                    /* 間隔設定 */
-  margin-top: var(--spacing-2);             /* 上邊距 */
+.my-analysis-item-actions {
+  display: flex;                           /* 彈性佈局 */
+  gap: var(--spacing-2);                   /* 間距 */
+  margin-top: var(--spacing-2);            /* 上邊距 */
 }
 
 /* =============================================================================
    🗺️ 地圖相關樣式 (Map Related Styles)
    ============================================================================= */
 
+/* Leaflet 工具提示樣式覆蓋 */
 .leaflet-tooltip {
-  background-color: var(--panel-bg);        /* 工具提示背景 */
-  border: 1px solid var(--panel-border);    /* 工具提示邊框 */
-  border-radius: var(--radius-sm);          /* 小圓角 */
-  color: var(--text-primary);               /* 文字顏色 */
-  font-size: var(--font-size-small);        /* 小字體 */
-  padding: var(--spacing-2);                /* 內距設定 */
-  box-shadow: var(--shadow-md);             /* 中等陰影 */
+  background-color: var(--tooltip-bg) !important;    /* 工具提示背景 */
+  border: 1px solid var(--tooltip-border) !important; /* 工具提示邊框 */
+  color: var(--tooltip-text) !important;              /* 工具提示文字 */
+  font-size: var(--font-size-xs) !important;          /* 工具提示字體大小 */
+  font-weight: var(--font-weight-medium) !important;  /* 工具提示字重 */
+  border-radius: var(--radius-sm) !important;         /* 工具提示圓角 */
+  box-shadow: var(--shadow-md) !important;            /* 工具提示陰影 */
 }
 
-/* 工具提示箭頭樣式 */
 .leaflet-tooltip-top:before,
 .leaflet-tooltip-bottom:before,
 .leaflet-tooltip-left:before,
 .leaflet-tooltip-right:before {
-  border-color: var(--panel-border);        /* 箭頭邊框顏色 */
+  border-top-color: var(--tooltip-bg) !important;     /* 工具提示箭頭顏色 */
+  border-bottom-color: var(--tooltip-bg) !important;
+  border-left-color: var(--tooltip-bg) !important;
+  border-right-color: var(--tooltip-bg) !important;
 }
 
 /* =============================================================================
-   🔧 拖拉調整器樣式 (Resizer Styles) - 支援0-100%範圍
+   📏 調整器樣式 (Resizer Styles)
    ============================================================================= */
 
-.resizer {
-  background-color: var(--resizer-bg);       /* 調整器背景 */
-  transition: var(--transition-base);        /* 基礎轉換效果 */
-  position: relative;                        /* 相對定位 */
-  z-index: var(--z-index-resizer);          /* 層級設定 */
+.my-resizer {
+  background-color: var(--border-color);    /* 調整器背景 */
+  transition: var(--transition-colors);     /* 顏色轉換效果 */
+  user-select: none;                        /* 禁止選取 */
+  position: relative;                       /* 相對定位 */
 }
 
-.resizer:hover {
-  background-color: var(--resizer-hover);    /* 懸停背景 */
-  cursor: col-resize;                        /* 調整游標 */
+.my-resizer:hover {
+  background-color: var(--primary-color);   /* 懸停時背景顏色 */
 }
 
-/* 垂直調整器（左右面板） */
-.resizer-vertical {
-  width: 4px;                               /* 調整器寬度 */
-  height: 100%;                             /* 全高度 */
-  cursor: col-resize;                       /* 列調整游標 */
-  flex-shrink: 0;                           /* 不縮小 */
+.my-resizer-vertical {
+  width: 4px;                              /* 垂直調整器寬度 */
+  height: 100%;                            /* 垂直調整器高度 */
+  cursor: col-resize;                      /* 調整欄寬游標 */
+  min-width: 4px;                          /* 最小寬度 */
 }
 
-/* 水平調整器（上下面板） */
-.resizer-horizontal {
-  height: 4px;                              /* 調整器高度 */
-  width: 100%;                              /* 全寬度 */
-  cursor: row-resize;                       /* 行調整游標 */
-  flex-shrink: 0;                           /* 不縮小 */
+.my-resizer-horizontal {
+  height: 4px;                             /* 水平調整器高度 */
+  width: 100%;                             /* 水平調整器寬度 */
+  cursor: row-resize;                      /* 調整行高游標 */
+  min-height: 4px;                         /* 最小高度 */
 }
 
-/* 調整器懸停效果指示器 */
-.resizer-vertical:hover::after {
-  content: '';                              /* 空內容 */
-  position: absolute;                       /* 絕對定位 */
-  top: 50%;                                 /* 垂直置中 */
-  left: 50%;                                /* 水平置中 */
-  transform: translate(-50%, -50%);         /* 居中變換 */
-  width: 2px;                               /* 指示器寬度 */
-  height: 40px;                             /* 指示器高度 */
-  background-color: var(--resizer-active);  /* 啟用顏色 */
-  border-radius: 1px;                       /* 小圓角 */
+.my-resizer-vertical:hover::after {
+  content: '';                             /* 空內容 */
+  position: absolute;                      /* 絕對定位 */
+  left: 50%;                               /* 水平置中 */
+  top: 50%;                                /* 垂直置中 */
+  transform: translate(-50%, -50%);        /* 完全置中 */
+  width: 2px;                              /* 指示線寬度 */
+  height: 20px;                            /* 指示線高度 */
+  background-color: var(--text-light);     /* 指示線顏色 */
+  border-radius: 1px;                      /* 指示線圓角 */
 }
 
-.resizer-horizontal:hover::after {
-  content: '';                              /* 空內容 */
-  position: absolute;                       /* 絕對定位 */
-  top: 50%;                                 /* 垂直置中 */
-  left: 50%;                                /* 水平置中 */
-  transform: translate(-50%, -50%);         /* 居中變換 */
-  width: 40px;                              /* 指示器寬度 */
-  height: 2px;                              /* 指示器高度 */
-  background-color: var(--resizer-active);  /* 啟用顏色 */
-  border-radius: 1px;                       /* 小圓角 */
+.my-resizer-horizontal:hover::after {
+  content: '';                             /* 空內容 */
+  position: absolute;                      /* 絕對定位 */
+  left: 50%;                               /* 水平置中 */
+  top: 50%;                                /* 垂直置中 */
+  transform: translate(-50%, -50%);        /* 完全置中 */
+  width: 20px;                             /* 指示線寬度 */
+  height: 2px;                             /* 指示線高度 */
+  background-color: var(--text-light);     /* 指示線顏色 */
+  border-radius: 1px;                      /* 指示線圓角 */
 }
 
 /* =============================================================================
-   📱 面板佈局系統 (Panel Layout System) - 支援0-100%調整
+   📐 面板佈局樣式 (Panel Layout Styles)
    ============================================================================= */
 
-.panel-left, 
-.panel-right, 
-.panel-main {
-  height: 100%;                             /* 全高度 */
-  overflow: hidden;                         /* 隱藏溢出 */
-  /* 移除寬度限制，支援0-100%調整 */
+.my-panel-left, 
+.my-panel-right {
+  transition: width var(--transition-duration-normal) var(--transition-timing); /* 寬度轉換效果 */
+  min-width: 200px;                        /* 最小寬度 */
+  max-width: 600px;                        /* 最大寬度 */
 }
 
-.panel-main {
-  flex: 1;                                  /* 佔用剩餘空間 */
-  min-width: 0;                             /* 允許縮小到0 */
+.my-panel-main {
+  flex: 1;                                 /* 佔用剩餘空間 */
+  min-width: 400px;                        /* 最小寬度 */
 }
 
-/* 調整器在拖拉時的樣式 */
-.resizer.dragging {
-  background-color: var(--resizer-active);  /* 拖拉時的顏色 */
+.my-resizer.dragging {
+  background-color: var(--primary-color);  /* 拖拽時背景顏色 */
 }
 
-.resizer.dragging::after {
-  background-color: var(--resizer-active);  /* 拖拉時指示器顏色 */
+.my-resizer.dragging::after {
+  opacity: 1;                              /* 拖拽時指示線不透明 */
 }
 
 /* =============================================================================
-   🎭 空狀態樣式 (Empty State Styles)
+   🚫 空白狀態樣式 (Empty State Styles)
    ============================================================================= */
 
-.empty-state {
-  text-align: center;                       /* 文字置中 */
-  padding: var(--spacing-6);                /* 內距設定 */
-  color: var(--text-muted);                 /* 淡化文字顏色 */
+.my-empty-state {
+  text-align: center;                      /* 文字置中 */
+  padding: var(--spacing-8) var(--spacing-4); /* 大內距 */
 }
 
-.empty-state-icon {
-  font-size: 3rem;                          /* 大圖示 */
-  margin-bottom: var(--spacing-4);          /* 下邊距 */
-  opacity: 0.5;                             /* 透明度 */
+.my-empty-state-icon {
+  font-size: 4rem;                         /* 大圖示 */
+  color: var(--text-muted);                /* 淡色 */
+  margin-bottom: var(--spacing-4);         /* 下邊距 */
 }
 
-.empty-state-title {
-  font-size: var(--font-size-h5);           /* H5字體大小 */
+.my-empty-state-title {
+  font-size: var(--font-size-xl);          /* 大字體 */
   font-weight: var(--font-weight-semibold); /* 半粗體 */
-  margin-bottom: var(--spacing-2);          /* 下邊距 */
+  color: var(--text-secondary);            /* 次要文字顏色 */
+  margin-bottom: var(--spacing-2);         /* 下邊距 */
 }
 
-.empty-state-text {
-  font-size: var(--font-size-small);        /* 小字體 */
-  color: var(--text-secondary);             /* 次要文字顏色 */
+.my-empty-state-text {
+  color: var(--text-muted);                /* 淡色文字 */
+  font-size: var(--font-size-base);        /* 基礎字體大小 */
 }
 
 /* =============================================================================
    📜 自定義滾動條樣式 (Custom Scrollbar Styles)
    ============================================================================= */
 
-.custom-scroll {
-  scrollbar-width: thin;                    /* Firefox滾動條寬度 */
-  scrollbar-color: var(--border-dark) var(--bg-secondary); /* Firefox滾動條顏色 */
+.my-custom-scroll {
+  overflow-y: auto;                        /* 垂直滾動 */
+  scrollbar-width: thin;                   /* Firefox 細滾動條 */
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track); /* Firefox 滾動條顏色 */
 }
 
-/* WebKit瀏覽器滾動條樣式 */
-.custom-scroll::-webkit-scrollbar {
-  width: 8px;                               /* 滾動條寬度 */
-  height: 8px;                              /* 滾動條高度 */
+.my-custom-scroll::-webkit-scrollbar {
+  width: 6px;                              /* WebKit 滾動條寬度 */
 }
 
-.custom-scroll::-webkit-scrollbar-track {
-  background: var(--bg-secondary);          /* 滾動軌道背景 */
-  border-radius: var(--radius-sm);          /* 小圓角 */
+.my-custom-scroll::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);      /* WebKit 滾動條軌道 */
+  border-radius: 3px;                      /* 軌道圓角 */
 }
 
-.custom-scroll::-webkit-scrollbar-thumb {
-  background: var(--border-dark);           /* 滾動把手背景 */
-  border-radius: var(--radius-sm);          /* 小圓角 */
+.my-custom-scroll::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);      /* WebKit 滾動條滑塊 */
+  border-radius: 3px;                      /* 滑塊圓角 */
 }
 
-.custom-scroll::-webkit-scrollbar-thumb:hover {
-  background: var(--secondary-color);       /* 懸停時把手背景 */
+.my-custom-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover); /* WebKit 滑塊懸停顏色 */
 }
 
-/* 應用自定義滾動條到特定區域 */
-.panel-left .custom-scroll,
-.panel-right .custom-scroll,
-.table-responsive,
-.dashboard-container {
-  scrollbar-width: thin;                    /* 細滾動條 */
-  scrollbar-color: var(--border-dark) transparent; /* 滾動條顏色 */
+.my-panel-left .my-custom-scroll,
+.my-panel-right .my-custom-scroll {
+  height: calc(100vh - 120px);             /* 計算高度（扣除導航欄和其他元素） */
+  padding-right: var(--spacing-2);         /* 右內距 */
 }
 
-.tab-content .custom-scroll {
-  max-height: calc(100vh - 200px);          /* 最大高度 */
-  overflow-y: auto;                         /* 垂直滾動 */
+.tab-content .my-custom-scroll {
+  max-height: 400px;                       /* 標籤內容最大高度 */
 }
 
-/* 防止所有元素被選取（在拖拉時） */
-.no-select {
-  -webkit-user-select: none;                /* Safari */
-  -moz-user-select: none;                   /* Firefox */
-  -ms-user-select: none;                    /* IE10+/Edge */
-  user-select: none;                        /* 標準語法 */
+/* =============================================================================
+   🚫 禁止選取樣式 (No Select Styles)
+   ============================================================================= */
+
+.my-no-select {
+  -webkit-user-select: none;               /* WebKit 禁止選取 */
+  -moz-user-select: none;                  /* Firefox 禁止選取 */
+  -ms-user-select: none;                   /* IE 禁止選取 */
+  user-select: none;                       /* 標準禁止選取 */
+}
+
+/* =============================================================================
+   📱 拖曳上傳區域樣式 (Drag Upload Area Styles)
+   ============================================================================= */
+
+.my-drag-upload-area {
+  border: 2px dashed var(--border-light);   /* 虛線邊框 */
+  border-radius: var(--radius-lg);          /* 大圓角 */
+  padding: var(--spacing-6);                /* 大內距 */
+  text-align: center;                       /* 文字置中 */
+  background-color: var(--bg-light);        /* 淺色背景 */
+  transition: var(--transition-base);       /* 基礎轉換效果 */
+  cursor: pointer;                          /* 點擊游標 */
+  margin-bottom: var(--spacing-4);          /* 下邊距 */
+}
+
+.my-drag-upload-area:hover {
+  border-color: var(--primary-color);       /* 懸停時邊框顏色 */
+  background-color: var(--primary-light);   /* 懸停時背景顏色 */
+}
+
+.my-drag-upload-area.dragover {
+  border-color: var(--primary-color);       /* 拖拽覆蓋時邊框顏色 */
+  background-color: var(--primary-light);   /* 拖拽覆蓋時背景顏色 */
+  transform: scale(1.02);                   /* 拖拽覆蓋時放大效果 */
+}
+
+.my-drag-upload-icon {
+  font-size: 3rem;                         /* 大圖示 */
+  color: var(--text-muted);                /* 淡色 */
+  margin-bottom: var(--spacing-3);         /* 下邊距 */
+}
+
+.my-drag-upload-text {
+  font-size: var(--font-size-lg);          /* 大字體 */
+  font-weight: var(--font-weight-medium);  /* 中等字重 */
+  color: var(--text-primary);              /* 主要文字顏色 */
+  margin-bottom: var(--spacing-2);         /* 下邊距 */
+}
+
+.my-drag-upload-subtext {
+  font-size: var(--font-size-sm);          /* 小字體 */
+  color: var(--text-secondary);            /* 次要文字顏色 */
 }
 
 /* =============================================================================
@@ -674,33 +728,34 @@ html, body {
    ============================================================================= */
 
 @media (max-width: 768px) {
-  .panel-left, .panel-right {
-    min-width: 250px;                       /* 行動裝置最小寬度 */
+  .my-panel-left, .my-panel-right {
+    width: 100% !important;                /* 小螢幕全寬 */
+    min-width: unset;                      /* 移除最小寬度限制 */
   }
   
-  .main-content .container-fluid {
-    height: calc(100vh - 140px);             /* 行動裝置調整高度 */
+  .my-main-content .container-fluid {
+    height: calc(100vh - 100px);           /* 調整小螢幕高度 */
   }
   
-  .table-responsive {
-    font-size: var(--font-size-small);      /* 行動裝置小字體 */
+  .my-table-responsive {
+    font-size: var(--font-size-xs);        /* 小螢幕字體 */
   }
   
-  .nav-pills .nav-link {
-    padding: var(--spacing-1) var(--spacing-2); /* 行動裝置小內距 */
-    font-size: var(--font-size-xs);         /* 極小字體 */
+  .my-nav-pills .nav-link {
+    font-size: var(--font-size-xs);        /* 小螢幕導航字體 */
+    padding: var(--spacing-1) var(--spacing-2); /* 小內距 */
   }
-
-  .analysis-item {
-    padding: var(--spacing-2);              /* 行動裝置小內距 */
+  
+  .my-analysis-item {
+    padding: var(--spacing-3);             /* 小螢幕內距 */
   }
-
-  .stats-value {
-    font-size: var(--font-size-h4);         /* 行動裝置調整統計數值大小 */
+  
+  .my-stats-value {
+    font-size: var(--font-size-2xl);       /* 小螢幕統計值字體 */
   }
-
-  .chart-container {
-    min-height: 150px;                      /* 行動裝置圖表最小高度 */
+  
+  .my-chart-container {
+    padding: var(--spacing-2);             /* 小螢幕圖表容器內距 */
   }
 }
 
@@ -709,48 +764,48 @@ html, body {
    ============================================================================= */
 
 @keyframes fadeIn {
-  from { opacity: 0; }                      /* 起始透明 */
-  to { opacity: 1; }                        /* 結束不透明 */
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }                 /* 起始和結束完全不透明 */
-  50% { opacity: 0.5; }                    /* 中間半透明 */
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
-.fade-in {
-  animation: fadeIn 0.3s ease-in-out;      /* 淡入動畫 */
+.my-fade-in {
+  animation: fadeIn 0.3s ease-out;         /* 淡入動畫 */
 }
 
-.pulse {
-  animation: pulse 2s infinite;            /* 脈動動畫 */
+.my-pulse {
+  animation: pulse 2s infinite;            /* 脈衝動畫 */
 }
 
 /* =============================================================================
-   🎨 狀態顏色類別 (Status Color Classes)
+   🎨 背景顏色工具類 (Background Color Utilities)
    ============================================================================= */
 
-.bg-success {
-  background-color: var(--success-color) !important; /* 成功背景 */
-  color: var(--text-light) !important;      /* 淺色文字 */
+.my-bg-success {
+  background-color: var(--success-color) !important; /* 成功背景色 */
+  color: var(--text-light) !important;    /* 成功文字色 */
 }
 
-.bg-warning {
-  background-color: var(--warning-color) !important; /* 警告背景 */
-  color: var(--text-dark) !important;       /* 深色文字 */
+.my-bg-warning {
+  background-color: var(--warning-color) !important; /* 警告背景色 */
+  color: var(--text-dark) !important;     /* 警告文字色 */
 }
 
-.bg-danger {
-  background-color: var(--danger-color) !important; /* 危險背景 */
-  color: var(--text-light) !important;      /* 淺色文字 */
+.my-bg-danger {
+  background-color: var(--danger-color) !important;  /* 危險背景色 */
+  color: var(--text-light) !important;    /* 危險文字色 */
 }
 
-.bg-secondary {
-  background-color: var(--secondary-color) !important; /* 次要背景 */
-  color: var(--text-light) !important;      /* 淺色文字 */
+.my-bg-secondary {
+  background-color: var(--secondary-color) !important; /* 次要背景色 */
+  color: var(--text-light) !important;    /* 次要文字色 */
 }
 
-.bg-info {
-  background-color: var(--info-color) !important; /* 資訊背景 */
-  color: var(--text-light) !important;      /* 淺色文字 */
+.my-bg-info {
+  background-color: var(--info-color) !important;    /* 資訊背景色 */
+  color: var(--text-light) !important;    /* 資訊文字色 */
 } 

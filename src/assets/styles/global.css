@@ -16,7 +16,19 @@ html, body {
   height: 100vh;
   display: flex;
   flex-direction: column;
+  font-size: var(--font-size-base);
 }
+
+/* 字體大小 */
+.my-font-size-title { font-size: var(--font-size-2xl) !important; }
+
+.my-font-size-xl { font-size: var(--font-size-xl) !important; }
+.my-font-size-lg { font-size: var(--font-size-lg) !important; }
+.my-font-size-base { font-size: var(--font-size-base) !important; }
+.my-font-size-sm { font-size: var(--font-size-sm) !important; }
+.my-font-size-xs { font-size: var(--font-size-xs) !important; }
+
+.my-letter-spacing-20 { letter-spacing: 20px !important; }
 
 /* ==================== 通用容器類別 ==================== */
 .full-height {

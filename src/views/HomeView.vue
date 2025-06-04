@@ -4,11 +4,11 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
       <div class="container-fluid">
         <span class="navbar-brand mb-0 h1">
-          <i class="fas fa-map-marked-alt"></i> 空間分析視覺化平台
+          空間分析視覺化平台
         </span>
         <div class="navbar-nav ms-auto">
           <router-link to="/design" class="nav-link text-white">
-            <i class="fas fa-palette"></i> 設計系統
+            設計系統
           </router-link>
         </div>
       </div>
@@ -18,7 +18,7 @@
       <!-- Left Control Panel -->
       <div class="panel-left d-flex" :style="{ width: store.leftPanelWidth + 'px' }">
         <div class="bg-light border-end p-3 flex-grow-1">
-          <h5>左側控制面版</h5>
+          <h5>左側控制面版AAAA</h5>
           <div class="mb-3">
             <label class="form-label">圖層控制</label>
             <div class="form-check">
