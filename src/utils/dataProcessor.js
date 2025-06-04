@@ -195,8 +195,8 @@ export function mergeGeoJSONWithExcel(geojsonData, excelData, geojsonKey = 'CODE
       const props = feature.properties
       return {
         id: index + 1,
-        [geojsonKey.toLowerCase()]: props[geojsonKey] || '',
-        [excelKey]: props[excelKey] || '',
+        code2: props.CODE2 || '',  // 確保 code2 欄位正確對應 CODE2 屬性
+        name: props.name || props.TOWN || '',  // 確保 name 欄位有值
         count: props.count || 0,
         merged: props._merged ? '成功' : '失敗',
         originalGeoKey: props.originalGeoKey,

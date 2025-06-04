@@ -543,10 +543,32 @@ export default {
     
     /**
      * 🎯 在地圖上高亮顯示 (Highlight on Map)
+     * 專注於地圖定位和tooltip顯示
      */
     const highlightOnMap = (row) => {
+      console.log('🎯 highlightOnMap 被調用:', row)
+      console.log('🎯 row.code2:', row.code2)
+      console.log('🎯 mainContent.value:', mainContent.value)
+      
       if (mainContent.value) {
-        mainContent.value.highlightFeature(row.code2)
+        // 先切換到地圖分頁（如果當前不在地圖分頁）
+        if (activeTab.value !== 'map') {
+          console.log('🎯 切換到地圖分頁...')
+          activeTab.value = 'map'
+          
+          // 等待分頁切換完成後再進行高亮
+          setTimeout(() => {
+            console.log('🎯 延遲調用 highlightFeature...')
+            mainContent.value.highlightFeature(row.code2)
+          }, 300)
+        } else {
+          console.log('🎯 直接調用 highlightFeature...')
+          mainContent.value.highlightFeature(row.code2)
+        }
+        
+        console.log(`🎯 定位到 ${row.name || row.code2}`)
+      } else {
+        console.error('❌ mainContent.value 為 null')
       }
     }
 

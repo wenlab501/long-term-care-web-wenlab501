@@ -1,10 +1,5 @@
 <template>
   <div id="map-container" class="h-100 w-100 position-relative">
-    <!-- 🐛 調試信息 (Debug Info) -->
-    <div class="position-absolute top-0 start-0 bg-info text-white p-2 small" style="z-index: 1001;">
-      地圖狀態: {{ mapStatus }}
-    </div>
-    
     <!-- 🎛️ 底圖控制區 (Basemap Control) -->
     <div class="basemap-control card shadow-sm" style="top: 80px; right: 15px;">
       <div class="card-body p-2">
@@ -286,11 +281,30 @@ export default {
     
     // 高亮功能
     const highlightFeature = (code2) => {
-      if (!tainanLayer || !code2) return
+      console.log('🗺️ highlightFeature 被調用, code2:', code2)
+      console.log('🗺️ tainanLayer:', tainanLayer)
+      
+      if (!tainanLayer || !code2) {
+        console.error('❌ tainanLayer 或 code2 為空:', { tainanLayer, code2 })
+        return
+      }
 
+      // 先重置所有圖層的樣式
+      tainanLayer.eachLayer((layer) => {
+        tainanLayer.resetStyle(layer)
+      })
+
+      let foundLayer = false
+      // 找到並高亮指定的圖層
       tainanLayer.eachLayer((layer) => {
         const feature = layer.feature
-        if (feature && feature.properties && feature.properties.code2 === code2) {
+        console.log('🗺️ 檢查圖層:', feature?.properties?.CODE2)
+        
+        if (feature && feature.properties && feature.properties.CODE2 === code2) {
+          console.log('🗺️ 找到匹配的圖層!', feature.properties.CODE2)
+          foundLayer = true
+          
+          // 設置高亮樣式
           layer.setStyle({
             weight: 4,
             color: '#ff0000',
@@ -298,12 +312,36 @@ export default {
             fillOpacity: 0.9
           })
           
-          map.fitBounds(layer.getBounds())
-          layer.openPopup()
+          // 移動到該區域並放大
+          const bounds = layer.getBounds()
+          map.fitBounds(bounds, {
+            padding: [50, 50],
+            animate: true,
+            duration: 1.0
+          })
           
-          console.log(`高亮區域: ${feature.properties.name || code2}`)
+          // 等待地圖移動完成後顯示tooltip
+          setTimeout(() => {
+            layer.openPopup()
+          }, 1100)
+          
+          console.log(`🎯 已定位到區域: ${feature.properties.name || code2}`)
         }
       })
+      
+      if (!foundLayer) {
+        console.error('❌ 未找到匹配的圖層, code2:', code2)
+        console.log('🗺️ 可用的圖層:', tainanLayer ? '存在' : '不存在')
+        if (tainanLayer) {
+          const layerCodes = []
+          tainanLayer.eachLayer((layer) => {
+            if (layer.feature && layer.feature.properties) {
+              layerCodes.push(layer.feature.properties.CODE2)
+            }
+          })
+          console.log('🗺️ 可用的 CODE2 值:', layerCodes.slice(0, 10))
+        }
+      }
     }
     
     // 重置視圖
