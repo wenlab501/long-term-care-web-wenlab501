@@ -12,7 +12,7 @@
             {{ mergedTableData.length }}
           </div> -->
 
-          <div class="my-font-size-sm p-2" style="width: 250px;">
+          <div class="text-sm p-2" style="width: 250px;">
             <input 
               type="text" 
               class="form-control form-control-sm" 
@@ -66,7 +66,13 @@
     </div>
     
     <!-- 😔 空狀態 (Empty State) -->
-    <div class="my-font-size-2xl text-center p-3">沒有資料</div>
+    <div v-else class="h-100 d-flex align-items-center justify-content-center">
+      <div class="text-center">
+        <i class="fas fa-table fa-3x text-muted mb-3"></i>
+        <h5 class="text-muted">沒有資料</h5>
+        <p class="text-muted">請點擊「載入數據」按鈕載入台南市數據</p>
+      </div>
+    </div>
   </div>
 </template>
 

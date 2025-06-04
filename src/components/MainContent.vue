@@ -3,8 +3,8 @@
     <!-- 📱 標籤內容 (Tab Content) - 地圖滿版顯示 -->
     <div class="flex-grow-1 overflow-hidden position-relative">
       
-      <!-- 🎛️ 浮動導航按鈕 (Floating Navigation Buttons) - 位於地圖右上角 -->
-      <div class="position-absolute top-0 end-0 m-3" style="z-index: 1000;">
+      <!-- 🎛️ 浮動導航按鈕 (Floating Navigation Buttons) - 僅在地圖頁面顯示 -->
+      <div v-if="activeTab === 'map'" class="position-absolute top-0 end-0 m-3" style="z-index: 1000;">
         <div class="btn-group" role="group">
           <button 
             class="btn btn-primary btn-sm"
@@ -20,9 +20,29 @@
           </button>
         </div>
       </div>
+
+      <!-- 🎛️ 固定導航條 (Fixed Navigation Bar) - 僅在數據儀表版頁面顯示 -->
+      <div v-if="activeTab === 'dashboard'" class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm position-sticky top-0" style="z-index: 1000;">
+        <div class="container-fluid">
+          <div class="navbar-nav">
+            <button 
+              class="btn btn-primary btn-sm me-2"
+              :class="{ 'active': activeTab === 'map' }" 
+              @click="$emit('update:activeTab', 'map')">
+              <i class="fas fa-map me-1"></i> 地圖視圖
+            </button>
+            <button 
+              class="btn btn-success btn-sm"
+              :class="{ 'active': activeTab === 'dashboard' }" 
+              @click="$emit('update:activeTab', 'dashboard')">
+              <i class="fas fa-chart-bar me-1"></i> 數據儀表板
+            </button>
+          </div>
+        </div>
+      </div>
       
       <!-- 🗺️ 地圖標籤 (Map Tab) -->
-      <div v-show="activeTab === 'map'" class="h-100">
+      <div v-if="activeTab === 'map'" class="h-100">
         <MapView 
           ref="mapView"
           :showTainanLayer="showTainanLayer"
@@ -37,7 +57,7 @@
       </div>
       
       <!-- 📊 儀表板標籤 (Dashboard Tab) -->
-      <div v-show="activeTab === 'dashboard'" class="h-100">
+      <div v-if="activeTab === 'dashboard'" class="h-100 overflow-auto">
         <DashboardView 
           ref="dashboardView"
           :mergedTableData="mergedTableData"
@@ -45,6 +65,17 @@
           :averageCount="averageCount"
           :dataRegionsCount="dataRegionsCount"
           :containerHeight="contentHeight" />
+      </div>
+
+      <!-- 🐛 調試信息 (Debug Info) - 當沒有匹配的標籤時顯示 -->
+      <div v-if="activeTab !== 'map' && activeTab !== 'dashboard'" class="h-100 d-flex align-items-center justify-content-center bg-light">
+        <div class="text-center">
+          <h5>調試信息</h5>
+          <p>當前 activeTab: <code>{{ activeTab }}</code></p>
+          <p>預期值: <code>map</code> 或 <code>dashboard</code></p>
+          <button class="btn btn-primary me-2" @click="$emit('update:activeTab', 'map')">切換到地圖</button>
+          <button class="btn btn-success" @click="$emit('update:activeTab', 'dashboard')">切換到儀表板</button>
+        </div>
       </div>
     </div>
   </div>
@@ -59,6 +90,7 @@
  * 2. 🗺️ 管理地圖視圖組件
  * 3. 📊 管理儀表板視圖組件
  * 4. 📏 響應面板大小變化
+ * 5. 🎛️ 支援不同的導航模式（浮動按鈕 vs 固定導航條）
  */
 import { ref, watch, nextTick } from 'vue'
 import MapView from './MapView.vue'
@@ -258,35 +290,45 @@ export default {
  * 🎨 主要內容區域樣式 (Main Content Styles)
  */
 
-/* 📑 標籤導航樣式 */
-.nav-tabs {
-  border-bottom: 1px solid var(--border-color);
-  background-color: var(--bg-secondary);
+/* 🎛️ 固定導航條樣式 */
+.navbar {
+  padding: 0.5rem 1rem;
 }
 
-.nav-tabs .nav-link {
-  border: none;
-  border-bottom: 2px solid transparent;
-  background: none;
-  color: var(--text-secondary);
-  font-weight: var(--font-weight-medium);
-  padding: var(--spacing-3) var(--spacing-4);
-  transition: var(--transition-colors);
+.navbar .btn {
+  border-radius: 0.375rem;
+  margin-right: 0.25rem;
 }
 
-.nav-tabs .nav-link.active {
-  color: var(--primary-color);
-  border-bottom-color: var(--primary-color);
-  background-color: var(--bg-primary);
-}
-
-.nav-tabs .nav-link:hover {
-  color: var(--primary-hover);
-  border-bottom-color: var(--primary-hover);
+.navbar .btn:last-child {
+  margin-right: 0;
 }
 
 /* 📱 內容區域樣式 */
 .flex-grow-1 {
   overflow: hidden;
+}
+
+/* 📊 儀表板區域樣式 */
+.overflow-auto {
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 transparent;
+}
+
+.overflow-auto::-webkit-scrollbar {
+  width: 8px;
+}
+
+.overflow-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.overflow-auto::-webkit-scrollbar-thumb {
+  background-color: #c1c1c1;
+  border-radius: 4px;
+}
+
+.overflow-auto::-webkit-scrollbar-thumb:hover {
+  background-color: #a1a1a1;
 }
 </style> 
