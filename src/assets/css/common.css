@@ -20,36 +20,58 @@
    🔧 基礎重置和全局設定 (Base Reset & Global Settings)
    ============================================================================= */
 
-* {
-  box-sizing: border-box;                     /* 統一盒模型 */
-  letter-spacing: 1.2px;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-html, body {
-  height: 100%;                               /* 全高度佈局 */
-  margin: 0;                                  /* 移除預設邊距 */
-  padding: 0;                                 /* 移除預設內距 */
-  font-family: var(--font-family-primary);    /* 使用主要字體 */
-  font-size: var(--font-size-base);          /* 基礎字體大小 */
-  line-height: var(--line-height-normal);    /* 行高設定 */
-  color: var(--text-primary);                /* 主要文字顏色 */
-  background-color: var(--bg-primary);       /* 主要背景顏色 */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
+
+body {
+
+  font-family: var(--my-font-family-primary);    /* 使用主要字體 */
+  font-size: var(--my-font-size-base);          /* 基礎字體大小 */
+  letter-spacing: var(--my-letter-spacing-base);
+  
+  line-height: var(--my-line-height-normal);    /* 行高設定 */
+  color: var(--my-text-primary);                /* 主要文字顏色 */
+  background-color: var(--my-bg-primary);       /* 主要背景顏色 */
+}
+
+/* ============================================================================ */
+
+/* 字體大小 */
+.my-font-size-2xl { font-size: var(--my-font-size-2xl) !important; }
+.my-font-size-xl { font-size: var(--my-font-size-xl) !important; }
+.my-font-size-lg { font-size: var(--my-font-size-lg) !important; }
+.my-font-size-base { font-size: var(--my-font-size-base) !important; }
+.my-font-size-sm { font-size: var(--my-font-size-sm) !important; }
+.my-font-size-xs { font-size: var(--my-font-size-xs) !important; }
+
+.my-letter-spacing-20 { letter-spacing: 20px !important; }
 
 /* =============================================================================
    🏗️ 應用程式佈局 (Application Layout)
    ============================================================================= */
 
 #app {
-  height: 100vh;                              /* 全螢幕高度 */
-  overflow: hidden;                           /* 防止滾動 */
-  display: flex;                              /* 彈性佈局 */
-  flex-direction: column;                     /* 垂直排列 */
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .my-main-content {
-  flex: 1;                                    /* 佔用剩餘空間 */
-  overflow: hidden;                           /* 防止內容溢出 */
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  min-height: 0;
 }
 
 .my-main-content .container-fluid {
@@ -61,27 +83,28 @@ html, body {
    ============================================================================= */
 
 .my-app-footer {
-  background-color: var(--bg-dark);          /* 深色背景 */
-  color: var(--text-light);                  /* 淺色文字 */
-  padding: var(--spacing-4) 0;               /* 上下內距 */
-  text-align: center;                        /* 文字置中 */
-  font-size: var(--font-size-sm);            /* 小字體 */
-  border-top: 1px solid var(--border-color); /* 上邊框 */
-  min-height: 60px;                          /* 最小高度 */
-  display: flex;                             /* 彈性佈局 */
-  align-items: center;                       /* 垂直置中 */
-  justify-content: center;                   /* 水平置中 */
+  flex-shrink: 0;
+  background-color: var(--my-bg-dark);          /* 深色背景 */
+  color: var(--my-text-light);                  /* 淺色文字 */
+  padding: var(--my-spacing-4) 0;               /* 上下內距 */
+  margin-top: auto;
+  font-size: var(--my-font-size-sm);            /* 小字體 */
+  border-top: 1px solid var(--my-border-color); /* 上邊框 */
+}
+
+.my-app-footer .container-fluid {
+  max-width: 1200px;
 }
 
 .my-app-footer a {
-  color: var(--text-light);                  /* 連結顏色 */
-  text-decoration: none;                     /* 移除底線 */
-  transition: var(--transition-colors);      /* 顏色轉換效果 */
+  color: var(--my-text-light);                  /* 連結顏色 */
+  text-decoration: none;
+  transition: var(--my-transition-colors);      /* 顏色轉換效果 */
 }
 
 .my-app-footer a:hover {
-  color: var(--primary-light);               /* 懸停時的顏色 */
-  text-decoration: underline;                /* 懸停時顯示底線 */
+  color: var(--my-primary-light);               /* 懸停時的顏色 */
+  text-decoration: underline;
 }
 
 /* =============================================================================
@@ -89,51 +112,52 @@ html, body {
    ============================================================================= */
 
 .my-loading-overlay {
-  position: fixed;                           /* 固定定位 */
-  top: 0;                                    /* 頂部對齊 */
-  left: 0;                                   /* 左側對齊 */
-  width: 100%;                               /* 全寬度 */
-  height: 100%;                              /* 全高度 */
-  background-color: var(--bg-overlay-heavy); /* 半透明背景 */
-  display: flex;                             /* 彈性佈局 */
-  align-items: center;                       /* 垂直置中 */
-  justify-content: center;                   /* 水平置中 */
-  z-index: var(--z-index-loading);          /* 最高層級 */
-  backdrop-filter: blur(2px);               /* 背景模糊效果 */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--my-bg-overlay-heavy); /* 半透明背景 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: var(--my-z-index-loading);          /* 最高層級 */
 }
 
 .my-loading-content {
-  text-align: center;                        /* 文字置中 */
-  color: var(--text-light);                  /* 淺色文字 */
-  background-color: var(--panel-bg);         /* 面板背景 */
-  padding: var(--spacing-6);                 /* 內距 */
-  border-radius: var(--radius-lg);           /* 圓角 */
-  box-shadow: var(--shadow-lg);              /* 陰影效果 */
-  min-width: 300px;                          /* 最小寬度 */
+  text-align: center;
+  color: var(--my-text-light);                  /* 淺色文字 */
+  background-color: var(--my-panel-bg);         /* 面板背景 */
+  padding: var(--my-spacing-6);                 /* 內距 */
+  border-radius: var(--my-radius-lg);           /* 圓角 */
+  box-shadow: var(--my-shadow-lg);              /* 陰影效果 */
+  min-width: 300px;
+  max-width: 400px;
 }
 
 .my-loading-spinner {
-  width: 3rem;                               /* 旋轉器寬度 */
-  height: 3rem;                              /* 旋轉器高度 */
-  margin: 0 auto var(--spacing-4);           /* 置中並設定下邊距 */
+  width: 3rem;
+  height: 3rem;
+  margin: 0 auto var(--my-spacing-4);           /* 置中並設定下邊距 */
+  border-radius: 50%;
 }
 
 .my-loading-text {
-  font-size: var(--font-size-xl);            /* 載入文字大小 */
-  font-weight: var(--font-weight-medium);    /* 中等字重 */
-  color: var(--text-primary);               /* 主要文字顏色 */
-  margin-bottom: var(--spacing-2);           /* 下邊距 */
-}
-
-.my-loading-progress {
-  width: 300px;                              /* 進度條寬度 */
-  margin: var(--spacing-4) auto 0;           /* 置中並設定上邊距 */
+  font-size: var(--my-font-size-xl);            /* 載入文字大小 */
+  font-weight: var(--my-font-weight-medium);    /* 中等字重 */
+  color: var(--my-text-primary);               /* 主要文字顏色 */
+  margin-bottom: var(--my-spacing-2);           /* 下邊距 */
 }
 
 .my-loading-subtext {
-  font-size: var(--font-size-small);         /* 小字體 */
-  color: var(--text-secondary);             /* 次要文字顏色 */
-  margin-top: var(--spacing-2);             /* 上邊距 */
+  margin: var(--my-spacing-4) auto 0;           /* 置中並設定上邊距 */
+  max-width: 90%;
+}
+
+.my-loading-subtext small {
+  font-size: var(--my-font-size-small);         /* 小字體 */
+  color: var(--my-text-secondary);             /* 次要文字顏色 */
+  margin-top: var(--my-spacing-2);             /* 上邊距 */
 }
 
 /* =============================================================================
@@ -142,62 +166,61 @@ html, body {
 
 /* 標準分頁標籤 */
 .my-nav-tabs {
-  border-bottom: 1px solid var(--border-light); /* 底部邊框 */
+  border-bottom: 1px solid var(--my-border-light); /* 底部邊框 */
 }
 
 .my-nav-tabs .nav-link {
-  border: none;                              /* 移除預設邊框 */
-  border-bottom: 2px solid transparent;      /* 透明底部邊框 */
-  color: var(--text-secondary);             /* 次要文字顏色 */
-  background: none;                          /* 無背景 */
-  font-weight: var(--font-weight-medium);    /* 中等字重 */
-  padding: var(--spacing-3) var(--spacing-4); /* 內距設定 */
-  transition: var(--transition-colors);      /* 顏色轉換效果 */
-  font-size: var(--font-size-base);         /* 基礎字體大小 */
+  border: none;
+  color: var(--my-text-secondary);             /* 次要文字顏色 */
+  background: transparent;
+  font-weight: var(--my-font-weight-medium);    /* 中等字重 */
+  padding: var(--my-spacing-3) var(--my-spacing-4); /* 內距設定 */
+  transition: var(--my-transition-colors);      /* 顏色轉換效果 */
+  font-size: var(--my-font-size-base);         /* 基礎字體大小 */
 }
 
 .my-nav-tabs .nav-link.active {
-  border-bottom-color: var(--primary-color); /* 啟用狀態底部邊框 */
-  color: var(--primary-color);               /* 啟用狀態文字顏色 */
-  background-color: var(--primary-light);    /* 啟用狀態背景 */
+  border-bottom-color: var(--my-primary-color); /* 啟用狀態底部邊框 */
+  color: var(--my-primary-color);               /* 啟用狀態文字顏色 */
+  background-color: var(--my-primary-light);    /* 啟用狀態背景 */
 }
 
 .my-nav-tabs .nav-link:hover {
-  border-bottom-color: var(--primary-hover); /* 懸停狀態邊框 */
-  color: var(--primary-hover);               /* 懸停狀態文字 */
+  border-bottom-color: var(--my-primary-hover); /* 懸停狀態邊框 */
+  color: var(--my-primary-hover);               /* 懸停狀態文字 */
 }
 
 /* 深色分頁標籤（底部面板使用） */
-.my-nav-dark .nav-link {
-  color: var(--text-light) !important;       /* 淺色文字 */
-  font-weight: var(--font-weight-medium);    /* 中等字重 */
-  padding: var(--spacing-3) var(--spacing-4); /* 內距設定 */
-  transition: var(--transition-base);        /* 基礎轉換效果 */
+.my-nav-tabs-dark .nav-link {
+  color: var(--my-text-light) !important;       /* 淺色文字 */
+  font-weight: var(--my-font-weight-medium);    /* 中等字重 */
+  padding: var(--my-spacing-3) var(--my-spacing-4); /* 內距設定 */
+  transition: var(--my-transition-base);        /* 基礎轉換效果 */
 }
 
-.my-nav-dark .nav-link:hover {
-  color: var(--text-light) !important;       /* 懸停時保持淺色 */
-  background-color: var(--bg-overlay-light); /* 淺色覆蓋背景 */
+.my-nav-tabs-dark .nav-link:hover {
+  color: var(--my-text-light) !important;       /* 懸停時保持淺色 */
+  background-color: var(--my-bg-overlay-light); /* 淺色覆蓋背景 */
 }
 
-.my-nav-dark .nav-link.active {
-  color: var(--text-light) !important;       /* 啟用狀態文字 */
-  background-color: var(--primary-color);    /* 啟用狀態背景 */
+.my-nav-tabs-dark .nav-link.active {
+  color: var(--my-text-light) !important;       /* 啟用狀態文字 */
+  background-color: var(--my-primary-color);    /* 啟用狀態背景 */
 }
 
 /* 藥丸式分頁標籤（右側面板使用） */
 .my-nav-pills .nav-link {
-  font-size: var(--font-size-sm);            /* 小字體 */
-  padding: var(--spacing-2) var(--spacing-4); /* 內距設定 */
-  font-weight: var(--font-weight-medium);    /* 中等字重 */
-  border-radius: var(--radius-base);         /* 圓角 */
-  transition: var(--transition-base);        /* 基礎轉換效果 */
-  margin-bottom: var(--spacing-1);          /* 下邊距 */
+  font-size: var(--my-font-size-sm);            /* 小字體 */
+  padding: var(--my-spacing-2) var(--my-spacing-4); /* 內距設定 */
+  font-weight: var(--my-font-weight-medium);    /* 中等字重 */
+  border-radius: var(--my-radius-base);         /* 圓角 */
+  transition: var(--my-transition-base);        /* 基礎轉換效果 */
+  margin-bottom: var(--my-spacing-1);          /* 下邊距 */
 }
 
 .my-nav-pills .nav-link.active {
-  background-color: var(--primary-color);    /* 啟用狀態背景 */
-  color: var(--text-light);                 /* 啟用狀態文字 */
+  background-color: var(--my-primary-color);    /* 啟用狀態背景 */
+  color: var(--my-text-light);                 /* 啟用狀態文字 */
 }
 
 /* =============================================================================
@@ -205,10 +228,9 @@ html, body {
    ============================================================================= */
 
 .my-table-container {
-  background-color: var(--panel-bg);         /* 面板背景顏色 */
-  border-radius: var(--radius-lg);           /* 大圓角 */
-  padding: var(--spacing-4);                 /* 內距 */
-  margin-bottom: var(--spacing-4);           /* 下邊距 */
+  background-color: var(--my-panel-bg);
+  border-radius: var(--my-radius-lg);
+  overflow: hidden;
 }
 
 .my-table-responsive {
@@ -217,48 +239,50 @@ html, body {
 }
 
 .my-table-dark {
-  --bs-table-bg: var(--bg-dark);            /* 表格背景 */
-  --bs-table-striped-bg: var(--bg-dark-alt); /* 斑馬紋背景 */
+  --bs-table-color: var(--my-text-light);
+  --bs-table-bg: var(--my-bg-dark);            /* 表格背景 */
+  --bs-table-striped-bg: var(--my-bg-dark-alt); /* 斑馬紋背景 */
 }
 
-.my-table-dark th {
-  background-color: var(--primary-color);    /* 表頭背景 */
-  color: var(--text-light);                 /* 表頭文字 */
-  font-weight: var(--font-weight-semibold);  /* 表頭字重 */
-  border-color: var(--border-dark);         /* 表頭邊框 */
-  font-size: var(--font-size-sm);           /* 表頭字體大小 */
-  padding: var(--spacing-3);                /* 表頭內距 */
-  position: sticky;                          /* 粘性定位 */
-  top: 0;                                   /* 置頂 */
-  z-index: var(--z-index-sticky);          /* 層級設定 */
+.my-table-dark thead th {
+  background-color: var(--my-primary-color);    /* 表頭背景 */
+  color: var(--my-text-light);                 /* 表頭文字 */
+  font-weight: var(--my-font-weight-semibold);  /* 表頭字重 */
+  border-color: var(--my-border-dark);         /* 表頭邊框 */
+  font-size: var(--my-font-size-sm);           /* 表頭字體大小 */
+  padding: var(--my-spacing-3);                /* 表頭內距 */
+  position: sticky;
+  top: 0;
+  z-index: var(--my-z-index-sticky);          /* 層級設定 */
 }
 
-.my-table-dark th.sortable {
-  cursor: pointer;                           /* 可排序游標 */
-  user-select: none;                         /* 禁止選取文字 */
-  transition: var(--transition-base);        /* 基礎轉換效果 */
+.my-table-dark thead th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: var(--my-transition-base);        /* 基礎轉換效果 */
 }
 
-.my-table-dark th.sortable:hover {
-  background-color: var(--primary-hover);    /* 懸停背景 */
+.my-table-dark thead th.sortable:hover {
+  background-color: var(--my-primary-hover);    /* 懸停背景 */
 }
 
-.my-table-dark th.sortable i {
-  margin-left: var(--spacing-2);            /* 圖示左邊距 */
-  opacity: 0.7;                             /* 圖示透明度 */
-  transition: var(--transition-base);        /* 基礎轉換效果 */
+.my-table-dark thead th .sort-icon {
+  margin-left: var(--my-spacing-2);            /* 圖示左邊距 */
+  opacity: 0.7;
+  transition: var(--my-transition-base);        /* 基礎轉換效果 */
 }
 
-.my-table-dark th.sortable:hover i {
-  opacity: 1;                               /* 懸停時圖示不透明 */
+.my-table-dark thead th.sortable:hover .sort-icon {
+  opacity: 1;
 }
 
-.my-table-striped > tbody > tr:nth-of-type(odd) > td {
-  background-color: var(--bg-dark-alt);     /* 斑馬紋背景 */
+.my-table-dark tbody tr:nth-of-type(odd) {
+  background-color: var(--my-bg-dark-alt);     /* 斑馬紋背景 */
 }
 
 .my-table-dark tbody tr:hover {
-  background-color: var(--bg-overlay-light); /* 懸停時行背景 */
+  background-color: var(--my-bg-overlay-light); /* 懸停時行背景 */
+  cursor: pointer;
 }
 
 /* =============================================================================
@@ -266,26 +290,25 @@ html, body {
    ============================================================================= */
 
 .my-search-container {
-  position: relative;                        /* 相對定位 */
-  margin-bottom: var(--spacing-4);           /* 下邊距 */
+  position: relative;
+  margin-bottom: var(--my-spacing-4);           /* 下邊距 */
 }
 
-.my-search-container input.form-control {
-  padding-left: var(--spacing-6);            /* 左內距（為圖示留空間） */
-  border-radius: var(--radius-lg);           /* 大圓角 */
-  border: 1px solid var(--border-light);    /* 淺色邊框 */
-  background-color: var(--input-bg);        /* 輸入框背景 */
-  transition: var(--transition-base);        /* 基礎轉換效果 */
+.my-search-input {
+  padding-left: var(--my-spacing-6);            /* 左內距（為圖示留空間） */
+  border-radius: var(--my-radius-lg);           /* 大圓角 */
+  border: 1px solid var(--my-border-light);    /* 淺色邊框 */
+  background-color: var(--my-input-bg);        /* 輸入框背景 */
+  transition: var(--my-transition-base);        /* 基礎轉換效果 */
 }
 
-.my-search-container input.form-control:focus {
-  border-color: var(--primary-color);       /* 聚焦時邊框顏色 */
-  box-shadow: 0 0 0 0.2rem var(--primary-shadow); /* 聚焦陰影 */
+.my-search-input:focus {
+  border-color: var(--my-primary-color);       /* 聚焦時邊框顏色 */
+  box-shadow: 0 0 0 0.2rem var(--my-primary-shadow); /* 聚焦陰影 */
 }
 
-.my-search-container input.form-control::placeholder {
-  color: var(--text-muted);                 /* 占位符顏色 */
-  font-style: italic;                       /* 斜體 */
+.my-search-input::placeholder {
+  color: var(--my-text-muted);                 /* 占位符顏色 */
 }
 
 /* =============================================================================
@@ -293,20 +316,29 @@ html, body {
    ============================================================================= */
 
 .my-badge {
-  font-weight: var(--font-weight-medium);    /* 中等字重 */
-  padding: var(--spacing-1) var(--spacing-3); /* 內距設定 */
-  border-radius: var(--radius-full);         /* 完全圓角 */
+  font-size: var(--my-font-size-sm);            /* 小字體 */
+  padding: var(--my-spacing-2) var(--my-spacing-4); /* 內距設定 */
+  font-weight: var(--my-font-weight-medium);    /* 中等字重 */
+  border-radius: var(--my-radius-base);         /* 圓角 */
+  transition: var(--my-transition-base);        /* 基礎轉換效果 */
+  margin-bottom: var(--my-spacing-1);          /* 下邊距 */
 }
 
-.my-badge-count {
-  background-color: var(--primary-color);    /* 計數徽章背景 */
-  color: var(--text-light);                 /* 計數徽章文字 */
-  font-size: var(--font-size-xs);           /* 超小字體 */
-  font-weight: var(--font-weight-bold);      /* 粗體 */
-  padding: var(--spacing-1) var(--spacing-2); /* 緊湊內距 */
-  border-radius: var(--radius-full);         /* 完全圓角 */
-  min-width: 20px;                          /* 最小寬度 */
-  text-align: center;                       /* 文字置中 */
+.my-badge.active {
+  background-color: var(--my-primary-color);    /* 啟用狀態背景 */
+  color: var(--my-text-light);                 /* 啟用狀態文字 */
+}
+
+.my-count-badge {
+  background-color: var(--my-primary-color);    /* 計數徽章背景 */
+  color: var(--my-text-light);                 /* 計數徽章文字 */
+  font-size: var(--my-font-size-xs);           /* 超小字體 */
+  font-weight: var(--my-font-weight-bold);      /* 粗體 */
+  padding: var(--my-spacing-1) var(--my-spacing-2); /* 緊湊內距 */
+  border-radius: var(--my-radius-full);         /* 完全圓角 */
+  min-width: 1.5rem;
+  text-align: center;
+  display: inline-block;
 }
 
 /* =============================================================================
@@ -314,38 +346,32 @@ html, body {
    ============================================================================= */
 
 .my-btn {
-  font-weight: var(--font-weight-medium);    /* 中等字重 */
-  border-radius: var(--radius-base);         /* 基礎圓角 */
-  transition: var(--transition-base);        /* 基礎轉換效果 */
-  font-size: var(--font-size-sm);           /* 小字體 */
+  font-weight: var(--my-font-weight-medium);
+  padding: var(--my-spacing-3) var(--my-spacing-4);
+  border-radius: var(--my-radius-base);
+  transition: var(--my-transition-base);
 }
 
-.my-btn:disabled {
-  opacity: 0.6;                             /* 禁用時透明度 */
-  cursor: not-allowed;                      /* 禁用游標 */
+.my-btn-primary {
+  background-color: var(--my-primary-color);
+  border-color: var(--my-primary-color);
+  color: var(--my-text-light);
 }
 
-.my-btn.active {
-  transform: translateY(1px);               /* 按下效果 */
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); /* 內陰影 */
+.my-btn-primary:hover {
+  background-color: var(--my-primary-hover);
+  border-color: var(--my-primary-hover);
 }
 
-.my-btn-analyze {
-  background: linear-gradient(135deg, 
-              var(--success-color) 0%, 
-              var(--success-dark) 100%);     /* 分析按鈕漸層背景 */
-  border: none;                             /* 無邊框 */
-  color: var(--text-light);                /* 淺色文字 */
-  font-weight: var(--font-weight-semibold); /* 半粗體 */
-  transition: var(--transition-base);        /* 基礎轉換效果 */
+.my-btn-secondary {
+  background-color: var(--my-secondary-color);
+  border-color: var(--my-secondary-color);
+  color: var(--my-text-light);
 }
 
-.my-btn-analyze:hover {
-  background: linear-gradient(135deg, 
-              var(--success-dark) 0%, 
-              var(--success-color) 100%);    /* 懸停時漸層方向反轉 */
-  transform: translateY(-1px);              /* 懸停上升效果 */
-  box-shadow: var(--shadow-md);             /* 中等陰影 */
+.my-btn-secondary:hover {
+  background-color: var(--my-secondary-hover);
+  border-color: var(--my-secondary-hover);
 }
 
 /* =============================================================================
@@ -353,24 +379,24 @@ html, body {
    ============================================================================= */
 
 .my-card {
-  border: 1px solid var(--border-light);    /* 淺色邊框 */
-  border-radius: var(--radius-lg);           /* 大圓角 */
-  background-color: var(--card-bg);          /* 卡片背景 */
-  box-shadow: var(--shadow-sm);              /* 小陰影 */
-  transition: var(--transition-base);        /* 基礎轉換效果 */
-  overflow: hidden;                          /* 防止內容溢出 */
+  border: none;
+  box-shadow: none;
+  background-color: var(--my-panel-bg);         /* 面板背景顏色 */
+  border-radius: var(--my-radius-lg);           /* 大圓角 */
+  padding: var(--my-spacing-4);                 /* 內距 */
+  margin-bottom: var(--my-spacing-4);           /* 下邊距 */
 }
 
 .my-card:hover {
-  box-shadow: var(--shadow-md);              /* 懸停時中等陰影 */
+  box-shadow: var(--my-shadow-md);              /* 懸停時中等陰影 */
   transform: translateY(-2px);              /* 懸停上升效果 */
 }
 
 .my-card-header {
-  background-color: var(--card-header-bg);   /* 卡片頭部背景 */
-  border-bottom: 1px solid var(--border-light); /* 底部邊框 */
-  padding: var(--spacing-4);                 /* 內距 */
-  font-weight: var(--font-weight-semibold);  /* 半粗體 */
+  background-color: var(--my-card-header-bg);   /* 卡片頭部背景 */
+  border-bottom: 1px solid var(--my-border-light); /* 底部邊框 */
+  padding: var(--my-spacing-4);                 /* 內距 */
+  font-weight: var(--my-font-weight-semibold);  /* 半粗體 */
 }
 
 /* =============================================================================
@@ -378,27 +404,26 @@ html, body {
    ============================================================================= */
 
 .my-stats-card {
-  background: linear-gradient(135deg, var(--card-bg) 0%, var(--card-bg-alt) 100%);
+  background: linear-gradient(135deg, var(--my-card-bg) 0%, var(--my-card-bg-alt) 100%);
   border: none;                             /* 無邊框 */
-  box-shadow: var(--shadow-lg);             /* 大陰影 */
+  box-shadow: var(--my-shadow-lg);             /* 大陰影 */
 }
 
 .my-stats-card .card-body {
-  padding: var(--spacing-5);                /* 較大內距 */
+  padding: var(--my-spacing-5);                /* 較大內距 */
 }
 
 .my-stats-value {
-  font-size: var(--font-size-4xl);          /* 超大字體 */
-  font-weight: var(--font-weight-bold);     /* 粗體 */
-  color: var(--primary-color);             /* 主色調 */
-  line-height: 1;                          /* 行高設為1 */
-  margin-bottom: var(--spacing-1);         /* 下邊距 */
+  font-size: 1.5rem;
+  font-weight: var(--my-font-weight-medium);    /* 中等字重 */
+  padding: var(--my-spacing-1) var(--my-spacing-3); /* 內距設定 */
+  border-radius: var(--my-radius-full);         /* 完全圓角 */
 }
 
 .my-stats-label {
-  font-size: var(--font-size-sm);           /* 小字體 */
-  color: var(--text-secondary);            /* 次要文字顏色 */
-  font-weight: var(--font-weight-medium);   /* 中等字重 */
+  font-size: var(--my-font-size-sm);           /* 小字體 */
+  color: var(--my-text-secondary);            /* 次要文字顏色 */
+  font-weight: var(--my-font-weight-medium);   /* 中等字重 */
   text-transform: uppercase;               /* 大寫 */
   letter-spacing: 0.5px;                   /* 字母間距 */
 }
@@ -408,11 +433,11 @@ html, body {
    ============================================================================= */
 
 .my-chart-container {
-  background-color: var(--panel-bg);        /* 面板背景 */
-  border-radius: var(--radius-lg);          /* 大圓角 */
-  padding: var(--spacing-4);                /* 內距 */
-  margin-bottom: var(--spacing-4);          /* 下邊距 */
-  box-shadow: var(--shadow-sm);             /* 小陰影 */
+  background-color: var(--my-panel-bg);        /* 面板背景 */
+  border-radius: var(--my-radius-lg);          /* 大圓角 */
+  padding: var(--my-spacing-4);                /* 內距 */
+  margin-bottom: var(--my-spacing-4);          /* 下邊距 */
+  box-shadow: var(--my-shadow-sm);             /* 小陰影 */
   position: relative;                       /* 相對定位 */
   overflow: hidden;                         /* 防止內容溢出 */
 }
@@ -435,13 +460,13 @@ html, body {
 }
 
 .my-charts-row {
-  margin-bottom: var(--spacing-4);         /* 下邊距 */
+  margin-bottom: var(--my-spacing-4);         /* 下邊距 */
 }
 
 .my-charts-row .card {
   height: 100%;                            /* 全高度 */
   border: none;                            /* 無邊框 */
-  box-shadow: var(--shadow-md);            /* 中等陰影 */
+  box-shadow: var(--my-shadow-md);            /* 中等陰影 */
 }
 
 .my-charts-row .card-body {
@@ -449,7 +474,7 @@ html, body {
   align-items: center;                     /* 垂直置中 */
   justify-content: center;                 /* 水平置中 */
   min-height: 250px;                       /* 最小高度 */
-  background: linear-gradient(135deg, var(--card-bg) 0%, var(--card-bg-alt) 100%);
+  background: linear-gradient(135deg, var(--my-card-bg) 0%, var(--my-card-bg-alt) 100%);
 }
 
 /* =============================================================================
@@ -457,48 +482,48 @@ html, body {
    ============================================================================= */
 
 .my-analysis-item {
-  border: 1px solid var(--border-light);   /* 淺色邊框 */
-  border-radius: var(--radius-base);       /* 基礎圓角 */
-  padding: var(--spacing-4);               /* 內距 */
-  margin-bottom: var(--spacing-3);         /* 下邊距 */
-  background-color: var(--card-bg);        /* 卡片背景 */
-  transition: var(--transition-base);      /* 基礎轉換效果 */
+  border: 1px solid var(--my-border-light);   /* 淺色邊框 */
+  border-radius: var(--my-radius-base);       /* 基礎圓角 */
+  padding: var(--my-spacing-4);               /* 內距 */
+  margin-bottom: var(--my-spacing-3);         /* 下邊距 */
+  background-color: var(--my-card-bg);        /* 卡片背景 */
+  transition: var(--my-transition-base);      /* 基礎轉換效果 */
   cursor: pointer;                         /* 游標指針 */
 }
 
 .my-analysis-item:hover {
-  border-color: var(--primary-color);      /* 懸停時邊框顏色 */
-  box-shadow: var(--shadow-sm);            /* 懸停時小陰影 */
+  border-color: var(--my-primary-color);      /* 懸停時邊框顏色 */
+  box-shadow: var(--my-shadow-sm);            /* 懸停時小陰影 */
   transform: translateX(2px);              /* 懸停時右移效果 */
 }
 
 .my-analysis-item.active {
-  border-color: var(--primary-color);      /* 啟用時邊框顏色 */
-  background-color: var(--primary-light);  /* 啟用時背景顏色 */
+  border-color: var(--my-primary-color);      /* 啟用時邊框顏色 */
+  background-color: var(--my-primary-light);  /* 啟用時背景顏色 */
 }
 
 .my-analysis-item-header {
   display: flex;                           /* 彈性佈局 */
   justify-content: space-between;          /* 兩端對齊 */
   align-items: center;                     /* 垂直置中 */
-  margin-bottom: var(--spacing-2);         /* 下邊距 */
+  margin-bottom: var(--my-spacing-2);         /* 下邊距 */
 }
 
 .my-analysis-item-title {
-  font-weight: var(--font-weight-semibold); /* 半粗體 */
-  color: var(--text-primary);              /* 主要文字顏色 */
-  font-size: var(--font-size-base);        /* 基礎字體大小 */
+  font-weight: var(--my-font-weight-semibold); /* 半粗體 */
+  color: var(--my-text-primary);              /* 主要文字顏色 */
+  font-size: var(--my-font-size-base);        /* 基礎字體大小 */
 }
 
 .my-analysis-item-time {
-  font-size: var(--font-size-xs);          /* 超小字體 */
-  color: var(--text-muted);                /* 淡色文字 */
+  font-size: var(--my-font-size-xs);          /* 超小字體 */
+  color: var(--my-text-muted);                /* 淡色文字 */
 }
 
 .my-analysis-item-actions {
   display: flex;                           /* 彈性佈局 */
-  gap: var(--spacing-2);                   /* 間距 */
-  margin-top: var(--spacing-2);            /* 上邊距 */
+  gap: var(--my-spacing-2);                   /* 間距 */
+  margin-top: var(--my-spacing-2);            /* 上邊距 */
 }
 
 /* =============================================================================
@@ -507,23 +532,23 @@ html, body {
 
 /* Leaflet 工具提示樣式覆蓋 */
 .leaflet-tooltip {
-  background-color: var(--tooltip-bg) !important;    /* 工具提示背景 */
-  border: 1px solid var(--tooltip-border) !important; /* 工具提示邊框 */
-  color: var(--tooltip-text) !important;              /* 工具提示文字 */
-  font-size: var(--font-size-xs) !important;          /* 工具提示字體大小 */
-  font-weight: var(--font-weight-medium) !important;  /* 工具提示字重 */
-  border-radius: var(--radius-sm) !important;         /* 工具提示圓角 */
-  box-shadow: var(--shadow-md) !important;            /* 工具提示陰影 */
+  background-color: var(--my-tooltip-bg) !important;    /* 工具提示背景 */
+  border: 1px solid var(--my-tooltip-border) !important; /* 工具提示邊框 */
+  color: var(--my-tooltip-text) !important;              /* 工具提示文字 */
+  font-size: var(--my-font-size-xs) !important;          /* 工具提示字體大小 */
+  font-weight: var(--my-font-weight-medium) !important;  /* 工具提示字重 */
+  border-radius: var(--my-radius-sm) !important;         /* 工具提示圓角 */
+  box-shadow: var(--my-shadow-md) !important;            /* 工具提示陰影 */
 }
 
 .leaflet-tooltip-top:before,
 .leaflet-tooltip-bottom:before,
 .leaflet-tooltip-left:before,
 .leaflet-tooltip-right:before {
-  border-top-color: var(--tooltip-bg) !important;     /* 工具提示箭頭顏色 */
-  border-bottom-color: var(--tooltip-bg) !important;
-  border-left-color: var(--tooltip-bg) !important;
-  border-right-color: var(--tooltip-bg) !important;
+  border-top-color: var(--my-tooltip-bg) !important;     /* 工具提示箭頭顏色 */
+  border-bottom-color: var(--my-tooltip-bg) !important;
+  border-left-color: var(--my-tooltip-bg) !important;
+  border-right-color: var(--my-tooltip-bg) !important;
 }
 
 /* =============================================================================
@@ -531,28 +556,24 @@ html, body {
    ============================================================================= */
 
 .my-resizer {
-  background-color: var(--border-color);    /* 調整器背景 */
-  transition: var(--transition-colors);     /* 顏色轉換效果 */
-  user-select: none;                        /* 禁止選取 */
-  position: relative;                       /* 相對定位 */
+  background-color: var(--my-resizer-bg);
+  cursor: col-resize;
+  position: relative;
+  z-index: 10;
 }
 
 .my-resizer:hover {
-  background-color: var(--primary-color);   /* 懸停時背景顏色 */
+  background-color: var(--my-resizer-hover);
 }
 
 .my-resizer-vertical {
-  width: 4px;                              /* 垂直調整器寬度 */
-  height: 100%;                            /* 垂直調整器高度 */
-  cursor: col-resize;                      /* 調整欄寬游標 */
-  min-width: 4px;                          /* 最小寬度 */
+  width: 4px;
+  cursor: col-resize;
 }
 
 .my-resizer-horizontal {
-  height: 4px;                             /* 水平調整器高度 */
-  width: 100%;                             /* 水平調整器寬度 */
-  cursor: row-resize;                      /* 調整行高游標 */
-  min-height: 4px;                         /* 最小高度 */
+  height: 4px;
+  cursor: row-resize;
 }
 
 .my-resizer-vertical:hover::after {
@@ -563,7 +584,7 @@ html, body {
   transform: translate(-50%, -50%);        /* 完全置中 */
   width: 2px;                              /* 指示線寬度 */
   height: 20px;                            /* 指示線高度 */
-  background-color: var(--text-light);     /* 指示線顏色 */
+  background-color: var(--my-text-light);     /* 指示線顏色 */
   border-radius: 1px;                      /* 指示線圓角 */
 }
 
@@ -575,7 +596,7 @@ html, body {
   transform: translate(-50%, -50%);        /* 完全置中 */
   width: 20px;                             /* 指示線寬度 */
   height: 2px;                             /* 指示線高度 */
-  background-color: var(--text-light);     /* 指示線顏色 */
+  background-color: var(--my-text-light);     /* 指示線顏色 */
   border-radius: 1px;                      /* 指示線圓角 */
 }
 
@@ -583,20 +604,25 @@ html, body {
    📐 面板佈局樣式 (Panel Layout Styles)
    ============================================================================= */
 
-.my-panel-left, 
-.my-panel-right {
-  transition: width var(--transition-duration-normal) var(--transition-timing); /* 寬度轉換效果 */
-  min-width: 200px;                        /* 最小寬度 */
-  max-width: 600px;                        /* 最大寬度 */
+.my-panel-left,
+.my-panel-right,
+.my-panel-main {
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--my-panel-bg);
+  border: 1px solid var(--my-panel-border);
 }
 
-.my-panel-main {
-  flex: 1;                                 /* 佔用剩餘空間 */
-  min-width: 400px;                        /* 最小寬度 */
+.my-panel-left {
+  border-right: none;
+}
+
+.my-panel-right {
+  border-left: none;
 }
 
 .my-resizer.dragging {
-  background-color: var(--primary-color);  /* 拖拽時背景顏色 */
+  background-color: var(--my-primary-color);  /* 拖拽時背景顏色 */
 }
 
 .my-resizer.dragging::after {
@@ -609,25 +635,25 @@ html, body {
 
 .my-empty-state {
   text-align: center;                      /* 文字置中 */
-  padding: var(--spacing-8) var(--spacing-4); /* 大內距 */
+  padding: var(--my-spacing-8) var(--my-spacing-4); /* 大內距 */
 }
 
 .my-empty-state-icon {
   font-size: 4rem;                         /* 大圖示 */
-  color: var(--text-muted);                /* 淡色 */
-  margin-bottom: var(--spacing-4);         /* 下邊距 */
+  color: var(--my-text-muted);                /* 淡色 */
+  margin-bottom: var(--my-spacing-4);         /* 下邊距 */
 }
 
 .my-empty-state-title {
-  font-size: var(--font-size-xl);          /* 大字體 */
-  font-weight: var(--font-weight-semibold); /* 半粗體 */
-  color: var(--text-secondary);            /* 次要文字顏色 */
-  margin-bottom: var(--spacing-2);         /* 下邊距 */
+  font-size: var(--my-font-size-xl);          /* 大字體 */
+  font-weight: var(--my-font-weight-semibold); /* 半粗體 */
+  color: var(--my-text-secondary);            /* 次要文字顏色 */
+  margin-bottom: var(--my-spacing-2);         /* 下邊距 */
 }
 
 .my-empty-state-text {
-  color: var(--text-muted);                /* 淡色文字 */
-  font-size: var(--font-size-base);        /* 基礎字體大小 */
+  color: var(--my-text-muted);                /* 淡色文字 */
+  font-size: var(--my-font-size-base);        /* 基礎字體大小 */
 }
 
 /* =============================================================================
@@ -637,7 +663,7 @@ html, body {
 .my-custom-scroll {
   overflow-y: auto;                        /* 垂直滾動 */
   scrollbar-width: thin;                   /* Firefox 細滾動條 */
-  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track); /* Firefox 滾動條顏色 */
+  scrollbar-color: var(--my-scrollbar-thumb) var(--my-scrollbar-track); /* Firefox 滾動條顏色 */
 }
 
 .my-custom-scroll::-webkit-scrollbar {
@@ -645,23 +671,23 @@ html, body {
 }
 
 .my-custom-scroll::-webkit-scrollbar-track {
-  background: var(--scrollbar-track);      /* WebKit 滾動條軌道 */
+  background: var(--my-scrollbar-track);      /* WebKit 滾動條軌道 */
   border-radius: 3px;                      /* 軌道圓角 */
 }
 
 .my-custom-scroll::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-thumb);      /* WebKit 滾動條滑塊 */
+  background: var(--my-scrollbar-thumb);      /* WebKit 滾動條滑塊 */
   border-radius: 3px;                      /* 滑塊圓角 */
 }
 
 .my-custom-scroll::-webkit-scrollbar-thumb:hover {
-  background: var(--scrollbar-thumb-hover); /* WebKit 滑塊懸停顏色 */
+  background: var(--my-scrollbar-thumb-hover); /* WebKit 滑塊懸停顏色 */
 }
 
 .my-panel-left .my-custom-scroll,
 .my-panel-right .my-custom-scroll {
   height: calc(100vh - 120px);             /* 計算高度（扣除導航欄和其他元素） */
-  padding-right: var(--spacing-2);         /* 右內距 */
+  padding-right: var(--my-spacing-2);         /* 右內距 */
 }
 
 .tab-content .my-custom-scroll {
@@ -684,43 +710,51 @@ html, body {
    ============================================================================= */
 
 .my-drag-upload-area {
-  border: 2px dashed var(--border-light);   /* 虛線邊框 */
-  border-radius: var(--radius-lg);          /* 大圓角 */
-  padding: var(--spacing-6);                /* 大內距 */
-  text-align: center;                       /* 文字置中 */
-  background-color: var(--bg-light);        /* 淺色背景 */
-  transition: var(--transition-base);       /* 基礎轉換效果 */
-  cursor: pointer;                          /* 點擊游標 */
-  margin-bottom: var(--spacing-4);          /* 下邊距 */
-}
-
-.my-drag-upload-area:hover {
-  border-color: var(--primary-color);       /* 懸停時邊框顏色 */
-  background-color: var(--primary-light);   /* 懸停時背景顏色 */
+  border: 2px dashed var(--my-border-color);
+  border-radius: var(--my-radius-lg);
+  padding: var(--my-spacing-6);
+  text-align: center;
+  transition: var(--my-transition-base);
+  background-color: var(--my-bg-secondary);
+  margin-bottom: var(--my-spacing-4);
 }
 
 .my-drag-upload-area.dragover {
-  border-color: var(--primary-color);       /* 拖拽覆蓋時邊框顏色 */
-  background-color: var(--primary-light);   /* 拖拽覆蓋時背景顏色 */
-  transform: scale(1.02);                   /* 拖拽覆蓋時放大效果 */
+  border-color: var(--my-primary-color);
+  background-color: var(--my-primary-light);
 }
 
 .my-drag-upload-icon {
-  font-size: 3rem;                         /* 大圖示 */
-  color: var(--text-muted);                /* 淡色 */
-  margin-bottom: var(--spacing-3);         /* 下邊距 */
+  font-size: 3rem;
+  color: var(--my-primary-color);
+  margin-bottom: var(--my-spacing-3);
 }
 
 .my-drag-upload-text {
-  font-size: var(--font-size-lg);          /* 大字體 */
-  font-weight: var(--font-weight-medium);  /* 中等字重 */
-  color: var(--text-primary);              /* 主要文字顏色 */
-  margin-bottom: var(--spacing-2);         /* 下邊距 */
+  font-size: var(--my-font-size-large);
+  font-weight: var(--my-font-weight-medium);
+  color: var(--my-text-primary);
+  margin-bottom: var(--my-spacing-2);
 }
 
 .my-drag-upload-subtext {
-  font-size: var(--font-size-sm);          /* 小字體 */
-  color: var(--text-secondary);            /* 次要文字顏色 */
+  font-size: var(--my-font-size-small);
+  color: var(--my-text-secondary);
+}
+
+.my-uploaded-file-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--my-spacing-3);
+  border: 1px solid var(--my-border-light);
+  border-radius: var(--my-radius-base);
+  margin-bottom: var(--my-spacing-2);
+  background-color: var(--my-bg-light);
+}
+
+.my-uploaded-file-item:last-child {
+  margin-bottom: 0;
 }
 
 /* =============================================================================
@@ -738,24 +772,24 @@ html, body {
   }
   
   .my-table-responsive {
-    font-size: var(--font-size-xs);        /* 小螢幕字體 */
+    font-size: var(--my-font-size-xs);        /* 小螢幕字體 */
   }
   
   .my-nav-pills .nav-link {
-    font-size: var(--font-size-xs);        /* 小螢幕導航字體 */
-    padding: var(--spacing-1) var(--spacing-2); /* 小內距 */
+    font-size: var(--my-font-size-xs);        /* 小螢幕導航字體 */
+    padding: var(--my-spacing-1) var(--my-spacing-2); /* 小內距 */
   }
   
   .my-analysis-item {
-    padding: var(--spacing-3);             /* 小螢幕內距 */
+    padding: var(--my-spacing-3);             /* 小螢幕內距 */
   }
   
   .my-stats-value {
-    font-size: var(--font-size-2xl);       /* 小螢幕統計值字體 */
+    font-size: var(--my-font-size-2xl);       /* 小螢幕統計值字體 */
   }
   
   .my-chart-container {
-    padding: var(--spacing-2);             /* 小螢幕圖表容器內距 */
+    padding: var(--my-spacing-2);             /* 小螢幕圖表容器內距 */
   }
 }
 
@@ -786,26 +820,26 @@ html, body {
    ============================================================================= */
 
 .my-bg-success {
-  background-color: var(--success-color) !important; /* 成功背景色 */
-  color: var(--text-light) !important;    /* 成功文字色 */
+  background-color: var(--my-success-color) !important; /* 成功背景色 */
+  color: var(--my-text-light) !important;    /* 成功文字色 */
 }
 
 .my-bg-warning {
-  background-color: var(--warning-color) !important; /* 警告背景色 */
-  color: var(--text-dark) !important;     /* 警告文字色 */
+  background-color: var(--my-warning-color) !important; /* 警告背景色 */
+  color: var(--my-text-dark) !important;     /* 警告文字色 */
 }
 
 .my-bg-danger {
-  background-color: var(--danger-color) !important;  /* 危險背景色 */
-  color: var(--text-light) !important;    /* 危險文字色 */
+  background-color: var(--my-danger-color) !important;  /* 危險背景色 */
+  color: var(--my-text-light) !important;    /* 危險文字色 */
 }
 
 .my-bg-secondary {
-  background-color: var(--secondary-color) !important; /* 次要背景色 */
-  color: var(--text-light) !important;    /* 次要文字色 */
+  background-color: var(--my-secondary-color) !important; /* 次要背景色 */
+  color: var(--my-text-light) !important;    /* 次要文字色 */
 }
 
 .my-bg-info {
-  background-color: var(--info-color) !important;    /* 資訊背景色 */
-  color: var(--text-light) !important;    /* 資訊文字色 */
+  background-color: var(--my-info-color) !important;    /* 資訊背景色 */
+  color: var(--my-text-light) !important;    /* 資訊文字色 */
 } 

@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-light border-start p-3 flex-grow-1 custom-scroll">
+  <div class="my-right-panel bg-light border-start p-3 flex-grow-1 custom-scroll">
     <h5 class="text-primary fw-bold mb-3">
       <i class="fas fa-chart-line"></i> 右側控制面版
     </h5>
@@ -163,4 +163,16 @@ export default {
     }
   }
 }
-</script> 
+</script>
+
+<style scoped>
+/**
+ * 🎨 右側面板樣式 (Right Panel Styles)
+ */
+
+/* 📋 面板基礎樣式 */
+.my-right-panel {
+  height: 100vh; /* 垂直滿版 */
+  overflow-y: auto; /* 內容溢出時可滾動 */
+}
+</style> 

@@ -7,246 +7,249 @@
   /*=====================================
     字體設定
   =====================================*/
-  --font-family-primary: 'Noto Sans TC', sans-serif;
-  --font-family-monospace: 'Consolas', 'Monaco', 'Courier New', monospace;
+  --my-font-family-primary: 'Noto Sans TC', sans-serif;
+  --my-font-family-monospace: 'Consolas', 'Monaco', 'Courier New', monospace;
   
   /* 字體大小層級 */
-  --font-size-xs: 0.75rem;      /* 12px */
-  --font-size-sm: 0.875rem;     /* 14px */
-  --font-size-base: 1rem;       /* 16px - 基準大小 */
-  --font-size-lg: 1.125rem;     /* 18px */
-  --font-size-xl: 1.25rem;      /* 20px */
-  --font-size-2xl: 1.5rem;      /* 24px */
-  --font-size-3xl: 1.875rem;    /* 30px */
-  --font-size-4xl: 2.25rem;     /* 36px */
+  --my-font-size-xs: 0.75rem;      /* 12px */
+  --my-font-size-sm: 0.875rem;     /* 14px */
+  --my-font-size-base: 1rem;       /* 16px - 基準大小 */
+  --my-font-size-lg: 1.125rem;     /* 18px */
+  --my-font-size-xl: 1.25rem;      /* 20px */
+  --my-font-size-2xl: 1.5rem;      /* 24px */
+  --my-font-size-3xl: 1.875rem;    /* 30px */
+  --my-font-size-4xl: 2.25rem;     /* 36px */
+
+  /* 字寬 */
+  --my-letter-spacing-base: 1.2px;
   
   /* 字重 */
-  --font-weight-light: 300;
-  --font-weight-normal: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 700;
+  --my-font-weight-light: 300;
+  --my-font-weight-normal: 400;
+  --my-font-weight-medium: 500;
+  --my-font-weight-semibold: 600;
+  --my-font-weight-bold: 700;
   
   /* 行高 */
-  --line-height-tight: 1.25;
-  --line-height-normal: 1.5;
-  --line-height-relaxed: 1.75;
+  --my-line-height-tight: 1.25;
+  --my-line-height-normal: 1.5;
+  --my-line-height-relaxed: 1.75;
   
   /*=====================================
     主色調系統
   =====================================*/
   /* 主品牌色 - 藍色系 */
-  --color-primary-50: #e3f2fd;
-  --color-primary-100: #bbdefb;
-  --color-primary-200: #90caf9;
-  --color-primary-300: #64b5f6;
-  --color-primary-400: #42a5f5;
-  --color-primary-500: #2196f3;   /* 主色 */
-  --color-primary-600: #1e88e5;
-  --color-primary-700: #1976d2;
-  --color-primary-800: #1565c0;
-  --color-primary-900: #0d47a1;
+  --my-color-primary-50: #e3f2fd;
+  --my-color-primary-100: #bbdefb;
+  --my-color-primary-200: #90caf9;
+  --my-color-primary-300: #64b5f6;
+  --my-color-primary-400: #42a5f5;
+  --my-color-primary-500: #2196f3;   /* 主色 */
+  --my-color-primary-600: #1e88e5;
+  --my-color-primary-700: #1976d2;
+  --my-color-primary-800: #1565c0;
+  --my-color-primary-900: #0d47a1;
   
   /* 輔助色 - 成功/綠色 */
-  --color-success-50: #e8f5e8;
-  --color-success-100: #c8e6c9;
-  --color-success-200: #a5d6a7;
-  --color-success-300: #81c784;
-  --color-success-400: #66bb6a;
-  --color-success-500: #4caf50;   /* 成功色 */
-  --color-success-600: #43a047;
-  --color-success-700: #388e3c;
-  --color-success-800: #2e7d32;
-  --color-success-900: #1b5e20;
+  --my-color-success-50: #e8f5e8;
+  --my-color-success-100: #c8e6c9;
+  --my-color-success-200: #a5d6a7;
+  --my-color-success-300: #81c784;
+  --my-color-success-400: #66bb6a;
+  --my-color-success-500: #4caf50;   /* 成功色 */
+  --my-color-success-600: #43a047;
+  --my-color-success-700: #388e3c;
+  --my-color-success-800: #2e7d32;
+  --my-color-success-900: #1b5e20;
   
   /* 警告色 - 橙黃色 */
-  --color-warning-50: #fffbf0;
-  --color-warning-100: #fef3c7;
-  --color-warning-200: #fde68a;
-  --color-warning-300: #fcd34d;
-  --color-warning-400: #fbbf24;
-  --color-warning-500: #f59e0b;   /* 警告色 */
-  --color-warning-600: #d97706;
-  --color-warning-700: #b45309;
-  --color-warning-800: #92400e;
-  --color-warning-900: #78350f;
+  --my-color-warning-50: #fffbf0;
+  --my-color-warning-100: #fef3c7;
+  --my-color-warning-200: #fde68a;
+  --my-color-warning-300: #fcd34d;
+  --my-color-warning-400: #fbbf24;
+  --my-color-warning-500: #f59e0b;   /* 警告色 */
+  --my-color-warning-600: #d97706;
+  --my-color-warning-700: #b45309;
+  --my-color-warning-800: #92400e;
+  --my-color-warning-900: #78350f;
   
   /* 危險色 - 紅色 */
-  --color-danger-50: #fef2f2;
-  --color-danger-100: #fee2e2;
-  --color-danger-200: #fecaca;
-  --color-danger-300: #fca5a5;
-  --color-danger-400: #f87171;
-  --color-danger-500: #ef4444;   /* 危險色 */
-  --color-danger-600: #dc2626;
-  --color-danger-700: #b91c1c;
-  --color-danger-800: #991b1b;
-  --color-danger-900: #7f1d1d;
+  --my-color-danger-50: #fef2f2;
+  --my-color-danger-100: #fee2e2;
+  --my-color-danger-200: #fecaca;
+  --my-color-danger-300: #fca5a5;
+  --my-color-danger-400: #f87171;
+  --my-color-danger-500: #ef4444;   /* 危險色 */
+  --my-color-danger-600: #dc2626;
+  --my-color-danger-700: #b91c1c;
+  --my-color-danger-800: #991b1b;
+  --my-color-danger-900: #7f1d1d;
   
   /* 信息色 - 青色 */
-  --color-info-50: #ecfeff;
-  --color-info-100: #cffafe;
-  --color-info-200: #a5f3fc;
-  --color-info-300: #67e8f9;
-  --color-info-400: #22d3ee;
-  --color-info-500: #06b6d4;    /* 信息色 */
-  --color-info-600: #0891b2;
-  --color-info-700: #0e7490;
-  --color-info-800: #155e75;
-  --color-info-900: #164e63;
+  --my-color-info-50: #ecfeff;
+  --my-color-info-100: #cffafe;
+  --my-color-info-200: #a5f3fc;
+  --my-color-info-300: #67e8f9;
+  --my-color-info-400: #22d3ee;
+  --my-color-info-500: #06b6d4;    /* 信息色 */
+  --my-color-info-600: #0891b2;
+  --my-color-info-700: #0e7490;
+  --my-color-info-800: #155e75;
+  --my-color-info-900: #164e63;
   
   /*=====================================
     中性色系統 (灰階)
   =====================================*/
-  --color-gray-50: #fafafa;
-  --color-gray-100: #f5f5f5;
-  --color-gray-200: #eeeeee;
-  --color-gray-300: #e0e0e0;
-  --color-gray-400: #bdbdbd;
-  --color-gray-500: #9e9e9e;
-  --color-gray-600: #757575;
-  --color-gray-700: #616161;
-  --color-gray-800: #424242;
-  --color-gray-900: #212121;
+  --my-color-gray-50: #fafafa;
+  --my-color-gray-100: #f5f5f5;
+  --my-color-gray-200: #eeeeee;
+  --my-color-gray-300: #e0e0e0;
+  --my-color-gray-400: #bdbdbd;
+  --my-color-gray-500: #9e9e9e;
+  --my-color-gray-600: #757575;
+  --my-color-gray-700: #616161;
+  --my-color-gray-800: #424242;
+  --my-color-gray-900: #212121;
   
   /* 語義化顏色 */
-  --color-white: #ffffff;
-  --color-black: #000000;
-  --color-transparent: transparent;
+  --my-color-white: #ffffff;
+  --my-color-black: #000000;
+  --my-color-transparent: transparent;
   
   /*=====================================
     背景色系統
   =====================================*/
-  --bg-primary: var(--color-white);
-  --bg-secondary: var(--color-gray-50);
-  --bg-tertiary: var(--color-gray-100);
-  --bg-muted: var(--color-gray-200);
-  --bg-dark: var(--color-gray-800);
-  --bg-darker: var(--color-gray-900);
+  --my-bg-primary: var(--my-color-white);
+  --my-bg-secondary: var(--my-color-gray-50);
+  --my-bg-tertiary: var(--my-color-gray-100);
+  --my-bg-muted: var(--my-color-gray-200);
+  --my-bg-dark: var(--my-color-gray-800);
+  --my-bg-darker: var(--my-color-gray-900);
   
   /* 特殊背景 */
-  --bg-overlay: rgba(0, 0, 0, 0.5);
-  --bg-overlay-light: rgba(0, 0, 0, 0.3);
-  --bg-overlay-heavy: rgba(0, 0, 0, 0.8);
+  --my-bg-overlay: rgba(0, 0, 0, 0.5);
+  --my-bg-overlay-light: rgba(0, 0, 0, 0.3);
+  --my-bg-overlay-heavy: rgba(0, 0, 0, 0.8);
   
   /*=====================================
     文字顏色系統
   =====================================*/
-  --text-primary: var(--color-gray-900);
-  --text-secondary: var(--color-gray-600);
-  --text-muted: var(--color-gray-500);
-  --text-disabled: var(--color-gray-400);
-  --text-on-dark: var(--color-white);
-  --text-on-primary: var(--color-white);
-  --text-link: var(--color-primary-600);
-  --text-link-hover: var(--color-primary-800);
+  --my-text-primary: var(--my-color-gray-900);
+  --my-text-secondary: var(--my-color-gray-600);
+  --my-text-muted: var(--my-color-gray-500);
+  --my-text-disabled: var(--my-color-gray-400);
+  --my-text-on-dark: var(--my-color-white);
+  --my-text-on-primary: var(--my-color-white);
+  --my-text-link: var(--my-color-primary-600);
+  --my-text-link-hover: var(--my-color-primary-800);
   
   /*=====================================
     邊框顏色系統
   =====================================*/
-  --border-light: var(--color-gray-200);
-  --border-normal: var(--color-gray-300);
-  --border-strong: var(--color-gray-400);
-  --border-primary: var(--color-primary-300);
-  --border-success: var(--color-success-300);
-  --border-warning: var(--color-warning-300);
-  --border-danger: var(--color-danger-300);
+  --my-border-light: var(--my-color-gray-200);
+  --my-border-normal: var(--my-color-gray-300);
+  --my-border-strong: var(--my-color-gray-400);
+  --my-border-primary: var(--my-color-primary-300);
+  --my-border-success: var(--my-color-success-300);
+  --my-border-warning: var(--my-color-warning-300);
+  --my-border-danger: var(--my-color-danger-300);
   
   /*=====================================
     間距系統
   =====================================*/
-  --spacing-0: 0;
-  --spacing-1: 0.25rem;  /* 4px */
-  --spacing-2: 0.5rem;   /* 8px */
-  --spacing-3: 0.75rem;  /* 12px */
-  --spacing-4: 1rem;     /* 16px */
-  --spacing-5: 1.25rem;  /* 20px */
-  --spacing-6: 1.5rem;   /* 24px */
-  --spacing-8: 2rem;     /* 32px */
-  --spacing-10: 2.5rem;  /* 40px */
-  --spacing-12: 3rem;    /* 48px */
-  --spacing-16: 4rem;    /* 64px */
-  --spacing-20: 5rem;    /* 80px */
-  --spacing-24: 6rem;    /* 96px */
+  --my-spacing-0: 0;
+  --my-spacing-1: 0.25rem;  /* 4px */
+  --my-spacing-2: 0.5rem;   /* 8px */
+  --my-spacing-3: 0.75rem;  /* 12px */
+  --my-spacing-4: 1rem;     /* 16px */
+  --my-spacing-5: 1.25rem;  /* 20px */
+  --my-spacing-6: 1.5rem;   /* 24px */
+  --my-spacing-8: 2rem;     /* 32px */
+  --my-spacing-10: 2.5rem;  /* 40px */
+  --my-spacing-12: 3rem;    /* 48px */
+  --my-spacing-16: 4rem;    /* 64px */
+  --my-spacing-20: 5rem;    /* 80px */
+  --my-spacing-24: 6rem;    /* 96px */
   
   /*=====================================
     圓角系統
   =====================================*/
-  --radius-none: 0;
-  --radius-sm: 0.125rem;  /* 2px */
-  --radius-base: 0.25rem; /* 4px */
-  --radius-md: 0.375rem;  /* 6px */
-  --radius-lg: 0.5rem;    /* 8px */
-  --radius-xl: 0.75rem;   /* 12px */
-  --radius-2xl: 1rem;     /* 16px */
-  --radius-full: 9999px;  /* 完全圓形 */
+  --my-radius-none: 0;
+  --my-radius-sm: 0.125rem;  /* 2px */
+  --my-radius-base: 0.25rem; /* 4px */
+  --my-radius-md: 0.375rem;  /* 6px */
+  --my-radius-lg: 0.5rem;    /* 8px */
+  --my-radius-xl: 0.75rem;   /* 12px */
+  --my-radius-2xl: 1rem;     /* 16px */
+  --my-radius-full: 9999px;  /* 完全圓形 */
   
   /*=====================================
     陰影系統
   =====================================*/
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-base: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
-  --shadow-none: none;
+  --my-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --my-shadow-base: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --my-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --my-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --my-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --my-shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --my-shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+  --my-shadow-none: none;
   
   /*=====================================
     Z-Index 層級
   =====================================*/
-  --z-index-dropdown: 1000;
-  --z-index-sticky: 1020;
-  --z-index-fixed: 1030;
-  --z-index-modal-backdrop: 1040;
-  --z-index-modal: 1050;
-  --z-index-popover: 1060;
-  --z-index-tooltip: 1070;
-  --z-index-loading: 9999;
+  --my-z-index-dropdown: 1000;
+  --my-z-index-sticky: 1020;
+  --my-z-index-fixed: 1030;
+  --my-z-index-modal-backdrop: 1040;
+  --my-z-index-modal: 1050;
+  --my-z-index-popover: 1060;
+  --my-z-index-tooltip: 1070;
+  --my-z-index-loading: 9999;
   
   /*=====================================
     過渡動畫
   =====================================*/
-  --transition-fast: all 0.15s ease;
-  --transition-base: all 0.2s ease;
-  --transition-slow: all 0.3s ease;
-  --transition-colors: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+  --my-transition-fast: all 0.15s ease;
+  --my-transition-base: all 0.2s ease;
+  --my-transition-slow: all 0.3s ease;
+  --my-transition-colors: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
   
   /*=====================================
     斷點系統 (用於 clamp 等函數)
   =====================================*/
-  --screen-sm: 576px;
-  --screen-md: 768px;
-  --screen-lg: 992px;
-  --screen-xl: 1200px;
-  --screen-2xl: 1400px;
+  --my-screen-sm: 576px;
+  --my-screen-md: 768px;
+  --my-screen-lg: 992px;
+  --my-screen-xl: 1200px;
+  --my-screen-2xl: 1400px;
   
   /*=====================================
     特殊用途顏色
   =====================================*/
   /* 數據可視化顏色 */
-  --color-data-1: var(--color-primary-500);
-  --color-data-2: var(--color-success-500);
-  --color-data-3: var(--color-warning-500);
-  --color-data-4: var(--color-danger-500);
-  --color-data-5: var(--color-info-500);
-  --color-data-6: #9c27b0;
-  --color-data-7: #ff5722;
-  --color-data-8: #795548;
+  --my-color-data-1: var(--my-color-primary-500);
+  --my-color-data-2: var(--my-color-success-500);
+  --my-color-data-3: var(--my-color-warning-500);
+  --my-color-data-4: var(--my-color-danger-500);
+  --my-color-data-5: var(--my-color-info-500);
+  --my-color-data-6: #9c27b0;
+  --my-color-data-7: #ff5722;
+  --my-color-data-8: #795548;
   
   /* 熱力圖配色 */
-  --color-heat-0: var(--color-gray-300);
-  --color-heat-1: var(--color-primary-100);
-  --color-heat-2: var(--color-primary-300);
-  --color-heat-3: var(--color-warning-400);
-  --color-heat-4: var(--color-danger-500);
+  --my-color-heat-0: var(--my-color-gray-300);
+  --my-color-heat-1: var(--my-color-primary-100);
+  --my-color-heat-2: var(--my-color-primary-300);
+  --my-color-heat-3: var(--my-color-warning-400);
+  --my-color-heat-4: var(--my-color-danger-500);
   
   /* 狀態指示顏色 */
-  --color-online: var(--color-success-500);
-  --color-offline: var(--color-gray-400);
-  --color-busy: var(--color-warning-500);
-  --color-away: var(--color-warning-300);
+  --my-color-online: var(--my-color-success-500);
+  --my-color-offline: var(--my-color-gray-400);
+  --my-color-busy: var(--my-color-warning-500);
+  --my-color-away: var(--my-color-warning-300);
 }
 
 /*=====================================
@@ -254,64 +257,64 @@
 =====================================*/
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg-primary: var(--color-gray-900);
-    --bg-secondary: var(--color-gray-800);
-    --bg-tertiary: var(--color-gray-700);
-    --bg-muted: var(--color-gray-600);
+    --my-bg-primary: var(--my-color-gray-900);
+    --my-bg-secondary: var(--my-color-gray-800);
+    --my-bg-tertiary: var(--my-color-gray-700);
+    --my-bg-muted: var(--my-color-gray-600);
     
-    --text-primary: var(--color-gray-100);
-    --text-secondary: var(--color-gray-300);
-    --text-muted: var(--color-gray-400);
-    --text-disabled: var(--color-gray-500);
+    --my-text-primary: var(--my-color-gray-100);
+    --my-text-secondary: var(--my-color-gray-300);
+    --my-text-muted: var(--my-color-gray-400);
+    --my-text-disabled: var(--my-color-gray-500);
     
-    --border-light: var(--color-gray-700);
-    --border-normal: var(--color-gray-600);
-    --border-strong: var(--color-gray-500);
+    --my-border-light: var(--my-color-gray-700);
+    --my-border-normal: var(--my-color-gray-600);
+    --my-border-strong: var(--my-color-gray-500);
   }
 }
 
 /*=====================================
   實用工具類別
 =====================================*/
-.text-xs { font-size: var(--font-size-xs); }
-.text-sm { font-size: var(--font-size-sm); }
-.text-base { font-size: var(--font-size-base); }
-.text-lg { font-size: var(--font-size-lg); }
-.text-xl { font-size: var(--font-size-xl); }
-.text-2xl { font-size: var(--font-size-2xl); }
-.text-3xl { font-size: var(--font-size-3xl); }
-.text-4xl { font-size: var(--font-size-4xl); }
+.text-xs { font-size: var(--my-font-size-xs); }
+.text-sm { font-size: var(--my-font-size-sm); }
+.text-base { font-size: var(--my-font-size-base); }
+.text-lg { font-size: var(--my-font-size-lg); }
+.text-xl { font-size: var(--my-font-size-xl); }
+.text-2xl { font-size: var(--my-font-size-2xl); }
+.text-3xl { font-size: var(--my-font-size-3xl); }
+.text-4xl { font-size: var(--my-font-size-4xl); }
 
-.font-light { font-weight: var(--font-weight-light); }
-.font-normal { font-weight: var(--font-weight-normal); }
-.font-medium { font-weight: var(--font-weight-medium); }
-.font-semibold { font-weight: var(--font-weight-semibold); }
-.font-bold { font-weight: var(--font-weight-bold); }
+.font-light { font-weight: var(--my-font-weight-light); }
+.font-normal { font-weight: var(--my-font-weight-normal); }
+.font-medium { font-weight: var(--my-font-weight-medium); }
+.font-semibold { font-weight: var(--my-font-weight-semibold); }
+.font-bold { font-weight: var(--my-font-weight-bold); }
 
-.text-primary { color: var(--text-primary); }
-.text-secondary { color: var(--text-secondary); }
-.text-muted { color: var(--text-muted); }
-.text-disabled { color: var(--text-disabled); }
+.text-primary { color: var(--my-text-primary); }
+.text-secondary { color: var(--my-text-secondary); }
+.text-muted { color: var(--my-text-muted); }
+.text-disabled { color: var(--my-text-disabled); }
 
-.bg-primary { background-color: var(--bg-primary); }
-.bg-secondary { background-color: var(--bg-secondary); }
-.bg-muted { background-color: var(--bg-muted); }
+.bg-primary { background-color: var(--my-bg-primary); }
+.bg-secondary { background-color: var(--my-bg-secondary); }
+.bg-muted { background-color: var(--my-bg-muted); }
 
-.rounded-sm { border-radius: var(--radius-sm); }
-.rounded { border-radius: var(--radius-base); }
-.rounded-md { border-radius: var(--radius-md); }
-.rounded-lg { border-radius: var(--radius-lg); }
-.rounded-xl { border-radius: var(--radius-xl); }
-.rounded-2xl { border-radius: var(--radius-2xl); }
-.rounded-full { border-radius: var(--radius-full); }
+.rounded-sm { border-radius: var(--my-radius-sm); }
+.rounded { border-radius: var(--my-radius-base); }
+.rounded-md { border-radius: var(--my-radius-md); }
+.rounded-lg { border-radius: var(--my-radius-lg); }
+.rounded-xl { border-radius: var(--my-radius-xl); }
+.rounded-2xl { border-radius: var(--my-radius-2xl); }
+.rounded-full { border-radius: var(--my-radius-full); }
 
-.shadow-sm { box-shadow: var(--shadow-sm); }
-.shadow { box-shadow: var(--shadow-base); }
-.shadow-md { box-shadow: var(--shadow-md); }
-.shadow-lg { box-shadow: var(--shadow-lg); }
-.shadow-xl { box-shadow: var(--shadow-xl); }
-.shadow-2xl { box-shadow: var(--shadow-2xl); }
+.shadow-sm { box-shadow: var(--my-shadow-sm); }
+.shadow { box-shadow: var(--my-shadow-base); }
+.shadow-md { box-shadow: var(--my-shadow-md); }
+.shadow-lg { box-shadow: var(--my-shadow-lg); }
+.shadow-xl { box-shadow: var(--my-shadow-xl); }
+.shadow-2xl { box-shadow: var(--my-shadow-2xl); }
 
-.transition-fast { transition: var(--transition-fast); }
-.transition { transition: var(--transition-base); }
-.transition-slow { transition: var(--transition-slow); } 
+.transition-fast { transition: var(--my-transition-fast); }
+.transition { transition: var(--my-transition-base); }
+.transition-slow { transition: var(--my-transition-slow); } 

@@ -15,7 +15,7 @@
       <router-view v-if="$route.path !== '/'" />
       
       <!-- 🏠 首頁內容（空間分析平台） -->
-      <div v-if="$route.path === '/'" class="container-fluid h-100 p-0">
+      <div v-if="$route.path === '/'" class="container-fluid my-main-container p-0">
         <div class="row h-100 g-0">
           
           <!-- 🎛️ 左側控制面板 (Left Control Panel) -->
@@ -876,6 +876,11 @@ export default {
  */
 @import './assets/css/common.css';
 
+/* 📱 主容器樣式 (Main Container Styles) */
+.my-main-container {
+  height: 100vh; /* 垂直滿版 */
+}
+
 /* 📱 全域防止選取樣式 (Global No-Select Style) */
 .my-no-select {
   -webkit-user-select: none;
@@ -901,13 +906,13 @@ export default {
 }
 
 .my-resizer:hover {
-  background-color: var(--primary-color) !important;
-  box-shadow: 0 0 8px rgba(var(--primary-rgb), 0.3);
+  background-color: var(--my-primary-color) !important;
+  box-shadow: 0 0 8px rgba(var(--my-primary-rgb), 0.3);
 }
 
 .my-resizer.dragging {
-  background-color: var(--primary-color) !important;
-  box-shadow: 0 0 12px rgba(var(--primary-rgb), 0.5);
+  background-color: var(--my-primary-color) !important;
+  box-shadow: 0 0 12px rgba(var(--my-primary-rgb), 0.5);
   z-index: 1000;
 }
 
@@ -943,7 +948,7 @@ export default {
   transform: translate(-50%, -50%);
   width: 2px;
   height: 30px;
-  background-color: var(--text-light);
+  background-color: var(--my-text-light);
   border-radius: 1px;
   box-shadow: 0 0 4px rgba(0,0,0,0.3);
 }
@@ -957,7 +962,7 @@ export default {
   transform: translate(-50%, -50%);
   width: 30px;
   height: 2px;
-  background-color: var(--text-light);
+  background-color: var(--my-text-light);
   border-radius: 1px;
   box-shadow: 0 0 4px rgba(0,0,0,0.3);
 }

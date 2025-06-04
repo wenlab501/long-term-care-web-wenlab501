@@ -2,11 +2,11 @@
   <div class="bg-light border-end flex-grow-1 my-custom-scroll">
     
     <!-- 📋 面板標題區域 (Panel Header Section) -->
-    <div class="p-3">
+    <h1 class="p-3">
       <div class="my-font-size-xl">
         登革熱空間分析
       </div>
-    </div>
+    </h1>
 
     <!-- 📥 拖曳上傳區域 (Drag Upload Area) -->
     <div class="mb-4">
@@ -506,21 +506,28 @@ export default {
  * 使用新的主題色彩變數系統
  */
 
+/* 📝 標題樣式 */
+.my-title-xl {
+  font-size: var(--my-font-size-xl);
+}
+
+
 /* 📋 面板基礎樣式 */
 .bg-light {
-  background-color: var(--panel-bg) !important;
+  background-color: var(--my-panel-bg) !important;
+  height: 100vh; /* 垂直滿版 */
 }
 
 .border-end {
-  border-color: var(--panel-border) !important;
+  border-color: var(--my-panel-border) !important;
 }
 
 /* 🔘 按鈕樣式增強 */
 .my-btn {
-  font-size: var(--font-size-btn);
-  font-weight: var(--font-weight-medium);
-  border-radius: var(--radius-base);
-  transition: var(--transition-base);
+  font-size: var(--my-font-size-btn);
+  font-weight: var(--my-font-weight-medium);
+  border-radius: var(--my-radius-base);
+  transition: var(--my-transition-base);
 }
 
 .my-btn:disabled {
@@ -531,81 +538,81 @@ export default {
 /* 📝 表單控制項樣式 */
 .form-select,
 .form-check-input {
-  font-size: var(--font-size-input);
-  border-color: var(--input-border);
-  transition: var(--transition-base);
+  font-size: var(--my-font-size-input);
+  border-color: var(--my-input-border);
+  transition: var(--my-transition-base);
 }
 
 .form-select:focus,
 .form-check-input:focus {
-  border-color: var(--input-focus);
+  border-color: var(--my-input-focus);
   box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
 }
 
 /* 📇 卡片樣式 */
 .my-card {
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition-base);
+  border-radius: var(--my-radius-lg);
+  box-shadow: var(--my-shadow-sm);
+  transition: var(--my-transition-base);
 }
 
 .my-card:hover {
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--my-shadow-md);
 }
 
 /* 📁 上傳檔案項目樣式 */
 .my-uploaded-file-item {
-  background-color: var(--bg-light);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-base);
-  padding: var(--spacing-3);
-  margin-bottom: var(--spacing-2);
-  transition: var(--transition-base);
+  background-color: var(--my-bg-light);
+  border: 1px solid var(--my-border-light);
+  border-radius: var(--my-radius-base);
+  padding: var(--my-spacing-3);
+  margin-bottom: var(--my-spacing-2);
+  transition: var(--my-transition-base);
 }
 
 .my-uploaded-file-item:hover {
-  background-color: var(--bg-secondary);
-  border-color: var(--primary-color);
+  background-color: var(--my-bg-secondary);
+  border-color: var(--my-primary-color);
 }
 
 .my-uploaded-file-item .fw-medium {
-  font-weight: var(--font-weight-medium);
-  color: var(--text-primary);
-  font-size: var(--font-size-sm);
+  font-weight: var(--my-font-weight-medium);
+  color: var(--my-text-primary);
+  font-size: var(--my-font-size-sm);
 }
 
 .my-uploaded-file-item small {
-  color: var(--text-muted);
-  font-size: var(--font-size-xs);
+  color: var(--my-text-muted);
+  font-size: var(--my-font-size-xs);
 }
 
 .my-uploaded-file-item .btn-outline-danger {
-  font-size: var(--font-size-xs);
-  padding: var(--spacing-1) var(--spacing-2);
-  border-radius: var(--radius-sm);
+  font-size: var(--my-font-size-xs);
+  padding: var(--my-spacing-1) var(--my-spacing-2);
+  border-radius: var(--my-radius-sm);
 }
 
 /* 📊 狀態指示器 */
 .text-warning {
-  color: var(--warning-color) !important;
+  color: var(--my-warning-color) !important;
 }
 
 .text-success {
-  color: var(--success-color) !important;
+  color: var(--my-success-color) !important;
 }
 
 .text-secondary {
-  color: var(--text-secondary) !important;
+  color: var(--my-text-secondary) !important;
 }
 
 /* 📱 響應式設計 */
 @media (max-width: 768px) {
   .my-uploaded-file-item {
-    padding: var(--spacing-2);
+    padding: var(--my-spacing-2);
   }
   
   .my-uploaded-file-item .fw-medium {
-    font-size: var(--font-size-xs);
+    font-size: var(--my-font-size-xs);
   }
   
   .my-uploaded-file-item small {

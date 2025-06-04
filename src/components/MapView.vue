@@ -4,11 +4,31 @@
     <div class="basemap-control">
       <select v-model="selectedBasemap" @change="changeBasemap" class="form-select form-select-sm">
         <option value="osm">OpenStreetMap</option>
-        <option value="satellite">衛星圖</option>
-        <option value="terrain">地形圖</option>
+        <option value="google-roadmap">Google 道路圖</option>
+        <option value="google-satellite">Google 衛星圖</option>
+        <option value="google-hybrid">Google 混合圖</option>
+        <option value="esri-world">Esri 世界地圖</option>
+        <option value="esri-satellite">Esri 衛星圖</option>
+        <option value="esri-topo">Esri 地形圖</option>
+        <option value="bing-roadmap">Bing 道路圖</option>
+        <option value="bing-aerial">Bing 航拍圖</option>
+        <option value="terrain">OpenTopo 地形圖</option>
         <option value="dark">深色模式</option>
         <option value="blank">空白地圖</option>
       </select>
+      
+      <!-- 顯示全部按鈕 -->
+      <div class="mt-2">
+        <button 
+          class="btn btn-outline-primary btn-sm w-100"
+          @click="showAllFeatures"
+          :disabled="!tainanLayer"
+          title="縮放至顯示所有要素"
+        >
+          <i class="fas fa-expand-arrows-alt me-1"></i>
+          顯示全部
+        </button>
+      </div>
     </div>
     
     <!-- 🗺️ 地圖容器 (Map Container) -->
@@ -123,11 +143,62 @@ export default {
           attribution: '© OpenStreetMap contributors'
         }
       },
-      satellite: {
+      'google-roadmap': {
+        url: 'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+        options: {
+          maxZoom: 20,
+          attribution: '© Google Maps'
+        }
+      },
+      'google-satellite': {
+        url: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+        options: {
+          maxZoom: 20,
+          attribution: '© Google Maps'
+        }
+      },
+      'google-hybrid': {
+        url: 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+        options: {
+          maxZoom: 20,
+          attribution: '© Google Maps'
+        }
+      },
+      'esri-world': {
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+        options: {
+          maxZoom: 19,
+          attribution: '© Esri'
+        }
+      },
+      'esri-satellite': {
         url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
         options: {
-          maxZoom: 18,
+          maxZoom: 19,
           attribution: '© Esri, Maxar, Earthstar Geographics'
+        }
+      },
+      'esri-topo': {
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+        options: {
+          maxZoom: 19,
+          attribution: '© Esri'
+        }
+      },
+      'bing-roadmap': {
+        url: 'https://ecn.t3.tiles.virtualearth.net/tiles/r{q}?g=1',
+        options: {
+          maxZoom: 19,
+          attribution: '© Microsoft Bing Maps',
+          quadkey: true // Bing Maps 使用 quadkey 系統
+        }
+      },
+      'bing-aerial': {
+        url: 'https://ecn.t3.tiles.virtualearth.net/tiles/a{q}?g=1',
+        options: {
+          maxZoom: 19,
+          attribution: '© Microsoft Bing Maps',
+          quadkey: true
         }
       },
       terrain: {
@@ -180,12 +251,47 @@ export default {
         }
         
         // 創建新的圖磚圖層
-        currentTileLayer = L.tileLayer(basemap.url, basemap.options)
+        if (basemap.options.quadkey) {
+          // Bing Maps 使用特殊的 quadkey 系統
+          currentTileLayer = L.tileLayer(basemap.url, {
+            ...basemap.options,
+            tileSize: 256,
+            zoomOffset: 0,
+            // 自定義 getTileUrl 方法處理 quadkey
+            getTileUrl: function (coords) {
+              const quadkey = tileToQuadKey(coords.x, coords.y, coords.z)
+              return basemap.url.replace('{q}', quadkey)
+            }
+          })
+        } else {
+          // 標準圖磚系統
+          currentTileLayer = L.tileLayer(basemap.url, basemap.options)
+        }
+        
         if (map) {
           currentTileLayer.addTo(map)
         }
         console.log(`🗺️ 底圖已切換至: ${selectedBasemap.value}`)
       }
+    }
+
+    /**
+     * 🔧 將瓦片坐標轉換為 Bing Maps quadkey
+     * @param {number} x - X 坐標
+     * @param {number} y - Y 坐標
+     * @param {number} z - 縮放級別
+     * @returns {string} quadkey 字串
+     */
+    const tileToQuadKey = (x, y, z) => {
+      let quadkey = ''
+      for (let i = z; i > 0; i--) {
+        let digit = 0
+        const mask = 1 << (i - 1)
+        if ((x & mask) !== 0) digit++
+        if ((y & mask) !== 0) digit += 2
+        quadkey += digit.toString()
+      }
+      return quadkey
     }
 
     /**
@@ -423,6 +529,16 @@ export default {
       }
     }
 
+    /**
+     * 🎯 顯示所有要素 (Show All Features)
+     */
+    const showAllFeatures = () => {
+      if (tainanLayer) {
+        map.fitBounds(tainanLayer.getBounds())
+        console.log('🗺️ 地圖已適應所有要素')
+      }
+    }
+
     // 👀 監聽屬性變化 (Watch Props Changes)
     
     /**
@@ -495,7 +611,8 @@ export default {
       highlightFeature,
       resetView,
       fitToTainanBounds,
-      invalidateSize
+      invalidateSize,
+      showAllFeatures
     }
   }
 }
@@ -509,7 +626,7 @@ export default {
 /* 🗺️ 地圖容器樣式 */
 #map-container {
   position: relative;
-  background-color: var(--map-bg);
+  background-color: var(--my-map-bg);
 }
 
 #map {
@@ -536,58 +653,58 @@ export default {
   top: 10px;
   right: 10px;
   z-index: 1000;
-  background: var(--panel-bg);
-  padding: var(--spacing-2);
-  border-radius: var(--radius-base);
-  box-shadow: var(--shadow-md);
+  background: var(--my-panel-bg);
+  padding: var(--my-spacing-2);
+  border-radius: var(--my-radius-base);
+  box-shadow: var(--my-shadow-md);
 }
 
 .basemap-control select {
-  border: 1px solid var(--border-color);
-  font-size: var(--font-size-small);
+  border: 1px solid var(--my-border-color);
+  font-size: var(--my-font-size-small);
   min-width: 120px;
 }
 
 /* 🏷️ 自定義工具提示樣式 */
 :global(.custom-tooltip) {
-  background-color: var(--panel-bg) !important;
-  border: 1px solid var(--border-color) !important;
-  border-radius: var(--radius-sm) !important;
-  color: var(--text-primary) !important;
-  font-size: var(--font-size-small) !important;
-  padding: var(--spacing-1) var(--spacing-2) !important;
-  box-shadow: var(--shadow-sm) !important;
+  background-color: var(--my-panel-bg) !important;
+  border: 1px solid var(--my-border-color) !important;
+  border-radius: var(--my-radius-sm) !important;
+  color: var(--my-text-primary) !important;
+  font-size: var(--my-font-size-small) !important;
+  padding: var(--my-spacing-1) var(--my-spacing-2) !important;
+  box-shadow: var(--my-shadow-sm) !important;
 }
 
 /* 🗺️ 地圖彈出視窗樣式 */
 :global(.map-popup) {
-  font-family: var(--font-family-primary);
+  font-family: var(--my-font-family-primary);
   min-width: 200px;
 }
 
 :global(.map-popup h6) {
-  border-bottom: 1px solid var(--border-light);
-  padding-bottom: var(--spacing-1);
+  border-bottom: 1px solid var(--my-border-light);
+  padding-bottom: var(--my-spacing-1);
 }
 
 :global(.map-popup .badge) {
-  font-size: var(--font-size-xs);
+  font-size: var(--my-font-size-xs);
 }
 
 /* 🎨 Leaflet控制項樣式覆蓋 */
 :global(.leaflet-control-zoom a) {
-  background-color: var(--panel-bg) !important;
-  border-color: var(--border-color) !important;
-  color: var(--text-primary) !important;
+  background-color: var(--my-panel-bg) !important;
+  border-color: var(--my-border-color) !important;
+  color: var(--my-text-primary) !important;
 }
 
 :global(.leaflet-control-zoom a:hover) {
-  background-color: var(--panel-hover) !important;
+  background-color: var(--my-panel-hover) !important;
 }
 
 :global(.leaflet-control-attribution) {
-  background-color: var(--panel-bg) !important;
-  color: var(--text-secondary) !important;
-  font-size: var(--font-size-xs) !important;
+  background-color: var(--my-panel-bg) !important;
+  color: var(--my-text-secondary) !important;
+  font-size: var(--my-font-size-xs) !important;
 }
 </style> 
