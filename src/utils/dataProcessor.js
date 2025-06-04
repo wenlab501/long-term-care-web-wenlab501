@@ -143,80 +143,58 @@ export async function loadExcelSheet(filePath, sheetName) {
  */
 export function mergeGeoJSONWithExcel(geojsonData, excelData, geojsonKey = 'CODE2', excelKey = 'name') {
   try {
-    // 創建Excel數據的查找表，處理大小寫問題
+    // 創建Excel數據的查找表
     const excelLookup = {}
     excelData.forEach(row => {
-      const key = row[excelKey]
-      if (key) {
-        // 將Excel的name轉換為大寫以匹配GeoJSON的CODE2
-        const normalizedKey = String(key).toUpperCase()
-        excelLookup[normalizedKey] = row
+      if (row[excelKey]) {
+        excelLookup[row[excelKey].toUpperCase()] = row
       }
     })
-    
-    console.log('Excel lookup keys sample:', Object.keys(excelLookup).slice(0, 10))
-    
-    // 複製GeoJSON數據避免修改原始數據
+
+    // 創建表格數據
+    const tableData = geojsonData.features.map((feature, index) => {
+      const props = feature.properties
+      const excelRow = excelLookup[props[geojsonKey]?.toUpperCase()]
+      
+      return {
+        id: index + 1,
+        code2: props[geojsonKey] || '',
+        name: excelRow ? excelRow[excelKey] : props.TOWN || '',
+        count: excelRow ? (excelRow.count || 0) : 0,
+        merged: excelRow ? '成功' : '失敗',
+        // 保留原始屬性
+        ...props
+      }
+    })
+
+    // 更新 GeoJSON 屬性
     const mergedGeoJSON = {
       ...geojsonData,
       features: geojsonData.features.map(feature => {
-        const geoKey = feature.properties[geojsonKey]
-        console.log('GeoJSON key:', geoKey)
-        
-        // GeoJSON的CODE2已經是大寫，直接使用
-        const normalizedGeoKey = String(geoKey || '').toUpperCase()
-        const matchedExcelRow = excelLookup[normalizedGeoKey]
-        
-        if (matchedExcelRow) {
-          console.log(`匹配成功: ${geoKey} -> ${matchedExcelRow[excelKey]}`)
-        }
+        const props = feature.properties
+        const excelRow = excelLookup[props[geojsonKey]?.toUpperCase()]
         
         return {
           ...feature,
           properties: {
-            ...feature.properties,
-            // 合併Excel數據，如果有的話
-            ...(matchedExcelRow || {}),
-            // 確保基本欄位有預設值（覆蓋任何undefined值）
-            count: matchedExcelRow ? (matchedExcelRow.count || 0) : 0,
-            name: matchedExcelRow ? (matchedExcelRow.name || '') : '',
-            // 添加合併狀態標記
-            _merged: !!matchedExcelRow,
-            // 保留原始鍵值
-            originalGeoKey: geoKey,
-            originalExcelKey: matchedExcelRow ? matchedExcelRow[excelKey] : null
+            ...props,
+            ...(excelRow || {}),
+            count: excelRow ? (excelRow.count || 0) : 0,
+            name: excelRow ? excelRow[excelKey] : props.TOWN || '',
+            _merged: !!excelRow
           }
         }
       })
     }
-    
-    // 創建表格數據
-    const tableData = mergedGeoJSON.features.map((feature, index) => {
-      const props = feature.properties
-      return {
-        id: index + 1,
-        code2: props.CODE2 || '',  // 確保 code2 欄位正確對應 CODE2 屬性
-        name: props.name || props.TOWN || '',  // 確保 name 欄位有值
-        count: props.count || 0,
-        merged: props._merged ? '成功' : '失敗',
-        originalGeoKey: props.originalGeoKey,
-        originalExcelKey: props.originalExcelKey,
-        // 添加所有properties以便完整顯示
-        ...props
-      }
-    })
-    
+
     const mergedCount = tableData.filter(row => row.merged === '成功').length
-    
-    console.log(`合併結果: ${mergedCount}/${geojsonData.features.length} 成功合併`)
-    console.log('Sample merged feature:', mergedGeoJSON.features[0]?.properties)
-    
+
     return {
       mergedGeoJSON,
       tableData,
       summary: {
         totalFeatures: geojsonData.features.length,
-        mergedCount: mergedCount,
+        mergedCount,
         excelRows: excelData.length,
         mergeRate: ((mergedCount / geojsonData.features.length) * 100).toFixed(1)
       }
@@ -415,64 +393,27 @@ function hexToRgb(hex) {
 }
 
 /**
- * 載入並合併台南市數據
+ * 載入並合併數據
  * @returns {Promise<Object>} 合併後的數據
  */
 export async function loadTainanData() {
   try {
-    console.log('🚀 開始載入台南市數據...')
-    
-    // 🔥 步驟 1: 並行載入兩個原始文件（GeoJSON 會自動轉換為 WGS84）
-    console.log('📊 步驟 1: 載入 GeoJSON 和 Excel 文件...')
-    
+    // 載入 GeoJSON 和 Excel 文件
     const [geojsonData, excelData] = await Promise.all([
-      loadGeoJSON('/donkey-fever-analysis/data/geojson/台南市區_2.geojson'), // 自動轉換為 WGS84
+      loadGeoJSON('/donkey-fever-analysis/data/geojson/台南市區_2.geojson'),
       loadExcelSheet('/donkey-fever-analysis/data/xlsx/Dengue Daily.xlsx', '15_台南市區_合併位置_2')
     ])
-    
-    console.log('✅ 資料載入完成:')
-    console.log(`   - GeoJSON features: ${geojsonData.features.length}`)
-    console.log(`   - Excel rows: ${excelData.length}`)
-    
-    // 🔥 檢查座標轉換結果
-    if (geojsonData._autoConverted) {
-      console.log('✅ GeoJSON 座標已自動轉換為 WGS84')
-    } else if (geojsonData._conversionInfo?.detected === 'WGS84') {
-      console.log('✅ GeoJSON 座標已是 WGS84 格式')
-    } else {
-      console.log('⚠️ GeoJSON 座標轉換狀態未知')
-    }
-    
-    // 🔥 步驟 2: 合併 GeoJSON 和 Excel 數據
-    console.log('🔗 步驟 2: 合併 GeoJSON 和 Excel 數據...')
-    
-    // 檢查數據樣本
-    if (geojsonData.features.length > 0) {
-      console.log('   - GeoJSON sample properties:', geojsonData.features[0].properties)
-      console.log('   - GeoJSON sample coordinates:', geojsonData.features[0].geometry.coordinates[0][0])
-    }
-    if (excelData.length > 0) {
-      console.log('   - Excel sample row:', excelData[0])
-    }
-    
-    // 合併數據，使用正確的欄位名稱
+
+    // 合併數據
     const mergedData = mergeGeoJSONWithExcel(geojsonData, excelData, 'CODE2', 'name')
-    
-    console.log('✅ 數據合併完成:', mergedData.summary)
-    
-    // 🔥 返回完整的處理結果
-    const finalResult = {
-      // 原始 GeoJSON（已轉換為 WGS84）
+
+    // 返回處理結果
+    return {
       rawGeoJSON: geojsonData,
-      // 合併後的 GeoJSON（WGS84）- 這個用於地圖顯示
       mergedGeoJSON: mergedData.mergedGeoJSON,
-      // 為了向後相容，convertedGeoJSON 指向相同的合併資料
       convertedGeoJSON: mergedData.mergedGeoJSON,
-      // Excel 數據
       excelData,
-      // 表格數據
       tableData: mergedData.tableData,
-      // 統計摘要
       summary: {
         ...mergedData.summary,
         coordinateSystem: 'WGS84',
@@ -480,18 +421,8 @@ export async function loadTainanData() {
         conversionInfo: geojsonData._conversionInfo
       }
     }
-    
-    console.log('🎉 台南市數據處理完成!')
-    console.log('📋 處理摘要:')
-    console.log(`   - 總要素數: ${finalResult.summary.totalFeatures}`)
-    console.log(`   - 成功合併: ${finalResult.summary.mergedCount}`)
-    console.log(`   - 合併率: ${finalResult.summary.mergeRate}%`)
-    console.log(`   - 座標系統: WGS84 ${geojsonData._autoConverted ? '(已自動轉換)' : '(原始格式)'}`)
-    
-    return finalResult
-    
   } catch (error) {
-    console.error('❌ 載入台南市數據失敗:', error)
+    console.error('載入數據失敗:', error)
     throw error
   }
 }

@@ -1,305 +1,289 @@
 <template>
-  <div class="h-100 d-flex flex-column">
-    <!-- 📊 數據表格內容 (Data Table Content) -->
-    <div v-if="mergedTableData.length > 0" class="h-100 d-flex flex-column">
-      <!-- 🔍 搜尋工具列 (Search Toolbar) -->
-      <div class="search-container bg-light">
-        <div class="d-flex justify-content-between align-items-center">
+  <div class="data-table-tab-component h-100 d-flex flex-column">
+    <!-- Search Toolbar -->
+    <div class="search-toolbar-container p-2 bg-light border-bottom">
+      <input
+        type="text"
+        class="form-control form-control-sm"
+        v-model="searchQuery"
+        placeholder="搜尋名稱、ID、數量..."
+      />
+    </div>
 
-          <!-- <div class="my-font-size-sm p-2">
-            {{ sortedAndFilteredTableData.length }}
-            /
-            {{ mergedTableData.length }}
-          </div> -->
-
-          <div class="text-sm p-2" style="width: 250px;">
-            <input 
-              type="text" 
-              class="form-control form-control-sm" 
-              :value="tableSearchQuery" 
-              @input="$emit('update:tableSearchQuery', $event.target.value)"
-              placeholder="搜尋">
-          </div>
-        </div>
-      </div>
-      
-      <!-- 📋 表格容器 (Table Container) -->
-      <div class="table-container flex-grow-1">
-        <div class="table-responsive custom-scroll h-100">
-          <table class="table table-sm table-hover mb-0">
-            <thead class="table-light">
-              <tr class="text-center">
-                <th class="sortable" @click="$emit('sort-table', 'id')">
-                  ID <i :class="getSortIcon('id')"></i>
-                </th>
-                <th class="sortable" @click="$emit('sort-table', 'name')">
-                  Name <i :class="getSortIcon('name')"></i>
-                </th>
-                <th class="sortable" @click="$emit('sort-table', 'count')">
-                  Count <i :class="getSortIcon('count')"></i>
-                </th>
-                <th class="sortable" @click="$emit('sort-table', 'merged')">
-                  合併狀態 <i :class="getSortIcon('merged')"></i>
-                </th>
-                <th>操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="row in sortedAndFilteredTableData" :key="row.id" class="fade-in text-center">
-                <td>{{ row.id }}</td>
-                <td>{{ row.name }}</td>
-                <td>{{ row.count }}</td>
-                <td>{{ row.merged }}</td>
-                <td>
-                  <button 
-                    class="btn btn-outline-primary btn-sm" 
-                    @click="$emit('highlight-on-map', row)" 
-                    title="在地圖上高亮">
-                    顯示位置
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+    <!-- Table Container -->
+    <div v-if="filteredAndSortedData.length > 0" class="table-container flex-grow-1">
+      <div class="table-responsive custom-scroll h-100">
+        <table class="table table-sm table-hover table-striped mb-0">
+          <thead class="table-light sticky-top">
+            <tr class="text-center">
+              <th @click="sortTable('id')" class="sortable-header">
+                ID <i :class="getSortIcon('id')"></i>
+              </th>
+              <th @click="sortTable('name')" class="sortable-header">
+                名稱 <i :class="getSortIcon('name')"></i>
+              </th>
+              <th @click="sortTable('count')" class="sortable-header">
+                數量 <i :class="getSortIcon('count')"></i>
+              </th>
+              <th @click="sortTable('merged')" class="sortable-header">
+                合併狀態 <i :class="getSortIcon('merged')"></i>
+              </th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="(item, index) in filteredAndSortedData"
+              :key="item.id || item.code2 || index"
+              class="text-center align-middle"
+            >
+              <td>{{ item.id }}</td>
+              <td>{{ item.name }}</td>
+              <td>{{ item.count }}</td>
+              <td>
+                <span :class="getMergedStatusClass(item.merged)">
+                  {{ item.merged ? '是' : '否' }}
+                </span>
+              </td>
+              <td>
+                <button
+                  class="btn btn-outline-primary btn-sm py-0 px-1"
+                  @click="$emit('highlight-on-map', item)"
+                  title="在地圖上高亮顯示"
+                >
+                  <i class="fas fa-map-marker-alt me-1"></i>顯示位置
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
-    
-    <!-- 😔 空狀態 (Empty State) -->
-    <div v-else class="h-100 d-flex align-items-center justify-content-center">
-      <div class="text-center">
-        <i class="fas fa-table fa-3x text-muted mb-3"></i>
-        <h5 class="text-muted">沒有資料</h5>
-        <p class="text-muted">請點擊「載入數據」按鈕載入台南市數據</p>
+
+    <!-- Empty State -->
+    <div v-else class="empty-state-container flex-grow-1 d-flex align-items-center justify-content-center">
+      <div class="text-center text-muted">
+        <i class="fas fa-table fa-3x mb-3"></i>
+        <p v-if="searchQuery">找不到符合搜尋「{{ searchQuery }}」的結果。</p>
+        <p v-else-if="!props.tableData || props.tableData.length === 0">目前沒有資料可顯示。請先載入數據。</p>
+        <p v-else>沒有符合目前篩選條件的資料。</p>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-/**
- * 📋 DataTableTab.vue - 數據表格標籤組件
- * 
- * 功能說明：
- * 1. 📊 顯示合併後的台南數據表格
- * 2. 🔍 提供搜尋和排序功能
- * 3. 🎯 支援地圖高亮聯動
- * 4. 🏷️ 顯示數據徽章和狀態
- * 5. 📱 響應式設計支援
- */
-import { formatNumber } from '../../utils/utils.js'
+<script setup>
+import { ref, computed, defineProps, defineEmits, onMounted } from 'vue';
 
-export default {
-  name: 'DataTableTab',
+const props = defineProps({
+  tableData: {
+    type: Array,
+    required: true,
+    default: () => []
+  }
+});
 
-  /**
-   * 🔧 組件屬性定義 (Component Props)
-   */
-  props: {
-    /** 📋 合併的表格數據 */
-    mergedTableData: {
-      type: Array,
-      default: () => [],
-      required: true
-    },
-    
-    /** 📋 排序和篩選後的表格數據 */
-    sortedAndFilteredTableData: {
-      type: Array,
-      default: () => [],
-      required: true
-    },
-    
-    /** 🔍 表格搜尋關鍵字 */
-    tableSearchQuery: {
-      type: String,
-      default: '',
-      required: true
-    },
-    
-    /** 📊 排序欄位 */
-    sortField: {
-      type: String,
-      default: '',
-      required: true
-    },
-    
-    /** 📊 排序方向 */
-    sortDirection: {
-      type: String,
-      default: 'asc',
-      required: true
-    }
-  },
-  
-  /**
-   * 📡 組件事件定義 (Component Events)
-   */
-  emits: [
-    'update:tableSearchQuery',
-    'sort-table',
-    'highlight-on-map'
-  ],
-  
-  /**
-   * 🔧 組件設定函數 (Component Setup)
-   */
-  setup(props) {
-    /**
-     * 🔄 取得排序圖標類別 (Get Sort Icon Class)
-     * @param {string} field - 欄位名稱
-     * @returns {string} 圖標CSS類別
-     */
-    const getSortIcon = (field) => {
-      if (props.sortField !== field) return 'fas fa-sort'
-      return props.sortDirection === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down'
-    }
+defineEmits(['highlight-on-map']);
 
-    // 📤 返回數據和方法 (Return Data and Methods)
-    return {
-      formatNumber,
-      getSortIcon
+const searchQuery = ref('');
+const currentSortKey = ref('id'); // Default sort key
+const currentSortOrder = ref('asc'); // Default sort order
+
+const filteredAndSortedData = computed(() => {
+  if (!props.tableData || !Array.isArray(props.tableData)) {
+    console.warn('[DataTableTab] tableData is not a valid array. Returning empty.', props.tableData);
+    return [];
+  }
+
+  let data = [...props.tableData];
+
+  // Filter data
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase().trim();
+    if (query) {
+      data = data.filter(item => {
+        const nameMatch = item.name && String(item.name).toLowerCase().includes(query);
+        const idMatch = item.id && String(item.id).toLowerCase().includes(query);
+        const code2Match = item.code2 && String(item.code2).toLowerCase().includes(query);
+        const countMatch = item.count !== undefined && item.count !== null && String(item.count).toLowerCase().includes(query);
+        return nameMatch || idMatch || code2Match || countMatch;
+      });
     }
   }
+
+  // Sort data
+  if (currentSortKey.value) {
+    data.sort((a, b) => {
+      let valA = a[currentSortKey.value];
+      let valB = b[currentSortKey.value];
+
+      // Handle undefined or null values by treating them as smaller
+      if (valA === undefined || valA === null) valA = '';
+      if (valB === undefined || valB === null) valB = '';
+      
+      // Convert numbers to strings for consistent comparison if one is string and other is number,
+      // or use numeric comparison if both are numbers.
+      const isValANumber = typeof valA === 'number';
+      const isValBNumber = typeof valB === 'number';
+
+      if (isValANumber && isValBNumber) {
+        // Numeric sort
+        return currentSortOrder.value === 'asc' ? valA - valB : valB - valA;
+      } else {
+        // String sort (case-insensitive)
+        valA = String(valA).toLowerCase();
+        valB = String(valB).toLowerCase();
+        if (valA < valB) return currentSortOrder.value === 'asc' ? -1 : 1;
+        if (valA > valB) return currentSortOrder.value === 'asc' ? 1 : -1;
+        return 0;
+      }
+    });
+  }
+  return data;
+});
+
+function sortTable(key) {
+  if (currentSortKey.value === key) {
+    currentSortOrder.value = currentSortOrder.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    currentSortKey.value = key;
+    currentSortOrder.value = 'asc';
+  }
 }
+
+function getSortIcon(key) {
+  if (currentSortKey.value !== key) {
+    return 'fas fa-sort'; // Default sort icon
+  }
+  if (currentSortOrder.value === 'asc') {
+    return 'fas fa-sort-up'; // Ascending sort icon
+  }
+  return 'fas fa-sort-down'; // Descending sort icon
+}
+
+function getMergedStatusClass(merged) {
+  return merged ? 'text-success fw-bold' : 'text-danger';
+}
+
+onMounted(() => {
+  console.log('[DataTableTab] Component Mounted. Initial props.tableData count:', props.tableData?.length);
+});
+
 </script>
 
 <style scoped>
-/**
- * 🎨 數據表格樣式 (Data Table Styles)
- */
-
-/* 🔍 搜尋容器樣式 */
-.search-container {
-  padding: var(--spacing-3);
-  border-bottom: 1px solid var(--border-color);
+.data-table-tab-component {
+  font-size: 0.875rem; /* Base font size for the component */
 }
 
-.search-container input.form-control {
+.search-toolbar-container input.form-control {
   background-color: white;
-  border-color: #ced4da;
-  color: #495057;
+  border-color: #ced4da; /* Standard Bootstrap border color */
+  color: #495057; /* Standard Bootstrap text color */
+}
+.search-toolbar-container input.form-control:focus {
+  border-color: #007bff; /* Primary color focus */
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Primary color shadow */
+}
+.search-toolbar-container input.form-control::placeholder {
+  color: #6c757d; /* Muted placeholder text */
 }
 
-.search-container input.form-control:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
-}
-
-.search-container input.form-control::placeholder {
-  color: #6c757d;
-}
-
-/* 📋 表格容器樣式 */
 .table-container {
-  background-color: white;
-  overflow: hidden;
+  overflow-y: auto; /* Allows vertical scrolling for the table body */
 }
 
-/* 📊 表格基礎樣式 */
 .table {
-  --bs-table-bg: white !important;
-  --bs-table-color: #495057 !important;
-  background-color: white !important;
-  color: #495057 !important;
-  margin-bottom: 0;
+  --bs-table-bg: white;
+  --bs-table-color: #212529; /* Darker text for better readability */
+  --bs-table-striped-bg: #f8f9fa; /* Light gray for striped rows */
+  --bs-table-hover-bg: #e9ecef; /* Slightly darker hover */
 }
 
-/* 📋 表格標題樣式 */
-.table thead th {
-  background-color: #f8f9fa !important;
-  color: #495057 !important;
-  border-color: #dee2e6 !important;
-  font-weight: 600;
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 0.5px;
+.table thead.sticky-top {
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 10; /* Ensures header stays above scrolling content */
+  background-color: #f8f9fa; /* Light background for header */
 }
 
-.table thead th.sortable {
+.table th {
+  font-weight: 600; /* Bolder header text */
+  text-transform: uppercase;
+  font-size: 0.75rem; /* Smaller header text */
+  letter-spacing: 0.5px;
+  vertical-align: middle;
+  white-space: nowrap; /* Prevent header text wrapping */
+}
+
+.table th.sortable-header {
   cursor: pointer;
-  user-select: none;
-  transition: all 0.2s ease;
+  user-select: none; /* Prevent text selection on click */
 }
-
-.table thead th.sortable:hover {
-  background-color: #e9ecef !important;
+.table th.sortable-header:hover {
+  background-color: #e2e6ea; /* Darker hover for sortable headers */
 }
-
-.table thead th.sortable i {
-  margin-left: 0.25rem;
-  font-size: 0.75rem;
+.table th.sortable-header i {
+  margin-left: 0.3em;
+  font-size: 0.9em; /* Slightly smaller icons */
   opacity: 0.7;
 }
-
-.table thead th.sortable:hover i {
+.table th.sortable-header:hover i {
   opacity: 1;
 }
 
-/* 📊 表格內容樣式 */
-.table tbody td {
-  background-color: white !important;
-  color: #495057 !important;
-  border-color: #dee2e6 !important;
-  font-size: 0.875rem;
-  padding: 0.5rem 0.75rem;
+.table td {
+  font-size: 0.85rem; /* Slightly smaller body text */
+  padding: 0.4rem 0.5rem; /* Adjust padding for tighter rows */
+  vertical-align: middle;
 }
 
-/* 📋 表格行懸停效果 */
-.table tbody tr:hover td {
-  background-color: #f8f9fa !important;
-  cursor: pointer;
+.table tbody tr:hover {
+  background-color: var(--bs-table-hover-bg); /* Consistent hover effect */
 }
 
-/* 🔘 按鈕樣式 */
 .btn-outline-primary {
-  font-size: 0.75rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  transition: all 0.2s ease;
+  font-size: 0.75rem; /* Smaller button text */
+  padding: 0.2rem 0.4rem; /* Smaller button padding */
+  border-radius: 0.2rem;
+  transition: all 0.15s ease-in-out;
 }
-
 .btn-outline-primary:hover {
   transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.btn-outline-primary i {
+  font-size: 0.8em; /* Adjust icon size within button */
 }
 
-/* 💾 程式碼標籤樣式 */
-code.text-primary {
-  font-size: 0.75rem;
-  font-weight: 500;
+.text-success { color: #198754 !important; } /* Bootstrap success green */
+.text-danger { color: #dc3545 !important; } /* Bootstrap danger red */
+
+.empty-state-container {
+  background-color: #f8f9fa; /* Light background for empty state */
+}
+.empty-state-container i {
+  color: #adb5bd; /* Muted icon color */
+}
+.empty-state-container p {
+  font-size: 0.95rem;
+  color: #495057; /* Slightly darker text for empty state message */
 }
 
-/* 🎬 淡入動畫 */
-.fade-in {
-  animation: fadeIn 0.3s ease-in-out;
+/* Custom Scrollbar (optional, for WebKit browsers) */
+.custom-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+.custom-scroll::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
 }
-
-/* 📱 響應式調整 */
-@media (max-width: 768px) {
-  .search-container {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  
-  .search-container > div {
-    width: 100% !important;
-  }
-  
-  .table {
-    font-size: 0.75rem;
-  }
-  
-  .table thead th,
-  .table tbody td {
-    padding: 0.25rem 0.5rem;
-  }
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: #ced4da; /* Scrollbar thumb color */
+  border-radius: 10px;
+}
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  background: #adb5bd; /* Darker on hover */
 }
 </style> 

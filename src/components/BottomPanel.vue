@@ -27,14 +27,9 @@
       <!-- 數據表格Tab -->
       <div v-show="activeBottomTab === 'table'" class="h-100">
         <DataTableTab
-          :mergedTableData="mergedTableData"
-          :sortedAndFilteredTableData="sortedAndFilteredTableData"
-          :tableSearchQuery="tableSearchQuery"
-          :sortField="sortField"
-          :sortDirection="sortDirection"
-          @update:tableSearchQuery="$emit('update:tableSearchQuery', $event)"
-          @sort-table="$emit('sort-table', $event)"
-          @highlight-on-map="$emit('highlight-on-map', $event)" />
+          :tableData="tableData"
+          @highlight-on-map="$emit('highlight-on-map', $event)"
+        />
       </div>
       
       <!-- 新的樣式設定 Tab -->
@@ -103,27 +98,15 @@ export default {
   props: {
     activeBottomTab: { type: String, default: 'table' },
     bottomPanelHeight: { type: Number, default: 300 },
-    mergedTableData: { type: Array, default: () => [] },
-    sortedAndFilteredTableData: { type: Array, default: () => [] },
-    tableSearchQuery: { type: String, default: '' },
-    sortField: { type: String, default: '' },
-    sortDirection: { type: String, default: 'asc' },
-    zoomLevel: { type: Number, default: 10 },
-    currentCoords: { type: Object, default: () => ({ lat: 0, lng: 0 }) },
-    isLoadingData: { type: Boolean, default: false },
-    showTainanLayer: { type: Boolean, default: false },
+    tableData: { type: Array, default: () => [] },
     selectedColorScheme: { type: String, default: 'viridis' },
     selectedBorderColor: { type: String, default: '#666666' },
     selectedBorderWeight: { type: Number, default: 1 },
-    maxCount: { type: Number, default: 0 },
     isPanelDragging: { type: Boolean, default: false }
   },
   emits: [
     'update:activeBottomTab',
-    'update:tableSearchQuery',
-    'sort-table',
     'highlight-on-map',
-    'update:zoomLevel',
     'update:selectedColorScheme',
     'update:selectedBorderColor',
     'update:selectedBorderWeight',

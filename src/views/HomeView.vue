@@ -39,14 +39,14 @@
               @update:showTainanLayer="showTainanLayer = $event"
               @update:selectedFilter="selectedFilter = $event"
             />
-          </div>
+        </div>
         
           <!-- 🔧 左側拖曳調整器 (Left Resizer) - Now a direct child of the flex row -->
           <div class="my-resizer my-resizer-vertical border-start border-end" 
                :class="{ 'dragging': isSidePanelDragging }"
                @mousedown="startResize('left', $event)"
                title="拖曳調整左側面板寬度">
-          </div>
+            </div>
             
           <!-- 🌟 新的主要顯示區域組件 (New Main Display Area Component) -->
           <MainDisplayArea
@@ -71,22 +71,18 @@
             :dataRegionsCount="dataRegionsCount"
             :activeMarkers="activeMarkers"
             :isLoadingData="isLoadingData"
-            :tableSearchQuery="tableSearchQuery"
-            :sortField="sortField"
-            :sortDirection="sortDirection"
+            :tableData="tableData"
             :isSidePanelDragging="isSidePanelDragging"
             @update:activeTab="activeTab = $event"
             @update:activeBottomTab="activeBottomTab = $event"
             @update:zoomLevel="zoomLevel = $event"
             @update:currentCoords="currentCoords = $event"
             @update:activeMarkers="activeMarkers = $event"
-            @update:tableSearchQuery="tableSearchQuery = $event"
-            @sort-table="sortTable"
-            @highlight-on-map="highlightOnMap"
             @update:selectedColorScheme="selectedColorScheme = $event"
             @update:selectedBorderColor="selectedBorderColor = $event"
             @update:selectedBorderWeight="selectedBorderWeight = $event"
             @reset-view="resetView"
+            @highlight-on-map="highlightOnMap"
           />
 
           <!-- 🔧 右側拖曳調整器 (Right Resizer) - Now a direct child of the flex row -->
@@ -94,7 +90,7 @@
                :class="{ 'dragging': isSidePanelDragging }"
                @mousedown="startResize('right', $event)"
                title="拖曳調整右側面板寬度">
-          </div>
+      </div>
 
           <!-- 📈 右側控制面板 (Right Control Panel) - Wrapper for content only -->
           <div class="h-100 overflow-auto" :style="{ width: rightPanelWidthPx }" v-if="rightPanelWidth > 0">
@@ -118,11 +114,11 @@
               @select-analysis="selectAnalysis"
               @view-analysis="viewAnalysis"
               @delete-analysis="deleteAnalysis" />
-          </div>
         </div>
-      </div>
-    </div>
-    
+            </div>
+              </div>
+            </div>
+            
     <!-- 🦶 頁腳區域 (Footer Area) - Bootstrap sticky footer，緊貼底部無空隙 -->
     <footer class="my-app-footer bg-dark text-light py-2 mt-auto" ref="appFooterRef">
       <div class="container-fluid">
@@ -232,7 +228,7 @@ export default {
     // 📊 台南數據相關 (Tainan Data Related)
     const tainanDataSummary = ref(null)
     const mergedTableData = ref([])
-    const tableSearchQuery = ref('')
+    const tableData = ref([])
     const tainanGeoJSONData = ref(null)
 
     // 📈 分析相關 (Analysis Related)
@@ -240,10 +236,6 @@ export default {
     const selectedAnalysisId = ref(null)
     let analysisIdCounter = 1
 
-    // 📋 表格排序 (Table Sorting)
-    const sortField = ref('')
-    const sortDirection = ref('asc')
-    
     // 🔧 拖曳狀態 (Drag States)
     const isSidePanelDragging = ref(false)
 
@@ -267,61 +259,9 @@ export default {
       return mergedTableData.value.filter(row => row.count > 0).length
     })
 
-    // 🔍 表格篩選和排序 (Table Filtering and Sorting)
-    const filteredTableData = computed(() => {
-      if (!tableSearchQuery.value) return mergedTableData.value
-      const query = tableSearchQuery.value.toLowerCase()
-      return mergedTableData.value.filter(row => 
-        (row.code2 && row.code2.toLowerCase().includes(query)) ||
-        (row.name && row.name.toLowerCase().includes(query)) ||
-        (row.count && row.count.toString().includes(query))
-      )
-    })
-
-    const sortedAndFilteredTableData = computed(() => {
-      let data = filteredTableData.value
-      
-      if (sortField.value) {
-        data = [...data].sort((a, b) => {
-          let aVal = a[sortField.value]
-          let bVal = b[sortField.value]
-          
-          // 處理數字類型
-          if (sortField.value === 'count' || sortField.value === 'id') {
-            aVal = Number(aVal) || 0
-            bVal = Number(bVal) || 0
-        } else {
-            // 字串類型
-            aVal = String(aVal || '').toLowerCase()
-            bVal = String(bVal || '').toLowerCase()
-          }
-          
-          if (sortDirection.value === 'asc') {
-            return aVal > bVal ? 1 : aVal < bVal ? -1 : 0
-        } else {
-            return aVal < bVal ? 1 : aVal > bVal ? -1 : 0
-          }
-        })
-      }
-      
-      return data
-    })
-
     const canStartAnalysis = computed(() => {
       return mergedTableData.value.length > 0 && !isLoadingData.value
     })
-
-    // 📋 表格排序函數 (Table Sorting Functions)
-    const sortTable = (field) => {
-      if (sortField.value === field) {
-        // 切換排序方向
-        sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'
-        } else {
-        // 新欄位，預設升序
-        sortField.value = field
-        sortDirection.value = 'asc'
-      }
-    }
 
     // 📈 分析功能函數 (Analysis Functions)
     
@@ -458,9 +398,10 @@ export default {
      * 載入GeoJSON和Excel文件並進行數據合併
      */
     const loadTainanData = async () => {
+      console.log('HomeView.vue: loadTainanData function CALLED');
       isLoadingData.value = true
       isLoading.value = true
-      loadingText.value = '載入台南市數據...'
+      loadingText.value = '載入數據...'
       showLoadingProgress.value = true
       loadingSubText.value = '正在讀取 GeoJSON 和 Excel 文件'
 
@@ -479,19 +420,27 @@ export default {
         await new Promise(resolve => setTimeout(resolve, 500))
 
         const data = await loadTainanDataUtil()
+        console.log('HomeView.vue: Data received from loadTainanDataUtil:', data);
+        console.log('HomeView.vue: data.tableData:', data.tableData);
+        console.log('HomeView.vue: Is data.tableData an array?', Array.isArray(data.tableData));
         
         loadingProgress.value = 100
         loadingSubText.value = '數據載入完成'
 
         tainanDataSummary.value = data.summary
         mergedTableData.value = data.tableData
+        console.log('HomeView.vue: mergedTableData.value AFTER assignment:', mergedTableData.value);
         tainanGeoJSONData.value = data.mergedGeoJSON
+        tableData.value = Array.isArray(data.tableData) ? data.tableData : []
         
         // 自動顯示台南圖層
         showTainanLayer.value = true
         
         // 切換到表格tab
         activeBottomTab.value = 'table'
+        
+        // 自動清空搜尋欄位，避免表格沒資料
+        selectedFilter.value = ''
         
         console.log('✅ 台南數據載入完成:', data.summary)
       } catch (error) {
@@ -513,8 +462,7 @@ export default {
         // 清除數據
         tainanDataSummary.value = null
         mergedTableData.value = []
-        tainanGeoJSONData.value = null
-        tableSearchQuery.value = ''
+        selectedFilter.value = ''
         
         // 隱藏圖層
         showTainanLayer.value = false
@@ -743,14 +691,8 @@ export default {
       // 📊 台南數據
       tainanDataSummary,
       mergedTableData,
-      tableSearchQuery,
-      filteredTableData,
-      sortedAndFilteredTableData,
+      tableData,
       tainanGeoJSONData,
-      
-      // 📋 表格排序
-      sortField,
-      sortDirection,
       
       // 📈 分析數據
       analysisList,
@@ -770,9 +712,6 @@ export default {
       fitMapToData,
       resetView,
       switchToDashboard,
-      
-      // 📋 表格功能
-      sortTable,
       
       // 🔧 拖拽調整功能
       startResize,
