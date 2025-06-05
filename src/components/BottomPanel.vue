@@ -8,7 +8,7 @@
             class="nav-link text-dark border-0"
             :class="{ 'active bg-white text-primary fw-bold': activeBottomTab === 'table' }"
             @click="$emit('update:activeBottomTab', 'table')">
-            <i class="fas fa-table me-1"></i>數據表格
+            數據表格
           </button>
         </li>
         <li class="nav-item">
@@ -16,14 +16,14 @@
             class="nav-link text-dark border-0"
             :class="{ 'active bg-white text-primary fw-bold': activeBottomTab === 'style' }"
             @click="$emit('update:activeBottomTab', 'style')">
-            <i class="fas fa-palette me-1"></i>地圖樣式
+            地圖樣式
           </button>
         </li>
       </ul>
     </div>
     
     <!-- 底部Tab內容 -->
-    <div ref="bottomTabContentRef" class="tab-content h-100 overflow-auto p-3">
+    <div ref="bottomTabContentRef" class="tab-content h-100 overflow-auto">
       <!-- 數據表格Tab -->
       <div v-show="activeBottomTab === 'table'" class="h-100">
         <DataTableTab
@@ -33,8 +33,8 @@
       </div>
       
       <!-- 新的樣式設定 Tab -->
-      <div v-show="activeBottomTab === 'style'" class="container-fluid mt-2">
-        <div class="row">
+      <div v-show="activeBottomTab === 'style'" class="container-fluid2">
+        <div class="row p-3">
           <div class="col-md-4 mb-3">
             <label for="bottomColorSchemeSelect" class="form-label small fw-medium">色票方案:</label>
             <select 

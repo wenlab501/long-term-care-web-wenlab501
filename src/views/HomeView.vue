@@ -64,9 +64,9 @@
             :selectedBorderWeight="selectedBorderWeight"
             :zoomLevel="zoomLevel"
             :currentCoords="currentCoords"
-            :tainanGeoJSONData="tainanGeoJSONData"
+            :tainanGeoJSONData="storeTainanGeoJSONData"
             :maxCount="maxCount"
-            :mergedTableData="mergedTableData"
+            :mergedTableData="storeMergedTableData"
             :averageCount="averageCount"
             :dataRegionsCount="dataRegionsCount"
             :activeMarkers="activeMarkers"
@@ -98,8 +98,8 @@
               :activeRightTab="activeRightTab"
               :totalCount="totalCount"
               :activeMarkers="activeMarkers"
-              :tainanDataSummary="tainanDataSummary"
-              :mergedTableData="mergedTableData"
+              :tainanDataSummary="storeTainanDataSummary"
+              :mergedTableData="storeMergedTableData"
               :maxCount="maxCount"
               :averageCount="averageCount"
               :dataRegionsCount="dataRegionsCount"
@@ -155,6 +155,7 @@ import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue'
 import { formatNumber } from '../utils/utils.js'
 import { loadTainanData as loadTainanDataUtil } from '../utils/dataProcessor.js'
 import { performCompleteSpatialAnalysis } from '../utils/spatialAnalysis.js'
+import { useDataStore } from '@/stores/dataStore'
 
 // 🧩 組件引入
 import LoadingOverlay from '../components/LoadingOverlay.vue'
@@ -179,6 +180,8 @@ export default {
    * 🔧 組件設定函數 (Component Setup)
    */
   setup() {
+    const dataStore = useDataStore()
+
     // 📚 元件引用 (Component References)
     const mainDisplayAreaRef = ref(null)
     const appFooterRef = ref(null)
@@ -227,9 +230,17 @@ export default {
     
     // 📊 台南數據相關 (Tainan Data Related)
     const tainanDataSummary = ref(null)
-    const mergedTableData = ref([])
     const tableData = ref([])
-    const tainanGeoJSONData = ref(null)
+
+    // 從 Pinia store 獲取數據的 computed 屬性
+    const storeMergedTableData = computed(() => dataStore.processedData.loadedAndMergedTableData);
+    const storeTainanGeoJSONData = computed(() => dataStore.processedData.loadedAndMergedGeoJSON);
+    const storeTainanDataSummary = computed(() => {
+      // 假設 summary 也應該從 store 來，或者 dataStore 內部有一個 summary 的 computed
+      // 暫時保持 tainanDataSummary.value = data.summary 的賦值，或者將其也存入 store
+      // 如果 dataStore.dataSummary 是有效的，則使用它
+      return dataStore.dataSummary; 
+    });
 
     // 📈 分析相關 (Analysis Related)
     const analysisList = ref([])
@@ -241,26 +252,27 @@ export default {
 
     // 🧮 統計計算屬性 (Statistical Computed Properties)
     const totalDataPoints = computed(() => {
-      return mergedTableData.value.length || totalCount.value
+      return storeMergedTableData.value.length || totalCount.value
     })
 
     const maxCount = computed(() => {
-      if (mergedTableData.value.length === 0) return 0
-      return Math.max(...mergedTableData.value.map(row => row.count || 0))
+      if (!storeMergedTableData.value || storeMergedTableData.value.length === 0) return 0;
+      return Math.max(...storeMergedTableData.value.map(row => row.count || 0));
     })
 
     const averageCount = computed(() => {
-      if (mergedTableData.value.length === 0) return 0
-      const counts = mergedTableData.value.map(row => row.count || 0)
-      return counts.reduce((a, b) => a + b, 0) / counts.length
+      if (!storeMergedTableData.value || storeMergedTableData.value.length === 0) return 0;
+      const counts = storeMergedTableData.value.map(row => row.count || 0);
+      return counts.reduce((a, b) => a + b, 0) / counts.length;
     })
 
     const dataRegionsCount = computed(() => {
-      return mergedTableData.value.filter(row => row.count > 0).length
+      if (!storeMergedTableData.value) return 0;
+      return storeMergedTableData.value.filter(row => row.count > 0).length;
     })
 
     const canStartAnalysis = computed(() => {
-      return mergedTableData.value.length > 0 && !isLoadingData.value
+      return storeMergedTableData.value && storeMergedTableData.value.length > 0 && !isLoadingData.value;
     })
 
     // 📈 分析功能函數 (Analysis Functions)
@@ -283,7 +295,7 @@ export default {
         loadingProgress.value = 10
         loadingSubText.value = '轉換數據格式...'
         
-        const analysisPoints = mergedTableData.value.map((row, index) => ({
+        const analysisPoints = storeMergedTableData.value.map((row, index) => ({
           lng: 120.2 + Math.random() * 0.5, // 模擬台南座標範圍
           lat: 22.9 + Math.random() * 0.3,
           value: row.count || Math.random() * 100,
@@ -327,10 +339,10 @@ export default {
           name: `台南市空間分析 #${analysisIdCounter - 1}`,
           type: 'spatial_analysis',
           createdAt: getCurrentTime(),
-          dataCount: mergedTableData.value.length,
+          dataCount: storeMergedTableData.value.length,
           analysisPoints: analysisPoints.length,
           status: '完成',
-          data: [...mergedTableData.value],
+          data: [...storeMergedTableData.value],
           results: analysisResults,
           summary: {
             moransI: analysisResults.moransI?.global?.observedI?.toFixed(4) || 'N/A',
@@ -399,11 +411,11 @@ export default {
      */
     const loadTainanData = async () => {
       console.log('HomeView.vue: loadTainanData function CALLED');
-      isLoadingData.value = true
-      isLoading.value = true
-      loadingText.value = '載入數據...'
-      showLoadingProgress.value = true
-      loadingSubText.value = '正在讀取 GeoJSON 和 Excel 文件'
+      isLoadingData.value = true;
+      isLoading.value = true;
+      loadingText.value = '載入數據...';
+      showLoadingProgress.value = true;
+      loadingSubText.value = '正在讀取 GeoJSON 和 Excel 文件';
 
       try {
         // 模擬載入進度
@@ -419,57 +431,55 @@ export default {
         loadingSubText.value = '合併數據...'
         await new Promise(resolve => setTimeout(resolve, 500))
 
-        const data = await loadTainanDataUtil()
+        const data = await loadTainanDataUtil();
         console.log('HomeView.vue: Data received from loadTainanDataUtil:', data);
         console.log('HomeView.vue: data.tableData:', data.tableData);
         console.log('HomeView.vue: Is data.tableData an array?', Array.isArray(data.tableData));
         
-        loadingProgress.value = 100
-        loadingSubText.value = '數據載入完成'
+        // 將數據存儲到 Pinia store
+        dataStore.storeLoadedTainanData(data);
 
-        tainanDataSummary.value = data.summary
-        mergedTableData.value = data.tableData
-        console.log('HomeView.vue: mergedTableData.value AFTER assignment:', mergedTableData.value);
-        tainanGeoJSONData.value = data.mergedGeoJSON
-        tableData.value = Array.isArray(data.tableData) ? data.tableData : []
-        
-        // 自動顯示台南圖層
-        showTainanLayer.value = true
-        
-        // 切換到表格tab
-        activeBottomTab.value = 'table'
-        
-        // 自動清空搜尋欄位，避免表格沒資料
-        selectedFilter.value = ''
-        
-        console.log('✅ 台南數據載入完成:', data.summary)
+        // tainanDataSummary 仍然可以局部更新，或者也從 store 中讀取 (如上面的 computed)
+        tainanDataSummary.value = data.summary; 
+        // tableData.value 的賦值也需要重新評估，是否也應該從 store 管理
+        // 暫時保留，但注意其數據源現在應該與 storeMergedTableData 一致
+        tableData.value = Array.isArray(data.tableData) ? data.tableData : [];
+
+        loadingProgress.value = 100;
+        loadingSubText.value = '數據載入完成';
+        showTainanLayer.value = true;
+        activeBottomTab.value = 'table';
+        selectedFilter.value = '';
+        console.log('✅ 台南數據載入完成並已存儲到 Pinia:', data.summary);
       } catch (error) {
-        console.error('❌ 載入台南數據失敗:', error)
-        alert('載入數據失敗，請檢查文件路徑和格式')
+        console.error('❌ 載入台南數據失敗:', error);
+        alert('載入數據失敗，請檢查文件路徑和格式');
       } finally {
-        isLoadingData.value = false
-        isLoading.value = false
-        loadingProgress.value = 0
-        showLoadingProgress.value = false
+        isLoadingData.value = false;
+        isLoading.value = false;
+        loadingProgress.value = 0;
+        showLoadingProgress.value = false;
       }
-    }
+    };
 
     /**
      * 🗑️ 清除台南數據 (Clear Tainan Data)
      */
     const clearTainanData = () => {
       if (confirm('確定要清除台南數據嗎？')) {
-        // 清除數據
-        tainanDataSummary.value = null
-        mergedTableData.value = []
-        selectedFilter.value = ''
-        
-        // 隱藏圖層
-        showTainanLayer.value = false
-        
-        console.log('✅ 台南數據已清除')
+        dataStore.clearData('loadedAndMergedGeoJSON'); // 假設 clearData 可以處理 processedData 子屬性
+        dataStore.clearData('loadedAndMergedTableData');
+        // 或者一個更通用的 clearProcessedSubData('loadedAndMergedGeoJSON')
+        // 並且也清理 rawData.geojson (如果 storeLoadedTainanData 也更新了它)
+        dataStore.clearData('geojson'); 
+
+        tainanDataSummary.value = null;
+        // local mergedTableData 和 tainanGeoJSONData 因為是 computed，會自動更新
+        selectedFilter.value = '';
+        showTainanLayer.value = false;
+        console.log('✅ 台南數據已從 Pinia Store 和局部狀態中清除');
       }
-    }
+    };
 
     // 🗺️ 地圖互動函數 (Map Interaction Functions)
     
@@ -690,9 +700,9 @@ export default {
       
       // 📊 台南數據
       tainanDataSummary,
-      mergedTableData,
       tableData,
-      tainanGeoJSONData,
+      storeTainanGeoJSONData,
+      storeTainanDataSummary,
       
       // 📈 分析數據
       analysisList,
@@ -722,7 +732,8 @@ export default {
       formatNumber,
       getCurrentTime,
       appFooterRef,
-      calculatedMainDisplayAreaHeight
+      calculatedMainDisplayAreaHeight,
+      storeMergedTableData
     }
   }
 }

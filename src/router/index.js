@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import DesignView from '../views/DesignView.vue'
-import DataView from '../views/DataView.vue'
+import ContentView from '../views/ContentView.vue'
 
 const routes = [
   {
@@ -10,9 +10,9 @@ const routes = [
     component: HomeView
   },
   {
-    path: '/data', 
-    name: 'Data',
-    component: DataView
+    path: '/content',
+    name: 'Content',
+    component: ContentView
   },
   {
     path: '/design',

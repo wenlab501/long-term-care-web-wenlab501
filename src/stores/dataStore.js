@@ -19,7 +19,9 @@ export const useDataStore = defineStore('data', () => {
     statisticsResults: {},       // 統計分析結果
     clusteringResults: {},       // 聚類分析結果
     heatmapData: [],            // 熱力圖資料
-    boundaryData: {}            // 邊界資料
+    boundaryData: {},            // 邊界資料
+    loadedAndMergedGeoJSON: null, // 從 loader 載入並合併的 GeoJSON
+    loadedAndMergedTableData: []  // 從 loader 載入並合併的表格數據
   })
 
   // ==================== 視覺化設定 ====================
@@ -219,6 +221,35 @@ export const useDataStore = defineStore('data', () => {
       analysisInfo
     })
   }
+
+  /**
+   * 新增：專門用於存儲 loadTainanDataUtil 載入的數據
+   */
+  const storeLoadedTainanData = (loadedDataPayload) => {
+    if (loadedDataPayload) {
+      processedData.value.loadedAndMergedGeoJSON = loadedDataPayload.mergedGeoJSON;
+      processedData.value.loadedAndMergedTableData = Array.isArray(loadedDataPayload.tableData) ? loadedDataPayload.tableData : [];
+      
+      // 可以考慮同時更新 rawData.geojson 和 rawData.metadata 如果有必要
+      // 例如，如果 rawData.geojson 也應該代表這個最新載入的地理數據
+      if (loadedDataPayload.mergedGeoJSON) { // 或 loadedDataPayload.rawGeoJSONIfExists
+        rawData.value.geojson = loadedDataPayload.mergedGeoJSON; // 假設 mergedGeoJSON 就是要作為基礎地理數據
+        rawData.value.metadata.geojson = { 
+          ...(rawData.value.metadata.geojson || {}),
+          timestamp: new Date().toISOString(),
+          source: 'loadTainanDataUtil',
+          description: 'Main dataset loaded via Tainan data utility'
+        };
+      }
+
+      console.log('✅ 主要數據已存入 Pinia Store (processedData & rawData.geojson 更新):', {
+        geojsonFeatures: loadedDataPayload.mergedGeoJSON?.features?.length,
+        tableDataRows: loadedDataPayload.tableData?.length
+      });
+    } else {
+      console.warn('Pinia storeLoadedTainanData: 接收到空的 loadedDataPayload');
+    }
+  };
 
   /**
    * 更新視覺化設定
@@ -421,6 +452,7 @@ export const useDataStore = defineStore('data', () => {
     // 方法
     setRawData,
     setProcessedData,
+    storeLoadedTainanData,
     updateVisualizationSettings,
     updateAnalysisParameters,
     clearData,

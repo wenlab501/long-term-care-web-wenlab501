@@ -48,7 +48,7 @@
               </h6>
             </div>
             <div class="card-body flex-grow-1 overflow-hidden position-relative">
-              <div class="chart-container h-100">
+              <div class="chart-container">
                 <div ref="barChart" class="chart-content"></div>
               </div>
             </div>
@@ -62,7 +62,7 @@
               </h6>
             </div>
             <div class="card-body flex-grow-1 overflow-hidden position-relative">
-              <div class="chart-container h-100">
+              <div class="chart-container">
                 <div ref="pieChart" class="chart-content"></div>
               </div>
             </div>
@@ -487,7 +487,7 @@ export default {
 .chart-container {
   position: relative;
   width: 100%;
-  /* height is now 100% via class h-100, fixed height removed */
+  height: 350px; /* Fixed height */
   background-color: #ffffff; /* 圖表背景色 */
   border-radius: 0.25rem;
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); /* 細微陰影 */
