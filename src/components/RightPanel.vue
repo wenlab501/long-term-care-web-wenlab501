@@ -9,7 +9,7 @@
             class="nav-link text-dark border-0"
             :class="{ 'active bg-white text-primary fw-bold': activeRightTab === 'results' }" 
             @click="$emit('update:activeRightTab', 'results')">
-            <i class="fas fa-chart-line me-1"></i>分析結果
+            分析結果
           </button>
         </li>
         <li class="nav-item">
@@ -17,7 +17,7 @@
             class="nav-link text-dark border-0"
             :class="{ 'active bg-white text-primary fw-bold': activeRightTab === 'list' }" 
             @click="$emit('update:activeRightTab', 'list')">
-            <i class="fas fa-list-alt me-1"></i>分析清單
+            分析清單
           </button>
         </li>
       </ul>

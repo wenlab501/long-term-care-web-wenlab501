@@ -5,7 +5,10 @@
     <!-- 📋 面板標題區域 (Panel Header Section) -->
     <div class="p-3" style="min-width: 0;">
       <h1 class="my-font-size-xl" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
-        登革熱空間分析
+        <div class="d-flex flex-column align-items-center justify-content-center m-3">
+          <div class="rounded-circle my-bg-color-gray-300 p-4"></div>
+          <div class="my-font-size-lg my-letter-spacing-lg mt-3">登革熱空間分析</div>
+        </div>
       </h1>
     </div>
 
@@ -81,14 +84,21 @@
         <h6 class="text-muted small text-uppercase mb-2">空間分析方法</h6>
         <div class="dropdown">
           <button class="btn btn-outline-secondary dropdown-toggle w-100" type="button" id="spatialAnalysisMethodDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-            {{ selectedAnalysisMethod.text }} <i class="fas fa-chevron-down fa-xs ms-1"></i>
+            <span v-if="selectedAnalysisMethod && selectedAnalysisMethod.text">{{ selectedAnalysisMethod.text }}</span>
+            <span v-else>選擇分析方法</span>
+            <i class="fas fa-chevron-down fa-xs ms-1"></i>
           </button>
           <ul class="dropdown-menu w-100" aria-labelledby="spatialAnalysisMethodDropdown">
-            <li v-for="method in analysisMethods" :key="method.value">
-              <a class="dropdown-item" href="#" @click.prevent="selectAnalysisMethod(method)">
-                {{ method.text }}
-              </a>
-            </li>
+            <template v-if="analysisMethods && analysisMethods.length > 0">
+              <li v-for="method in analysisMethods" :key="method.value">
+                <a class="dropdown-item" href="#" @click.prevent="selectAnalysisMethod(method)">
+                  {{ method.text }}
+                </a>
+              </li>
+            </template>
+            <template v-else>
+              <li class="dropdown-item disabled">分析方法加載中或為空...</li>
+            </template>
           </ul>
         </div>
       </div>
@@ -99,9 +109,9 @@
         <div class="d-grid">
           <button 
             class="btn btn-primary" 
-            @click="$emit('start-analysis', selectedAnalysisMethod.value)" 
+            @click="$emit('start-analysis', selectedAnalysisMethod ? selectedAnalysisMethod.value : null)" 
             :disabled="!canStartAnalysis">
-            <i class="fas fa-cogs me-1"></i> 開始 {{ selectedAnalysisMethod.text || '分析' }}
+            開始分析
           </button>
         </div>
       </div>
@@ -109,30 +119,13 @@
       <!-- 圖層控制卡片 -->
       <div class="mb-3">
         <h6 class="text-muted small text-uppercase mb-2">圖層控制</h6>
-        <div class="card">
-          <div class="card-body p-3">
-            <div class="d-grid gap-2">
-              <ActionButton 
-                @click="$emit('fit-map-to-data')"
-                :disabled="!showTainanLayer"
-                variant="outline-secondary"
-                icon="expand-arrows-alt"
-                text="調整地圖視角" />
-              
-              <ActionButton 
-                @click="$emit('clear-tainan-data')"
-                :disabled="!mergedTableData || mergedTableData.length === 0"
-                variant="outline-warning"
-                icon="trash"
-                text="清除台南數據" />
-              
-              <ActionButton 
-                @click="$emit('switch-to-dashboard')"
-                variant="outline-primary"
-                icon="chart-bar"
-                text="查看儀表板" />
-            </div>
-          </div>
+        <div class="d-grid gap-2">
+          <ActionButton 
+            @click="$emit('clear-tainan-data')"
+            :disabled="!mergedTableData || mergedTableData.length === 0"
+            variant="outline-warning"
+            icon="trash"
+            text="清除數據" />
         </div>
       </div>
  
@@ -153,7 +146,7 @@
  * 5. 🔍 提供數據篩選功能
  * 6. 📊 顯示系統狀態資訊
  */
-import { ref } from 'vue'
+import { ref, toRaw } from 'vue'
 import ActionButton from './common/ActionButton.vue'
 
 export default {
@@ -250,7 +243,11 @@ export default {
       { text: '熱點分析 (Getis-Ord Gi*)', value: 'hotspot_analysis' },
       { text: '地理加權回歸 (GWR)', value: 'gwr' }
     ]);
-    const selectedAnalysisMethod = ref(analysisMethods.value[0]); // Default to first method
+    const selectedAnalysisMethod = ref( (analysisMethods.value && analysisMethods.value.length > 0) ? analysisMethods.value[0] : null );
+
+    // Added: Console logging for debugging
+    console.log('[LeftPanel setup] analysisMethods:', JSON.stringify(toRaw(analysisMethods.value)));
+    console.log('[LeftPanel setup] selectedAnalysisMethod:', JSON.stringify(toRaw(selectedAnalysisMethod.value)));
 
     const selectAnalysisMethod = (method) => {
       selectedAnalysisMethod.value = method;

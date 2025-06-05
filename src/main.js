@@ -19,6 +19,9 @@ import 'leaflet/dist/leaflet.css'                 // Leaflet地圖樣式
 import '@fortawesome/fontawesome-free/css/all.min.css'  // Font Awesome圖示
 import './assets/css/common.css'                   // 共用樣式（已包含主題色彩配置）
 
+// ⚙️ 引入JavaScript文件 (Import JavaScript Files)
+import 'bootstrap/dist/js/bootstrap.bundle.min.js' // Bootstrap JS (含Popper) - 對下拉選單等交互功能至關重要
+
 console.log('🎨 樣式文件載入完成')
 
 // 🚀 創建並配置Vue應用程式 (Create and Configure Vue Application)

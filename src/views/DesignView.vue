@@ -5,7 +5,6 @@
       <div class="left-panel d-flex flex-column h-100 overflow-hidden border-end" :style="{ width: leftPanelWidthPx }">
         <div class="design-view-header pt-3 px-3 pb-2">
           <h3 class="text-primary mb-1"><i class="fas fa-palette me-2"></i>Design System</h3>
-          <p class="text-muted small">Visual guide and components.</p>
         </div>
         <nav class="flex-grow-1 overflow-auto p-3">
           <div class="nav nav-pills flex-column" id="nav-tab" role="tablist">

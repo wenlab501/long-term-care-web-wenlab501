@@ -5,7 +5,6 @@
     
     <div class="card-header d-flex justify-content-between align-items-center py-2">
       <h6 class="mb-0 analysis-item-title">
-        <i class="fas fa-chart-line me-2 text-primary"></i>
         {{ analysis.name }}
       </h6>
       <div class="analysis-item-actions">
@@ -29,17 +28,12 @@
     <div class="card-body py-2">
       <!-- 項目時間 -->
       <div class="analysis-item-time text-muted small mb-2">
-        <i class="fas fa-clock me-1"></i>
         {{ analysis.createdAt }}
       </div>
       
       <!-- 項目徽章 -->
       <div>
-        <span class="badge bg-info me-1">
-          <i class="fas fa-database me-1"></i>
           {{ analysis.dataCount }} 筆資料
-        </span>
-        <BadgeStatus :status="analysis.status" />
       </div>
     </div>
   </div>
@@ -47,13 +41,11 @@
 
 <script>
 import ActionButton from './ActionButton.vue'
-import BadgeStatus from './BadgeStatus.vue'
 
 export default {
   name: 'AnalysisItem',
   components: {
-    ActionButton,
-    BadgeStatus
+    ActionButton
   },
   props: {
     analysis: {

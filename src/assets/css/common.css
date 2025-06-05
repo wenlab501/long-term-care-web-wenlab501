@@ -47,15 +47,22 @@ body {
 
 /* ============================================================================ */
 
-/* 字體大小 */
-.my-font-size-2xl { font-size: var(--my-font-size-2xl) !important; }
-.my-font-size-xl { font-size: var(--my-font-size-xl) !important; }
-.my-font-size-lg { font-size: var(--my-font-size-lg) !important; }
-.my-font-size-base { font-size: var(--my-font-size-base) !important; }
-.my-font-size-sm { font-size: var(--my-font-size-sm) !important; }
-.my-font-size-xs { font-size: var(--my-font-size-xs) !important; }
+.my-font-size-2xl { font-size: var(--my-font-size-2xl) }
+.my-font-size-xl { font-size: var(--my-font-size-xl) }
+.my-font-size-lg { font-size: var(--my-font-size-lg) }
+.my-font-size-base { font-size: var(--my-font-size-base) }
+.my-font-size-sm { font-size: var(--my-font-size-sm) }
+.my-font-size-xs { font-size: var(--my-font-size-xs) }
 
-.my-letter-spacing-20 { letter-spacing: 20px !important; }
+.my-letter-spacing-lg { letter-spacing: var(--my-letter-spacing-lg)  }
+
+.my-bg-color-gray-50 { background-color: var(--my-color-gray-50); }
+.my-bg-color-gray-100 { background-color: var(--my-color-gray-100); }
+.my-bg-color-gray-200 { background-color: var(--my-color-gray-200); }
+.my-bg-color-gray-300 { background-color: var(--my-color-gray-300); }
+.my-bg-color-gray-400 { background-color: var(--my-color-gray-400); }
+.my-bg-color-gray-500 { background-color: var(--my-color-gray-500); }
+.my-bg-color-gray-600 { background-color: var(--my-color-gray-600); }
 
 /* =============================================================================
    🏗️ 應用程式佈局 (Application Layout)

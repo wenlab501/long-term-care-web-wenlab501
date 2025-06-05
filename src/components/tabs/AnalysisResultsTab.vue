@@ -31,7 +31,7 @@
     <div class="mt-4">
       <div class="card mb-3">
         <div class="card-header">
-          <h6 class="mb-0 text-muted small text-uppercase">P值分佈圖 (D3.js 範例)</h6>
+          <h6 class="mb-0 text-muted small text-uppercase">P值分佈圖</h6>
         </div>
         <div class="card-body p-2" style="height: 250px;">
           <div ref="pValueChartContainer" class="w-100 h-100"></div>
@@ -40,7 +40,7 @@
 
       <div class="card mb-3">
         <div class="card-header">
-          <h6 class="mb-0 text-muted small text-uppercase">Moran 散佈圖 (D3.js 範例)</h6>
+          <h6 class="mb-0 text-muted small text-uppercase">Moran 散佈圖</h6>
         </div>
         <div class="card-body p-2" style="height: 300px;">
           <div ref="moranScatterPlotContainer" class="w-100 h-100"></div>

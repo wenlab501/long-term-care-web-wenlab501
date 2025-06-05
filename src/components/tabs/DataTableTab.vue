@@ -40,18 +40,14 @@
               <td>{{ item.id }}</td>
               <td>{{ item.name }}</td>
               <td>{{ item.count }}</td>
-              <td>
-                <span :class="getMergedStatusClass(item.merged)">
-                  {{ item.merged ? '是' : '否' }}
-                </span>
-              </td>
+              <td>{{ item.merged ? '是' : '否' }}</td>
               <td>
                 <button
-                  class="btn btn-outline-primary btn-sm py-0 px-1"
+                  class="btn btn-primary btn-sm py-0 px-1"
                   @click="$emit('highlight-on-map', item)"
                   title="在地圖上高亮顯示"
                 >
-                  <i class="fas fa-map-marker-alt me-1"></i>顯示位置
+                  顯示位置
                 </button>
               </td>
             </tr>
@@ -161,10 +157,6 @@ function getSortIcon(key) {
   return 'fas fa-sort-down'; // Descending sort icon
 }
 
-function getMergedStatusClass(merged) {
-  return merged ? 'text-success fw-bold' : 'text-danger';
-}
-
 onMounted(() => {
   console.log('[DataTableTab] Component Mounted. Initial props.tableData count:', props.tableData?.length);
 });
@@ -240,20 +232,6 @@ onMounted(() => {
 
 .table tbody tr:hover {
   background-color: var(--bs-table-hover-bg); /* Consistent hover effect */
-}
-
-.btn-outline-primary {
-  font-size: 0.75rem; /* Smaller button text */
-  padding: 0.2rem 0.4rem; /* Smaller button padding */
-  border-radius: 0.2rem;
-  transition: all 0.15s ease-in-out;
-}
-.btn-outline-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-.btn-outline-primary i {
-  font-size: 0.8em; /* Adjust icon size within button */
 }
 
 .text-success { color: #198754 !important; } /* Bootstrap success green */

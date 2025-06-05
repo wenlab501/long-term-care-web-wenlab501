@@ -22,6 +22,7 @@
 
   /* 字寬 */
   --my-letter-spacing-base: 1.2px;
+  --my-letter-spacing-lg: 2.6px;
   
   /* 字重 */
   --my-font-weight-light: 300;
@@ -276,6 +277,7 @@
 /*=====================================
   實用工具類別
 =====================================*/
+
 .my-text-xs { font-size: var(--my-font-size-xs); }
 .my-text-sm { font-size: var(--my-font-size-sm); }
 .my-text-base { font-size: var(--my-font-size-base); }

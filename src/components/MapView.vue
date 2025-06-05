@@ -31,7 +31,7 @@
         @click="showAllFeatures"
         :disabled="!tainanGeoJSONData || !showTainanLayer"
         title="顯示全部資料範圍">
-        <i class="fas fa-expand-arrows-alt me-1"></i>顯示全部
+        顯示全部
       </button>
     </div>
   </div>

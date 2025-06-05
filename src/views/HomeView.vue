@@ -198,6 +198,7 @@ export default {
     const activeRightTab = ref('results')
 
     // 📏 面板大小狀態 - 使用百分比系統 (Panel Size States - Percentage Based)
+    const MIN_LEFT_PANEL_WIDTH_PERCENT = 5; // Define minimum width for left panel
     const leftPanelWidth = ref(20)        // 左側面板寬度百分比 (0-100%)
     const rightPanelWidth = ref(20)       // 右側面板寬度百分比 (0-100%)
     const windowWidth = ref(window.innerWidth)
@@ -588,12 +589,13 @@ export default {
         
         if (direction === 'left') {
           let newWidth = startLeftWidth + deltaXPercent
-          // Clamp newWidth: min is 0, max is 100 - current rightPanelWidth (ensuring main panel isn't negative)
-          newWidth = Math.max(0, Math.min(100 - rightPanelWidth.value, newWidth))
+          // Clamp newWidth: min is MIN_LEFT_PANEL_WIDTH_PERCENT, max is 100 - current rightPanelWidth (ensuring main panel isn't negative)
+          newWidth = Math.max(MIN_LEFT_PANEL_WIDTH_PERCENT, Math.min(100 - rightPanelWidth.value, newWidth))
           leftPanelWidth.value = newWidth
         } else if (direction === 'right') {
           let newWidth = startRightWidth - deltaXPercent
           // Clamp newWidth: min is 0, max is 100 - current leftPanelWidth (ensuring main panel isn't negative)
+          // For now, right panel can still be 0. If needed, apply similar min width logic.
           newWidth = Math.max(0, Math.min(100 - leftPanelWidth.value, newWidth))
           rightPanelWidth.value = newWidth
         }
@@ -625,8 +627,9 @@ export default {
      */
     const validatePanelSizes = () => {
       // 確保各面板在0-100%範圍內 (左右面板的最小寬度仍可討論，暫定0)
-      leftPanelWidth.value = Math.max(0, Math.min(100, leftPanelWidth.value))
-      rightPanelWidth.value = Math.max(0, Math.min(100, rightPanelWidth.value))
+      // Apply MIN_LEFT_PANEL_WIDTH_PERCENT for left panel
+      leftPanelWidth.value = Math.max(MIN_LEFT_PANEL_WIDTH_PERCENT, Math.min(100, leftPanelWidth.value))
+      rightPanelWidth.value = Math.max(0, Math.min(100, rightPanelWidth.value)) // Right panel can still be 0
       
       // 四捨五入到一位小數
       leftPanelWidth.value = Math.round(leftPanelWidth.value * 10) / 10
@@ -650,7 +653,7 @@ export default {
     onMounted(() => {
       window.addEventListener('resize', handleResize);
       handleResize();
-      loadTainanData();
+      // loadTainanData(); // Removed to prevent automatic data loading
       console.log('🚀 空間分析平台已初始化')
     })
 

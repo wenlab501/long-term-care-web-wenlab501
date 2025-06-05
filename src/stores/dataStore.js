@@ -440,7 +440,7 @@ export const useDataStore = defineStore('data', () => {
     return ColorSchemeUtils.mapValueToColor(value, min, max, currentScheme)
   }
 
-  // 新增：重新載入預設資料
+  // 新增：載入資料
   const fetchLatestData = async () => {
     console.log("Attempting to fetch latest data...");
     // 1. 載入 GeoJSON
