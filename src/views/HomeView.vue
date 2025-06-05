@@ -446,7 +446,7 @@ export default {
         console.log('HomeView.vue: Is data.tableData an array?', Array.isArray(data.tableData));
         
         // 將數據存儲到 Pinia store
-        dataStore.storeLoadedTainanData(data);
+        dataStore.storeLoadedData(data);
 
         // tainanDataSummary 仍然可以局部更新，或者也從 store 中讀取 (如上面的 computed)
         tainanDataSummary.value = data.summary; 
@@ -479,7 +479,6 @@ export default {
         dataStore.clearData('loadedAndMergedGeoJSON'); // 假設 clearData 可以處理 processedData 子屬性
         dataStore.clearData('loadedAndMergedTableData');
         // 或者一個更通用的 clearProcessedSubData('loadedAndMergedGeoJSON')
-        // 並且也清理 rawData.geojson (如果 storeLoadedTainanData 也更新了它)
         dataStore.clearData('geojson'); 
 
         tainanDataSummary.value = null;

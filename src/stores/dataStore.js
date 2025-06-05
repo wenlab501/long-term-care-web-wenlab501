@@ -125,6 +125,33 @@ export const useDataStore = defineStore('data', () => {
   })
 
   // ==================== 計算屬性 ====================
+
+  /**
+   * 新增：專門用於存儲 loadTainanDataUtil 載入的數據
+   */
+  const storeLoadedData = (data) => {
+    if (data) {
+      processedData.value.loadedAndMergedGeoJSON = data.mergedGeoJSON;
+      processedData.value.loadedAndMergedTableData = Array.isArray(data.tableData) ? data.tableData : [];
+      
+      if (processedData.value.loadedAndMergedGeoJSON) {
+        rawData.value.geojson = processedData.value.loadedAndMergedGeoJSON; // 假設 mergedGeoJSON 就是要作為基礎地理數據
+        rawData.value.metadata.geojson = { 
+          ...(rawData.value.metadata.geojson || {}),
+          timestamp: new Date().toISOString(),
+          source: 'loadTainanDataUtil',
+          description: 'Main dataset loaded via Tainan data utility'
+        };
+      }
+
+      console.log('✅ 主要數據已存入 Pinia Store (processedData & rawData.geojson 更新):', {
+        geojsonFeatures: data.mergedGeoJSON?.features?.length,
+        tableDataRows: data.tableData?.length
+      });
+    } else {
+      console.warn('Pinia storeLoadedData: 接收到空的 data');
+    }
+  };
   
   // 資料統計摘要
   const dataSummary = computed(() => {
@@ -223,35 +250,6 @@ export const useDataStore = defineStore('data', () => {
       analysisInfo
     })
   }
-
-  /**
-   * 新增：專門用於存儲 loadTainanDataUtil 載入的數據
-   */
-  const storeLoadedTainanData = (loadedDataPayload) => {
-    if (loadedDataPayload) {
-      processedData.value.loadedAndMergedGeoJSON = loadedDataPayload.mergedGeoJSON;
-      processedData.value.loadedAndMergedTableData = Array.isArray(loadedDataPayload.tableData) ? loadedDataPayload.tableData : [];
-      
-      // 可以考慮同時更新 rawData.geojson 和 rawData.metadata 如果有必要
-      // 例如，如果 rawData.geojson 也應該代表這個最新載入的地理數據
-      if (loadedDataPayload.mergedGeoJSON) { // 或 loadedDataPayload.rawGeoJSONIfExists
-        rawData.value.geojson = loadedDataPayload.mergedGeoJSON; // 假設 mergedGeoJSON 就是要作為基礎地理數據
-        rawData.value.metadata.geojson = { 
-          ...(rawData.value.metadata.geojson || {}),
-          timestamp: new Date().toISOString(),
-          source: 'loadTainanDataUtil',
-          description: 'Main dataset loaded via Tainan data utility'
-        };
-      }
-
-      console.log('✅ 主要數據已存入 Pinia Store (processedData & rawData.geojson 更新):', {
-        geojsonFeatures: loadedDataPayload.mergedGeoJSON?.features?.length,
-        tableDataRows: loadedDataPayload.tableData?.length
-      });
-    } else {
-      console.warn('Pinia storeLoadedTainanData: 接收到空的 loadedDataPayload');
-    }
-  };
 
   /**
    * 更新視覺化設定
@@ -489,7 +487,7 @@ export const useDataStore = defineStore('data', () => {
     // 方法
     setRawData,
     setProcessedData,
-    storeLoadedTainanData,
+    storeLoadedData,
     updateVisualizationSettings,
     updateAnalysisParameters,
     clearData,
