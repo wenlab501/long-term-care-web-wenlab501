@@ -19,6 +19,9 @@
         :averageCount="averageCount"
         :dataRegionsCount="dataRegionsCount"
         :isPanelDragging="isOverallDragging"
+        :activeMarkers="activeMarkers"
+        :totalCount="totalCount"
+        :tainanDataSummary="tainanDataSummary"
         @update:activeTab="$emit('update:activeTab', $event)"
         @update:zoomLevel="$emit('update:zoomLevel', $event)"
         @update:currentCoords="$emit('update:currentCoords', $event)"
@@ -93,6 +96,10 @@ const props = defineProps({
   tableSearchQuery: String,
   sortField: String,
   sortDirection: String,
+
+  // Added Props for Dashboard
+  totalCount: { type: Number, default: 0 },
+  tainanDataSummary: { type: Object, default: null },
 
   // Drag state for horizontal resizers (left/right panels) from HomeView
   isSidePanelDragging: { type: Boolean, default: false },

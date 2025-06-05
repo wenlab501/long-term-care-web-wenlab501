@@ -34,10 +34,14 @@
               :activeMarkers="activeMarkers"
               :tainanDataSummary="tainanDataSummary"
               :analysisList="analysisList"
+              :mergedTableData="storeMergedTableData"
               @load-tainan-data="loadTainanData"
               @start-analysis="startAnalysis"
               @update:showTainanLayer="showTainanLayer = $event"
               @update:selectedFilter="selectedFilter = $event"
+              @fit-map-to-data="fitMapToData"
+              @clear-tainan-data="clearTainanData"
+              @switch-to-dashboard="switchToDashboard"
             />
         </div>
         
@@ -73,6 +77,8 @@
             :isLoadingData="isLoadingData"
             :tableData="tableData"
             :isSidePanelDragging="isSidePanelDragging"
+            :totalCount="totalCount"
+            :tainanDataSummary="storeTainanDataSummary"
             @update:activeTab="activeTab = $event"
             @update:activeBottomTab="activeBottomTab = $event"
             @update:zoomLevel="zoomLevel = $event"
@@ -349,7 +355,9 @@ export default {
             significance: analysisResults.moransI?.global?.significance?.significance || 'unknown',
             clusters: analysisResults.moransI?.summary?.clusters || 0,
             outliers: analysisResults.moransI?.summary?.outliers || 0,
-            spatialPattern: analysisResults.moransI?.global?.interpretation || '無法判斷'
+            spatialPattern: analysisResults.moransI?.global?.interpretation || '無法判斷',
+            randomValue1: (Math.random() * 100).toFixed(2),
+            randomValue2: Math.floor(Math.random() * 50) + 1
           }
         }
 

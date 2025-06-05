@@ -76,16 +76,63 @@
         </div>
       </div>
 
+      <!-- ⚙️ 空間分析方法選擇 (Spatial Analysis Method Selection) -->
+      <div class="mb-3">
+        <h6 class="text-muted small text-uppercase mb-2">空間分析方法</h6>
+        <div class="dropdown">
+          <button class="btn btn-outline-secondary dropdown-toggle w-100" type="button" id="spatialAnalysisMethodDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            {{ selectedAnalysisMethod.text }} <i class="fas fa-chevron-down fa-xs ms-1"></i>
+          </button>
+          <ul class="dropdown-menu w-100" aria-labelledby="spatialAnalysisMethodDropdown">
+            <li v-for="method in analysisMethods" :key="method.value">
+              <a class="dropdown-item" href="#" @click.prevent="selectAnalysisMethod(method)">
+                {{ method.text }}
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
       <!-- 🔬 分析控制區域 (Analysis Control Section) -->
       <div class="mb-3">
-         <h6 class="text-muted small text-uppercase mb-2">空間分析</h6>
+         <h6 class="text-muted small text-uppercase mb-2">空間分析執行</h6>
         <div class="d-grid">
           <button 
             class="btn btn-primary" 
-            @click="$emit('start-analysis')" 
+            @click="$emit('start-analysis', selectedAnalysisMethod.value)" 
             :disabled="!canStartAnalysis">
-            <i class="fas fa-cogs me-1"></i> 開始分析
+            <i class="fas fa-cogs me-1"></i> 開始 {{ selectedAnalysisMethod.text || '分析' }}
           </button>
+        </div>
+      </div>
+
+      <!-- 圖層控制卡片 -->
+      <div class="mb-3">
+        <h6 class="text-muted small text-uppercase mb-2">圖層控制</h6>
+        <div class="card">
+          <div class="card-body p-3">
+            <div class="d-grid gap-2">
+              <ActionButton 
+                @click="$emit('fit-map-to-data')"
+                :disabled="!showTainanLayer"
+                variant="outline-secondary"
+                icon="expand-arrows-alt"
+                text="調整地圖視角" />
+              
+              <ActionButton 
+                @click="$emit('clear-tainan-data')"
+                :disabled="!mergedTableData || mergedTableData.length === 0"
+                variant="outline-warning"
+                icon="trash"
+                text="清除台南數據" />
+              
+              <ActionButton 
+                @click="$emit('switch-to-dashboard')"
+                variant="outline-primary"
+                icon="chart-bar"
+                text="查看儀表板" />
+            </div>
+          </div>
         </div>
       </div>
  
@@ -107,10 +154,13 @@
  * 6. 📊 顯示系統狀態資訊
  */
 import { ref } from 'vue'
+import ActionButton from './common/ActionButton.vue'
 
 export default {
   name: 'LeftPanel',
-  
+  components: {
+    ActionButton
+  },
   /**
    * 🔧 組件屬性定義 (Component Props)
    * 接收來自父組件的數據和狀態
@@ -160,6 +210,10 @@ export default {
       default: 0,
       required: true
     },
+    mergedTableData: {
+      type: Array,
+      default: () => []
+    },
   },
   
   /**
@@ -174,6 +228,9 @@ export default {
     'files-uploaded',             // 檔案上傳事件
     'update:zoomLevel',            // 更新地圖縮放級別
     'update:activeMarkers',        // 更新活躍標記數量
+    'fit-map-to-data',
+    'clear-tainan-data',
+    'switch-to-dashboard'
   ],
 
   /**
@@ -184,6 +241,23 @@ export default {
     const isDragOver = ref(false)
     const uploadedFiles = ref([])
     const fileInput = ref(null)
+    
+    // 分析方法選擇
+    const analysisMethods = ref([
+      { text: '空間自相關 (Moran\'s I)', value: 'morans_i' },
+      { text: '點模式分析 (Nearest Neighbor)', value: 'point_pattern' },
+      { text: '核密度分析 (Kernel Density)', value: 'kernel_density' },
+      { text: '熱點分析 (Getis-Ord Gi*)', value: 'hotspot_analysis' },
+      { text: '地理加權回歸 (GWR)', value: 'gwr' }
+    ]);
+    const selectedAnalysisMethod = ref(analysisMethods.value[0]); // Default to first method
+
+    const selectAnalysisMethod = (method) => {
+      selectedAnalysisMethod.value = method;
+      console.log('Selected analysis method:', method.value);
+      // Potentially emit an event if the parent needs to know immediately
+      // emit('analysis-method-selected', method.value);
+    };
     
     /**
      * 🎯 觸發檔案選擇器
@@ -354,6 +428,10 @@ export default {
       handleDrop,
       formatFileSize,
       removeFile,
+      // 分析方法
+      analysisMethods,
+      selectedAnalysisMethod,
+      selectAnalysisMethod
     }
   },
   

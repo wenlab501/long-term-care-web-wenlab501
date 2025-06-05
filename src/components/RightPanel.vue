@@ -27,18 +27,7 @@
     <div class="tab-content flex-grow-1 overflow-auto p-3" style="min-width: 0;">
       <!-- 分析結果Tab -->
       <div v-show="activeRightTab === 'results'" class="h-100">
-        <AnalysisResultsTab
-          :totalCount="totalCount"
-          :activeMarkers="activeMarkers"
-          :tainanDataSummary="tainanDataSummary"
-          :mergedTableData="mergedTableData"
-          :maxCount="maxCount"
-          :averageCount="averageCount"
-          :dataRegionsCount="dataRegionsCount"
-          :showTainanLayer="showTainanLayer"
-          @fit-map-to-data="$emit('fit-map-to-data')"
-          @clear-tainan-data="$emit('clear-tainan-data')"
-          @switch-to-dashboard="$emit('switch-to-dashboard')" />
+        <AnalysisResultsTab />
       </div>
       
       <!-- 分析清單Tab -->
@@ -71,40 +60,6 @@ export default {
       type: String,
       default: 'results'
     },
-    // 統計數據
-    totalCount: {
-      type: Number,
-      default: 0
-    },
-    activeMarkers: {
-      type: Number,
-      default: 0
-    },
-    // 台南數據
-    tainanDataSummary: {
-      type: Object,
-      default: null
-    },
-    mergedTableData: {
-      type: Array,
-      default: () => []
-    },
-    maxCount: {
-      type: Number,
-      default: 0
-    },
-    averageCount: {
-      type: Number,
-      default: 0
-    },
-    dataRegionsCount: {
-      type: Number,
-      default: 0
-    },
-    showTainanLayer: {
-      type: Boolean,
-      default: false
-    },
     // 分析數據
     analysisList: {
       type: Array,
@@ -122,9 +77,6 @@ export default {
   },
   emits: [
     'update:activeRightTab',
-    'fit-map-to-data',
-    'clear-tainan-data',
-    'switch-to-dashboard',
     'select-analysis',
     'view-analysis',
     'delete-analysis'

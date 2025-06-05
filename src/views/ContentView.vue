@@ -5,11 +5,10 @@
       <div class="left-panel d-flex flex-column h-100 overflow-hidden border-end" :style="{ width: leftPanelWidthPx }">
         <div class="content-view-header pt-3 px-3 pb-2 d-flex align-items-center justify-content-between">
           <div>
-            <h3 class="text-primary mb-1"><i class="fas fa-file-alt me-2"></i>Pinia Stores</h3>
-            <p class="text-muted small mb-0">Current state of Pinia stores.</p>
+            <h3 class="text-primary mb-1">Pinia Stores</h3>
           </div>
           <button class="btn btn-outline-primary btn-sm ms-2" @click="refreshStoresDisplay" title="重新整理顯示">
-            重新整理顯示
+            重新整理
           </button>
         </div>
         <ul class="nav nav-tabs flex-column px-3 mt-2" id="storeTabs" role="tablist">
@@ -205,9 +204,9 @@ const refreshStoresDisplay = async () => {
   await nextTick(); // Wait for the DOM to update
   console.log('ContentView: Display refresh cycle complete. Current key:', forceUpdateKey.value);
   // Optional: Log current store states to verify they are as expected after refresh
-  // console.log('defineStore state:', defineStore.$state);
-  // console.log('dataStore state:', dataStore.$state);
-  // console.log('mapStore state:', mapStore.$state);
+  console.log('defineStore state:', defineStore.$state);
+  console.log('dataStore state:', dataStore.$state);
+  console.log('mapStore state:', mapStore.$state);
 };
 
 </script>

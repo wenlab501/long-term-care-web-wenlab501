@@ -51,7 +51,10 @@
           :averageCount="averageCount"
           :dataRegionsCount="dataRegionsCount"
           :containerHeight="contentHeight"
-          :isPanelDragging="isPanelDragging" />
+          :isPanelDragging="isPanelDragging"
+          :activeMarkers="activeMarkers"
+          :totalCount="totalCount"
+          :tainanDataSummary="tainanDataSummary" />
       </div>
 
       <!-- 🐛 調試信息 (Debug Info) - 當沒有匹配的標籤時顯示 -->
@@ -198,6 +201,18 @@ export default {
       type: Number,
       default: 0,
       required: true
+    },
+    activeMarkers: {
+      type: Number,
+      default: 0
+    },
+    totalCount: {
+      type: Number,
+      default: 0
+    },
+    tainanDataSummary: {
+      type: Object,
+      default: null
     }
   },
   

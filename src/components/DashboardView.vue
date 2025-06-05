@@ -70,6 +70,52 @@
         </div>
       </div>
       
+      <!-- 數據統計卡片 -->
+      <div class="mb-3">
+        <div class="card">
+          <div class="card-header">
+            <h6 class="mb-0">
+              <i class="fas fa-chart-pie"></i> 數據統計
+            </h6>
+          </div>
+          <div class="card-body p-3">
+            <div class="row text-center">
+              <div class="col-6">
+                <div class="border-end">
+                  <div class="h4 text-primary mb-1">{{ formatNumber(totalCount) }}</div>
+                  <small class="text-muted">總數量</small>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="h4 text-success mb-1">{{ activeMarkers }}</div>
+                <small class="text-muted">活躍標記</small>
+              </div>
+            </div>
+            <hr v-if="tainanDataSummary">
+            <div v-if="tainanDataSummary" class="text-center">
+              <div class="h4 text-info mb-1">{{ tainanDataSummary.totalFeatures }}</div>
+              <small class="text-muted">台南區域總數</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 數據分佈卡片 -->
+      <div class="mb-3" v-if="mergedTableData && mergedTableData.length > 0">
+        <div class="card">
+          <div class="card-header">
+            <h6 class="mb-0">
+              <i class="fas fa-chart-area"></i> 數據分佈
+            </h6>
+          </div>
+          <div class="card-body p-3">
+            <DataDistributionChart
+              :maxCount="maxCount"
+              :averageCount="averageCount"
+              :dataRegionsCount="dataRegionsCount" />
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -88,10 +134,13 @@
 import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import * as d3 from 'd3'
 import { formatNumber } from '../utils/utils.js'
+import DataDistributionChart from './common/DataDistributionChart.vue'
 
 export default {
   name: 'DashboardView',
-  
+  components: {
+    DataDistributionChart
+  },
   /**
    * 🔧 組件屬性定義 (Component Props)
    */
@@ -134,6 +183,18 @@ export default {
     isPanelDragging: {
       type: Boolean,
       default: false
+    },
+    totalCount: {
+      type: Number,
+      default: 0
+    },
+    activeMarkers: {
+      type: Number,
+      default: 0
+    },
+    tainanDataSummary: {
+      type: Object,
+      default: null
     }
   },
   
