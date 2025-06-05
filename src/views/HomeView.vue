@@ -642,6 +642,7 @@ export default {
     onMounted(() => {
       window.addEventListener('resize', handleResize);
       handleResize();
+      loadTainanData();
       console.log('🚀 空間分析平台已初始化')
     })
 

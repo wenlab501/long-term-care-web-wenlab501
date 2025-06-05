@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref, computed, reactive } from 'vue'
 import { defaultColorConfig, ColorSchemeUtils } from '@/utils/pythonColorSchemes.js'
+import { loadGeoJSON } from '@/utils/dataProcessor.js'
+import * as XLSX from 'xlsx'
 
 export const useDataStore = defineStore('data', () => {
   // ==================== 原始資料狀態 ====================
@@ -438,6 +440,41 @@ export const useDataStore = defineStore('data', () => {
     return ColorSchemeUtils.mapValueToColor(value, min, max, currentScheme)
   }
 
+  // 新增：重新載入預設資料
+  const fetchLatestData = async () => {
+    console.log("Attempting to fetch latest data...");
+    // 1. 載入 GeoJSON
+    try {
+      const geojsonUrl = '/data/geojson/台南市區_2.geojson';
+      console.log(`Fetching GeoJSON from: ${geojsonUrl}`);
+      const geojson = await loadGeoJSON(geojsonUrl); // loadGeoJSON 內部應該處理 fetch
+      setRawData('geojson', geojson, { filename: '台南市區_2.geojson', path: geojsonUrl });
+      console.log('GeoJSON loaded successfully');
+    } catch (e) {
+      console.error('載入 GeoJSON 失敗 in fetchLatestData:', e);
+    }
+
+    // 2. 載入 Excel
+    try {
+      const excelUrl = '/data/台南資料.xlsx';
+      console.log(`Fetching Excel from: ${excelUrl}`);
+      const response = await fetch(excelUrl);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status} for ${excelUrl}`);
+      }
+      const arrayBuffer = await response.arrayBuffer();
+      const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const excelData = XLSX.utils.sheet_to_json(worksheet);
+      setRawData('excelData', excelData, { filename: '台南資料.xlsx', path: excelUrl });
+      console.log('Excel loaded successfully');
+    } catch (e) {
+      console.error('載入 Excel 失敗 in fetchLatestData:', e);
+    }
+    console.log("Finished fetching latest data.");
+  }
+
   return {
     // 狀態
     rawData,
@@ -470,6 +507,7 @@ export const useDataStore = defineStore('data', () => {
     mapValueToColor,
     
     // 🔥 新增：色票工具類別（給組件直接使用）
-    ColorSchemeUtils: ColorSchemeUtils
+    ColorSchemeUtils: ColorSchemeUtils,
+    fetchLatestData,
   }
 }) 

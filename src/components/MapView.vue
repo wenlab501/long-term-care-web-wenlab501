@@ -127,14 +127,6 @@ export default {
       }
     }
     
-    // 根據數量值獲取徽章樣式類別
-    const getCountBadgeClass = (count) => {
-      if (!count || count === 0) return 'bg-secondary'
-      if (count <= 10) return 'bg-success'
-      if (count <= 50) return 'bg-warning text-dark'
-      return 'bg-danger'
-    }
-    
     // 初始化地圖
     const initMap = () => {
       if (map) {
@@ -252,17 +244,9 @@ export default {
               // 綁定彈出視窗
               const popupContent = `
                 <div class="map-popup">
-                  <h6 class="text-primary mb-2">
-                    <i class="fas fa-map-marker-alt"></i> ${name}
-                  </h6>
-                  <p class="mb-1"><strong>行政區代碼:</strong> ${code}</p>
-                  <p class="mb-1">
-                    <strong>登革熱案例數:</strong> 
-                    <span class="badge ${getCountBadgeClass(count)}">${count.toLocaleString()}</span>
-                  </p>
-                  <p class="mb-0 text-muted">
-                    <small>點擊可查看詳細資訊</small>
-                  </p>
+                  <h6 class="text-primary mb-2">${name}</h6>
+                  <p class="mb-1">行政區代碼: ${code}</p>
+                  <p class="mb-1">登革熱案例數: ${count.toLocaleString()}</p>
                 </div>
               `
               layer.bindPopup(popupContent)

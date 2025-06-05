@@ -3,9 +3,14 @@
     <div class="d-flex flex-row flex-grow-1 overflow-hidden">
       <!-- Left Panel: Tabs Navigation -->
       <div class="left-panel d-flex flex-column h-100 overflow-hidden border-end" :style="{ width: leftPanelWidthPx }">
-        <div class="content-view-header pt-3 px-3 pb-2">
-          <h3 class="text-primary mb-1"><i class="fas fa-file-alt me-2"></i>Pinia Stores</h3>
-          <p class="text-muted small">Live JSON content from stores.</p>
+        <div class="content-view-header pt-3 px-3 pb-2 d-flex align-items-center justify-content-between">
+          <div>
+            <h3 class="text-primary mb-1"><i class="fas fa-file-alt me-2"></i>Pinia Stores</h3>
+            <p class="text-muted small mb-0">Current state of Pinia stores.</p>
+          </div>
+          <button class="btn btn-outline-primary btn-sm ms-2" @click="refreshStoresDisplay" title="重新整理顯示">
+            重新整理顯示
+          </button>
         </div>
         <ul class="nav nav-tabs flex-column px-3 mt-2" id="storeTabs" role="tablist">
           <li class="nav-item" role="presentation">
@@ -16,6 +21,11 @@
           <li class="nav-item" role="presentation">
             <button class="nav-link text-start w-100" :class="{ active: activeTab === 'map' }" @click="activeTab = 'map'" type="button" role="tab" aria-controls="map-store-panel" :aria-selected="activeTab === 'map'">
               <i class="fas fa-map-marked-alt me-2"></i>Map Store
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link text-start w-100" :class="{ active: activeTab === 'define' }" @click="activeTab = 'define'" type="button" role="tab" aria-controls="define-store-panel" :aria-selected="activeTab === 'define'">
+              <i class="fas fa-cogs me-2"></i>Define Store
             </button>
           </li>
         </ul>
@@ -31,42 +41,62 @@
            title="Drag to resize">
       </div>
 
-      <!-- Right Panel: Tab Content -->
-      <div class="right-panel d-flex flex-column flex-grow-1 h-100 overflow-hidden" :style="{ width: mainPanelWidthPx, 'min-width': '0px' }">
-        <div class="tab-content flex-grow-1 h-100 overflow-hidden" id="storeTabsContent">
-          <!-- Data Store Panel -->
-          <div class="tab-pane fade h-100" :class="{ 'show active d-flex flex-column': activeTab === 'data' }" id="data-store-panel" role="tabpanel" aria-labelledby="data-store-tab">
-            <div class="content-view-scrollable-area flex-grow-1 overflow-auto p-3">
-              <div v-if="dataStoreStateEntries.length === 0" class="alert alert-info">
-                Data store appears to be empty or not yet initialized.
+      <!-- Right Panel: Store Content Display -->
+      <div 
+        class="right-panel d-flex flex-column flex-grow-1 h-100 overflow-hidden"
+        :style="{ width: mainPanelWidthPx, 'min-width': '0px' }"
+        :key="forceUpdateKey" 
+      >
+        <div class="tab-content flex-grow-1 h-100 overflow-auto" id="storeTabsContent">
+          
+          <!-- 1. 選項定義 (Options Definitions) from defineStore -->
+          <div v-show="activeTab === 'define'" class="p-3 border-bottom bg-light">
+            <h5 class="mb-3 text-primary"><i class="fas fa-cogs me-2"></i>選項定義 (defineStore)</h5>
+            <div v-if="defineStoreStateEntries.length === 0" class="alert alert-info">
+              defineStore appears to be empty or not yet initialized.
+            </div>
+            <div v-for="([key, value]) in defineStoreStateEntries" :key="`define-${key}`" class="store-property-card card mb-3 shadow-sm">
+              <div class="card-header bg-light">
+                <h5 class="mb-0 fw-medium">{{ key }}</h5>
               </div>
-              <div v-for="([key, value]) in dataStoreStateEntries" :key="`data-${key}`" class="store-property-card card mb-3 shadow-sm">
-                <div class="card-header bg-light">
-                  <h5 class="mb-0 fw-medium">{{ key }}</h5>
-                </div>
-                <div class="card-body">
-                  <pre class="json-display p-2 bg-dark text-light rounded small"><code>{{ formatJson(value) }}</code></pre>
-                </div>
+              <div class="card-body">
+                <pre class="json-display p-2 bg-dark text-light rounded small"><code>{{ formatJson(value) }}</code></pre>
               </div>
             </div>
           </div>
 
-          <!-- Map Store Panel -->
-          <div class="tab-pane fade h-100" :class="{ 'show active d-flex flex-column': activeTab === 'map' }" id="map-store-panel" role="tabpanel" aria-labelledby="map-store-tab">
-            <div class="content-view-scrollable-area flex-grow-1 overflow-auto p-3">
-              <div v-if="mapStoreStateEntries.length === 0" class="alert alert-info">
-                Map store appears to be empty or not yet initialized.
+          <!-- 2. Data Store -->
+          <div v-show="activeTab === 'data'" class="p-3 border-bottom bg-light">
+            <h5 class="mb-3 text-success"><i class="fas fa-database me-2"></i>Data Store (dataStore)</h5>
+            <div v-if="dataStoreStateEntries.length === 0" class="alert alert-info">
+              dataStore appears to be empty or not yet initialized.
+            </div>
+            <div v-for="([key, value]) in dataStoreStateEntries" :key="`data-${key}`" class="store-property-card card mb-3 shadow-sm">
+              <div class="card-header bg-light">
+                <h5 class="mb-0 fw-medium">{{ key }}</h5>
               </div>
-              <div v-for="([key, value]) in mapStoreStateEntries" :key="`map-${key}`" class="store-property-card card mb-3 shadow-sm">
-                <div class="card-header bg-light">
-                  <h5 class="mb-0 fw-medium">{{ key }}</h5>
-                </div>
-                <div class="card-body">
-                  <pre class="json-display p-2 bg-dark text-light rounded small"><code>{{ formatJson(value) }}</code></pre>
-                </div>
+              <div class="card-body">
+                <pre class="json-display p-2 bg-dark text-light rounded small"><code>{{ formatJson(value) }}</code></pre>
               </div>
             </div>
           </div>
+
+          <!-- 3. Map Store -->
+          <div v-show="activeTab === 'map'" class="p-3 bg-light">
+            <h5 class="mb-3 text-info"><i class="fas fa-map-marked-alt me-2"></i>Map Store (mapStore)</h5>
+            <div v-if="mapStoreStateEntries.length === 0" class="alert alert-info">
+              mapStore appears to be empty or not yet initialized.
+            </div>
+            <div v-for="([key, value]) in mapStoreStateEntries" :key="`map-${key}`" class="store-property-card card mb-3 shadow-sm">
+              <div class="card-header bg-light">
+                <h5 class="mb-0 fw-medium">{{ key }}</h5>
+              </div>
+              <div class="card-body">
+                <pre class="json-display p-2 bg-dark text-light rounded small"><code>{{ formatJson(value) }}</code></pre>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -74,15 +104,20 @@
 </template>
 
 <script setup>
-import { ref, computed, onUnmounted } from 'vue';
+import { ref, computed, onUnmounted, nextTick } from 'vue';
 import { useDataStore } from '@/stores/dataStore';
 import { useMapStore } from '@/stores/mapStore';
+import { useDefineStore } from '@/stores/defineStore';
 
-// Tab Management
-const activeTab = ref('data'); // Default to 'data' tab
+// Key for forcing re-render of the right panel
+const forceUpdateKey = ref(0);
+
+// Tab Management for left panel visual state (no longer controls right panel content visibility)
+const activeTab = ref('data'); 
 
 const dataStore = useDataStore();
 const mapStore = useMapStore();
+const defineStore = useDefineStore();
 
 const dataStoreStateEntries = computed(() => {
   if (dataStore && dataStore.$state) {
@@ -94,6 +129,13 @@ const dataStoreStateEntries = computed(() => {
 const mapStoreStateEntries = computed(() => {
   if (mapStore && mapStore.$state) {
     return Object.entries(mapStore.$state);
+  }
+  return [];
+});
+
+const defineStoreStateEntries = computed(() => {
+  if (defineStore && defineStore.$state) {
+    return Object.entries(defineStore.$state);
   }
   return [];
 });
@@ -156,14 +198,17 @@ onUnmounted(() => {
   stopResize(); // Ensure listeners are removed if component is unmounted while dragging
 });
 
-// Optional: Adjust on window resize if needed, though manual resize is primary
-// onMounted(() => {
-//   const handleWindowResize = () => { /* adjust panel widths if necessary */ };
-//   window.addEventListener('resize', handleWindowResize);
-//   onUnmounted(() => {
-//     window.removeEventListener('resize', handleWindowResize);
-//   });
-// });
+// MODIFIED: Renamed refreshStores to refreshStoresDisplay and changed its logic
+const refreshStoresDisplay = async () => {
+  console.log('ContentView: Triggering display refresh by incrementing forceUpdateKey.');
+  forceUpdateKey.value += 1;
+  await nextTick(); // Wait for the DOM to update
+  console.log('ContentView: Display refresh cycle complete. Current key:', forceUpdateKey.value);
+  // Optional: Log current store states to verify they are as expected after refresh
+  // console.log('defineStore state:', defineStore.$state);
+  // console.log('dataStore state:', dataStore.$state);
+  // console.log('mapStore state:', mapStore.$state);
+};
 
 </script>
 
@@ -195,17 +240,17 @@ onUnmounted(() => {
 }
 
 .tab-content {
-  /* flex-grow-1, h-100, overflow-hidden are on the element */
+  /* flex-grow-1, h-100, MODIFIED to overflow-auto are on the element */
 }
 
-/* Ensure tab-pane fills height and its scrollable area works */
-.tab-pane.active {
+/* Ensure tab-pane fills height and its scrollable area works - NO LONGER USING TAB PANES FOR MAIN SECTIONS*/
+/* .tab-pane.active { */
  /* d-flex flex-column ensures child with flex-grow-1 takes available height */
-}
+/* } */
 
-.content-view-scrollable-area {
+/* .content-view-scrollable-area { */ /* NO LONGER USED for main sections */
   /* flex-grow-1 and overflow-auto are on the element */
-}
+/* } */
 
 .store-property-card .card-header {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
