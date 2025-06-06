@@ -274,9 +274,14 @@ export default {
                 },
                 click: function(e) {
                   const layer = e.target
-                  map.fitBounds(layer.getBounds())
-                  
                   const center = layer.getBounds().getCenter()
+                  
+                  // 移動到畫面中間
+                  map.panTo(center, {
+                    animate: true,
+                    duration: 0.5
+                  })
+                  
                   emit('update:currentCoords', { lat: center.lat, lng: center.lng })
                   
                   console.log(`點擊區域: ${name} (${code})`)
@@ -306,10 +311,8 @@ export default {
         try {
           const bounds = tainanLayer.getBounds()
           if (bounds.isValid()) {
-            map.fitBounds(bounds, {
-              paddingTopLeft: [20, 20],
-              paddingBottomRight: [20, 80]
-            })
+            // 只移動到中心點，不縮放
+            map.panTo(bounds.getCenter())
           }
         } catch (error) {
           console.error('顯示全部功能錯誤:', error)
@@ -350,13 +353,9 @@ export default {
             fillOpacity: 0.9
           })
           
-          // 移動到該區域並放大
+          // 只移動到該區域，不縮放
           const bounds = layer.getBounds()
-          map.fitBounds(bounds, {
-            padding: [50, 50],
-            animate: true,
-            duration: 1.0
-          })
+          map.panTo(bounds.getCenter())
           
           // 立即顯示tooltip
           layer.openPopup()
