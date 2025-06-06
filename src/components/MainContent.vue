@@ -10,13 +10,13 @@
             class="btn btn-light btn-sm"
             :class="{ 'btn-primary active': activeTab === 'map', 'text-primary': activeTab !== 'map' }" 
             @click="$emit('update:activeTab', 'map')">
-            <i class="fas fa-map me-1"></i> 地圖視圖
+            地圖視圖
           </button>
           <button 
             class="btn btn-light btn-sm"
             :class="{ 'btn-success active': activeTab === 'dashboard', 'text-success': activeTab !== 'dashboard' }" 
             @click="$emit('update:activeTab', 'dashboard')">
-            <i class="fas fa-chart-bar me-1"></i> 數據儀表板
+            數據儀表板
           </button>
         </div>
       </div>

@@ -143,7 +143,7 @@ export default {
           center: [22.9908, 120.2133], // 台南市中心
           zoom: props.zoomLevel,
           zoomControl: false, // 先禁用默認的縮放控件
-          attributionControl: true
+          attributionControl: false // 禁用版權資訊
         })
         
         // 手動添加縮放控件到右下角

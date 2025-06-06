@@ -53,11 +53,11 @@
             </div>
             
           <!-- 🌟 新的主要顯示區域組件 (New Main Display Area Component) -->
-          <MainDisplayArea
-            ref="mainDisplayAreaRef"
+          <MiddlePanel
+            ref="middlePanelRef"
             class="d-flex flex-column flex-grow-1 overflow-hidden h-100"
             :style="{ width: mainPanelWidthPx, 'min-width': '0px' }"
-            :dynamicMainAreaHeight="calculatedMainDisplayAreaHeight"
+            :dynamicMainAreaHeight="calculatedMiddlePanelHeight"
             :activeTab="activeTab"
             :activeBottomTab="activeBottomTab"
             :mainPanelWidth="mainPanelWidth" 
@@ -166,8 +166,8 @@ import { useDataStore } from '@/stores/dataStore'
 // 🧩 組件引入
 import LoadingOverlay from '../components/LoadingOverlay.vue'
 import LeftPanel from '../components/LeftPanel.vue'
-import MainDisplayArea from '../components/MainDisplayArea.vue'
 import RightPanel from '../components/RightPanel.vue'
+import MiddlePanel from '../components/MiddlePanel.vue'
 
 export default {
   name: 'App',
@@ -178,8 +178,8 @@ export default {
   components: {
     LoadingOverlay,
     LeftPanel,
-    MainDisplayArea,
-    RightPanel
+    RightPanel,
+    MiddlePanel
   },
   
   /**
@@ -189,7 +189,7 @@ export default {
     const dataStore = useDataStore()
 
     // 📚 元件引用 (Component References)
-    const mainDisplayAreaRef = ref(null)
+    const middlePanelRef = ref(null)
     const appFooterRef = ref(null)
 
     // 📑 分頁狀態 (Tab States)
@@ -211,7 +211,7 @@ export default {
     const mainPanelWidth = computed(() => 100 - leftPanelWidth.value - rightPanelWidth.value)
     const mainPanelWidthPx = computed(() => `${mainPanelWidth.value}%`)
 
-    const calculatedMainDisplayAreaHeight = computed(() => {
+    const calculatedMiddlePanelHeight = computed(() => {
       return windowHeight.value - footerHeight.value;
     });
 
@@ -498,9 +498,9 @@ export default {
     const highlightOnMap = (row) => {
       console.log('🎯 highlightOnMap 被調用:', row)
       console.log('🎯 row.code2:', row.code2)
-      console.log('🎯 mainDisplayAreaRef.value:', mainDisplayAreaRef.value)
+      console.log('🎯 middlePanelRef.value:', middlePanelRef.value)
       
-      if (mainDisplayAreaRef.value) {
+      if (middlePanelRef.value) {
         // 先切換到地圖分頁（如果當前不在地圖分頁）
         if (activeTab.value !== 'map') {
           console.log('🎯 切換到地圖分頁...')
@@ -509,16 +509,16 @@ export default {
           // 等待分頁切換完成後再進行高亮
           setTimeout(() => {
             console.log('🎯 延遲調用 highlightFeature...')
-            mainDisplayAreaRef.value.highlightFeature(row.code2)
+            middlePanelRef.value.highlightFeature(row.code2)
           }, 300)
         } else {
           console.log('🎯 直接調用 highlightFeature...')
-          mainDisplayAreaRef.value.highlightFeature(row.code2)
+          middlePanelRef.value.highlightFeature(row.code2)
         }
         
-        console.log(`🎯 定位到 ${row.name || row.code2} via MainDisplayArea`)
+        console.log(`🎯 定位到 ${row.name || row.code2} via MiddlePanel`)
       } else {
-        console.error('❌ mainDisplayAreaRef.value 為 null for highlightOnMap')
+        console.error('❌ middlePanelRef.value 為 null for highlightOnMap')
       }
     }
 
@@ -526,8 +526,8 @@ export default {
      * 🗺️ 適應地圖到數據範圍 (Fit Map to Data)
      */
     const fitMapToData = () => {
-      if (mainDisplayAreaRef.value) {
-        mainDisplayAreaRef.value.fitToTainanBounds()
+      if (middlePanelRef.value) {
+        middlePanelRef.value.fitToTainanBounds()
       }
     }
 
@@ -535,8 +535,8 @@ export default {
      * 🔄 重置地圖視圖 (Reset Map View)
      */
     const resetView = () => {
-      if (mainDisplayAreaRef.value) {
-        mainDisplayAreaRef.value.resetMapView()
+      if (middlePanelRef.value) {
+        middlePanelRef.value.resetMapView()
       }
     }
 
@@ -666,7 +666,7 @@ export default {
     // 📤 返回響應式數據和函數 (Return Reactive Data and Functions)
     return {
       // 📚 元件引用
-      mainDisplayAreaRef,
+      middlePanelRef,
       
       // 📑 分頁狀態
       activeTab,
@@ -743,7 +743,7 @@ export default {
       formatNumber,
       getCurrentTime,
       appFooterRef,
-      calculatedMainDisplayAreaHeight,
+      calculatedMiddlePanelHeight,
       storeMergedTableData
     }
   }

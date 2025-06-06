@@ -106,14 +106,12 @@ const props = defineProps({
 });
 
 // --- Emits ---
-// eslint-disable-next-line no-unused-vars
 const emit = defineEmits([
   'update:activeTab', 'update:activeBottomTab',
   'update:zoomLevel', 'update:currentCoords', 'update:activeMarkers',
   'update:tableSearchQuery', 'sort-table', 'highlight-on-map',
   'update:selectedColorScheme', 'update:selectedBorderColor', 'update:selectedBorderWeight',
-  'reset-view',
-  // Potentially emits for panel size changes if HomeView needs to know
+  'reset-view'
 ]);
 
 // --- Refs for internal components ---
@@ -239,14 +237,13 @@ defineExpose({
 
 <style scoped>
 /* Styles for my-resizer-horizontal are expected to be global or inherited from HomeView */
-/* Add any specific styles for MainDisplayArea if needed */
-.my-resizer-horizontal { /* Copied from HomeView for completeness */
+/* Add any specific styles for MiddlePanel if needed */
+.my-resizer-horizontal {
   min-height: 4px;
   max-height: 4px;
   cursor: row-resize;
-  background-color: #dee2e6; /* Bootstrap default border color */
+  background-color: #dee2e6;
   transition: all 0.2s ease;
-  /* Ensure it has a z-index if necessary, though usually not for simple resizers */
 }
 
 .my-resizer-horizontal:hover,
@@ -255,4 +252,9 @@ defineExpose({
   max-height: 6px;
   background-color: #007bff; /* Bootstrap primary color */
 }
-</style> 
+</style>
+
+export default {
+  name: 'MiddlePanel',
+  // ... existing code ...
+} 
