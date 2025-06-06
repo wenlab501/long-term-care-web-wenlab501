@@ -87,7 +87,7 @@ import MapView from './MapView.vue'
 import DashboardView from './DashboardView.vue'
 
 export default {
-  name: 'MainContent',
+  name: 'UpperPanel',
   
   /**
    * 🧩 組件註冊 (Component Registration)

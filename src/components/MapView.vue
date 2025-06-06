@@ -353,9 +353,13 @@ export default {
             fillOpacity: 0.9
           })
           
-          // 只移動到該區域，不縮放
+          // 移動到該區域並縮放
           const bounds = layer.getBounds()
-          map.panTo(bounds.getCenter())
+          map.fitBounds(bounds, {
+            padding: [50, 50],
+            animate: true,
+            duration: 1.0
+          })
           
           // 立即顯示tooltip
           layer.openPopup()

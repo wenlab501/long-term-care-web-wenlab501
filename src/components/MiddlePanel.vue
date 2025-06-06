@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex flex-column flex-grow-1 overflow-hidden h-100">
     <div :style="{ pointerEvents: isOverallDragging ? 'none' : 'auto', height: contentHeight + 'px', overflow: 'hidden' }">
-      <MainContent
+      <UpperPanel
         ref="mainContentRef"
         :activeTab="activeTab"
         :mainPanelWidth="mainPanelWidth"
@@ -60,7 +60,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, defineProps, defineEmits, watch } from 'vue'
-import MainContent from './MainContent.vue'
+import UpperPanel from './UpperPanel.vue'
 import BottomPanel from './BottomPanel.vue'
 
 // --- Props ---
