@@ -12,8 +12,16 @@ export const useDataStore = defineStore('data', () => {
     excelData: [],        // Excel資料
     spatialData: [],      // 空間分析資料
     metadata: {
-      geojson: null,
-      medical: null
+      tainan: {
+        timestamp: null,
+        source: null,
+        description: null
+      },
+      medical: {
+        timestamp: null,
+        source: null,
+        description: null
+      }
     }
   })
 
@@ -27,6 +35,7 @@ export const useDataStore = defineStore('data', () => {
     boundaryData: {},            // 邊界資料
     loadedAndMergedGeoJSON: null, // 從 loader 載入並合併的 GeoJSON
     loadedAndMergedTableData: null,  // 從 loader 載入並合併的表格數據
+    convertedGeoJSON: null,
     medicalData: null
   })
 
@@ -130,63 +139,7 @@ export const useDataStore = defineStore('data', () => {
 
   // ==================== 計算屬性 ====================
 
-  // 添加數據載入狀態
-  const isDataLoaded = ref(false)
-  const isMedicalDataLoaded = ref(false)
-
-  /**
-   * 新增：專門用於存儲 loadTainanDataUtil 載入的數據
-   */
-  const storeLoadedData = (data) => {
-    if (data) {
-      processedData.value = {
-        ...processedData.value,
-        loadedAndMergedGeoJSON: data.loadedAndMergedGeoJSON,
-        loadedAndMergedTableData: data.loadedAndMergedTableData
-      }
-      
-      if (data.loadedAndMergedGeoJSON) {
-        rawData.value.geojson = data.loadedAndMergedGeoJSON
-        rawData.value.metadata.geojson = {
-          ...(rawData.value.metadata.geojson || {}),
-          timestamp: new Date().toISOString(),
-          source: 'loadTainanDataUtil',
-          description: 'Main dataset loaded via Tainan data utility'
-        }
-      }
-
-      console.log('✅ 主要數據已存入 Pinia Store:', {
-        geojsonFeatures: data.loadedAndMergedGeoJSON?.features?.length,
-        tableDataRows: data.loadedAndMergedTableData?.length
-      })
-      
-      isDataLoaded.value = true
-    } else {
-      console.warn('Pinia storeLoadedData: 接收到空的 data')
-    }
-  }
-  
-  // 添加醫療院所數據存儲函數
-  const storeMedicalData = (data) => {
-    if (data) {
-      processedData.value.medicalData = data
-      rawData.value.metadata.medical = {
-        timestamp: new Date().toISOString(),
-        source: 'medical-csv',
-        description: '醫療院所分布數據'
-      }
-      
-      console.log('✅ 醫療院所數據已存入 Pinia Store:', {
-        medicalPoints: data.features?.length
-      })
-      
-      isMedicalDataLoaded.value = true
-    } else {
-      console.warn('Pinia storeMedicalData: 接收到空的 data')
-    }
-  }
-  
-  // 資料統計摘要
+  // 數據摘要
   const dataSummary = computed(() => {
     const summary = {
       totalFeatures: 0,
@@ -223,6 +176,70 @@ export const useDataStore = defineStore('data', () => {
     return summary
   })
 
+  // 載入狀態
+  const isDataLoaded = ref(false)
+  const isMedicalDataLoaded = ref(false)
+
+  // 醫療院所數據
+  const medicalData = ref(null)
+
+  /**
+   * 新增：專門用於存儲 loadTainanDataUtil 載入的數據
+   */
+  const storeLoadedData = (data) => {
+    if (data) {
+      processedData.value = {
+        ...processedData.value,
+        loadedAndMergedGeoJSON: data.loadedAndMergedGeoJSON,
+        loadedAndMergedTableData: data.loadedAndMergedTableData
+      }
+      
+      if (data.loadedAndMergedGeoJSON) {
+        rawData.value.geojson = data.loadedAndMergedGeoJSON
+        rawData.value.metadata.tainan = {
+          ...(rawData.value.metadata.tainan || {}),
+          timestamp: new Date().toISOString(),
+          source: 'loadTainanDataUtil',
+          description: 'Main dataset loaded via Tainan data utility'
+        }
+      }
+
+      console.log('✅ 主要數據已存入 Pinia Store:', {
+        geojsonFeatures: data.loadedAndMergedGeoJSON?.features?.length,
+        tableDataRows: data.loadedAndMergedTableData?.length
+      })
+      
+      isDataLoaded.value = true
+    } else {
+      console.warn('Pinia storeLoadedData: 接收到空的 data')
+    }
+  }
+  
+  // 存儲醫療院所數據
+  const storeMedicalData = (data) => {
+    if (data) {
+      medicalData.value = data
+      processedData.value = {
+        ...processedData.value,
+        medicalData: data
+      }
+      rawData.value.metadata.medical = {
+        timestamp: new Date().toISOString(),
+        source: 'medical-csv',
+        description: '醫療院所分布數據'
+      }
+      
+      console.log('✅ 醫療院所數據已存入 Pinia Store:', {
+        totalPoints: data.tableData.length,
+        samplePoint: data.tableData[0]
+      })
+      
+      isMedicalDataLoaded.value = true
+    } else {
+      console.warn('Pinia storeMedicalData: 接收到空的 data')
+    }
+  }
+  
   // 可用的分析方法
   const availableAnalysisMethods = computed(() => {
     const methods = []
@@ -541,6 +558,7 @@ export const useDataStore = defineStore('data', () => {
     fetchLatestData,
     isDataLoaded,
     isMedicalDataLoaded,
-    getProcessedData: computed(() => processedData.value)
+    getProcessedData: computed(() => processedData.value),
+    medicalData
   }
 }) 

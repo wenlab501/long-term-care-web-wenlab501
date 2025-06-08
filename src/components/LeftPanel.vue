@@ -39,7 +39,7 @@
               class="form-check-input"
               type="checkbox"
               :checked="showMedicalLayer"
-              @change="handleMedicalLayerToggle"
+              @change="loadMedicalData"
               id="medicalLayerCheck"
             >
             <label class="form-check-label" for="medicalLayerCheck">
@@ -111,8 +111,7 @@ export default {
     'update:activeMarkers',        // 更新活躍標記數量
     'fit-map-to-data',
     'switch-to-dashboard',
-    'load-data',
-    'update:currentCoords'
+    'load-medical-data'
   ],
 
   /**
@@ -302,12 +301,11 @@ export default {
     }
 
     const loadTainanData = () => {
-      emit('load-data')
+      emit('load-tainan-data')
     }
 
-    const handleMedicalLayerToggle = (event) => {
-      console.log('醫療院所圖層開關被點擊:', event.target.checked)
-      emit('update:showMedicalLayer', event.target.checked)
+    const loadMedicalData = () => {
+      emit('load-medical-data')
     }
 
     return {
@@ -328,7 +326,7 @@ export default {
       selectedAnalysisMethod,
       selectAnalysisMethod,
       loadTainanData,
-      handleMedicalLayerToggle
+      loadMedicalData
     }
   },
   
