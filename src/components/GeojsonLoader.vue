@@ -185,34 +185,14 @@ export default {
         const text = await file.text()
         const jsonData = JSON.parse(text)
 
-        // 檢測座標系統
-        const detectedCRS = mapStore.detectCoordinateSystem(jsonData)
-        
-        // 處理座標轉換
-        const processedData = mapStore.processGeoJSONLoad(jsonData)
-        
         geoData.value = processedData
         
-        // 設定座標資訊
-        coordinateInfo.value = {
-          detected: detectedCRS,
-          converted: detectedCRS === 'TWD97',
-          target: 'WGS84'
-        }
-
         // 存入 Store
         dataStore.setRawData('geojson', jsonData, {
           filename: file.name,
           size: file.size,
           coordinateSystem: detectedCRS
         })
-
-        if (detectedCRS === 'TWD97') {
-          dataStore.setProcessedData('transformedGeojson', processedData, {
-            transformation: 'TWD97 → WGS84',
-            method: 'proj4'
-          })
-        }
 
         console.log('✅ GeoJSON 載入成功:', {
           features: jsonData.features?.length,

@@ -97,16 +97,11 @@
               :averageCount="averageCount"
               :dataRegionsCount="dataRegionsCount"
               :showTainanLayer="showTainanLayer"
-              :analysisList="analysisList"
-              :selectedAnalysisId="selectedAnalysisId"
               :rightPanelWidth="rightPanelWidth"
               @update:activeRightTab="activeRightTab = $event"
               @fit-map-to-data="fitMapToData"
               @clear-tainan-data="clearTainanData"
               @switch-to-dashboard="switchToDashboard"
-              @select-analysis="selectAnalysis"
-              @view-analysis="viewAnalysis"
-              @delete-analysis="deleteAnalysis"
               @highlight-feature="handleHighlight" />
           </div>
         </div>
@@ -148,7 +143,6 @@
 import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue'
 import { formatNumber } from '../utils/utils.js'
 import { loadTainanData as loadTainanDataUtil } from '../utils/dataProcessor.js'
-import { performCompleteSpatialAnalysis } from '../utils/spatialAnalysis.js'
 import { useDataStore } from '@/stores/dataStore'
 
 // 🧩 組件引入
@@ -232,11 +226,6 @@ export default {
     const storeTainanGeoJSONData = computed(() => dataStore.processedData.loadedAndMergedGeoJSON);
     const storeTainanDataSummary = computed(() => dataStore.dataSummary);
 
-    // 📈 分析相關 (Analysis Related)
-    const analysisList = ref([])
-    const selectedAnalysisId = ref(null)
-    let analysisIdCounter = 1
-
     // 🔧 拖曳狀態 (Drag States)
     const isSidePanelDragging = ref(false)
 
@@ -260,140 +249,6 @@ export default {
       if (!storeMergedTableData.value) return 0;
       return storeMergedTableData.value.filter(row => row.count > 0).length;
     })
-
-    const canStartAnalysis = computed(() => {
-      return storeMergedTableData.value && storeMergedTableData.value.length > 0 && !isLoadingData.value;
-    })
-
-    // 📈 分析功能函數 (Analysis Functions)
-    
-    /**
-     * 🔬 開始空間分析 (Start Spatial Analysis)
-     * 執行完整的Moran's I空間自相關分析
-     */
-    const startAnalysis = async () => {
-      if (!canStartAnalysis.value) return
-
-      // 顯示載入進度
-      isLoading.value = true
-      loadingText.value = '正在進行空間分析...'
-      showLoadingProgress.value = true
-      loadingSubText.value = '準備數據...'
-
-      try {
-        // 步驟1：準備分析數據
-        loadingProgress.value = 10
-        loadingSubText.value = '轉換數據格式...'
-        
-        const analysisPoints = storeMergedTableData.value.map((row, index) => ({
-          lng: 120.2 + Math.random() * 0.5, // 模擬台南座標範圍
-          lat: 22.9 + Math.random() * 0.3,
-          value: row.count || Math.random() * 100,
-          id: index,
-          properties: row
-        }))
-
-        // 步驟2：執行Moran's I分析
-        loadingProgress.value = 30
-        loadingSubText.value = '執行 Moran\'s I 空間自相關分析...'
-        await new Promise(resolve => setTimeout(resolve, 1000))
-
-        // 步驟3：進行聚集模式分析
-        loadingProgress.value = 50
-        loadingSubText.value = '分析空間聚集模式...'
-        await new Promise(resolve => setTimeout(resolve, 800))
-
-        // 步驟4：計算空間統計
-        loadingProgress.value = 70
-        loadingSubText.value = '計算空間統計指標...'
-        await new Promise(resolve => setTimeout(resolve, 600))
-
-        // 步驟5：執行完整分析
-        loadingProgress.value = 85
-        loadingSubText.value = '生成分析報告...'
-        
-        const analysisResults = performCompleteSpatialAnalysis(analysisPoints, {
-          kNeighbors: 8,
-          includeKNN: true,
-          includeMoransI: true,
-          includeClusters: true,
-          includeHotspots: false  // 已移除熱點分析功能
-        })
-
-        loadingProgress.value = 100
-        loadingSubText.value = '分析完成'
-
-        // 創建新的分析項目
-        const newAnalysis = {
-          id: analysisIdCounter++,
-          name: `台南市空間分析 #${analysisIdCounter - 1}`,
-          type: 'spatial_analysis',
-          createdAt: getCurrentTime(),
-          dataCount: storeMergedTableData.value.length,
-          analysisPoints: analysisPoints.length,
-          status: '完成',
-          data: [...storeMergedTableData.value],
-          results: analysisResults,
-          summary: {
-            moransI: analysisResults.moransI?.global?.observedI?.toFixed(4) || 'N/A',
-            significance: analysisResults.moransI?.global?.significance?.significance || 'unknown',
-            clusters: analysisResults.moransI?.summary?.clusters || 0,
-            outliers: analysisResults.moransI?.summary?.outliers || 0,
-            spatialPattern: analysisResults.moransI?.global?.interpretation || '無法判斷',
-            randomValue1: (Math.random() * 100).toFixed(2),
-            randomValue2: Math.floor(Math.random() * 50) + 1
-          }
-        }
-
-        analysisList.value.push(newAnalysis)
-        selectedAnalysisId.value = newAnalysis.id
-
-        // 切換到分析結果tab
-        activeRightTab.value = 'results'
-
-        console.log('✅ 空間分析完成:', newAnalysis.summary)
-      } catch (error) {
-        console.error('❌ 分析失敗:', error)
-        alert('分析過程中發生錯誤: ' + error.message)
-      } finally {
-        isLoading.value = false
-        loadingProgress.value = 0
-        showLoadingProgress.value = false
-      }
-    }
-
-    /**
-     * 📋 選擇分析項目 (Select Analysis Item)
-     */
-    const selectAnalysis = (analysisId) => {
-      selectedAnalysisId.value = analysisId
-    }
-
-    /**
-     * 👁️ 查看分析結果 (View Analysis Results)
-     */
-    const viewAnalysis = (analysisId) => {
-      const analysis = analysisList.value.find(a => a.id === analysisId)
-      if (analysis) {
-        selectedAnalysisId.value = analysisId
-        // 切換到分析結果tab
-        activeRightTab.value = 'results'
-        // 也可以切換到地圖或儀表板查看結果
-        activeTab.value = 'dashboard'
-      }
-    }
-
-    /**
-     * 🗑️ 刪除分析項目 (Delete Analysis Item)
-     */
-    const deleteAnalysis = (analysisId) => {
-      if (confirm('確定要刪除這個分析項目嗎？')) {
-        analysisList.value = analysisList.value.filter(a => a.id !== analysisId)
-        if (selectedAnalysisId.value === analysisId) {
-          selectedAnalysisId.value = null
-        }
-      }
-    }
 
     // 📥 台南數據功能函數 (Tainan Data Functions)
     
@@ -648,16 +503,6 @@ export default {
       storeTainanGeoJSONData,
       storeTainanDataSummary,
       
-      // 📈 分析數據
-      analysisList,
-      selectedAnalysisId,
-      canStartAnalysis,
-      
-      // 📈 分析功能
-      startAnalysis,
-      selectAnalysis,
-      viewAnalysis,
-      deleteAnalysis,
       
       // 📥 台南數據功能
       loadTainanData,

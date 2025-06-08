@@ -58,10 +58,6 @@ import { ref, onMounted } from 'vue';
 import * as d3 from 'd3';
 import DetailItem from '../common/DetailItem.vue';
 
-// Props and emits related to the moved cards have been removed.
-// Imports for DataDistributionChart and ActionButton have been removed.
-// formatNumber utility is no longer needed here.
-
 export default {
   name: 'AnalysisResultsTab',
   components: {

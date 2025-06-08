@@ -68,7 +68,6 @@ export default {
    */
   props: {
     isLoadingData: { type: Boolean, default: false, required: true }, // 數據載入狀態 
-    canStartAnalysis: { type: Boolean, default: false, required: true }, // 是否可以開始分析
     showTainanLayer: { type: Boolean, default: false, required: true }, // 台南圖層顯示狀態
     
     /** 🔍 當前選擇的篩選條件 */

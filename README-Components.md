@@ -37,7 +37,6 @@ App.vue (主應用)
 
 #### 數據顯示組件
 - **EmptyState.vue**: 空狀態組件，統一的無數據顯示
-- **DataDistributionChart.vue**: 數據分佈圖表組件
 
 #### 互動組件
 - **ActionButton.vue**: 操作按鈕組件，統一的按鈕樣式和行為

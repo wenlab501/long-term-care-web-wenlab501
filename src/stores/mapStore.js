@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { transformTWD97ToWGS84, transformGeoJSONCoordinates } from '../utils/spatialAnalysis.js'
 
 export const useMapStore = defineStore('map', () => {
   // ==================== 面板尺寸狀態 ====================
@@ -236,88 +235,6 @@ export const useMapStore = defineStore('map', () => {
     chartType.value = type
   }
 
-  /**
-   * 轉換座標從 TWD97 到 WGS84
-   * @param {number} x - TWD97 東座標
-   * @param {number} y - TWD97 北座標
-   * @returns {Array} [lng, lat] WGS84 經緯度座標
-   */
-  const transformTWD97ToWGS84Coords = (x, y) => {
-    try {
-      const [lng, lat] = transformTWD97ToWGS84(x, y)
-      return [lng, lat]
-    } catch (error) {
-      console.error('❌ MapStore: 座標轉換失敗:', error)
-      return [x, y] // 返回原座標作為後備
-    }
-  }
-
-  /**
-   * 轉換 GeoJSON 座標系統
-   * @param {Object} geojson - GeoJSON 物件
-   * @param {string} fromCRS - 來源座標系統
-   * @param {string} toCRS - 目標座標系統
-   * @returns {Object} 轉換後的 GeoJSON
-   */
-  const transformGeoJSONData = (geojson, fromCRS = 'TWD97', toCRS = 'WGS84') => {
-    try {
-      const transformed = transformGeoJSONCoordinates(geojson, fromCRS, toCRS)
-      transformedData.value = transformed
-      coordinateSystem.value = toCRS
-      
-      console.log(`✅ MapStore: GeoJSON 座標已轉換 ${fromCRS} → ${toCRS}`)
-      return transformed
-    } catch (error) {
-      console.error('❌ MapStore: GeoJSON 座標轉換失敗:', error)
-      return geojson
-    }
-  }
-
-  /**
-   * 自動檢測座標系統
-   * @param {Object} geojson - GeoJSON 物件
-   * @returns {string} 座標系統類型
-   */
-  const detectCoordinateSystem = (geojson) => {
-    if (!geojson || !geojson.features || geojson.features.length === 0) {
-      return 'unknown'
-    }
-
-    try {
-      const firstFeature = geojson.features[0]
-      const coordinates = firstFeature.geometry.coordinates
-
-      // 取得第一個座標點
-      let firstCoord
-      if (firstFeature.geometry.type === 'Point') {
-        firstCoord = coordinates
-      } else if (firstFeature.geometry.type === 'LineString' || firstFeature.geometry.type === 'MultiPoint') {
-        firstCoord = coordinates[0]
-      } else if (firstFeature.geometry.type === 'Polygon' || firstFeature.geometry.type === 'MultiLineString') {
-        firstCoord = coordinates[0][0]
-      } else if (firstFeature.geometry.type === 'MultiPolygon') {
-        firstCoord = coordinates[0][0][0]
-      }
-
-      if (firstCoord && firstCoord.length >= 2) {
-        const x = firstCoord[0]
-        const y = firstCoord[1]
-
-        // TWD97 座標通常 x > 100000, y > 2000000
-        if (x > 100000 && y > 2000000) {
-          return 'TWD97'
-        }
-        // WGS84 座標 lng: 約 120-122, lat: 約 22-26 (台灣範圍)
-        else if (x >= 119 && x <= 123 && y >= 21 && y <= 27) {
-          return 'WGS84'
-        }
-      }
-    } catch (error) {
-      console.error('❌ 座標系統檢測失敗:', error)
-    }
-
-    return 'unknown'
-  }
 
   /**
    * 處理 GeoJSON 載入（自動轉換座標）
@@ -325,22 +242,8 @@ export const useMapStore = defineStore('map', () => {
    * @returns {Object} 處理後的 GeoJSON
    */
   const processGeoJSONLoad = (geojson) => {
-    const detectedCRS = detectCoordinateSystem(geojson)
-    console.log(`🔍 檢測到座標系統: ${detectedCRS}`)
-
-    if (detectedCRS === 'TWD97') {
-      // 自動轉換 TWD97 到 WGS84
-      return transformGeoJSONData(geojson, 'TWD97', 'WGS84')
-    } else if (detectedCRS === 'WGS84') {
-      coordinateSystem.value = 'WGS84'
-      transformedData.value = geojson
-      return geojson
-    } else {
-      console.warn('⚠️ 無法檢測座標系統，假設為 WGS84')
-      coordinateSystem.value = 'WGS84'
-      transformedData.value = geojson
-      return geojson
-    }
+    transformedData.value = geojson
+    return geojson
   }
 
   return {
@@ -384,9 +287,6 @@ export const useMapStore = defineStore('map', () => {
     removeMapLayer,
     updateStatistics,
     updateChartType,
-    transformTWD97ToWGS84Coords,
-    transformGeoJSONData,
-    detectCoordinateSystem,
     processGeoJSONLoad
   }
 }) 
