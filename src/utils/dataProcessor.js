@@ -400,8 +400,8 @@ export async function loadTainanData() {
   try {
     // 載入 GeoJSON 和 Excel 文件
     const [geojsonData, excelData] = await Promise.all([
-      loadGeoJSON('/donkey-fever-analysis/data/geojson/台南市區_2.geojson'),
-      loadExcelSheet('/donkey-fever-analysis/data/xlsx/Dengue Daily.xlsx', '15_台南市區_合併位置_2')
+      loadGeoJSON('/long-term-care-web/data/geojson/台南市區_2.geojson'),
+      loadExcelSheet('/long-term-care-web/data/xlsx/Dengue Daily.xlsx', '15_台南市區_合併位置_2')
     ])
 
     // 合併數據

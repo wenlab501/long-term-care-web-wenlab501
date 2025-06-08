@@ -22,7 +22,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory('/donkey-fever-analysis/'),
+  history: createWebHistory('/long-term-care-web/'),
   routes
 })
 

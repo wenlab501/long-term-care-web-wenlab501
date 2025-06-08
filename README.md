@@ -30,7 +30,7 @@ npm install
 npm run serve
 ```
 
-開發服務器將在 `http://192.168.1.102:8080/donkey-fever-analysis` 上運行。
+開發服務器將在 `http://192.168.1.102:8080/long-term-care-web` 上運行。
 
 ### 編譯和最小化生產版本
 ```bash
@@ -50,7 +50,7 @@ npm run deploy
 ### 部署前設置
 1. 在 GitHub 倉庫設置中啟用 GitHub Pages
 2. 更新 `package.json` 中的 `homepage` 字段為你的 GitHub Pages URL
-3. 確保你的倉庫名稱是 `donkey-fever-analysis`
+3. 確保你的倉庫名稱是 `long-term-care-web`
 
 ## 技術棧
 
