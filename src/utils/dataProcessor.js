@@ -1,104 +1,25 @@
 import * as XLSX from 'xlsx'
 
 /**
- * 讀取GeoJSON文件並自動轉換座標系統
- * @param {string} filePath - 文件路徑
- * @param {boolean} autoConvert - 是否自動轉換座標系統 (預設: true)
- * @returns {Promise<Object>} GeoJSON數據 (已轉換為 WGS84)
+ * 載入 GeoJSON 文件
+ * @param {string} filePath - GeoJSON 文件路徑
+ * @returns {Promise<Object>} GeoJSON 數據
  */
-export async function loadGeoJSON(filePath, autoConvert = true) {
+export async function loadGeoJSON(filePath) {
   try {
-    console.log(`🔽 載入 GeoJSON: ${filePath}`)
-    
+    console.log(`開始載入 GeoJSON 文件: ${filePath}`)
     const response = await fetch(filePath)
+    
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`)
     }
+    
     const geojsonData = await response.json()
-    
-    console.log(`✅ GeoJSON 載入成功: ${geojsonData.features?.length || 0} 個要素`)
-    
-    // 🔥 自動檢測並轉換座標系統
-    if (autoConvert && geojsonData.features && geojsonData.features.length > 0) {
-      try {
-        // 動態導入座標分析函數
-        const { detectCoordinateSystem, transformGeoJSONCoordinates } = await import('./spatialAnalysis.js')
-        
-        // 檢測座標系統
-        const firstFeature = geojsonData.features[0]
-        if (firstFeature.geometry && firstFeature.geometry.coordinates) {
-          // 提取樣本座標進行檢測
-          let sampleCoord = null
-          const geometry = firstFeature.geometry
-          
-          switch (geometry.type) {
-            case 'Point':
-              sampleCoord = geometry.coordinates
-              break
-            case 'LineString':
-            case 'MultiPoint':
-              sampleCoord = geometry.coordinates[0]
-              break
-            case 'Polygon':
-            case 'MultiLineString':
-              sampleCoord = geometry.coordinates[0][0]
-              break
-            case 'MultiPolygon':
-              sampleCoord = geometry.coordinates[0][0][0]
-              break
-          }
-          
-          if (sampleCoord && Array.isArray(sampleCoord) && sampleCoord.length >= 2) {
-            const detectedSystem = detectCoordinateSystem(sampleCoord)
-            console.log(`🔍 檢測到座標系統: ${detectedSystem}`)
-            console.log(`🔍 樣本座標: [${sampleCoord[0]}, ${sampleCoord[1]}]`)
-            
-            // 如果是 TWD97，自動轉換為 WGS84
-            if (detectedSystem === 'TWD97') {
-              console.log('🌐 自動轉換座標系統: TWD97 → WGS84')
-              const convertedGeoJSON = transformGeoJSONCoordinates(geojsonData, 'TWD97', 'WGS84')
-              
-              // 添加轉換標記
-              convertedGeoJSON._autoConverted = true
-              convertedGeoJSON._conversionInfo = {
-                from: 'TWD97',
-                to: 'WGS84',
-                timestamp: Date.now(),
-                source: 'loadGeoJSON'
-              }
-              
-              console.log('✅ 座標自動轉換完成')
-              return convertedGeoJSON
-            } else if (detectedSystem === 'WGS84') {
-              console.log('✅ 座標已是 WGS84，無需轉換')
-              // 添加標記表示無需轉換
-              geojsonData._autoConverted = false
-              geojsonData._conversionInfo = {
-                detected: 'WGS84',
-                needsConversion: false,
-                timestamp: Date.now()
-              }
-            } else {
-              console.log('⚠️ 未知座標系統，保持原樣')
-              geojsonData._autoConverted = false
-              geojsonData._conversionInfo = {
-                detected: 'UNKNOWN',
-                needsConversion: false,
-                timestamp: Date.now()
-              }
-            }
-          }
-        }
-      } catch (conversionError) {
-        console.error('⚠️ 座標轉換過程中發生錯誤，保持原始資料:', conversionError)
-        geojsonData._autoConverted = false
-        geojsonData._conversionError = conversionError.message
-      }
-    }
+    console.log('✅ GeoJSON 文件載入成功')
     
     return geojsonData
   } catch (error) {
-    console.error('❌ 載入 GeoJSON 失敗:', error)
+    console.error('❌ GeoJSON 文件載入失敗:', error)
     throw error
   }
 }
@@ -393,36 +314,40 @@ function hexToRgb(hex) {
 }
 
 /**
- * 載入並合併數據
- * @returns {Promise<Object>} 合併後的數據
+ * 載入臺北市 GeoJSON 數據
+ * @returns {Promise<Object>} 處理後的數據
  */
 export async function loadTainanData() {
   try {
-    // 載入 GeoJSON 和 Excel 文件
-    const [geojsonData, excelData] = await Promise.all([
-      loadGeoJSON('/long-term-care-web/data/geojson/台南市區_2.geojson'),
-      loadExcelSheet('/long-term-care-web/data/xlsx/Dengue Daily.xlsx', '15_台南市區_合併位置_2')
-    ])
+    console.log('開始載入臺北市 GeoJSON 數據...')
+    const rawGeoJSON = await loadGeoJSON('/long-term-care-web/data/geojson/臺北市_村里_綜稅綜合所得總額.geojson')
+    console.log('✅ 臺北市 GeoJSON 數據載入成功')
+    
+    // 生成表格數據
+    const tableData = rawGeoJSON.features.map(feature => ({
+      id: feature.properties.VILLCODE || '',
+      name: feature.properties.PTVNAME || '',
+      count: feature.properties.中位數 || 0,
+      ...feature.properties,
+      geometry: feature.geometry
+    }))
 
-    // 合併數據
-    const mergedData = mergeGeoJSONWithExcel(geojsonData, excelData, 'CODE2', 'name')
+    // 生成摘要信息
+    const summary = {
+      totalFeatures: rawGeoJSON.features.length,
+      coordinateSystem: rawGeoJSON.crs?.properties?.name || '未知',
+      conversionInfo: rawGeoJSON.conversionInfo || '無轉換'
+    }
 
-    // 返回處理結果
     return {
-      rawGeoJSON: geojsonData,
-      mergedGeoJSON: mergedData.mergedGeoJSON,
-      convertedGeoJSON: mergedData.mergedGeoJSON,
-      excelData,
-      tableData: mergedData.tableData,
-      summary: {
-        ...mergedData.summary,
-        coordinateSystem: 'WGS84',
-        autoConverted: geojsonData._autoConverted,
-        conversionInfo: geojsonData._conversionInfo
-      }
+      rawGeoJSON,
+      mergedGeoJSON: rawGeoJSON,
+      convertedGeoJSON: rawGeoJSON,
+      tableData,
+      summary
     }
   } catch (error) {
-    console.error('載入數據失敗:', error)
+    console.error('❌ 臺北市 GeoJSON 數據載入失敗:', error)
     throw error
   }
 }

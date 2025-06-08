@@ -443,10 +443,10 @@ export const useDataStore = defineStore('data', () => {
     console.log("Attempting to fetch latest data...");
     // 1. 載入 GeoJSON
     try {
-      const geojsonUrl = '/data/geojson/台南市區_2.geojson';
+      const geojsonUrl = '/data/geojson/臺北市_村里_綜稅綜合所得總額.geojson';
       console.log(`Fetching GeoJSON from: ${geojsonUrl}`);
       const geojson = await loadGeoJSON(geojsonUrl); // loadGeoJSON 內部應該處理 fetch
-      setRawData('geojson', geojson, { filename: '台南市區_2.geojson', path: geojsonUrl });
+      setRawData('geojson', geojson, { filename: '臺北市_村里_綜稅綜合所得總額.geojson', path: geojsonUrl });
       console.log('GeoJSON loaded successfully');
     } catch (e) {
       console.error('載入 GeoJSON 失敗 in fetchLatestData:', e);

@@ -140,7 +140,7 @@ export default {
         
         // 創建地圖
         map = L.map(mapContainer.value, {
-          center: [22.9908, 120.2133], // 台南市中心
+          center: [25.0330, 121.5654], // 台北市中心
           zoom: props.zoomLevel,
           zoomControl: false, // 先禁用默認的縮放控件
           attributionControl: false // 禁用版權資訊
@@ -212,24 +212,20 @@ export default {
     
     // 創建台南圖層
     const createTainanLayer = () => {
-      console.log('創建台南圖層...')
-      console.log('🎨 Border Color:', props.selectedBorderColor, 'Weight:', props.selectedBorderWeight);
-
-      // 清除現有圖層
       if (tainanLayer) {
         map.removeLayer(tainanLayer)
         tainanLayer = null
       }
-      
-      if (props.showTainanLayer && props.tainanGeoJSONData && map) {
+
+      if (props.tainanGeoJSONData && props.showTainanLayer) {
         try {
+          console.log('開始創建圖層...')
+          
           tainanLayer = L.geoJSON(props.tainanGeoJSONData, {
             style: (feature) => {
-              const count = feature.properties.count || 0
-              const color = getColorByCount(count, props.maxCount, props.selectedColorScheme)
-              
+              const count = feature.properties.中位數 || 0
               return {
-                fillColor: color,
+                fillColor: getColorByCount(count, props.maxCount, props.selectedColorScheme),
                 weight: props.selectedBorderWeight,
                 opacity: 1,
                 color: props.selectedBorderColor,
@@ -237,16 +233,16 @@ export default {
               }
             },
             onEachFeature: (feature, layer) => {
-              const name = feature.properties.name || feature.properties.TOWNNAME || '未知區域'
-              const count = feature.properties.count || 0
-              const code = feature.properties.code2 || feature.properties.TOWNCODE || '未知代碼'
+              const name = feature.properties.PTVNAME || '未知區域'
+              const count = feature.properties.中位數 || 0
+              const code = feature.properties.VILLCODE || '未知代碼'
               
               // 綁定彈出視窗
               const popupContent = `
                 <div class="map-popup">
                   <h6 class="text-primary mb-2">${name}</h6>
                   <p class="mb-1">行政區代碼: ${code}</p>
-                  <p class="mb-1">登革熱案例數: ${count.toLocaleString()}</p>
+                  <p class="mb-1">中位數: ${count.toLocaleString()}</p>
                 </div>
               `
               layer.bindPopup(popupContent)
@@ -295,10 +291,10 @@ export default {
           const featureCount = props.tainanGeoJSONData.features ? props.tainanGeoJSONData.features.length : 0
           emit('update:activeMarkers', featureCount)
           
-          console.log(`台南圖層創建完成，包含 ${featureCount} 個區域`)
+          console.log(`圖層創建完成，包含 ${featureCount} 個區域`)
           
         } catch (error) {
-          console.error('創建台南圖層錯誤:', error)
+          console.error('創建圖層錯誤:', error)
         }
       } else {
         emit('update:activeMarkers', 0)
@@ -339,10 +335,10 @@ export default {
       // 找到並高亮指定的圖層
       tainanLayer.eachLayer((layer) => {
         const feature = layer.feature
-        console.log('🗺️ 檢查圖層:', feature?.properties?.CODE2)
+        console.log('🗺️ 檢查圖層:', feature?.properties?.VILLCODE)
         
-        if (feature && feature.properties && feature.properties.CODE2 === code2) {
-          console.log('🗺️ 找到匹配的圖層!', feature.properties.CODE2)
+        if (feature && feature.properties && feature.properties.VILLCODE === code2) {
+          console.log('🗺️ 找到匹配的圖層!', feature.properties.VILLCODE)
           foundLayer = true
           
           // 設置高亮樣式
@@ -364,22 +360,12 @@ export default {
           // 立即顯示tooltip
           layer.openPopup()
           
-          console.log(`🎯 已定位到區域: ${feature.properties.name || code2}`)
+          console.log(`🎯 已定位到區域: ${feature.properties.PTVNAME || code2}`)
         }
       })
       
       if (!foundLayer) {
-        console.error('❌ 未找到匹配的圖層, code2:', code2)
-        console.log('🗺️ 可用的圖層:', tainanLayer ? '存在' : '不存在')
-        if (tainanLayer) {
-          const layerCodes = []
-          tainanLayer.eachLayer((layer) => {
-            if (layer.feature && layer.feature.properties) {
-              layerCodes.push(layer.feature.properties.CODE2)
-            }
-          })
-          console.log('🗺️ 可用的 CODE2 值:', layerCodes.slice(0, 10))
-        }
+        console.warn('⚠️ 未找到匹配的圖層:', code2)
       }
     }
     
