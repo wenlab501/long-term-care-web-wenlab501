@@ -16,16 +16,22 @@
         <table class="table table-sm table-hover table-striped mb-0">
           <thead class="table-light sticky-top">
             <tr class="text-center">
-              <th @click="sortTable('id')" class="sortable-header">
-                ID <i :class="getSortIcon('id')"></i>
+              <th @click="handleSort('id')" class="sortable">
+                ID
+                <i v-if="currentSortKey === 'id'" 
+                   :class="currentSortOrder === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down'"></i>
               </th>
-              <th @click="sortTable('name')" class="sortable-header">
-                名稱 <i :class="getSortIcon('name')"></i>
+              <th @click="handleSort('name')" class="sortable">
+                名稱
+                <i v-if="currentSortKey === 'name'" 
+                   :class="currentSortOrder === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down'"></i>
               </th>
-              <th @click="sortTable('count')" class="sortable-header">
-                數量 <i :class="getSortIcon('count')"></i>
+              <th @click="handleSort('count')" class="sortable">
+                數量
+                <i v-if="currentSortKey === 'count'" 
+                   :class="currentSortOrder === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down'"></i>
               </th>
-              <th @click="sortTable('merged')" class="sortable-header">
+              <th @click="handleSort('merged')" class="sortable">
                 合併狀態 <i :class="getSortIcon('merged')"></i>
               </th>
               <th>操作</th>
@@ -34,7 +40,7 @@
           <tbody>
             <tr
               v-for="(item, index) in filteredAndSortedData"
-              :key="item.id || item.code2 || index"
+              :key="item.id || item.name || index"
               class="text-center align-middle"
             >
               <td>{{ item.id }}</td>
@@ -44,7 +50,7 @@
               <td>
                 <button
                   class="btn btn-primary btn-sm py-0 px-1"
-                  @click="$emit('highlight-on-map', item)"
+                  @click="handleHighlight(item)"
                   title="在地圖上高亮顯示"
                 >
                   顯示位置
@@ -79,71 +85,85 @@ const props = defineProps({
   }
 });
 
-defineEmits(['highlight-on-map']);
+const emit = defineEmits(['highlight-on-map']);
 
 const searchQuery = ref('');
 const currentSortKey = ref('id'); // Default sort key
 const currentSortOrder = ref('asc'); // Default sort order
 
+// 處理高亮顯示
+const handleHighlight = (item) => {
+  console.log('準備高亮顯示:', { item })
+  
+  if (!item) {
+    console.warn('無法高亮顯示：資料為空')
+    return
+  }
+  
+  if (!item.name) {
+    console.warn('無法高亮顯示：名稱為空')
+    return
+  }
+  
+  console.log('發送高亮事件:', item.name)
+  emit('highlight-on-map', item)
+}
+
+// 過濾和排序數據
 const filteredAndSortedData = computed(() => {
-  if (!props.tableData || !Array.isArray(props.tableData)) {
-    console.warn('[DataTableTab] tableData is not a valid array. Returning empty.', props.tableData);
-    return [];
-  }
-
-  let data = [...props.tableData];
-
-  // Filter data
+  console.log('過濾數據:', { 
+    hasData: !!props.tableData,
+    dataLength: props.tableData?.length
+  })
+  
+  if (!props.tableData) return []
+  
+  let filtered = props.tableData
+  
+  // 搜尋過濾
   if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase().trim();
-    if (query) {
-      data = data.filter(item => {
-        const nameMatch = item.name && String(item.name).toLowerCase().includes(query);
-        const idMatch = item.id && String(item.id).toLowerCase().includes(query);
-        const code2Match = item.code2 && String(item.code2).toLowerCase().includes(query);
-        const countMatch = item.count !== undefined && item.count !== null && String(item.count).toLowerCase().includes(query);
-        return nameMatch || idMatch || code2Match || countMatch;
-      });
-    }
+    const query = searchQuery.value.toLowerCase()
+    filtered = filtered.filter(item => {
+      const nameMatch = item.name?.toLowerCase().includes(query)
+      const idMatch = String(item.id).includes(query)
+      const countMatch = String(item.count).includes(query)
+      return nameMatch || idMatch || countMatch
+    })
   }
-
-  // Sort data
+  
+  // 排序
   if (currentSortKey.value) {
-    data.sort((a, b) => {
-      let valA = a[currentSortKey.value];
-      let valB = b[currentSortKey.value];
-
-      // Handle undefined or null values by treating them as smaller
-      if (valA === undefined || valA === null) valA = '';
-      if (valB === undefined || valB === null) valB = '';
+    filtered = [...filtered].sort((a, b) => {
+      const aValue = a[currentSortKey.value]
+      const bValue = b[currentSortKey.value]
       
-      // Convert numbers to strings for consistent comparison if one is string and other is number,
-      // or use numeric comparison if both are numbers.
-      const isValANumber = typeof valA === 'number';
-      const isValBNumber = typeof valB === 'number';
-
-      if (isValANumber && isValBNumber) {
-        // Numeric sort
-        return currentSortOrder.value === 'asc' ? valA - valB : valB - valA;
-      } else {
-        // String sort (case-insensitive)
-        valA = String(valA).toLowerCase();
-        valB = String(valB).toLowerCase();
-        if (valA < valB) return currentSortOrder.value === 'asc' ? -1 : 1;
-        if (valA > valB) return currentSortOrder.value === 'asc' ? 1 : -1;
-        return 0;
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return currentSortOrder.value === 'asc' 
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue)
       }
-    });
+      
+      return currentSortOrder.value === 'asc'
+        ? aValue - bValue
+        : bValue - aValue
+    })
   }
-  return data;
-});
+  
+  console.log('過濾後數據:', { 
+    filteredLength: filtered.length,
+    firstItem: filtered[0]
+  })
+  
+  return filtered
+})
 
-function sortTable(key) {
+// 排序處理
+const handleSort = (key) => {
   if (currentSortKey.value === key) {
-    currentSortOrder.value = currentSortOrder.value === 'asc' ? 'desc' : 'asc';
+    currentSortOrder.value = currentSortOrder.value === 'asc' ? 'desc' : 'asc'
   } else {
-    currentSortKey.value = key;
-    currentSortOrder.value = 'asc';
+    currentSortKey.value = key
+    currentSortOrder.value = 'asc'
   }
 }
 
@@ -208,19 +228,19 @@ onMounted(() => {
   white-space: nowrap; /* Prevent header text wrapping */
 }
 
-.table th.sortable-header {
+.table th.sortable {
   cursor: pointer;
   user-select: none; /* Prevent text selection on click */
 }
-.table th.sortable-header:hover {
+.table th.sortable:hover {
   background-color: #e2e6ea; /* Darker hover for sortable headers */
 }
-.table th.sortable-header i {
+.table th.sortable i {
   margin-left: 0.3em;
   font-size: 0.9em; /* Slightly smaller icons */
   opacity: 0.7;
 }
-.table th.sortable-header:hover i {
+.table th.sortable:hover i {
   opacity: 1;
 }
 

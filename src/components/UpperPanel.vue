@@ -285,12 +285,12 @@ export default {
     })
 
     /**
-     * 🎯 高亮地圖上的特徵 (Highlight Feature on Map)
-     * @param {string} code2 - 行政區代碼
+     * 🎯 高亮顯示指定區域
+     * @param {string} name - 區域名稱
      */
-    const highlightFeature = (code2) => {
+    const highlightFeature = (name) => {
       if (mapView.value) {
-        mapView.value.highlightFeature(code2)
+        mapView.value.highlightFeature(name)
       }
     }
 

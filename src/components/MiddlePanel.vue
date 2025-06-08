@@ -206,10 +206,12 @@ onUnmounted(() => {
 
 // --- Methods to be called from parent (HomeView) ---
 // These will now operate on mainContentRef
-const highlightFeature = (code2) => {
-  if (mainContentRef.value) {
-    mainContentRef.value.highlightFeature(code2);
+const highlightFeature = (name) => {
+  if (!mainContentRef.value) {
+    console.warn('無法高亮顯示：mainContentRef 未定義')
+    return
   }
+  mainContentRef.value.highlightFeature(name)
 };
 
 const fitToTainanBounds = () => {

@@ -496,29 +496,17 @@ export default {
      * 專注於地圖定位和tooltip顯示
      */
     const highlightOnMap = (row) => {
-      console.log('🎯 highlightOnMap 被調用:', row)
-      console.log('🎯 row.code2:', row.code2)
-      console.log('🎯 middlePanelRef.value:', middlePanelRef.value)
+      if (!row || !row.name) {
+        console.warn('無法高亮顯示：資料或名稱為空')
+        return
+      }
+
+      console.log('🎯 高亮顯示區域:', row.name)
       
       if (middlePanelRef.value) {
-        // 先切換到地圖分頁（如果當前不在地圖分頁）
-        if (activeTab.value !== 'map') {
-          console.log('🎯 切換到地圖分頁...')
-          activeTab.value = 'map'
-          
-          // 等待分頁切換完成後再進行高亮
-          setTimeout(() => {
-            console.log('🎯 延遲調用 highlightFeature...')
-            middlePanelRef.value.highlightFeature(row.code2)
-          }, 300)
-        } else {
-          console.log('🎯 直接調用 highlightFeature...')
-          middlePanelRef.value.highlightFeature(row.code2)
-        }
-        
-        console.log(`🎯 定位到 ${row.name || row.code2} via MiddlePanel`)
+        middlePanelRef.value.highlightFeature(row.name)
       } else {
-        console.error('❌ middlePanelRef.value 為 null for highlightOnMap')
+        console.warn('❌ middlePanelRef 未定義')
       }
     }
 

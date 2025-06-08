@@ -212,15 +212,19 @@ export default {
     
     // 創建台南圖層
     const createTainanLayer = () => {
+      console.log('開始創建圖層...', { 
+        hasData: !!props.tainanGeoJSONData,
+        showLayer: props.showTainanLayer
+      })
+
       if (tainanLayer) {
+        console.log('移除現有圖層')
         map.removeLayer(tainanLayer)
         tainanLayer = null
       }
 
       if (props.tainanGeoJSONData && props.showTainanLayer) {
         try {
-          console.log('開始創建圖層...')
-          
           tainanLayer = L.geoJSON(props.tainanGeoJSONData, {
             style: (feature) => {
               const count = feature.properties.中位數 || 0
@@ -235,13 +239,11 @@ export default {
             onEachFeature: (feature, layer) => {
               const name = feature.properties.PTVNAME || '未知區域'
               const count = feature.properties.中位數 || 0
-              const code = feature.properties.VILLCODE || '未知代碼'
               
               // 綁定彈出視窗
               const popupContent = `
                 <div class="map-popup">
                   <h6 class="text-primary mb-2">${name}</h6>
-                  <p class="mb-1">行政區代碼: ${code}</p>
                   <p class="mb-1">中位數: ${count.toLocaleString()}</p>
                 </div>
               `
@@ -270,6 +272,7 @@ export default {
                 },
                 click: function(e) {
                   const layer = e.target
+                  const name = layer.feature.properties.PTVNAME
                   const center = layer.getBounds().getCenter()
                   
                   // 移動到畫面中間
@@ -280,7 +283,7 @@ export default {
                   
                   emit('update:currentCoords', { lat: center.lat, lng: center.lng })
                   
-                  console.log(`點擊區域: ${name} (${code})`)
+                  console.log(`點擊區域: ${name}`)
                 }
               })
             }
@@ -317,29 +320,36 @@ export default {
     }
     
     // 高亮功能
-    const highlightFeature = (code2) => {
-      console.log('🗺️ highlightFeature 被調用, code2:', code2)
-      console.log('🗺️ tainanLayer:', tainanLayer)
+    const highlightFeature = (name) => {
+      console.log('開始高亮顯示:', { name, tainanLayer: !!tainanLayer })
       
-      if (!tainanLayer || !code2) {
-        console.error('❌ tainanLayer 或 code2 為空:', { tainanLayer, code2 })
+      if (!tainanLayer) {
+        console.warn('無法高亮顯示：tainanLayer 未定義')
+        return
+      }
+      
+      if (!name) {
+        console.warn('無法高亮顯示：名稱為空')
         return
       }
 
-      // 先重置所有圖層的樣式
+      // 重置所有圖層樣式
       tainanLayer.eachLayer((layer) => {
         tainanLayer.resetStyle(layer)
       })
 
-      let foundLayer = false
-      // 找到並高亮指定的圖層
+      // 查找並高亮指定區域
+      let found = false
       tainanLayer.eachLayer((layer) => {
         const feature = layer.feature
-        console.log('🗺️ 檢查圖層:', feature?.properties?.VILLCODE)
+        console.log('檢查區域:', { 
+          featureName: feature?.properties?.PTVNAME,
+          targetName: name,
+          match: feature?.properties?.PTVNAME === name
+        })
         
-        if (feature && feature.properties && feature.properties.VILLCODE === code2) {
-          console.log('🗺️ 找到匹配的圖層!', feature.properties.VILLCODE)
-          foundLayer = true
+        if (feature?.properties?.PTVNAME === name) {
+          found = true
           
           // 設置高亮樣式
           layer.setStyle({
@@ -349,7 +359,7 @@ export default {
             fillOpacity: 0.9
           })
           
-          // 移動到該區域並縮放
+          // 移動到該區域
           const bounds = layer.getBounds()
           map.fitBounds(bounds, {
             padding: [50, 50],
@@ -357,15 +367,13 @@ export default {
             duration: 1.0
           })
           
-          // 立即顯示tooltip
+          // 顯示彈出視窗
           layer.openPopup()
-          
-          console.log(`🎯 已定位到區域: ${feature.properties.PTVNAME || code2}`)
         }
       })
-      
-      if (!foundLayer) {
-        console.warn('⚠️ 未找到匹配的圖層:', code2)
+
+      if (!found) {
+        console.warn(`未找到區域：${name}`)
       }
     }
     

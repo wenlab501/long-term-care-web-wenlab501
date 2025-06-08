@@ -58,11 +58,11 @@ export async function loadExcelSheet(filePath, sheetName) {
  * 合併GeoJSON和Excel數據
  * @param {Object} geojsonData - GeoJSON數據
  * @param {Array} excelData - Excel數據陣列
- * @param {string} geojsonKey - GeoJSON中的合併欄位 (預設: 'CODE2')
+ * @param {string} geojsonKey - GeoJSON中的合併欄位 (預設: 'PTVNAME')
  * @param {string} excelKey - Excel中的合併欄位 (預設: 'name')
  * @returns {Object} 合併後的數據
  */
-export function mergeGeoJSONWithExcel(geojsonData, excelData, geojsonKey = 'CODE2', excelKey = 'name') {
+export function mergeGeoJSONWithExcel(geojsonData, excelData, geojsonKey = 'PTVNAME', excelKey = 'name') {
   try {
     // 創建Excel數據的查找表
     const excelLookup = {}
@@ -79,8 +79,7 @@ export function mergeGeoJSONWithExcel(geojsonData, excelData, geojsonKey = 'CODE
       
       return {
         id: index + 1,
-        code2: props[geojsonKey] || '',
-        name: excelRow ? excelRow[excelKey] : props.TOWN || '',
+        name: props[geojsonKey] || '',
         count: excelRow ? (excelRow.count || 0) : 0,
         merged: excelRow ? '成功' : '失敗',
         // 保留原始屬性
@@ -101,7 +100,7 @@ export function mergeGeoJSONWithExcel(geojsonData, excelData, geojsonKey = 'CODE
             ...props,
             ...(excelRow || {}),
             count: excelRow ? (excelRow.count || 0) : 0,
-            name: excelRow ? excelRow[excelKey] : props.TOWN || '',
+            PTVNAME: excelRow ? excelRow[excelKey] : props.TOWN || '',
             _merged: !!excelRow
           }
         }
@@ -351,162 +350,3 @@ export async function loadTainanData() {
     throw error
   }
 }
-
-/**
- * 🔥 載入測試數據（當檔案無法存取時的後備方案）
- * @returns {Promise<Object>} 測試數據 (已轉換為 WGS84)
- */
-export async function loadTestData() {
-  console.log('📊 載入測試數據...')
-  
-  // 建立假的 TWD97 GeoJSON 數據
-  const testGeoJSON = {
-    "type": "FeatureCollection",
-    "crs": {
-      "type": "name",
-      "properties": {
-        "name": "urn:ogc:def:crs:EPSG::3826"
-      }
-    },
-    "features": [
-      {
-        "type": "Feature",
-        "properties": {
-          "CODE2": "A6733-36",
-          "TOWN_ID": "67000330",
-          "TOWN": "南區",
-          "COUNTY_ID": "67000",
-          "COUNTY": "臺南市",
-          "U_ID": 7379,
-          "AREA": 8706028.2661,
-          "X": 165859.5201,
-          "Y": 2539484.716
-        },
-        "geometry": {
-          "type": "Polygon",
-          "coordinates": [[[
-            [165295.003478, 2540755.067444],
-            [165352.703178, 2540655.499944],
-            [165456.484378, 2540459.749944],
-            [165474.265678, 2540427.249944],
-            [165496.515678, 2540409.499944],
-            [165295.003478, 2540755.067444]
-          ]]]
-        }
-      },
-      {
-        "type": "Feature", 
-        "properties": {
-          "CODE2": "A6735-16",
-          "TOWN_ID": "67000350",
-          "TOWN": "安南區",
-          "COUNTY_ID": "67000", 
-          "COUNTY": "臺南市",
-          "U_ID": 7447,
-          "AREA": 5652502.0812,
-          "X": 165075.7151,
-          "Y": 2551011.177
-        },
-        "geometry": {
-          "type": "Polygon",
-          "coordinates": [[[
-            [165091.617678, 2551702.102044],
-            [165134.046178, 2551687.928844],
-            [165175.440378, 2551708.420044],
-            [165238.602778, 2551726.759844],
-            [165091.617678, 2551702.102044]
-          ]]]
-        }
-      }
-    ]
-  }
-  
-  // 建立假的 Excel 數據
-  const testExcelData = [
-    {
-      "name": "南區",
-      "count": 25,
-      "population": 125000,
-      "density": 0.2
-    },
-    {
-      "name": "安南區", 
-      "count": 18,
-      "population": 195000,
-      "density": 0.092
-    }
-  ]
-  
-  try {
-    // 🔥 步驟 1: 自動轉換座標系統（模擬 loadGeoJSON 的行為）
-    console.log('🌐 自動轉換測試資料座標系統 TWD97 → WGS84...')
-    
-    // 動態導入座標轉換函數
-    const { transformGeoJSONCoordinates } = await import('./spatialAnalysis.js')
-    
-    // 轉換 GeoJSON 座標
-    const convertedGeoJSON = transformGeoJSONCoordinates(testGeoJSON, 'TWD97', 'WGS84')
-    
-    // 添加轉換標記（模擬 loadGeoJSON 的行為）
-    convertedGeoJSON._autoConverted = true
-    convertedGeoJSON._conversionInfo = {
-      from: 'TWD97',
-      to: 'WGS84',
-      timestamp: Date.now(),
-      source: 'loadTestData'
-    }
-    
-    console.log('✅ 測試資料座標轉換完成')
-    
-    // 🔥 步驟 2: 合併數據（使用 TOWN 欄位匹配）
-    const mergedData = mergeGeoJSONWithExcel(convertedGeoJSON, testExcelData, 'TOWN', 'name')
-    
-    // 🔥 返回與 loadTainanData 相同的數據結構
-    const finalResult = {
-      // 原始 GeoJSON（已轉換為 WGS84）
-      rawGeoJSON: convertedGeoJSON,
-      // 合併後的 GeoJSON（WGS84）- 這個用於地圖顯示
-      mergedGeoJSON: mergedData.mergedGeoJSON,
-      // 為了向後相容，convertedGeoJSON 指向相同的合併資料
-      convertedGeoJSON: mergedData.mergedGeoJSON,
-      // Excel 數據
-      excelData: testExcelData,
-      // 表格數據
-      tableData: mergedData.tableData,
-      // 統計摘要
-      summary: {
-        ...mergedData.summary,
-        coordinateSystem: 'WGS84',
-        autoConverted: convertedGeoJSON._autoConverted,
-        conversionInfo: convertedGeoJSON._conversionInfo
-      }
-    }
-    
-    console.log('✅ 測試數據載入完成:', finalResult.summary)
-    console.log(`   - 總要素數: ${finalResult.summary.totalFeatures}`)
-    console.log(`   - 成功合併: ${finalResult.summary.mergedCount}`)
-    console.log(`   - 座標系統: WGS84 (已自動轉換)`)
-    
-    return finalResult
-    
-  } catch (error) {
-    console.error('❌ 測試數據載入失敗:', error)
-    
-    // 如果轉換失敗，返回原始數據作為後備
-    const mergedData = mergeGeoJSONWithExcel(testGeoJSON, testExcelData, 'TOWN', 'name')
-    
-    return {
-      rawGeoJSON: testGeoJSON,
-      mergedGeoJSON: mergedData.mergedGeoJSON,
-      convertedGeoJSON: mergedData.mergedGeoJSON,
-      excelData: testExcelData,
-      tableData: mergedData.tableData,
-      summary: {
-        ...mergedData.summary,
-        coordinateSystem: 'TWD97',
-        autoConverted: false,
-        conversionError: error.message
-      }
-    }
-  }
-} 
