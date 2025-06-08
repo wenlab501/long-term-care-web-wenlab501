@@ -561,7 +561,7 @@ export default {
       }
       
       // 如果數據已經載入過，直接返回
-      if (dataStore.processedData.medicalData) {
+      if (dataStore.isMedicalDataLoaded) {
         return
       }
 
@@ -574,18 +574,15 @@ export default {
         console.log('載入的數據:', data) // 添加日誌
         
         // 確保數據正確存儲
-        dataStore.processedData.medicalData = {
-          rawGeoJSON: data.rawGeoJSON,
-          mergedGeoJSON: data.mergedGeoJSON,
-          convertedGeoJSON: data.convertedGeoJSON,
-          tableData: data.tableData,
-          summary: data.summary
-        }
+        dataStore.storeLoadedData({
+          loadedAndMergedGeoJSON: data.mergedGeoJSON,
+          loadedAndMergedTableData: data.tableData
+        })
         
         showMedicalLayer.value = true
         
         loadingText.value = '載入完成'
-        loadingSubText.value = `已載入 ${data.tableData.length} 個醫療院所`
+        loadingSubText.value = `已載入 ${data.tableData.length} 個區域`
         
         // 延遲一下再關閉載入視窗，讓用戶看到完成訊息
         setTimeout(() => {

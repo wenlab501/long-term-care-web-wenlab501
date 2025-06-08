@@ -511,65 +511,99 @@ export default {
     
     // 創建醫療院所圖層
     const createMedicalLayer = () => {
-      try {
-        console.log('開始創建醫療院所圖層...')
-        if (!map.value || !props.medicalData?.geojsonData) {
-          console.warn('無法創建醫療院所圖層：地圖或數據未就緒')
-          return
-        }
+      console.log('開始創建圖層...', { 
+        hasData: !!props.medicalData?.rawGeoJSON,
+        showLayer: props.showMedicalLayer,
+        dataFeatures: props.medicalData?.rawGeoJSON?.features?.length
+      })
 
-        // 移除現有圖層
-        if (medicalLayer.value) {
-          map.value.removeLayer(medicalLayer.value)
-          medicalLayer.value = null
-        }
+      if (medicalLayer.value) {
+        console.log('移除現有圖層')
+        map.value.removeLayer(medicalLayer.value)
+        medicalLayer.value = null
+      }
 
-        // 使用 GeoJSON 數據創建圖層
-        medicalLayer.value = L.geoJSON(props.medicalData.geojsonData, {
-          pointToLayer: (feature, latlng) => {
-            return L.circleMarker(latlng, {
-              radius: 6,
-              fillColor: '#ff0000',
-              color: '#fff',
-              weight: 1,
-              opacity: 1,
-              fillOpacity: 0.8
-            })
-          },
-          onEachFeature: (feature, layer) => {
-            // 添加彈出窗口
-            const popupContent = `
-              <div class="medical-popup">
-                <h3>${feature.properties.name}</h3>
-                <p>地址：${feature.properties.address}</p>
-                <p>電話：${feature.properties.phone}</p>
-                <p>區域：${feature.properties.district}</p>
-              </div>
-            `
-            layer.bindPopup(popupContent)
+      if (props.medicalData?.rawGeoJSON && props.showMedicalLayer) {
+        try {
+          console.log('創建新圖層，數據特徵數量:', props.medicalData.rawGeoJSON.features?.length)
 
-            // 添加點擊事件
-            layer.on('click', () => {
-              console.log('點擊醫療院所:', feature.properties)
-              // 發送事件到父組件
-              emit('update:activeMarkers', 1)
-            })
-          }
-        }).addTo(map.value)
-
-        // 自動調整地圖視圖以顯示所有點位
-        if (medicalLayer.value.getBounds) {
-          map.value.fitBounds(medicalLayer.value.getBounds(), {
-            padding: [50, 50],
-            animate: true,
-            duration: 1.0
+          medicalLayer.value = L.geoJSON(props.medicalData.rawGeoJSON, {
+            pointToLayer: (feature, latlng) => {
+              return L.circleMarker(latlng, {
+                radius: 6,
+                fillColor: '#ff0000',
+                color: '#fff',
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.8
+              })
+            },
+            onEachFeature: (feature, layer) => {
+              const name = feature.properties.name || '未知區域'
+              
+              // 綁定彈出視窗
+              const popupContent = `
+                <div class="map-popup">
+                  <h6 class="text-primary mb-2">${name}</h6>
+                  <p class="mb-1">地址：${feature.properties.address || '無'}</p>
+                  <p class="mb-1">電話：${feature.properties.phone || '無'}</p>
+                  <p class="mb-1">區域：${feature.properties.district || '無'}</p>
+                </div>
+              `
+              layer.bindPopup(popupContent)
+              
+              // 綁定工具提示
+              layer.bindTooltip(`${name}`, {
+                permanent: false,
+                direction: 'center',
+                className: 'custom-tooltip'
+              })
+              
+              // 滑鼠事件處理
+              layer.on({
+                mouseover: function(e) {
+                  const layer = e.target
+                  layer.setStyle({
+                    weight: 3,
+                    color: '#333',
+                    fillOpacity: 0.8
+                  })
+                  layer.bringToFront()
+                },
+                mouseout: function(e) {
+                  medicalLayer.value.resetStyle(e.target)
+                },
+                click: function(e) {
+                  const layer = e.target
+                  const name = layer.feature.properties.name
+                  const center = layer.getLatLng()
+                  
+                  // 移動到畫面中間
+                  map.value.panTo(center, {
+                    animate: true,
+                    duration: 0.5
+                  })
+                  
+                  emit('update:currentCoords', { lat: center.lat, lng: center.lng })
+                  
+                  console.log(`點擊區域: ${name}`)
+                }
+              })
+            }
           })
-        }
+          
+          medicalLayer.value.addTo(map.value)
+          
+          const featureCount = props.medicalData.rawGeoJSON.features ? props.medicalData.rawGeoJSON.features.length : 0
+          emit('update:activeMarkers', featureCount)
 
-        console.log('✅ 醫療院所圖層創建成功')
-        console.log('醫療院所數量:', props.medicalData.geojsonData.features.length)
-      } catch (error) {
-        console.error('❌ 創建醫療院所圖層失敗:', error)
+          console.log(`圖層創建完成，包含 ${featureCount} 個區域`)
+          
+        } catch (error) {
+          console.error('創建圖層錯誤:', error)
+        }
+      } else {
+        emit('update:activeMarkers', 0)
       }
     }
     

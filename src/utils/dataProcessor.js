@@ -473,6 +473,9 @@ export async function loadMedicalData() {
       }).filter(feature => feature !== null)
     }
 
+    // 打印完整的 GeoJSON 數據
+    console.log('轉換後的 GeoJSON 數據:', JSON.stringify(geojsonData, null, 2))
+
     // 生成表格數據
     const tableData = geojsonData.features.map(feature => ({
       id: feature.properties.name || '',
@@ -496,7 +499,7 @@ export async function loadMedicalData() {
       summary
     }
   } catch (error) {
-    console.error('載入醫療院所數據失敗:', error)
+    console.error('❌ 醫療院所數據載入失敗:', error)
     throw error
   }
 }

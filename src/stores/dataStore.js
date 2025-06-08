@@ -218,23 +218,26 @@ export const useDataStore = defineStore('data', () => {
   // 存儲醫療院所數據
   const storeMedicalData = (data) => {
     if (data) {
-      medicalData.value = data
       processedData.value = {
         ...processedData.value,
-        medicalData: data
+        medicalData: {
+          rawGeoJSON: data.rawGeoJSON,
+          mergedGeoJSON: data.mergedGeoJSON,
+          convertedGeoJSON: data.convertedGeoJSON,
+          tableData: data.tableData,
+          summary: data.summary
+        }
       }
       rawData.value.metadata.medical = {
         timestamp: new Date().toISOString(),
         source: 'medical-csv',
         description: '醫療院所分布數據'
       }
-      
-      console.log('✅ 醫療院所數據已存入 Pinia Store:', {
-        totalPoints: data.tableData.length,
-        samplePoint: data.tableData[0]
-      })
-      
       isMedicalDataLoaded.value = true
+      console.log('✅ 醫療院所數據已存入 Pinia Store:', {
+        geojsonFeatures: data.rawGeoJSON?.features?.length,
+        tableDataRows: data.tableData?.length
+      })
     } else {
       console.warn('Pinia storeMedicalData: 接收到空的 data')
     }
