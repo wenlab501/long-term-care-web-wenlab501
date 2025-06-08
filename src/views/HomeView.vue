@@ -26,8 +26,14 @@
           <div class="h-100 overflow-auto" :style="{ width: leftPanelWidthPx }" v-if="leftPanelWidth > 0">
             <LeftPanel 
               :showTainanLayer="showTainanLayer"
+              :showMedicalLayer="showMedicalLayer"
+              :isLoadingData="isLoadingMedical"
               @update:showTainanLayer="showTainanLayer = $event"
+              @update:showMedicalLayer="handleMedicalLayerToggle"
               @load-data="loadTainanData"
+              :current-coords="currentCoords"
+              :active-markers="activeMarkers"
+              @update:currentCoords="updateCurrentCoords"
             />
           </div>
         
@@ -76,7 +82,50 @@
             @reset-view="resetView"
             @highlight-on-map="highlightOnMap"
             @highlight-feature="handleHighlight"
-          />
+          >
+            <template #map>
+              <div class="map-container" ref="mapContainer">
+                <MapView
+                  :tainan-geo-json-data="storeTainanGeoJSONData"
+                  :show-tainan-layer="showTainanLayer"
+                  :medical-data="medicalData"
+                  :show-medical-layer="showMedicalLayer"
+                  @update:current-coords="updateCurrentCoords"
+                  @update:active-markers="updateActiveMarkers"
+                />
+                
+                <!-- 圖層控制面板 -->
+                <div class="layer-control-panel">
+                  <div class="layer-control">
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        :checked="showTainanLayer"
+                        @change="loadTainanData"
+                        id="tainanLayerCheck"
+                      >
+                      <label class="form-check-label" for="tainanLayerCheck">
+                        台南市圖層
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        :checked="showMedicalLayer"
+                        @change="loadMedicalData"
+                        id="medicalLayerCheck"
+                      >
+                      <label class="form-check-label" for="medicalLayerCheck">
+                        醫療院所分布
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </MiddlePanel>
 
           <!-- 🔧 右側拖曳調整器 (Right Resizer) - Now a direct child of the flex row -->
           <div class="my-resizer my-resizer-vertical border-start border-end" 
@@ -102,7 +151,10 @@
               @fit-map-to-data="fitMapToData"
               @clear-tainan-data="clearTainanData"
               @switch-to-dashboard="switchToDashboard"
-              @highlight-feature="handleHighlight" />
+              @highlight-feature="handleHighlight"
+              :current-coords="currentCoords"
+              @update:current-coords="updateCurrentCoords"
+            />
           </div>
         </div>
       </div>
@@ -140,16 +192,18 @@
  * 5. 🔧 支援拖拉調整面板大小（完全彈性0-100%範圍）
  * 6. 📈 執行Moran's I空間自相關分析
  */
-import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, computed, nextTick, watch } from 'vue'
 import { formatNumber } from '../utils/utils.js'
 import { loadTainanData as loadTainanDataUtil } from '../utils/dataProcessor.js'
 import { useDataStore } from '@/stores/dataStore'
+import { loadCSVData } from '@/utils/loadCSVData'
 
 // 🧩 組件引入
 import LoadingOverlay from '../components/LoadingOverlay.vue'
 import LeftPanel from '../components/LeftPanel.vue'
 import RightPanel from '../components/RightPanel.vue'
 import MiddlePanel from '../components/MiddlePanel.vue'
+import MapView from '../components/MapView.vue'
 
 export default {
   name: 'HomeView',
@@ -161,7 +215,8 @@ export default {
     LoadingOverlay,
     LeftPanel,
     RightPanel,
-    MiddlePanel
+    MiddlePanel,
+    MapView
   },
   
   /**
@@ -249,6 +304,11 @@ export default {
       if (!storeMergedTableData.value) return 0;
       return storeMergedTableData.value.filter(row => row.count > 0).length;
     })
+
+    // 在 setup 函數中添加新的狀態
+    const showMedicalLayer = ref(false)
+    const medicalData = ref(null)
+    const isLoadingMedical = ref(false)
 
     // 📥 台南數據功能函數 (Tainan Data Functions)
     
@@ -482,6 +542,193 @@ export default {
       }
     }
 
+    // 添加醫療院所圖層切換處理函數
+    const handleMedicalLayerToggle = (value) => {
+      console.log('HomeView: 醫療院所圖層狀態變更:', value)
+      if (value) {
+        // 顯示載入中
+        isLoading.value = true
+        loadingText.value = '載入醫療院所資料中...'
+        loadingSubText.value = '正在處理醫療院所分布數據...'
+        loadingProgress.value = 0
+        showLoadingProgress.value = true
+
+        // 加載數據
+        loadMedicalData()
+      } else {
+        showMedicalLayer.value = false
+        // 更新表格數據
+        if (storeMergedTableData.value) {
+          storeMergedTableData.value = storeMergedTableData.value.filter(row => !row.isMedical)
+        }
+      }
+    }
+
+    // 添加加載醫療院所數據的函數
+    const loadMedicalData = async () => {
+      console.log('開始加載醫療院所數據...')
+      
+      if (dataStore.isMedicalDataLoaded) {
+        console.log('醫療院所數據已加載，切換顯示狀態')
+        showMedicalLayer.value = true
+        isLoading.value = false
+        return
+      }
+
+      try {
+        console.log('嘗試加載 CSV 文件...')
+        const result = await loadCSVData('data/csv/112年12月醫療院所分布圖_全國.csv')
+        console.log('CSV 加載成功，數據內容:', {
+          totalRows: result.length,
+          sampleData: result.slice(0, 3),
+          columns: Object.keys(result[0] || {})
+        })
+        
+        // 更新載入進度
+        loadingProgress.value = 30
+        loadingSubText.value = '正在處理醫療院所位置數據...'
+        
+        // 轉換數據格式
+        const medicalPoints = result.map(row => {
+          // 解析 WKT 格式的點位數據
+          const wktMatch = row.WKT.match(/POINT \(([^ ]+) ([^ ]+)\)/)
+          if (!wktMatch) {
+            console.warn('無法解析坐標:', row.WKT)
+            return null
+          }
+          
+          // WKT 格式是 (經度 緯度)
+          const lng = parseFloat(wktMatch[1])  // 第一個是經度
+          const lat = parseFloat(wktMatch[2])  // 第二個是緯度
+          
+          if (isNaN(lng) || isNaN(lat)) {
+            console.warn('無效的坐標值:', { lng, lat, WKT: row.WKT })
+            return null
+          }
+
+          // console.log('解析坐標:', {
+          //   WKT: row.WKT,
+          //   lng,
+          //   lat,
+          //   name: row.醫療院所
+          // })
+
+          return {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [lng, lat]  // GeoJSON 格式也是 [經度, 緯度]
+            },
+            properties: {
+              name: row.醫療院所 || '',
+              city: row.縣市 || '',
+              district: row.鄉鎮市區 || '',
+              address: row.地址 || '',
+              phone: row.電話 || '',
+              isMedical: true
+            }
+          }
+        }).filter(point => point !== null)
+
+        console.log('轉換後的點位數據:', {
+          totalPoints: medicalPoints.length,
+          samplePoints: medicalPoints.slice(0, 3),
+          coordinateRange: {
+            minLng: Math.min(...medicalPoints.map(p => p.geometry.coordinates[0])),
+            maxLng: Math.max(...medicalPoints.map(p => p.geometry.coordinates[0])),
+            minLat: Math.min(...medicalPoints.map(p => p.geometry.coordinates[1])),
+            maxLat: Math.max(...medicalPoints.map(p => p.geometry.coordinates[1]))
+          }
+        })
+
+        const medicalGeoJSON = {
+          type: 'FeatureCollection',
+          features: medicalPoints
+        }
+
+        // 更新載入進度
+        loadingProgress.value = 90
+        loadingSubText.value = '正在更新地圖和表格...'
+
+        // 更新數據
+        medicalData.value = medicalGeoJSON
+        dataStore.storeMedicalData(medicalGeoJSON)
+        showMedicalLayer.value = true
+
+        // 更新表格數據
+        const medicalTableData = medicalPoints.map(point => {
+          // 打印每個表格數據的詳細信息
+          // console.log('HomeView: 添加表格數據:', {
+          //   name: point.properties.name,
+          //   city: point.properties.city,
+          //   district: point.properties.district,
+          //   address: point.properties.address,
+          //   phone: point.properties.phone,
+          //   coordinates: point.geometry.coordinates
+          // })
+
+          return {
+            name: point.properties.name,
+            city: point.properties.city,
+            district: point.properties.district,
+            address: point.properties.address,
+            phone: point.properties.phone,
+            isMedical: true
+          }
+        })
+
+        // 更新合併後的表格數據
+        if (storeMergedTableData.value) {
+          // 先移除舊的醫療院所數據
+          const filteredData = storeMergedTableData.value.filter(row => !row.isMedical)
+          // 添加新的醫療院所數據
+          storeMergedTableData.value = [...filteredData, ...medicalTableData]
+          console.log('HomeView: 更新表格數據完成，當前表格數據數量:', storeMergedTableData.value.length)
+        } else {
+          storeMergedTableData.value = medicalTableData
+          console.log('HomeView: 初始化表格數據，數據數量:', medicalTableData.length)
+        }
+
+        console.log('醫療院所數據處理完成:', {
+          totalFeatures: medicalGeoJSON.features.length,
+          isVisible: showMedicalLayer.value,
+          isStored: !!dataStore.processedData.medicalData,
+          tableDataCount: medicalTableData.length
+        })
+
+        // 完成載入
+        loadingProgress.value = 100
+        loadingText.value = '載入完成'
+        loadingSubText.value = '醫療院所數據已成功載入'
+        await new Promise(resolve => setTimeout(resolve, 1000))
+      } catch (error) {
+        console.error('載入醫療院所數據失敗:', error)
+        loadingText.value = '載入失敗'
+        loadingSubText.value = '醫療院所數據載入失敗，請稍後再試'
+        await new Promise(resolve => setTimeout(resolve, 2000))
+      } finally {
+        isLoading.value = false
+        showLoadingProgress.value = false
+      }
+    }
+
+    // 監聽醫療院所圖層顯示狀態
+    watch(() => showMedicalLayer.value, (newValue) => {
+      console.log('HomeView: 醫療院所圖層顯示狀態變更:', newValue)
+      if (newValue) {
+        loadMedicalData()
+      }
+    })
+
+    // 添加更新坐標和標記數量的函數
+    const updateCurrentCoords = (coords) => {
+      currentCoords.value = coords
+    }
+
+    const updateActiveMarkers = (count) => {
+      activeMarkers.value = count
+    }
+
     // 📤 返回響應式數據和函數 (Return Reactive Data and Functions)
     return {
       // 📚 元件引用
@@ -554,7 +801,18 @@ export default {
       appFooterRef,
       calculatedMiddlePanelHeight,
       storeMergedTableData,
-      handleHighlight
+      handleHighlight,
+
+      // 新的狀態
+      showMedicalLayer,
+      medicalData,
+      isLoadingMedical,
+      loadMedicalData,
+
+      // 新的函數
+      updateCurrentCoords,
+      updateActiveMarkers,
+      handleMedicalLayerToggle
     }
   }
 }
@@ -644,5 +902,47 @@ body.my-no-select * {
     min-height: 8px;
     max-height: 8px;
   }
+}
+</style>
+
+<style scoped>
+.home-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.layer-control-panel {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.layer-control {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-check-input {
+  margin: 0;
+}
+
+.form-check-label {
+  margin: 0;
+  font-size: 14px;
+  color: #333;
 }
 </style> 

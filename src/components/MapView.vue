@@ -58,24 +58,58 @@ L.Icon.Default.mergeOptions({
 export default {
   name: 'MapView',
   props: {
-    showTainanLayer: { type: Boolean, default: false },
-    selectedFilter: { type: String, default: '' },
-    selectedColorScheme: { type: String, default: 'viridis' },
-    selectedBorderColor: { type: String, default: '#666666' },
-    selectedBorderWeight: { type: Number, default: 1 },
-    zoomLevel: { type: Number, default: 10 },
-    tainanGeoJSONData: { type: Object, default: null },
-    maxCount: { type: Number, default: 0 }
+    zoomLevel: {
+      type: Number,
+      default: 10
+    },
+    tainanGeoJSONData: {
+      type: Object,
+      default: () => ({})
+    },
+    showTainanLayer: {
+      type: Boolean,
+      default: false
+    },
+    medicalData: {
+      type: Object,
+      default: () => ({})
+    },
+    showMedicalLayer: {
+      type: Boolean,
+      default: false
+    },
+    selectedColorScheme: {
+      type: String,
+      default: 'default'
+    },
+    maxCount: {
+      type: Number,
+      default: 100
+    },
+    selectedBorderColor: {
+      type: String,
+      default: '#007bff'
+    },
+    selectedBorderWeight: {
+      type: Number,
+      default: 2
+    }
   },
   emits: ['update:zoomLevel', 'update:currentCoords', 'update:activeMarkers'],
   setup(props, { emit }) {
+    console.log('MapView setup:', {
+      hasMedicalData: !!props.medicalData,
+      showMedicalLayer: props.showMedicalLayer
+    })
+
+    const map = ref(null)
+    const tainanLayer = ref(null)
+    const medicalLayer = ref(null)
     const mapContainer = ref(null)
+    const mapInitialized = ref(false)
+    const currentTileLayer = ref(null)
     const mapStatus = ref('初始化中...')
     const selectedBasemap = ref('osm')
-    
-    let map = null
-    let tainanLayer = null
-    let currentTileLayer = null
     
     // 底圖配置
     const basemaps = {
@@ -129,74 +163,73 @@ export default {
     
     // 初始化地圖
     const initMap = () => {
-      if (map) {
+      if (map.value) {
         console.log('地圖已存在，跳過初始化')
         return
       }
-      
+
       try {
         console.log('開始初始化地圖...')
-        mapStatus.value = '創建地圖實例...'
+        mapStatus.value = '初始化中...'
         
         // 創建地圖
-        map = L.map(mapContainer.value, {
+        map.value = L.map(mapContainer.value, {
           center: [25.0330, 121.5654], // 台北市中心
           zoom: props.zoomLevel,
-          zoomControl: false, // 先禁用默認的縮放控件
-          attributionControl: false // 禁用版權資訊
+          zoomControl: false, // 禁用默認縮放控件
+          attributionControl: true
         })
         
         // 手動添加縮放控件到右下角
-        L.control.zoom({ position: 'bottomright' }).addTo(map)
+        L.control.zoom({ position: 'bottomright' }).addTo(map.value)
         
         mapStatus.value = '載入底圖...'
         
-        // 載入初始底圖
+        // 載入底圖
         loadBasemap()
         
         // 地圖事件
-        map.on('zoomend', () => {
-          emit('update:zoomLevel', map.getZoom())
+        map.value.on('zoomend', () => {
+          emit('update:zoomLevel', map.value.getZoom())
         })
         
-        map.on('moveend', () => {
-          const center = map.getCenter()
+        map.value.on('moveend', () => {
+          const center = map.value.getCenter()
           emit('update:currentCoords', { lat: center.lat, lng: center.lng })
         })
-        
-        mapStatus.value = '地圖已就緒'
+
+        mapInitialized.value = true
         console.log('地圖初始化完成')
-        
       } catch (error) {
-        console.error('地圖初始化錯誤:', error)
-        mapStatus.value = '初始化失敗: ' + error.message
+        console.error('地圖初始化失敗:', error)
+        mapStatus.value = '初始化失敗'
       }
     }
     
     // 載入底圖
     const loadBasemap = () => {
-      if (currentTileLayer) {
-        map.removeLayer(currentTileLayer)
-        currentTileLayer = null
+      if (currentTileLayer.value) {
+        map.value.removeLayer(currentTileLayer.value)
+        currentTileLayer.value = null
       }
       
       const basemapConfig = basemaps[selectedBasemap.value]
       
       if (selectedBasemap.value === 'blank' || !basemapConfig || !basemapConfig.url) {
         console.log('底圖已切換至: 空白無地圖')
-        if (map.attributionControl) {
-          map.attributionControl.setPrefix('');
+        if (map.value.attributionControl) {
+          map.value.attributionControl.setPrefix('');
         }
         return;
       }
       
-      currentTileLayer = L.tileLayer(basemapConfig.url, {
+      currentTileLayer.value = L.tileLayer(basemapConfig.url, {
         attribution: basemapConfig.attribution,
         subdomains: basemapConfig.subdomains || 'abc',
         maxZoom: 18
       })
       
-      currentTileLayer.addTo(map)
+      currentTileLayer.value.addTo(map.value)
       console.log(`底圖已切換至: ${selectedBasemap.value}`)
       if (basemapConfig.note) {
         console.warn(basemapConfig.note);
@@ -205,7 +238,7 @@ export default {
     
     // 切換底圖
     const changeBasemap = () => {
-      if (map) {
+      if (map.value) {
         loadBasemap()
       }
     }
@@ -218,17 +251,17 @@ export default {
         dataFeatures: props.tainanGeoJSONData?.features?.length
       })
 
-      if (tainanLayer) {
+      if (tainanLayer.value) {
         console.log('移除現有圖層')
-        map.removeLayer(tainanLayer)
-        tainanLayer = null
+        map.value.removeLayer(tainanLayer.value)
+        tainanLayer.value = null
       }
 
       if (props.tainanGeoJSONData && props.showTainanLayer) {
         try {
           console.log('創建新圖層，數據特徵數量:', props.tainanGeoJSONData.features?.length)
-          
-          tainanLayer = L.geoJSON(props.tainanGeoJSONData, {
+
+          tainanLayer.value = L.geoJSON(props.tainanGeoJSONData, {
             style: (feature) => {
               const count = feature.properties.中位數 || 0
               return {
@@ -271,7 +304,7 @@ export default {
                   layer.bringToFront()
                 },
                 mouseout: function(e) {
-                  tainanLayer.resetStyle(e.target)
+                  tainanLayer.value.resetStyle(e.target)
                 },
                 click: function(e) {
                   const layer = e.target
@@ -279,7 +312,7 @@ export default {
                   const center = layer.getBounds().getCenter()
                   
                   // 移動到畫面中間
-                  map.panTo(center, {
+                  map.value.panTo(center, {
                     animate: true,
                     duration: 0.5
                   })
@@ -292,11 +325,11 @@ export default {
             }
           })
           
-          tainanLayer.addTo(map)
+          tainanLayer.value.addTo(map.value)
           
           const featureCount = props.tainanGeoJSONData.features ? props.tainanGeoJSONData.features.length : 0
           emit('update:activeMarkers', featureCount)
-          
+
           console.log(`圖層創建完成，包含 ${featureCount} 個區域`)
           
         } catch (error) {
@@ -309,12 +342,12 @@ export default {
     
     // 顯示所有要素
     const showAllFeatures = () => {
-      if (map && tainanLayer) {
+      if (map.value && tainanLayer.value) {
         try {
-          const bounds = tainanLayer.getBounds()
+          const bounds = tainanLayer.value.getBounds()
           if (bounds.isValid()) {
             // 只移動到中心點，不縮放
-            map.panTo(bounds.getCenter())
+            map.value.panTo(bounds.getCenter())
           }
         } catch (error) {
           console.error('顯示全部功能錯誤:', error)
@@ -324,9 +357,9 @@ export default {
     
     // 高亮功能
     const highlightFeature = (name) => {
-      console.log('開始高亮顯示:', { name, tainanLayer: !!tainanLayer })
+      console.log('開始高亮顯示:', { name, tainanLayer: !!tainanLayer.value })
       
-      if (!tainanLayer) {
+      if (!tainanLayer.value) {
         console.warn('無法高亮顯示：tainanLayer 未定義')
         return
       }
@@ -337,13 +370,13 @@ export default {
       }
 
       // 重置所有圖層樣式
-      tainanLayer.eachLayer((layer) => {
-        tainanLayer.resetStyle(layer)
+      tainanLayer.value.eachLayer((layer) => {
+        tainanLayer.value.resetStyle(layer)
       })
 
       // 查找並高亮指定區域
       let found = false
-      tainanLayer.eachLayer((layer) => {
+      tainanLayer.value.eachLayer((layer) => {
         const feature = layer.feature
         console.log('檢查區域:', { 
           featureName: feature?.properties?.PTVNAME,
@@ -364,7 +397,7 @@ export default {
           
           // 移動到該區域
           const bounds = layer.getBounds()
-          map.fitBounds(bounds, {
+          map.value.fitBounds(bounds, {
             padding: [50, 50],
             animate: true,
             duration: 1.0
@@ -382,25 +415,25 @@ export default {
     
     // 重置視圖
     const resetView = () => {
-      if (map) {
-        map.setView([22.9908, 120.2133], 10)
+      if (map.value) {
+        map.value.setView([22.9908, 120.2133], 10)
         console.log('地圖視圖已重置')
       }
     }
     
     // 適應台南邊界
     const fitToTainanBounds = () => {
-      if (map && tainanLayer) {
-        map.fitBounds(tainanLayer.getBounds())
+      if (map.value && tainanLayer.value) {
+        map.value.fitBounds(tainanLayer.value.getBounds())
         console.log('地圖已適應台南邊界')
       }
     }
     
     // 刷新地圖大小
     const invalidateSize = () => {
-      if (map) {
+      if (map.value) {
         nextTick(() => {
-          map.invalidateSize()
+          map.value.invalidateSize()
           console.log('地圖大小已刷新')
         })
       }
@@ -408,13 +441,13 @@ export default {
     
     // 監聽圖層顯示狀態變化
     watch(() => props.showTainanLayer, (newValue) => {
-      if (tainanLayer) {
+      if (tainanLayer.value) {
         if (newValue) {
           // 如果圖層存在且要顯示，則添加到地圖
-          tainanLayer.addTo(map)
+          tainanLayer.value.addTo(map.value)
         } else {
           // 如果圖層存在且要隱藏，則從地圖移除
-          map.removeLayer(tainanLayer)
+          map.value.removeLayer(tainanLayer.value)
         }
       } else if (newValue && props.tainanGeoJSONData) {
         // 如果圖層不存在且要顯示，則創建新圖層
@@ -448,27 +481,146 @@ export default {
     });
     
     watch(() => props.zoomLevel, (newZoom) => {
-      if (map && map.getZoom() !== newZoom) {
-        map.setZoom(newZoom)
+      if (map.value && map.value.getZoom() !== newZoom) {
+        map.value.setZoom(newZoom)
+      }
+    })
+    
+    // 創建醫療院所圖層
+    const createMedicalLayer = () => {
+      console.log('MapView: 開始創建醫療院所圖層')
+      if (!map.value || !props.medicalData) {
+        console.warn('MapView: 無法創建醫療院所圖層 - 地圖或數據未就緒')
+        return
+      }
+
+      try {
+        // 移除現有圖層（如果存在）
+        if (medicalLayer.value) {
+          map.value.removeLayer(medicalLayer.value)
+          medicalLayer.value = null
+        }
+
+        console.log('MapView: 醫療院所數據:', {
+          type: props.medicalData.type,
+          featureCount: props.medicalData.features.length,
+          sampleFeature: props.medicalData.features[0]
+        })
+
+        // 創建點位圖層
+        const medicalGeoJSON = L.geoJSON(props.medicalData, {
+          pointToLayer: (feature, latlng) => {
+            console.log('MapView: 創建點位:', {
+              name: feature.properties.name,
+              coordinates: feature.geometry.coordinates,
+              latlng: latlng
+            })
+
+            // 創建圓形標記
+            const marker = L.circleMarker(latlng, {
+              radius: 6,                    // 點的大小
+              fillColor: '#ff0000',        // 點的填充顏色（紅色）
+              color: '#fff',               // 點的邊框顏色（白色）
+              weight: 1,                   // 邊框寬度
+              opacity: 1,                  // 邊框透明度
+              fillOpacity: 0.8             // 填充透明度
+            })
+
+            // 添加懸停效果
+            marker.on('mouseover', () => {
+              marker.setStyle({
+                fillColor: '#ff4444',      // 懸停時的填充顏色
+                fillOpacity: 1             // 懸停時的填充透明度
+              })
+            })
+
+            marker.on('mouseout', () => {
+              marker.setStyle({
+                fillColor: '#ff0000',      // 恢復原來的填充顏色
+                fillOpacity: 0.8           // 恢復原來的填充透明度
+              })
+            })
+
+            return marker
+          },
+          onEachFeature: (feature, layer) => {
+            const popupContent = `
+              <div class="medical-popup">
+                <h3>${feature.properties.name}</h3>
+                <p>地址：${feature.properties.address}</p>
+                <p>電話：${feature.properties.phone}</p>
+              </div>
+            `
+            layer.bindPopup(popupContent)
+          }
+        })
+
+        // 添加到地圖
+        medicalGeoJSON.addTo(map.value)
+        medicalLayer.value = medicalGeoJSON
+
+        console.log('MapView: 醫療院所圖層創建成功，共創建', props.medicalData.features.length, '個點位')
+      } catch (error) {
+        console.error('MapView: 創建醫療院所圖層失敗:', error)
+      }
+    }
+
+    // 監聽醫療院所圖層顯示狀態
+    watch(() => props.showMedicalLayer, (newValue) => {
+      console.log('MapView: 醫療院所圖層顯示狀態變更:', newValue, {
+        hasMedicalData: !!props.medicalData,
+        medicalDataFeatures: props.medicalData?.features?.length
+      })
+      if (newValue) {
+        createMedicalLayer()
+      } else if (medicalLayer.value) {
+        map.value.removeLayer(medicalLayer.value)
+        medicalLayer.value = null
+      }
+    })
+
+    // 監聽醫療院所數據變化
+    watch(() => props.medicalData, (newValue) => {
+      console.log('MapView: 醫療院所數據變更:', {
+        hasData: !!newValue,
+        featureCount: newValue?.features?.length
+      })
+      if (props.showMedicalLayer && newValue?.features?.length > 0) {
+        createMedicalLayer()
+      }
+    }, { deep: true })
+    
+    // 監聽地圖容器大小變化
+    const resizeObserver = new ResizeObserver(() => {
+      if (mapInitialized.value) {
+        invalidateSize()
       }
     })
     
     // 組件掛載
     onMounted(() => {
       console.log('MapView 組件已掛載')
-      nextTick(() => {
-        initMap()
-        createTainanLayer()
-      })
+      initMap()
+      
+      // 開始觀察地圖容器大小變化
+      if (mapContainer.value) {
+        resizeObserver.observe(mapContainer.value)
+      }
     })
     
     // 組件卸載
     onUnmounted(() => {
-      if (map) {
-        map.remove()
-        map = null
+      if (map.value) {
+        map.value.remove()
+        map.value = null
         console.log('地圖已清理')
       }
+      if (medicalLayer.value) {
+        map.value.removeLayer(medicalLayer.value)
+        medicalLayer.value = null
+      }
+      // 停止觀察
+      resizeObserver.disconnect()
     })
     
     return {

@@ -11,7 +11,10 @@ export const useDataStore = defineStore('data', () => {
     csvData: [],          // CSV資料
     excelData: [],        // Excel資料
     spatialData: [],      // 空間分析資料
-    metadata: {}          // 資料元資訊
+    metadata: {
+      geojson: null,
+      medical: null
+    }
   })
 
   // ==================== 處理後資料狀態 ====================
@@ -23,7 +26,8 @@ export const useDataStore = defineStore('data', () => {
     heatmapData: [],            // 熱力圖資料
     boundaryData: {},            // 邊界資料
     loadedAndMergedGeoJSON: null, // 從 loader 載入並合併的 GeoJSON
-    loadedAndMergedTableData: []  // 從 loader 載入並合併的表格數據
+    loadedAndMergedTableData: null,  // 從 loader 載入並合併的表格數據
+    medicalData: null
   })
 
   // ==================== 視覺化設定 ====================
@@ -128,6 +132,7 @@ export const useDataStore = defineStore('data', () => {
 
   // 添加數據載入狀態
   const isDataLoaded = ref(false)
+  const isMedicalDataLoaded = ref(false)
 
   /**
    * 新增：專門用於存儲 loadTainanDataUtil 載入的數據
@@ -158,6 +163,26 @@ export const useDataStore = defineStore('data', () => {
       isDataLoaded.value = true
     } else {
       console.warn('Pinia storeLoadedData: 接收到空的 data')
+    }
+  }
+  
+  // 添加醫療院所數據存儲函數
+  const storeMedicalData = (data) => {
+    if (data) {
+      processedData.value.medicalData = data
+      rawData.value.metadata.medical = {
+        timestamp: new Date().toISOString(),
+        source: 'medical-csv',
+        description: '醫療院所分布數據'
+      }
+      
+      console.log('✅ 醫療院所數據已存入 Pinia Store:', {
+        medicalPoints: data.features?.length
+      })
+      
+      isMedicalDataLoaded.value = true
+    } else {
+      console.warn('Pinia storeMedicalData: 接收到空的 data')
     }
   }
   
@@ -494,6 +519,7 @@ export const useDataStore = defineStore('data', () => {
     setRawData,
     setProcessedData,
     storeLoadedData,
+    storeMedicalData,
     updateVisualizationSettings,
     updateAnalysisParameters,
     clearData,
@@ -514,5 +540,7 @@ export const useDataStore = defineStore('data', () => {
     ColorSchemeUtils: ColorSchemeUtils,
     fetchLatestData,
     isDataLoaded,
+    isMedicalDataLoaded,
+    getProcessedData: computed(() => processedData.value)
   }
 }) 

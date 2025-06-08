@@ -19,14 +19,32 @@
       <div class="mb-3">
         <h6 class="text-muted small text-uppercase mb-2">圖層控制</h6>
         <div class="d-grid gap-2">
+          <!-- 台南市行政區 -->
           <div class="form-check form-switch">
             <input
               class="form-check-input"
               type="checkbox"
               :checked="showTainanLayer"
-              @change="handleLayerToggle($event.target.checked)"
+              @change="loadTainanData"
+              id="tainanLayerCheck"
             >
-            <label class="form-check-label">台南市行政區</label>
+            <label class="form-check-label" for="tainanLayerCheck">
+              台南市行政區
+            </label>
+          </div>
+
+          <!-- 醫療院所分布 -->
+          <div class="form-check form-switch">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              :checked="showMedicalLayer"
+              @change="handleMedicalLayerToggle"
+              id="medicalLayerCheck"
+            >
+            <label class="form-check-label" for="medicalLayerCheck">
+              醫療院所分布
+            </label>
           </div>
         </div>
       </div>
@@ -59,42 +77,14 @@ export default {
   props: {
     isLoadingData: { type: Boolean, default: false, required: true }, // 數據載入狀態 
     showTainanLayer: { type: Boolean, default: false, required: true }, // 台南圖層顯示狀態
-    
-    /** 🔍 當前選擇的篩選條件 */
-    selectedFilter: {
-      type: String,
-      default: '',
-      required: true
+    showMedicalLayer: {
+      type: Boolean,
+      default: false
     },
-    
-    /** 📏 左側面板寬度百分比 */
-    leftPanelWidth: {
-      type: Number,
-      default: 20,
-      required: true
-    },
-    
-    /** 📊 台南數據摘要資訊 */
-    tainanDataSummary: {
+    currentCoords: {
       type: Object,
-      default: null
+      default: () => ({ lat: 0, lng: 0 })
     },
-    
-    /** 📋 分析項目列表 */
-    analysisList: {
-      type: Array,
-      default: () => [],
-      required: true
-    },
-    
-    /** 🗺️ 地圖縮放級別 */
-    zoomLevel: {
-      type: Number,
-      default: 10,
-      required: true
-    },
-    
-    /** 📈 活躍標記數量 */
     activeMarkers: {
       type: Number,
       default: 0,
@@ -114,13 +104,15 @@ export default {
     'load-tainan-data',      // 載入台南數據事件
     'start-analysis',        // 開始分析事件
     'update:showTainanLayer',     // 更新台南圖層顯示狀態
+    'update:showMedicalLayer',
     'update:selectedFilter',      // 更新篩選條件
     'files-uploaded',             // 檔案上傳事件
     'update:zoomLevel',            // 更新地圖縮放級別
     'update:activeMarkers',        // 更新活躍標記數量
     'fit-map-to-data',
     'switch-to-dashboard',
-    'load-data'
+    'load-data',
+    'update:currentCoords'
   ],
 
   /**
@@ -309,13 +301,13 @@ export default {
       }
     }
 
-    const handleLayerToggle = (checked) => {
-      if (checked) {
-        // 當圖層打開時，觸發載入數據事件
-        emit('load-data')
-      }
-      // 更新圖層顯示狀態
-      emit('update:showTainanLayer', checked)
+    const loadTainanData = () => {
+      emit('load-data')
+    }
+
+    const handleMedicalLayerToggle = (event) => {
+      console.log('醫療院所圖層開關被點擊:', event.target.checked)
+      emit('update:showMedicalLayer', event.target.checked)
     }
 
     return {
@@ -335,7 +327,8 @@ export default {
       analysisMethods,
       selectedAnalysisMethod,
       selectAnalysisMethod,
-      handleLayerToggle
+      loadTainanData,
+      handleMedicalLayerToggle
     }
   },
   
@@ -455,4 +448,30 @@ export default {
 
 ================================================================================
 */
+
+.left-panel {
+  padding: 1rem;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.layer-control-section {
+  margin-bottom: 1.5rem;
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #333;
+}
+
+.form-check {
+  margin-bottom: 0.5rem;
+}
+
+.form-check-label {
+  font-size: 0.9rem;
+  color: #555;
+}
 </style> 
