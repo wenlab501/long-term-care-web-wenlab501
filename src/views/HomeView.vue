@@ -26,10 +26,8 @@
           <div class="h-100 overflow-auto" :style="{ width: leftPanelWidthPx }" v-if="leftPanelWidth > 0">
             <LeftPanel
               :isLoadingData="isLoadingMedical"
-              @update:showTainanLayer="showTainanLayer = $event"
-              @update:showMedicalLayer="showMedicalLayer = $event"
-              @load-tainan-data="loadTainanData"
-              @load-medical-data="loadMedicalLayer"
+              @update:showTainanLayer="handleTainanLayerVisibility"
+              @update:showMedicalLayer="handleMedicalLayerVisibility"
               :current-coords="currentCoords"
               :active-markers="activeMarkers"
               :merged-table-data="storeMergedTableData"
@@ -101,7 +99,7 @@
                         class="form-check-input"
                         type="checkbox"
                         :checked="showTainanLayer"
-                        @change="loadTainanData"
+                        @change="toggleTainanLayer"
                         id="tainanLayerCheck"
                       >
                       <label class="form-check-label" for="tainanLayerCheck">
@@ -113,7 +111,7 @@
                         class="form-check-input"
                         type="checkbox"
                         :checked="showMedicalLayer"
-                        @change="loadMedicalLayer"
+                        @change="toggleMedicalLayer"
                         id="medicalLayerCheck"
                       >
                       <label class="form-check-label" for="medicalLayerCheck">
@@ -318,34 +316,19 @@ export default {
      * 載入GeoJSON和Excel文件並進行數據合併
      */
     const loadTainanData = async () => {
-      // 切換圖層顯示狀態
-      showTainanLayer.value = !showTainanLayer.value
-      
-      // 如果是關閉圖層，直接返回
-      if (!showTainanLayer.value) {
-        return
-      }
-      
-      // 如果數據已經載入過，直接返回
-      if (dataStore.isDataLoaded) {
-        return
-      }
-
       try {
         isLoading.value = true
-        loadingText.value = '載入台南數據中...'
+        loadingText.value = '載入台南市數據中...'
         loadingSubText.value = '正在處理地理資訊...'
         
         const data = await loadTainanDataUtil()
-        console.log('載入的數據:', data) // 添加日誌
+        console.log('載入的數據:', data)
         
         // 確保數據正確存儲
         dataStore.storeLoadedData({
           loadedAndMergedGeoJSON: data.mergedGeoJSON,
           loadedAndMergedTableData: data.tableData
         })
-        
-        showTainanLayer.value = true
         
         loadingText.value = '載入完成'
         loadingSubText.value = `已載入 ${data.tableData.length} 個區域`
@@ -355,7 +338,7 @@ export default {
           isLoading.value = false
         }, 1000)
       } catch (error) {
-        console.error('載入台南數據失敗:', error)
+        console.error('載入台南市數據失敗:', error)
         loadingText.value = '載入失敗'
         loadingSubText.value = error.message
         // 延遲一下再關閉載入視窗，讓用戶看到錯誤訊息
@@ -552,34 +535,19 @@ export default {
 
     // 載入醫療院所圖層
     const loadMedicalLayer = async () => {
-      // 切換圖層顯示狀態
-      showMedicalLayer.value = !showMedicalLayer.value
-      
-      // 如果是關閉圖層，直接返回
-      if (!showMedicalLayer.value) {
-        return
-      }
-      
-      // 如果數據已經載入過，直接返回
-      if (dataStore.isMedicalDataLoaded) {
-        return
-      }
-
       try {
         isLoading.value = true
         loadingText.value = '載入醫療院所數據中...'
         loadingSubText.value = '正在處理地理資訊...'
         
         const data = await loadMedicalData()
-        console.log('載入的數據:', data) // 添加日誌
+        console.log('載入的數據:', data)
         
         // 確保數據正確存儲
         dataStore.storeLoadedData({
           loadedAndMergedGeoJSON: data.mergedGeoJSON,
           loadedAndMergedTableData: data.tableData
         })
-        
-        showMedicalLayer.value = true
         
         loadingText.value = '載入完成'
         loadingSubText.value = `已載入 ${data.tableData.length} 個區域`
@@ -597,6 +565,26 @@ export default {
           isLoading.value = false
         }, 2000)
       }
+    }
+
+    // 處理台南市圖層顯示狀態變化
+    const handleTainanLayerVisibility = (show) => {
+      // 如果是開啟狀態且數據尚未載入過，才載入數據
+      if (show && !dataStore.isDataLoaded) {
+        loadTainanData()
+      }
+      // 更新顯示狀態
+      showTainanLayer.value = show
+    }
+
+    // 處理醫療院所圖層顯示狀態變化
+    const handleMedicalLayerVisibility = (show) => {
+      // 如果是開啟狀態且數據尚未載入過，才載入數據
+      if (show && !dataStore.isMedicalDataLoaded) {
+        loadMedicalLayer()
+      }
+      // 更新顯示狀態
+      showMedicalLayer.value = show
     }
 
     // 添加更新坐標和標記數量的函數
@@ -660,7 +648,6 @@ export default {
       storeTainanGeoJSONData,
       storeTainanDataSummary,
       
-      
       // 📥 台南數據功能
       loadTainanData,
       clearTainanData,
@@ -689,7 +676,9 @@ export default {
       // 新的函數
       updateCurrentCoords,
       updateActiveMarkers,
-      loadMedicalLayer
+      loadMedicalLayer,
+      handleTainanLayerVisibility,
+      handleMedicalLayerVisibility
     }
   }
 }

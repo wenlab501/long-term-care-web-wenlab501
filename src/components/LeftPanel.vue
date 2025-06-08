@@ -25,7 +25,7 @@
               class="form-check-input"
               type="checkbox"
               :checked="showTainanLayer"
-              @change="loadTainanData"
+              @change="$emit('update:showTainanLayer', $event.target.checked)"
               id="tainanLayerCheck"
             >
             <label class="form-check-label" for="tainanLayerCheck">
@@ -39,7 +39,7 @@
               class="form-check-input"
               type="checkbox"
               :checked="showMedicalLayer"
-              @change="loadMedicalData"
+              @change="$emit('update:showMedicalLayer', $event.target.checked)"
               id="medicalLayerCheck"
             >
             <label class="form-check-label" for="medicalLayerCheck">
