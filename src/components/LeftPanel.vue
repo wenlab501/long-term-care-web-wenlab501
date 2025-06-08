@@ -24,21 +24,11 @@
               class="form-check-input"
               type="checkbox"
               :checked="showTainanLayer"
-              @change="$emit('update:showTainanLayer', $event.target.checked)"
+              @change="handleLayerToggle($event.target.checked)"
             >
             <label class="form-check-label">台南市行政區</label>
           </div>
         </div>
-      </div>
-
-      <!-- 載入數據按鈕 -->
-      <div class="mb-3">
-        <button 
-          class="btn btn-primary w-100"
-          @click="$emit('load-data')"
-        >
-          載入數據
-        </button>
       </div>
 
     </div>
@@ -318,7 +308,16 @@ export default {
         console.log('🗑️ 檔案已移除:', removedFile.name)
       }
     }
-    
+
+    const handleLayerToggle = (checked) => {
+      if (checked) {
+        // 當圖層打開時，觸發載入數據事件
+        emit('load-data')
+      }
+      // 更新圖層顯示狀態
+      emit('update:showTainanLayer', checked)
+    }
+
     return {
       // 拖曳上傳相關
       isDragOver,
@@ -335,7 +334,8 @@ export default {
       // 分析方法
       analysisMethods,
       selectedAnalysisMethod,
-      selectAnalysisMethod
+      selectAnalysisMethod,
+      handleLayerToggle
     }
   },
   

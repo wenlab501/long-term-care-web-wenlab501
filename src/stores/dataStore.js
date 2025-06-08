@@ -126,32 +126,40 @@ export const useDataStore = defineStore('data', () => {
 
   // ==================== 計算屬性 ====================
 
+  // 添加數據載入狀態
+  const isDataLoaded = ref(false)
+
   /**
    * 新增：專門用於存儲 loadTainanDataUtil 載入的數據
    */
   const storeLoadedData = (data) => {
     if (data) {
-      processedData.value.loadedAndMergedGeoJSON = data.mergedGeoJSON;
-      processedData.value.loadedAndMergedTableData = Array.isArray(data.tableData) ? data.tableData : [];
+      processedData.value = {
+        ...processedData.value,
+        loadedAndMergedGeoJSON: data.loadedAndMergedGeoJSON,
+        loadedAndMergedTableData: data.loadedAndMergedTableData
+      }
       
-      if (processedData.value.loadedAndMergedGeoJSON) {
-        rawData.value.geojson = processedData.value.loadedAndMergedGeoJSON; // 假設 mergedGeoJSON 就是要作為基礎地理數據
-        rawData.value.metadata.geojson = { 
+      if (data.loadedAndMergedGeoJSON) {
+        rawData.value.geojson = data.loadedAndMergedGeoJSON
+        rawData.value.metadata.geojson = {
           ...(rawData.value.metadata.geojson || {}),
           timestamp: new Date().toISOString(),
           source: 'loadTainanDataUtil',
           description: 'Main dataset loaded via Tainan data utility'
-        };
+        }
       }
 
-      console.log('✅ 主要數據已存入 Pinia Store (processedData & rawData.geojson 更新):', {
-        geojsonFeatures: data.mergedGeoJSON?.features?.length,
-        tableDataRows: data.tableData?.length
-      });
+      console.log('✅ 主要數據已存入 Pinia Store:', {
+        geojsonFeatures: data.loadedAndMergedGeoJSON?.features?.length,
+        tableDataRows: data.loadedAndMergedTableData?.length
+      })
+      
+      isDataLoaded.value = true
     } else {
-      console.warn('Pinia storeLoadedData: 接收到空的 data');
+      console.warn('Pinia storeLoadedData: 接收到空的 data')
     }
-  };
+  }
   
   // 資料統計摘要
   const dataSummary = computed(() => {
@@ -275,14 +283,12 @@ export const useDataStore = defineStore('data', () => {
   /**
    * 清除特定類型資料
    */
-  const clearData = (dataType) => {
-    if (rawData.value[dataType] !== undefined) {
-      rawData.value[dataType] = dataType === 'metadata' ? {} : 
-                                (Array.isArray(rawData.value[dataType]) ? [] : null)
+  const clearData = (key) => {
+    if (key === 'geojson') {
+      isDataLoaded.value = false
     }
-    
-    if (processedData.value[dataType] !== undefined) {
-      processedData.value[dataType] = Array.isArray(processedData.value[dataType]) ? [] : {}
+    if (rawData.value[key]) {
+      delete rawData.value[key]
     }
   }
 
@@ -507,5 +513,6 @@ export const useDataStore = defineStore('data', () => {
     // 🔥 新增：色票工具類別（給組件直接使用）
     ColorSchemeUtils: ColorSchemeUtils,
     fetchLatestData,
+    isDataLoaded,
   }
 }) 

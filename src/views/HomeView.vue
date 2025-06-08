@@ -257,12 +257,43 @@ export default {
      * 載入GeoJSON和Excel文件並進行數據合併
      */
     const loadTainanData = async () => {
-      try {
-        const data = await loadTainanDataUtil()
-        dataStore.storeLoadedData(data)
+      // 如果數據已經載入過，直接顯示圖層
+      if (dataStore.isDataLoaded) {
         showTainanLayer.value = true
+        return
+      }
+
+      try {
+        isLoading.value = true
+        loadingText.value = '載入台南數據中...'
+        loadingSubText.value = '正在處理地理資訊...'
+        
+        const data = await loadTainanDataUtil()
+        console.log('載入的數據:', data) // 添加日誌
+        
+        // 確保數據正確存儲
+        dataStore.storeLoadedData({
+          loadedAndMergedGeoJSON: data.mergedGeoJSON,
+          loadedAndMergedTableData: data.tableData
+        })
+        
+        showTainanLayer.value = true
+        
+        loadingText.value = '載入完成'
+        loadingSubText.value = `已載入 ${data.tableData.length} 個區域`
+        
+        // 延遲一下再關閉載入視窗，讓用戶看到完成訊息
+        setTimeout(() => {
+          isLoading.value = false
+        }, 1000)
       } catch (error) {
         console.error('載入台南數據失敗:', error)
+        loadingText.value = '載入失敗'
+        loadingSubText.value = error.message
+        // 延遲一下再關閉載入視窗，讓用戶看到錯誤訊息
+        setTimeout(() => {
+          isLoading.value = false
+        }, 2000)
       }
     }
 

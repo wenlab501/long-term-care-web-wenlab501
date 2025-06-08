@@ -214,7 +214,8 @@ export default {
     const createTainanLayer = () => {
       console.log('開始創建圖層...', { 
         hasData: !!props.tainanGeoJSONData,
-        showLayer: props.showTainanLayer
+        showLayer: props.showTainanLayer,
+        dataFeatures: props.tainanGeoJSONData?.features?.length
       })
 
       if (tainanLayer) {
@@ -225,6 +226,8 @@ export default {
 
       if (props.tainanGeoJSONData && props.showTainanLayer) {
         try {
+          console.log('創建新圖層，數據特徵數量:', props.tainanGeoJSONData.features?.length)
+          
           tainanLayer = L.geoJSON(props.tainanGeoJSONData, {
             style: (feature) => {
               const count = feature.properties.中位數 || 0
@@ -403,10 +406,20 @@ export default {
       }
     }
     
-    // 監聽屬性變化
-    watch(() => props.showTainanLayer, () => {
-      console.log('台南圖層顯示狀態變更:', props.showTainanLayer)
-      createTainanLayer()
+    // 監聽圖層顯示狀態變化
+    watch(() => props.showTainanLayer, (newValue) => {
+      if (tainanLayer) {
+        if (newValue) {
+          // 如果圖層存在且要顯示，則添加到地圖
+          tainanLayer.addTo(map)
+        } else {
+          // 如果圖層存在且要隱藏，則從地圖移除
+          map.removeLayer(tainanLayer)
+        }
+      } else if (newValue && props.tainanGeoJSONData) {
+        // 如果圖層不存在且要顯示，則創建新圖層
+        createTainanLayer()
+      }
     })
     
     watch(() => props.tainanGeoJSONData, () => {
