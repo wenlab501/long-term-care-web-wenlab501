@@ -473,21 +473,27 @@ export async function loadMedicalData() {
       }).filter(feature => feature !== null)
     }
 
-    // 打印完整的 GeoJSON 結構
-    console.log('完整的 GeoJSON 結構:', JSON.stringify(geojsonData, null, 2))
-
-    // 創建表格數據
+    // 生成表格數據
     const tableData = geojsonData.features.map(feature => ({
-      name: feature.properties.name,
-      address: feature.properties.address,
-      phone: feature.properties.phone,
-      city: feature.properties.city,
-      district: feature.properties.district
+      id: feature.properties.name || '',
+      name: feature.properties.name || '',
+      count: 1, // 每個醫療院所計數為1
+      ...feature.properties
     }))
 
+    // 生成摘要信息
+    const summary = {
+      totalFeatures: geojsonData.features.length,
+      coordinateSystem: 'WGS84',
+      conversionInfo: 'CSV轉GeoJSON'
+    }
+
     return {
-      geojsonData,
-      tableData
+      rawGeoJSON: geojsonData,
+      mergedGeoJSON: geojsonData,
+      convertedGeoJSON: geojsonData,
+      tableData,
+      summary
     }
   } catch (error) {
     console.error('載入醫療院所數據失敗:', error)
