@@ -390,90 +390,107 @@ export const loadCSV = async (filePath) => {
 }
 
 /**
- * 從 WKT Point 字串解析經緯度
- * @param {string} wkt - WKT 格式的 Point 字串，例如 "WKT: 'POINT (121.528644625799 25.0518866183438)'"
- * @returns {Object} 包含經緯度的物件
- */
-function parseWKTPoint(wkt) {
-  try {
-    // 移除 "WKT: " 前綴和單引號
-    const cleanWkt = wkt.replace("WKT: '", '').replace("'", '')
-    // 移除 "POINT (" 和 ")" 並分割經緯度
-    const coords = cleanWkt.replace('POINT (', '').replace(')', '').split(' ')
-    return {
-      longitude: parseFloat(coords[0]),
-      latitude: parseFloat(coords[1])
-    }
-  } catch (error) {
-    console.error('解析 WKT Point 失敗:', error)
-    return { longitude: null, latitude: null }
-  }
-}
-
-/**
  * 載入醫療院所數據
  * @returns {Promise<Object>} 處理後的數據
  */
 export async function loadMedicalData() {
   try {
     console.log('開始載入醫療院所數據...')
-    const response = await fetch('/long-term-care-web/data/csv/112年12月醫療院所分布圖_全國.csv')
+    const filePath = '/long-term-care-web/data/csv/112年12月醫療院所分布圖_全國.csv'
+    console.log('嘗試加載文件:', filePath)
+    
+    const response = await fetch(filePath)
     if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url
+      })
       throw new Error(`HTTP error! status: ${response.status}`)
     }
     
     const csvText = await response.text()
-    const workbook = XLSX.read(csvText, { type: 'string' })
-    const firstSheetName = workbook.SheetNames[0]
-    const worksheet = workbook.Sheets[firstSheetName]
-    const data = XLSX.utils.sheet_to_json(worksheet)
+    console.log('CSV 文件內容前 500 字符:', csvText.substring(0, 500))
     
-    // 只取臺北市的數據
-    const taipeiData = data.filter(row => {
-      const city = row.縣市 || row.縣市別 || row.city || row.City
-      return city === '臺北市'
+    const rows = csvText.split('\n').map(row => row.split(','))
+    console.log('CSV 標題行:', rows[0])
+    console.log('CSV 數據行數:', rows.length)
+    
+    const headers = rows[0]
+    console.log('CSV 標題索引:', {
+      'WKT': headers.indexOf('WKT'),
+      '機構名稱': headers.indexOf('機構名稱'),
+      '縣市': headers.indexOf('縣市'),
+      '鄉鎮市區': headers.indexOf('鄉鎮市區'),
+      '地址': headers.indexOf('地址'),
+      '電話': headers.indexOf('電話')
     })
     
-    console.log('✅ 醫療院所數據載入成功')
-    console.log('臺北市醫療院所數量:', taipeiData.length)
-    console.log('CSV 數據範例:', taipeiData[0])
-    
-    // 生成表格數據
-    const tableData = taipeiData.map((row, index) => {
-      // 從 WKT 解析經緯度
-      const wkt = row.WKT || row.wkt
-      const coords = wkt ? parseWKTPoint(wkt) : { longitude: null, latitude: null }
-      
-      if (!coords.longitude || !coords.latitude) {
-        console.warn(`醫療院所數據缺少有效的 WKT 格式:`, row)
+    // 只保留臺北市的數據
+    const taipeiData = rows.slice(1).filter(row => {
+      const cityIndex = headers.indexOf('縣市')
+      const isTaipei = row[cityIndex] === '臺北市'
+      if (isTaipei) {
+        console.log('找到臺北市數據:', row)
       }
-      
-      return {
-        id: index + 1,
-        name: row.name || row.Name || row.醫療院所 || '',
-        address: row.address || row.Address || row.地址 || '',
-        phone: row.phone || row.Phone || row.電話 || '',
-        type: row.type || row.Type || row.類型 || '',
-        latitude: coords.latitude,
-        longitude: coords.longitude,
-        ...row
-      }
+      return isTaipei
     })
+    console.log(`載入 ${taipeiData.length} 筆臺北市醫療院所數據`)
 
-    // 生成摘要信息
-    const summary = {
-      totalFeatures: tableData.length,
-      dataSource: 'medical-csv',
-      description: '臺北市醫療院所分布數據'
+    // 創建 GeoJSON 結構
+    const geojsonData = {
+      type: 'FeatureCollection',
+      features: taipeiData.map(row => {
+        // 解析 WKT 格式的座標
+        const wktMatch = row[headers.indexOf('WKT')]?.match(/POINT \(([-\d.]+) ([-\d.]+)\)/)
+        if (!wktMatch) {
+          console.warn('無效的 WKT 格式:', row[headers.indexOf('WKT')])
+          return null
+        }
+
+        const lng = parseFloat(wktMatch[1])
+        const lat = parseFloat(wktMatch[2])
+        
+        if (isNaN(lat) || isNaN(lng)) {
+          console.warn('無效的座標:', row)
+          return null
+        }
+
+        return {
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [lng, lat]
+          },
+          properties: {
+            name: row[headers.indexOf('機構名稱')],
+            address: row[headers.indexOf('地址')],
+            phone: row[headers.indexOf('電話')],
+            city: row[headers.indexOf('縣市')],
+            district: row[headers.indexOf('鄉鎮市區')]
+          }
+        }
+      }).filter(feature => feature !== null)
     }
+
+    // 打印完整的 GeoJSON 結構
+    console.log('完整的 GeoJSON 結構:', JSON.stringify(geojsonData, null, 2))
+
+    // 創建表格數據
+    const tableData = geojsonData.features.map(feature => ({
+      name: feature.properties.name,
+      address: feature.properties.address,
+      phone: feature.properties.phone,
+      city: feature.properties.city,
+      district: feature.properties.district
+    }))
 
     return {
-      rawData: taipeiData,
-      tableData,
-      summary
+      geojsonData,
+      tableData
     }
   } catch (error) {
-    console.error('❌ 醫療院所數據載入失敗:', error)
+    console.error('載入醫療院所數據失敗:', error)
     throw error
   }
 }

@@ -222,6 +222,20 @@ export default {
    */
   setup() {
     const dataStore = useDataStore()
+    
+    // 定義必要的響應式變量
+    const loadingState = ref({
+      isLoading: false,
+      message: ''
+    })
+    const medicalData = ref(null)
+    const showMedicalLayer = ref(false)
+    const tableData = ref([])
+    const tainanDataSummary = ref({
+      totalFeatures: 0,
+      validPoints: 0,
+      coordinateSystem: 'WGS84'
+    })
 
     // 📚 元件引用 (Component References)
     const middlePanelRef = ref(null)
@@ -271,14 +285,9 @@ export default {
     const activeMarkers = ref(0)
     
     // 📊 台南數據相關 (Tainan Data Related)
-    const tainanDataSummary = ref(null)
-    const tableData = ref([])
-
-    // 從 Pinia store 獲取數據的 computed 屬性
     const storeMergedTableData = computed(() => dataStore.processedData.loadedAndMergedTableData);
     const storeTainanGeoJSONData = computed(() => dataStore.processedData.loadedAndMergedGeoJSON);
     const storeTainanDataSummary = computed(() => dataStore.dataSummary);
-    const storeMedicalData = computed(() => dataStore.medicalData);
 
     // 🔧 拖曳狀態 (Drag States)
     const isSidePanelDragging = ref(false)
@@ -305,7 +314,6 @@ export default {
     })
 
     // 在 setup 函數中添加新的狀態
-    const showMedicalLayer = ref(false)
     const isLoadingMedical = ref(false)
 
     // 📥 台南數據功能函數 (Tainan Data Functions)
@@ -550,31 +558,60 @@ export default {
     // 載入醫療院所圖層
     const loadMedicalLayer = async () => {
       try {
-        isLoading.value = true
-        loadingText.value = '正在載入醫療院所數據...'
-        
-        const data = await loadMedicalData()
-        if (!data) {
-          throw new Error('無法載入醫療院所數據')
+        loadingState.value = {
+          isLoading: true,
+          message: '正在載入醫療院所數據...'
         }
-        
-        console.log('醫療院所數據載入成功:', {
-          totalPoints: data.tableData.length,
-          samplePoint: data.tableData[0]
-        })
-        
-        // 更新 store 中的數據
-        storeMedicalData.value = data
-        
-        // 更新圖層顯示狀態
+
+        // 檢查是否已有數據
+        const existingData = dataStore.processedData.medicalData
+        if (existingData?.geojsonData) {
+          console.log('使用已載入的醫療院所數據')
+          medicalData.value = existingData
+          showMedicalLayer.value = true
+          loadingState.value = {
+            isLoading: false,
+            message: `已載入 ${existingData.geojsonData.features.length} 個醫療院所`
+          }
+          return
+        }
+
+        // 載入新數據
+        const data = await loadMedicalData()
+        if (!data || !data.geojsonData) {
+          throw new Error('醫療院所數據載入失敗或格式不正確')
+        }
+
+        // 更新數據
+        medicalData.value = data
+        dataStore.processedData.medicalData = data
         showMedicalLayer.value = true
-        
+
+        // 更新表格數據
+        tableData.value = data.tableData
+        tainanDataSummary.value = {
+          ...tainanDataSummary.value,
+          totalFeatures: data.geojsonData.features.length,
+          validPoints: data.geojsonData.features.length,
+          coordinateSystem: 'WGS84'
+        }
+
+        loadingState.value = {
+          isLoading: false,
+          message: `已載入 ${data.geojsonData.features.length} 個醫療院所`
+        }
+
+        console.log('醫療院所數據載入完成:', {
+          totalFeatures: data.geojsonData.features.length,
+          hasGeoJSON: !!data.geojsonData,
+          sampleFeature: data.geojsonData.features[0]
+        })
       } catch (error) {
         console.error('載入醫療院所數據失敗:', error)
-        showMedicalLayer.value = false
-      } finally {
-        isLoading.value = false
-        loadingText.value = ''
+        loadingState.value = {
+          isLoading: false,
+          message: '載入醫療院所數據失敗'
+        }
       }
     }
 
@@ -663,7 +700,6 @@ export default {
 
       // 新的狀態
       showMedicalLayer,
-      storeMedicalData,
       isLoadingMedical,
 
       // 新的函數

@@ -511,91 +511,66 @@ export default {
     
     // 創建醫療院所圖層
     const createMedicalLayer = () => {
-      console.log('開始創建醫療院所圖層...', {
-        hasData: !!props.medicalData,
-        showLayer: props.showMedicalLayer,
-        dataPoints: props.medicalData?.tableData?.length
-      })
-      
-      if (!props.medicalData?.tableData || !props.showMedicalLayer) {
-        console.log('醫療院所數據不存在或圖層未啟用')
-        return
-      }
-
-      // 移除現有的醫療院所圖層
-      if (medicalLayer.value) {
-        map.value.removeLayer(medicalLayer.value)
-        medicalLayer.value = null
-      }
-
-      // 創建新的圖層組
-      medicalLayer.value = L.layerGroup().addTo(map.value)
-
-      // 添加醫療院所標記
-      props.medicalData.tableData.forEach((point) => {
-        if (!point.latitude || !point.longitude) {
-          console.warn('醫療院所缺少經緯度:', point)
+      try {
+        console.log('開始創建醫療院所圖層...')
+        if (!map.value || !props.medicalData?.geojsonData) {
+          console.warn('無法創建醫療院所圖層：地圖或數據未就緒')
           return
         }
 
-        console.log('添加醫療院所標記:', {
-          name: point.name,
-          lat: point.latitude,
-          lng: point.longitude
-        })
+        // 移除現有圖層
+        if (medicalLayer.value) {
+          map.value.removeLayer(medicalLayer.value)
+          medicalLayer.value = null
+        }
 
-        const marker = L.circleMarker([point.latitude, point.longitude], {
-          radius: 6,
-          fillColor: '#ff7800',
-          color: '#fff',
-          weight: 1,
-          opacity: 1,
-          fillOpacity: 0.8
-        })
+        // 使用 GeoJSON 數據創建圖層
+        medicalLayer.value = L.geoJSON(props.medicalData.geojsonData, {
+          pointToLayer: (feature, latlng) => {
+            return L.circleMarker(latlng, {
+              radius: 6,
+              fillColor: '#ff0000',
+              color: '#fff',
+              weight: 1,
+              opacity: 1,
+              fillOpacity: 0.8
+            })
+          },
+          onEachFeature: (feature, layer) => {
+            // 添加彈出窗口
+            const popupContent = `
+              <div class="medical-popup">
+                <h3>${feature.properties.name}</h3>
+                <p>地址：${feature.properties.address}</p>
+                <p>電話：${feature.properties.phone}</p>
+                <p>區域：${feature.properties.district}</p>
+              </div>
+            `
+            layer.bindPopup(popupContent)
 
-        // 綁定彈出視窗
-        marker.bindPopup(`
-          <div class="medical-popup">
-            <h3>${point.name || '未命名醫療院所'}</h3>
-            <p><strong>地址：</strong>${point.address || '無'}</p>
-            <p><strong>電話：</strong>${point.phone || '無'}</p>
-            <p><strong>類型：</strong>${point.type || '無'}</p>
-          </div>
-        `)
+            // 添加點擊事件
+            layer.on('click', () => {
+              console.log('點擊醫療院所:', feature.properties)
+              // 發送事件到父組件
+              emit('update:activeMarkers', 1)
+            })
+          }
+        }).addTo(map.value)
 
-        // 綁定提示框
-        marker.bindTooltip(point.name || '未命名醫療院所', {
-          permanent: false,
-          direction: 'top'
-        })
-
-        // 添加滑鼠事件
-        marker.on('mouseover', () => {
-          marker.setStyle({
-            fillColor: '#ff0000',
-            fillOpacity: 1
+        // 自動調整地圖視圖以顯示所有點位
+        if (medicalLayer.value.getBounds) {
+          map.value.fitBounds(medicalLayer.value.getBounds(), {
+            padding: [50, 50],
+            animate: true,
+            duration: 1.0
           })
-        })
+        }
 
-        marker.on('mouseout', () => {
-          marker.setStyle({
-            fillColor: '#ff7800',
-            fillOpacity: 0.8
-          })
-        })
-
-        marker.addTo(medicalLayer.value)
-      })
-
-      // 調整地圖視圖以顯示所有點
-      if (props.medicalData.tableData.length > 0) {
-        const bounds = medicalLayer.value.getBounds()
-        map.value.fitBounds(bounds, { padding: [50, 50] })
+        console.log('✅ 醫療院所圖層創建成功')
+        console.log('醫療院所數量:', props.medicalData.geojsonData.features.length)
+      } catch (error) {
+        console.error('❌ 創建醫療院所圖層失敗:', error)
       }
-
-      // 更新啟用的標記數量
-      emit('update:activeMarkers', props.medicalData.tableData.length)
-      console.log('醫療院所圖層創建完成')
     }
     
     // 監聽地圖容器大小變化
