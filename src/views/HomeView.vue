@@ -16,7 +16,7 @@
       <!-- 🚀 路由視圖（非首頁） - 使用Bootstrap佈局 -->
       <div v-if="$route.path !== '/'" class="flex-grow-1">
         <router-view />
-          </div>
+      </div>
           
       <!-- 🏠 首頁內容（空間分析平台） - 使用Bootstrap grid系統 -->
       <div v-if="$route.path === '/'" class="flex-grow-1 d-flex flex-column overflow-hidden">
@@ -25,32 +25,18 @@
           <!-- 🎛️ 左側控制面板 (Left Control Panel) - Wrapper for content only -->
           <div class="h-100 overflow-auto" :style="{ width: leftPanelWidthPx }" v-if="leftPanelWidth > 0">
             <LeftPanel 
-              :isLoadingData="isLoadingData"
-              :canStartAnalysis="canStartAnalysis"
               :showTainanLayer="showTainanLayer"
-              :selectedFilter="selectedFilter"
-              :leftPanelWidth="leftPanelWidth"
-              :zoomLevel="zoomLevel"
-              :activeMarkers="activeMarkers"
-              :tainanDataSummary="tainanDataSummary"
-              :analysisList="analysisList"
-              :mergedTableData="storeMergedTableData"
-              @load-tainan-data="loadTainanData"
-              @start-analysis="startAnalysis"
               @update:showTainanLayer="showTainanLayer = $event"
-              @update:selectedFilter="selectedFilter = $event"
-              @fit-map-to-data="fitMapToData"
-              @clear-tainan-data="clearTainanData"
-              @switch-to-dashboard="switchToDashboard"
+              @load-data="loadTainanData"
             />
-        </div>
+          </div>
         
           <!-- 🔧 左側拖曳調整器 (Left Resizer) - Now a direct child of the flex row -->
           <div class="my-resizer my-resizer-vertical border-start border-end" 
                :class="{ 'dragging': isSidePanelDragging }"
                @mousedown="startResize('left', $event)"
                title="拖曳調整左側面板寬度">
-            </div>
+          </div>
             
           <!-- 🌟 新的主要顯示區域組件 (New Main Display Area Component) -->
           <MiddlePanel
@@ -89,6 +75,7 @@
             @update:selectedBorderWeight="selectedBorderWeight = $event"
             @reset-view="resetView"
             @highlight-on-map="highlightOnMap"
+            @highlight-feature="handleHighlight"
           />
 
           <!-- 🔧 右側拖曳調整器 (Right Resizer) - Now a direct child of the flex row -->
@@ -96,7 +83,7 @@
                :class="{ 'dragging': isSidePanelDragging }"
                @mousedown="startResize('right', $event)"
                title="拖曳調整右側面板寬度">
-      </div>
+          </div>
 
           <!-- 📈 右側控制面板 (Right Control Panel) - Wrapper for content only -->
           <div class="h-100 overflow-auto" :style="{ width: rightPanelWidthPx }" v-if="rightPanelWidth > 0">
@@ -119,11 +106,12 @@
               @switch-to-dashboard="switchToDashboard"
               @select-analysis="selectAnalysis"
               @view-analysis="viewAnalysis"
-              @delete-analysis="deleteAnalysis" />
+              @delete-analysis="deleteAnalysis"
+              @highlight-feature="handleHighlight" />
+          </div>
         </div>
-            </div>
-              </div>
-            </div>
+      </div>
+    </div>
             
     <!-- 🦶 頁腳區域 (Footer Area) - Bootstrap sticky footer，緊貼底部無空隙 -->
     <footer class="my-app-footer bg-dark text-light py-2 mt-auto" ref="appFooterRef">
@@ -131,16 +119,16 @@
         <div class="row">
           <div class="col-md-6 text-md-start text-center">
             <small>© 2024 空間分析視覺化平台. All rights reserved.</small>
-                  </div>
+          </div>
           <div class="col-md-6 text-md-end text-center">
             <small>
               Powered by <a href="https://vuejs.org/" target="_blank" class="text-light text-decoration-none">Vue.js</a> & 
               <a href="https://leafletjs.com/" target="_blank" class="text-light text-decoration-none">Leaflet</a> & 
               <a href="https://d3js.org/" target="_blank" class="text-light text-decoration-none">D3.js</a>
             </small>
-                </div>
-              </div>
-              </div>
+          </div>
+        </div>
+      </div>
     </footer>
   </div>
 </template>
@@ -170,7 +158,7 @@ import RightPanel from '../components/RightPanel.vue'
 import MiddlePanel from '../components/MiddlePanel.vue'
 
 export default {
-  name: 'App',
+  name: 'HomeView',
   
   /**
    * 🧩 組件註冊 (Component Registration)
@@ -242,12 +230,7 @@ export default {
     // 從 Pinia store 獲取數據的 computed 屬性
     const storeMergedTableData = computed(() => dataStore.processedData.loadedAndMergedTableData);
     const storeTainanGeoJSONData = computed(() => dataStore.processedData.loadedAndMergedGeoJSON);
-    const storeTainanDataSummary = computed(() => {
-      // 假設 summary 也應該從 store 來，或者 dataStore 內部有一個 summary 的 computed
-      // 暫時保持 tainanDataSummary.value = data.summary 的賦值，或者將其也存入 store
-      // 如果 dataStore.dataSummary 是有效的，則使用它
-      return dataStore.dataSummary; 
-    });
+    const storeTainanDataSummary = computed(() => dataStore.dataSummary);
 
     // 📈 分析相關 (Analysis Related)
     const analysisList = ref([])
@@ -419,57 +402,14 @@ export default {
      * 載入GeoJSON和Excel文件並進行數據合併
      */
     const loadTainanData = async () => {
-      console.log('HomeView.vue: loadTainanData function CALLED');
-      isLoadingData.value = true;
-      isLoading.value = true;
-      loadingText.value = '載入數據...';
-      showLoadingProgress.value = true;
-      loadingSubText.value = '正在讀取 GeoJSON 和 Excel 文件';
-
       try {
-        // 模擬載入進度
-        loadingProgress.value = 20
-        loadingSubText.value = '讀取 GeoJSON 文件...'
-        await new Promise(resolve => setTimeout(resolve, 500))
-
-        loadingProgress.value = 50
-        loadingSubText.value = '讀取 Excel 文件...'
-        await new Promise(resolve => setTimeout(resolve, 500))
-
-        loadingProgress.value = 80
-        loadingSubText.value = '合併數據...'
-        await new Promise(resolve => setTimeout(resolve, 500))
-
-        const data = await loadTainanDataUtil();
-        console.log('HomeView.vue: Data received from loadTainanDataUtil:', data);
-        console.log('HomeView.vue: data.tableData:', data.tableData);
-        console.log('HomeView.vue: Is data.tableData an array?', Array.isArray(data.tableData));
-        
-        // 將數據存儲到 Pinia store
-        dataStore.storeLoadedData(data);
-
-        // tainanDataSummary 仍然可以局部更新，或者也從 store 中讀取 (如上面的 computed)
-        tainanDataSummary.value = data.summary; 
-        // tableData.value 的賦值也需要重新評估，是否也應該從 store 管理
-        // 暫時保留，但注意其數據源現在應該與 storeMergedTableData 一致
-        tableData.value = Array.isArray(data.tableData) ? data.tableData : [];
-
-        loadingProgress.value = 100;
-        loadingSubText.value = '數據載入完成';
-        showTainanLayer.value = true;
-        activeBottomTab.value = 'table';
-        selectedFilter.value = '';
-        console.log('✅ 台南數據載入完成並已存儲到 Pinia:', data.summary);
+        const data = await loadTainanDataUtil()
+        dataStore.storeLoadedData(data)
+        showTainanLayer.value = true
       } catch (error) {
-        console.error('❌ 載入台南數據失敗:', error);
-        alert('載入數據失敗，請檢查文件路徑和格式');
-      } finally {
-        isLoadingData.value = false;
-        isLoading.value = false;
-        loadingProgress.value = 0;
-        showLoadingProgress.value = false;
+        console.error('載入台南數據失敗:', error)
       }
-    };
+    }
 
     /**
      * 🗑️ 清除台南數據 (Clear Tainan Data)
@@ -638,9 +578,7 @@ export default {
      * 🚀 組件掛載 (Component Mounted)
      */
     onMounted(() => {
-      window.addEventListener('resize', handleResize);
-      handleResize();
-      // loadTainanData(); // Removed to prevent automatic data loading
+      // 移除自動載入數據
       console.log('🚀 空間分析平台已初始化')
     })
 
@@ -650,6 +588,13 @@ export default {
     onUnmounted(() => {
       window.removeEventListener('resize', handleResize);
     })
+
+    // 處理高亮顯示
+    const handleHighlight = (name) => {
+      if (middlePanelRef.value) {
+        middlePanelRef.value.highlightFeature(name)
+      }
+    }
 
     // 📤 返回響應式數據和函數 (Return Reactive Data and Functions)
     return {
@@ -732,7 +677,8 @@ export default {
       getCurrentTime,
       appFooterRef,
       calculatedMiddlePanelHeight,
-      storeMergedTableData
+      storeMergedTableData,
+      handleHighlight
     }
   }
 }

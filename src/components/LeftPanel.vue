@@ -15,120 +15,32 @@
     <!-- 🎛️ 主控制區域 (Main Control Area) - 使用緊湊樣式 -->
     <div class="flex-grow-1 overflow-auto p-3" style="min-width: 0;">
       
-      <!-- 📥 拖曳上傳區域 (Drag Upload Area) - 去除卡片包裝 -->
-      <div class="mb-3">
-        <h6 class="text-muted small text-uppercase mb-2">數據上傳</h6>
-        <div 
-          class="my-drag-upload-area border border-dashed rounded text-center bg-white p-3"
-          :class="{ 'border-primary bg-light': isDragOver }"
-          @drop="handleDrop"
-          @dragover.prevent="handleDragOver"
-          @dragenter.prevent="handleDragEnter"
-          @dragleave="handleDragLeave"
-          @click="triggerFileInput">
-          
-          <div class="mb-2">
-            <i class="fas fa-cloud-upload-alt fa-lg text-muted"></i>
-          </div>
-          
-          <div class="my-font-size-sm mb-1">xlsx檔案上傳</div>
-          <div class="my-font-size-xs text-muted">拖曳檔案或點擊此處</div>
-          
-          <input
-            ref="fileInput"
-            type="file"
-            class="d-none"
-            accept=".geojson,.json,.csv,.xlsx,.xls"
-            multiple
-            @change="handleFileSelect">
-        </div>
-        
-        <div v-if="uploadedFiles.length > 0" class="mt-2">
-          <div class="list-group list-group-flush">
-            <div v-for="file in uploadedFiles" :key="file.id" 
-                 class="list-group-item list-group-item-action p-2 d-flex justify-content-between align-items-center bg-white rounded mb-1 shadow-sm">
-              <div class="flex-grow-1 me-2">
-                <div class="small fw-medium text-truncate" :title="file.name">{{ file.name }}</div>
-                <small class="text-muted">{{ formatFileSize(file.size) }}</small>
-              </div>
-              <button 
-                class="btn btn-outline-danger btn-sm border-0" 
-                @click="removeFile(file.id)"
-                title="移除檔案">
-                <i class="fas fa-times"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 📥 數據載入區域 (Data Loading Section) -->
-      <div class="mb-3">
-        <h6 class="text-muted small text-uppercase mb-2">數據處理</h6>
-        <div class="d-grid">
-          <button 
-            class="btn btn-success" 
-            @click="$emit('load-tainan-data')" 
-            :disabled="isLoadingData">
-            <span v-if="isLoadingData">
-              <span class="spinner-border spinner-border-sm me-1" role="status"></span>
-              載入中...
-            </span>
-            <span v-else><i class="fas fa-database me-1"></i> 載入預設數據</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- ⚙️ 空間分析方法選擇 (Spatial Analysis Method Selection) -->
-      <div class="mb-3">
-        <h6 class="text-muted small text-uppercase mb-2">空間分析方法</h6>
-        <div class="dropdown">
-          <button class="btn btn-outline-secondary dropdown-toggle w-100" type="button" id="spatialAnalysisMethodDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-            <span v-if="selectedAnalysisMethod && selectedAnalysisMethod.text">{{ selectedAnalysisMethod.text }}</span>
-            <span v-else>選擇分析方法</span>
-            <i class="fas fa-chevron-down fa-xs ms-1"></i>
-          </button>
-          <ul class="dropdown-menu w-100" aria-labelledby="spatialAnalysisMethodDropdown">
-            <template v-if="analysisMethods && analysisMethods.length > 0">
-              <li v-for="method in analysisMethods" :key="method.value">
-                <a class="dropdown-item" href="#" @click.prevent="selectAnalysisMethod(method)">
-                  {{ method.text }}
-                </a>
-              </li>
-            </template>
-            <template v-else>
-              <li class="dropdown-item disabled">分析方法加載中或為空...</li>
-            </template>
-          </ul>
-        </div>
-      </div>
-
-      <!-- 🔬 分析控制區域 (Analysis Control Section) -->
-      <div class="mb-3">
-         <h6 class="text-muted small text-uppercase mb-2">空間分析執行</h6>
-        <div class="d-grid">
-          <button 
-            class="btn btn-primary" 
-            @click="$emit('start-analysis', selectedAnalysisMethod ? selectedAnalysisMethod.value : null)" 
-            :disabled="!canStartAnalysis">
-            開始分析
-          </button>
-        </div>
-      </div>
-
       <!-- 圖層控制卡片 -->
       <div class="mb-3">
         <h6 class="text-muted small text-uppercase mb-2">圖層控制</h6>
         <div class="d-grid gap-2">
-          <ActionButton 
-            @click="$emit('clear-tainan-data')"
-            :disabled="!mergedTableData || mergedTableData.length === 0"
-            variant="outline-warning"
-            icon="trash"
-            text="清除數據" />
+          <div class="form-check form-switch">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              :checked="showTainanLayer"
+              @change="$emit('update:showTainanLayer', $event.target.checked)"
+            >
+            <label class="form-check-label">台南市行政區</label>
+          </div>
         </div>
       </div>
- 
+
+      <!-- 載入數據按鈕 -->
+      <div class="mb-3">
+        <button 
+          class="btn btn-primary w-100"
+          @click="$emit('load-data')"
+        >
+          載入數據
+        </button>
+      </div>
+
     </div>
 
   </div>
@@ -147,13 +59,9 @@
  * 6. 📊 顯示系統狀態資訊
  */
 import { ref, toRaw } from 'vue'
-import ActionButton from './common/ActionButton.vue'
 
 export default {
   name: 'LeftPanel',
-  components: {
-    ActionButton
-  },
   /**
    * 🔧 組件屬性定義 (Component Props)
    * 接收來自父組件的數據和狀態
@@ -222,8 +130,8 @@ export default {
     'update:zoomLevel',            // 更新地圖縮放級別
     'update:activeMarkers',        // 更新活躍標記數量
     'fit-map-to-data',
-    'clear-tainan-data',
-    'switch-to-dashboard'
+    'switch-to-dashboard',
+    'load-data'
   ],
 
   /**
