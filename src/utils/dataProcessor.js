@@ -426,21 +426,22 @@ export async function loadMedicalData() {
       '電話': headers.indexOf('電話')
     })
     
-    // 只保留臺北市的數據
-    const taipeiData = rows.slice(1).filter(row => {
+    // 只保留臺北市萬華區的數據
+    const wanhuaData = rows.slice(1).filter(row => {
       const cityIndex = headers.indexOf('縣市')
-      const isTaipei = row[cityIndex] === '臺北市'
-      if (isTaipei) {
-        console.log('找到臺北市數據:', row)
+      const districtIndex = headers.indexOf('鄉鎮市區')
+      const isWanhua = row[cityIndex] === '臺北市' && row[districtIndex] === '萬華區'
+      if (isWanhua) {
+        console.log('找到萬華區數據:', row)
       }
-      return isTaipei
+      return isWanhua
     })
-    console.log(`載入 ${taipeiData.length} 筆臺北市醫療院所數據`)
+    console.log(`載入 ${wanhuaData.length} 筆萬華區醫療院所數據`)
 
     // 創建 GeoJSON 結構
     const geojsonData = {
       type: 'FeatureCollection',
-      features: taipeiData.map(row => {
+      features: wanhuaData.map(row => {
         // 解析 WKT 格式的座標
         const wktMatch = row[headers.indexOf('WKT')]?.match(/POINT \(([-\d.]+) ([-\d.]+)\)/)
         if (!wktMatch) {
