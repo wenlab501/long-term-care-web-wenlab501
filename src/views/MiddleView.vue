@@ -6,7 +6,7 @@
     <!-- 📊 上半部內容區域 (Upper Content Area) -->
     <!-- 包含地圖、儀表板等主要顯示內容 -->
     <div :style="{ pointerEvents: isOverallDragging ? 'none' : 'auto', height: contentHeight + 'px', overflow: 'hidden' }">
-      <UpperPanel
+      <UpperView
         ref="mainContentRef"
         :activeTab="activeTab"
         :mainPanelWidth="mainPanelWidth"
@@ -46,11 +46,11 @@
 
     <!-- 📋 下半部內容區域 (Bottom Content Area) -->
     <!-- 包含資料表格、控制項等輔助顯示內容 -->
-    <div :style="{ pointerEvents: isOverallDragging ? 'none' : 'auto', height: actualBottomPanelPixelHeight + 'px', overflow: 'hidden' }">
-      <BottomPanel
-        ref="bottomPanelRef"
+    <div :style="{ pointerEvents: isOverallDragging ? 'none' : 'auto', height: actualBottomViewPixelHeight + 'px', overflow: 'hidden' }">
+      <BottomView
+        ref="bottomViewRef"
         :activeBottomTab="activeBottomTab"
-        :bottomPanelHeight="actualBottomPanelPixelHeight"
+        :bottomViewHeight="actualBottomViewPixelHeight"
         :tableData="mergedTableData"
         :selectedColorScheme="selectedColorScheme"
         :selectedBorderColor="selectedBorderColor"
@@ -69,7 +69,7 @@
 
 <script setup>
 /**
- * 🎛️ MiddlePanel.vue - 中間面板組件
+ * 🎛️ MiddleView.vue - 中間面板組件
  * 
  * 功能說明：
  * 1. 📊 管理上下兩個面板的佈局
@@ -79,24 +79,24 @@
  * 5. 🖱️ 處理拖曳狀態和滑鼠互動
  * 
  * 架構說明：
- * - 上半部：UpperPanel (地圖、儀表板等)
+ * - 上半部：UpperView (地圖、儀表板等)
  * - 拖曳器：可調整上下面板高度比例
- * - 下半部：BottomPanel (資料表格、控制項等)
+ * - 下半部：BottomView (資料表格、控制項等)
  */
 
 // 🔧 Vue Composition API 引入
 import { ref, computed, onMounted, onUnmounted, defineProps, defineEmits, defineExpose, watch } from 'vue'
 
 // 🧩 組件引入
-import UpperPanel from './UpperPanel.vue'
-import BottomPanel from './BottomPanel.vue'
+import UpperView from './UpperView.vue'
+import BottomView from './BottomView.vue'
 
 // --- 📥 組件屬性定義 (Component Props) ---
 const props = defineProps({
   /** 📚 主內容引用 (從 HomeView 傳遞的 ref) */
   mainContent: Object,
   /** 📚 底部面板引用 (從 HomeView 傳遞的 ref) */
-  bottomPanel: Object,
+  bottomView: Object,
 
   /** 📑 當前作用分頁標籤 */
   activeTab: String,
@@ -168,11 +168,11 @@ const emit = defineEmits([
 /** 📊 主內容面板引用 (用於呼叫方法如 highlightFeature) */
 const mainContentRef = ref(null);
 /** 📋 底部面板引用 */
-const bottomPanelRef = ref(null);
+const bottomViewRef = ref(null);
 
 // --- 🔧 內部垂直拖曳調整邏輯 (Internal Vertical Resizing Logic) ---
 /** 📏 底部面板高度百分比 (預設 30%) */
-const bottomPanelHeightPercent = ref(30);
+const bottomViewHeightPercent = ref(30);
 /** 🖱️ 是否正在進行垂直拖曳 */
 const isVerticalDragging = ref(false);
 
@@ -189,16 +189,16 @@ const middleSectionTotalHeight = computed(() => {
 });
 
 /** 📏 底部面板實際像素高度計算 */
-const actualBottomPanelPixelHeight = computed(() => {
-  const pixelHeight = (bottomPanelHeightPercent.value / 100) * middleSectionTotalHeight.value;
-  console.log(`MDA: actualBottomPanelPixelHeight calculated: ${pixelHeight} (percent: ${bottomPanelHeightPercent.value}%, totalMiddle: ${middleSectionTotalHeight.value})`);
+const actualBottomViewPixelHeight = computed(() => {
+  const pixelHeight = (bottomViewHeightPercent.value / 100) * middleSectionTotalHeight.value;
+  console.log(`MDA: actualBottomViewPixelHeight calculated: ${pixelHeight} (percent: ${bottomViewHeightPercent.value}%, totalMiddle: ${middleSectionTotalHeight.value})`);
   return pixelHeight;
 });
 
 /** 📏 主內容區域高度計算 */
 const contentHeight = computed(() => {
-  const mainContentH = middleSectionTotalHeight.value - actualBottomPanelPixelHeight.value;
-  console.log(`MDA: contentHeight (for MainContent) calculated: ${mainContentH}, totalMiddle: ${middleSectionTotalHeight.value}, bottomPanelPx: ${actualBottomPanelPixelHeight.value}`);
+  const mainContentH = middleSectionTotalHeight.value - actualBottomViewPixelHeight.value;
+  console.log(`MDA: contentHeight (for MainContent) calculated: ${mainContentH}, totalMiddle: ${middleSectionTotalHeight.value}, bottomViewPx: ${actualBottomViewPixelHeight.value}`);
   return mainContentH;
 });
 
@@ -216,7 +216,7 @@ const startVerticalResize = (event) => {
   
   // 記錄初始位置和狀態
   const startY = event.clientY;
-  const startBottomPercent = bottomPanelHeightPercent.value;
+  const startBottomPercent = bottomViewHeightPercent.value;
   const currentMiddleSectionHeight = middleSectionTotalHeight.value;
 
   /**
@@ -234,7 +234,7 @@ const startVerticalResize = (event) => {
     // 向下拖曳 (deltaY > 0) 減少底部面板高度百分比
     let newPercent = startBottomPercent - deltaPercent; 
     newPercent = Math.max(0, Math.min(100, newPercent)); // 限制在 0-100% 範圍
-    bottomPanelHeightPercent.value = Math.round(newPercent * 10) / 10; // 四捨五入到小數點後一位
+    bottomViewHeightPercent.value = Math.round(newPercent * 10) / 10; // 四捨五入到小數點後一位
   };
 
   /**
@@ -257,7 +257,7 @@ const startVerticalResize = (event) => {
  * 👀 監聽 activeTab 變化 (Watch activeTab Changes)
  */
 watch(() => props.activeTab, (newTab, oldTab) => {
-  console.log(`MDA Watcher: activeTab changed from "${oldTab}" to "${newTab}". Current bottomPanelHeightPercent: ${bottomPanelHeightPercent.value}%`);
+  console.log(`MDA Watcher: activeTab changed from "${oldTab}" to "${newTab}". Current bottomViewHeightPercent: ${bottomViewHeightPercent.value}%`);
 });
 
 /**
@@ -265,14 +265,14 @@ watch(() => props.activeTab, (newTab, oldTab) => {
  */
 onMounted(() => {
   // 初始計算將依賴從 HomeView 傳遞的正確 prop
-  console.log('MiddlePanel mounted');
+  console.log('MiddleView mounted');
 });
 
 /**
  * 🗑️ 組件卸載時清理 (Component Unmounted Cleanup)
  */
 onUnmounted(() => {
-  console.log('MiddlePanel unmounted');
+  console.log('MiddleView unmounted');
 });
 
 // --- 🔧 可從父組件呼叫的方法 (Methods Callable from Parent) ---
@@ -317,7 +317,7 @@ defineExpose({
   highlightFeature,
   fitToTainanBounds,
   resetMapView,
-  // 如果 HomeView 需要直接存取，可以暴露 mainContentRef 和 bottomPanelRef
+  // 如果 HomeView 需要直接存取，可以暴露 mainContentRef 和 bottomViewRef
 });
 </script>
 

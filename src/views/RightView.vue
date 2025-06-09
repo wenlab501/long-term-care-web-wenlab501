@@ -2,7 +2,7 @@
 
 <script>
 /**
- * 📊 RightPanel.vue - 右側面板組件
+ * 📊 RightView.vue - 右側面板組件
  * 
  * 功能說明：
  * 1. 📋 提供物件屬性查看功能
@@ -30,7 +30,7 @@ import { useDataStore } from '../stores/dataStore'
 import { computed, watch } from 'vue'
 
 export default {
-  name: 'RightPanel',
+  name: 'RightView',
   
   /**f
    * 🧩 組件註冊 (Component Registration)
@@ -61,7 +61,7 @@ export default {
       default: null
     },
     /** 📏 右側面板寬度 (像素) */
-    rightPanelWidth: {
+    rightViewWidth: {
       type: Number,
       default: 250
     }
@@ -102,7 +102,7 @@ export default {
      * 當 Pinia store 中的 selectedFeature 變化時執行回調
      */
     watch(() => dataStore.selectedFeature, (newFeature) => {
-      console.log('RightPanel - selectedFeature changed:', {
+      console.log('RightView - selectedFeature changed:', {
         newFeature: newFeature,
         properties: newFeature?.properties,
         store: dataStore
@@ -116,7 +116,7 @@ export default {
      */
     const selectedFeatureComputed = computed(() => {
       const feature = dataStore.selectedFeature
-      console.log('RightPanel - Computing selectedFeature:', {
+      console.log('RightView - Computing selectedFeature:', {
         feature: feature,
         properties: feature?.properties
       })

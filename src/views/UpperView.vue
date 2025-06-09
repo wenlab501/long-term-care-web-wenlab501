@@ -84,7 +84,7 @@
 
 <script>
 /**
- * 📊 UpperPanel.vue - 上半部面板組件
+ * 📊 UpperView.vue - 上半部面板組件
  * 
  * 功能說明：
  * 1. 📑 提供地圖和儀表板的分頁切換功能
@@ -112,7 +112,7 @@ import MapView from '../views/MapView.vue'
 import DashboardView from '../views/DashboardView.vue'
 
 export default {
-  name: 'UpperPanel',
+  name: 'UpperView',
   
   /**
    * 🧩 組件註冊 (Component Registration)

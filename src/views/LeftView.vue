@@ -1,7 +1,7 @@
 
 <script>
 /**
- * 🎛️ LeftPanel.vue - 左側控制面板組件
+ * 🎛️ LeftView.vue - 左側控制面板組件
  * 
  * 功能說明：
  * 1. 🗺️ 提供圖層顯示控制功能，資料來源為 Pinia store
@@ -26,7 +26,7 @@ import { computed } from 'vue'
 import { useDataStore } from '../stores/dataStore'
 
 export default {
-  name: 'LeftPanel',
+  name: 'LeftView',
   
   /**
    * 🔧 組件屬性定義 (Component Props)

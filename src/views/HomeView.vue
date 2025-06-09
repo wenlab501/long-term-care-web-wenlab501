@@ -29,8 +29,8 @@
           
           <!-- 🎛️ 左側控制面板容器 (Left Control Panel Container) -->
           <!-- 包含圖層控制、資料載入等功能，支援動態寬度調整 -->
-          <div class="h-100 overflow-auto" :style="{ width: leftPanelWidthPx }" v-if="leftPanelWidth > 0">
-            <LeftPanel />
+          <div class="h-100 overflow-auto" :style="{ width: leftViewWidthPx }" v-if="leftViewWidth > 0">
+            <LeftView />
           </div>
         
           <!-- 🔧 左側拖曳調整器 (Left Panel Resizer) -->
@@ -43,11 +43,11 @@
             
           <!-- 🌟 中間主要顯示區域 (Main Display Area) -->
           <!-- 包含地圖、儀表板、資料表格等核心功能組件 -->
-          <MiddlePanel
+          <MiddleView
             ref="middlePanelRef"
             class="d-flex flex-column flex-grow-1 overflow-hidden h-100"
             :style="{ width: mainPanelWidthPx, 'min-width': '0px' }"
-            :dynamicMainAreaHeight="calculatedMiddlePanelHeight"
+            :dynamicMainAreaHeight="calculatedMiddleViewHeight"
             :activeTab="activeTab"
             :activeBottomTab="activeBottomTab"
             :mainPanelWidth="mainPanelWidth" 
@@ -92,8 +92,8 @@
 
           <!-- 📈 右側控制面板容器 (Right Control Panel Container) -->
           <!-- 包含物件屬性、分析清單等輔助功能，支援動態寬度調整 -->
-          <div class="h-100 overflow-auto" :style="{ width: rightPanelWidthPx }" v-if="rightPanelWidth > 0">
-            <RightPanel 
+          <div class="h-100 overflow-auto" :style="{ width: rightViewWidthPx }" v-if="rightViewWidth > 0">
+            <RightView 
               :activeRightTab="activeRightTab"
               :totalCount="totalCount"
               :activeMarkers="activeMarkers"
@@ -103,10 +103,9 @@
               :averageCount="averageCount"
               :dataRegionsCount="dataRegionsCount"
               :showTainanLayer="showTainanLayer"
-              :rightPanelWidth="rightPanelWidth"
+              :rightViewWidth="rightViewWidth"
               @update:activeRightTab="activeRightTab = $event"
               @fit-map-to-data="fitMapToData"
-              @clear-tainan-data="clearAllData"
               @switch-to-dashboard="switchToDashboard"
               @highlight-feature="handleHighlight"
               :current-coords="currentCoords"
@@ -174,9 +173,9 @@ import { useDataStore } from '@/stores/dataStore'
 
 // 🧩 組件引入
 import LoadingOverlay from '../components/LoadingOverlay.vue'
-import LeftPanel from '../panels/LeftPanel.vue'
-import RightPanel from '../panels/RightPanel.vue'
-import MiddlePanel from '../panels/MiddlePanel.vue'
+import LeftView from './LeftView.vue'
+import RightView from './RightView.vue'
+import MiddleView from './MiddleView.vue'
 
 export default {
   name: 'HomeView',
@@ -187,9 +186,9 @@ export default {
    */
   components: {
     LoadingOverlay,    // 載入覆蓋層組件
-    LeftPanel,         // 左側控制面板組件
-    RightPanel,        // 右側面板組件
-    MiddlePanel        // 中間主要內容面板組件
+    LeftView,         // 左側控制面板組件
+    RightView,        // 右側面板組件
+    MiddleView        // 中間主要內容面板組件
   },
   
   /**
@@ -228,9 +227,9 @@ export default {
     // 使用百分比系統實現響應式佈局
     const MIN_LEFT_PANEL_WIDTH_PERCENT = 5; // 左側面板最小寬度百分比
     /** 📏 左側面板寬度百分比 (0-100%) */
-    const leftPanelWidth = ref(20)
+    const leftViewWidth = ref(20)
     /** 📏 右側面板寬度百分比 (0-100%) */
-    const rightPanelWidth = ref(20)
+    const rightViewWidth = ref(20)
     /** 📏 瀏覽器視窗寬度 */
     const windowWidth = ref(window.innerWidth)
     /** 📏 瀏覽器視窗高度 */
@@ -240,16 +239,16 @@ export default {
 
     // 🧮 計算屬性 - 面板尺寸 (Computed Properties - Panel Dimensions)
     /** 📏 左側面板像素寬度 */
-    const leftPanelWidthPx = computed(() => `${leftPanelWidth.value}%`)
+    const leftViewWidthPx = computed(() => `${leftViewWidth.value}%`)
     /** 📏 右側面板像素寬度 */
-    const rightPanelWidthPx = computed(() => `${rightPanelWidth.value}%`)
+    const rightViewWidthPx = computed(() => `${rightViewWidth.value}%`)
     /** 📏 中間面板寬度百分比 */
-    const mainPanelWidth = computed(() => 100 - leftPanelWidth.value - rightPanelWidth.value)
+    const mainPanelWidth = computed(() => 100 - leftViewWidth.value - rightViewWidth.value)
     /** 📏 中間面板像素寬度 */
     const mainPanelWidthPx = computed(() => `${mainPanelWidth.value}%`)
 
     /** 📏 中間面板計算高度 */
-    const calculatedMiddlePanelHeight = computed(() => {
+    const calculatedMiddleViewHeight = computed(() => {
       return windowHeight.value - footerHeight.value;
     });
 
@@ -349,17 +348,6 @@ export default {
       ).length;
     })
 
-    /**
-     * 🗑️ 清除所有圖層數據 (Clear All Layer Data)
-     * 通過 Pinia store 清除所有已載入的圖層資料
-     */
-    const clearAllData = () => {
-      if (confirm('確定要清除所有圖層數據嗎？')) {
-        dataStore.clearAllData();
-        console.log('✅ 所有圖層數據已從 Pinia Store 中清除');
-      }
-    };
-
     // 🗺️ 地圖互動函數 (Map Interaction Functions)
     
     /**
@@ -417,8 +405,8 @@ export default {
       
       // 記錄初始位置和面板尺寸
       const startX = event.clientX
-      const startLeftWidth = leftPanelWidth.value
-      const startRightWidth = rightPanelWidth.value
+      const startLeftWidth = leftViewWidth.value
+      const startRightWidth = rightViewWidth.value
       
       // 獲取窗口尺寸以計算百分比
       const currentWindowWidth = windowWidth.value
@@ -441,14 +429,14 @@ export default {
           // 調整左側面板寬度
           let newWidth = startLeftWidth + deltaXPercent
           // 限制寬度：最小值為 MIN_LEFT_PANEL_WIDTH_PERCENT，最大值確保主面板不為負
-          newWidth = Math.max(MIN_LEFT_PANEL_WIDTH_PERCENT, Math.min(100 - rightPanelWidth.value, newWidth))
-          leftPanelWidth.value = newWidth
+          newWidth = Math.max(MIN_LEFT_PANEL_WIDTH_PERCENT, Math.min(100 - rightViewWidth.value, newWidth))
+          leftViewWidth.value = newWidth
         } else if (direction === 'right') {
           // 調整右側面板寬度
           let newWidth = startRightWidth - deltaXPercent
           // 限制寬度：最小值為 0，最大值確保主面板不為負
-          newWidth = Math.max(0, Math.min(100 - leftPanelWidth.value, newWidth))
-          rightPanelWidth.value = newWidth
+          newWidth = Math.max(0, Math.min(100 - leftViewWidth.value, newWidth))
+          rightViewWidth.value = newWidth
         }
       }
 
@@ -466,8 +454,8 @@ export default {
         validatePanelSizes()
         
         console.log('✅ 拖曳調整完成，最終值:', {
-          leftWidth: leftPanelWidth.value,
-          rightWidth: rightPanelWidth.value,
+          leftWidth: leftViewWidth.value,
+          rightWidth: rightViewWidth.value,
           mainWidth: mainPanelWidth.value
         })
       }
@@ -483,12 +471,12 @@ export default {
      */
     const validatePanelSizes = () => {
       // 確保各面板在合理範圍內
-      leftPanelWidth.value = Math.max(MIN_LEFT_PANEL_WIDTH_PERCENT, Math.min(100, leftPanelWidth.value))
-      rightPanelWidth.value = Math.max(0, Math.min(100, rightPanelWidth.value))
+      leftViewWidth.value = Math.max(MIN_LEFT_PANEL_WIDTH_PERCENT, Math.min(100, leftViewWidth.value))
+      rightViewWidth.value = Math.max(0, Math.min(100, rightViewWidth.value))
       
       // 四捨五入到一位小數
-      leftPanelWidth.value = Math.round(leftPanelWidth.value * 10) / 10
-      rightPanelWidth.value = Math.round(rightPanelWidth.value * 10) / 10
+      leftViewWidth.value = Math.round(leftViewWidth.value * 10) / 10
+      rightViewWidth.value = Math.round(rightViewWidth.value * 10) / 10
     }
 
     // 📏 視窗大小變化處理 (Window Resize Handler)
@@ -628,10 +616,10 @@ export default {
       dataRegionsCount,      // 資料區域數量
       
       // 📏 面板尺寸（百分比系統）
-      leftPanelWidth,        // 左側面板寬度百分比
-      rightPanelWidth,       // 右側面板寬度百分比
-      leftPanelWidthPx,      // 左側面板像素寬度
-      rightPanelWidthPx,     // 右側面板像素寬度
+      leftViewWidth,        // 左側面板寬度百分比
+      rightViewWidth,       // 右側面板寬度百分比
+      leftViewWidthPx,      // 左側面板像素寬度
+      rightViewWidthPx,     // 右側面板像素寬度
       mainPanelWidth,        // 中間面板寬度百分比
       mainPanelWidthPx,      // 中間面板像素寬度
       
@@ -642,7 +630,6 @@ export default {
       storeTainanDataSummary,       // 從 store 獲取的資料摘要
       
       // 📥 數據管理功能
-      clearAllData,          // 清除所有資料
       fitMapToData,          // 適應地圖到資料
       resetView,             // 重設視圖
       switchToDashboard,     // 切換到儀表板
@@ -656,7 +643,7 @@ export default {
       formatNumber,                 // 數字格式化
       getCurrentTime,               // 取得當前時間
       appFooterRef,                 // 頁腳引用
-      calculatedMiddlePanelHeight,  // 計算的中間面板高度
+      calculatedMiddleViewHeight,  // 計算的中間面板高度
       storeMergedTableData,         // 從 store 獲取的合併表格資料
       handleHighlight,              // 處理高亮顯示
 

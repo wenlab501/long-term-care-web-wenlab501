@@ -10,7 +10,7 @@
  * 6. 📊 處理座標系統轉換和統計資料
  * 
  * 🏗️ 架構說明：
- * - 面板尺寸管理：leftPanelWidth, rightPanelWidth, bottomPanelHeight
+ * - 面板尺寸管理：leftViewWidth, rightViewWidth, bottomViewHeight
  * - 地圖狀態控制：zoomLevel, currentCoords, mapLayers
  * - 響應式斷點：自動適應不同螢幕尺寸
  * - 圖層管理：geojsonLayer, pointLayer, heatmapLayer 等
@@ -32,9 +32,9 @@ import { ref, computed } from 'vue'
  */
 export const useMapStore = defineStore('map', () => {
   // ==================== 📐 面板尺寸狀態 (Panel Size States) ====================
-  const leftPanelWidth = ref(300)
-  const rightPanelWidth = ref(300)
-  const bottomPanelHeight = ref(250)
+  const leftViewWidth = ref(300)
+  const rightViewWidth = ref(300)
+  const bottomViewHeight = ref(250)
   const windowWidth = ref(window.innerWidth)
   const windowHeight = ref(window.innerHeight)
 
@@ -76,13 +76,13 @@ export const useMapStore = defineStore('map', () => {
   
   // 主要面板寬度（考慮Bootstrap col-12）
   const mainPanelWidth = computed(() => {
-    const availableWidth = windowWidth.value - leftPanelWidth.value - rightPanelWidth.value
+    const availableWidth = windowWidth.value - leftViewWidth.value - rightViewWidth.value
     return Math.max(200, availableWidth) // 確保最小寬度
   })
 
   // 地圖高度（確保能完整顯示）
   const mapHeight = computed(() => {
-    const availableHeight = windowHeight.value - bottomPanelHeight.value - 60 // 60px for header
+    const availableHeight = windowHeight.value - bottomViewHeight.value - 60 // 60px for header
     return Math.max(300, availableHeight) // 確保最小高度
   })
 
@@ -109,25 +109,25 @@ export const useMapStore = defineStore('map', () => {
     if (bp === 'xs' || bp === 'sm') {
       // 小螢幕：面板可收合，滿版顯示
       return {
-        leftPanel: 0,
-        rightPanel: 0,
-        bottomPanel: 200,
+        leftView: 0,
+        rightView: 0,
+        bottomView: 200,
         collapsible: true
       }
     } else if (bp === 'md') {
       // 中等螢幕：縮小面板
       return {
-        leftPanel: 250,
-        rightPanel: 250,
-        bottomPanel: 200,
+        leftView: 250,
+        rightView: 250,
+        bottomView: 200,
         collapsible: true
       }
     } else {
       // 大螢幕：正常面板大小
       return {
-        leftPanel: 300,
-        rightPanel: 300,
-        bottomPanel: 250,
+        leftView: 300,
+        rightView: 300,
+        bottomView: 250,
         collapsible: false
       }
     }
@@ -154,14 +154,14 @@ export const useMapStore = defineStore('map', () => {
     
     if (responsive.collapsible) {
       // 在小螢幕上收合面板
-      leftPanelWidth.value = 0
-      rightPanelWidth.value = 0
+      leftViewWidth.value = 0
+      rightViewWidth.value = 0
     } else {
-      leftPanelWidth.value = responsive.leftPanel
-      rightPanelWidth.value = responsive.rightPanel
+      leftViewWidth.value = responsive.leftView
+      rightViewWidth.value = responsive.rightView
     }
     
-    bottomPanelHeight.value = responsive.bottomPanel
+    bottomViewHeight.value = responsive.bottomView
   }
 
   /**
@@ -169,33 +169,33 @@ export const useMapStore = defineStore('map', () => {
    */
   const resetPanelSizes = () => {
     const responsive = responsivePanelSizes.value
-    leftPanelWidth.value = responsive.leftPanel
-    rightPanelWidth.value = responsive.rightPanel
-    bottomPanelHeight.value = responsive.bottomPanel
+    leftViewWidth.value = responsive.leftView
+    rightViewWidth.value = responsive.rightView
+    bottomViewHeight.value = responsive.bottomView
   }
 
   /**
    * 更新左側面板寬度（確保不會超出邊界）
    */
-  const updateLeftPanelWidth = (width) => {
-    const maxWidth = windowWidth.value - rightPanelWidth.value - 300 // 保留右側面板和最小主畫面寬度
-    leftPanelWidth.value = Math.max(0, Math.min(maxWidth, width))
+  const updateLeftViewWidth = (width) => {
+    const maxWidth = windowWidth.value - rightViewWidth.value - 300 // 保留右側面板和最小主畫面寬度
+    leftViewWidth.value = Math.max(0, Math.min(maxWidth, width))
   }
 
   /**
    * 更新右側面板寬度（確保不會超出邊界）
    */
-  const updateRightPanelWidth = (width) => {
-    const maxWidth = windowWidth.value - leftPanelWidth.value - 300 // 保留左側面板和最小主畫面寬度
-    rightPanelWidth.value = Math.max(0, Math.min(maxWidth, width))
+  const updateRightViewWidth = (width) => {
+    const maxWidth = windowWidth.value - leftViewWidth.value - 300 // 保留左側面板和最小主畫面寬度
+    rightViewWidth.value = Math.max(0, Math.min(maxWidth, width))
   }
 
   /**
    * 更新底部面板高度（確保不會超出邊界）
    */
-  const updateBottomPanelHeight = (height) => {
+  const updateBottomViewHeight = (height) => {
     const maxHeight = windowHeight.value - 150 // 保留最小地圖高度
-    bottomPanelHeight.value = Math.max(0, Math.min(maxHeight, height))
+    bottomViewHeight.value = Math.max(0, Math.min(maxHeight, height))
   }
 
   /**
@@ -204,13 +204,13 @@ export const useMapStore = defineStore('map', () => {
   const togglePanel = (panelType) => {
     switch (panelType) {
       case 'left':
-        leftPanelWidth.value = leftPanelWidth.value > 0 ? 0 : responsivePanelSizes.value.leftPanel
+        leftViewWidth.value = leftViewWidth.value > 0 ? 0 : responsivePanelSizes.value.leftView
         break
       case 'right':
-        rightPanelWidth.value = rightPanelWidth.value > 0 ? 0 : responsivePanelSizes.value.rightPanel
+        rightViewWidth.value = rightViewWidth.value > 0 ? 0 : responsivePanelSizes.value.rightView
         break
       case 'bottom':
-        bottomPanelHeight.value = bottomPanelHeight.value > 0 ? 0 : responsivePanelSizes.value.bottomPanel
+        bottomViewHeight.value = bottomViewHeight.value > 0 ? 0 : responsivePanelSizes.value.bottomView
         break
     }
   }
@@ -277,9 +277,9 @@ export const useMapStore = defineStore('map', () => {
 
   return {
     // 狀態
-    leftPanelWidth,
-    rightPanelWidth,
-    bottomPanelHeight,
+    leftViewWidth,
+    rightViewWidth,
+    bottomViewHeight,
     windowWidth,
     windowHeight,
     showLayer1,
@@ -306,9 +306,9 @@ export const useMapStore = defineStore('map', () => {
     updateWindowSize,
     adjustPanelsForBreakpoint,
     resetPanelSizes,
-    updateLeftPanelWidth,
-    updateRightPanelWidth,
-    updateBottomPanelHeight,
+    updateLeftViewWidth,
+    updateRightViewWidth,
+    updateBottomViewHeight,
     togglePanel,
     updateMapState,
     updateLayerState,

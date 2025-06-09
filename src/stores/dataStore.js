@@ -364,32 +364,6 @@ export const useDataStore = defineStore('data', () => {
       rawData.value[key] = null;
     }
   };
-  
-  const clearAllData = () => {
-    layers.value.forEach(layer => {
-        layer.visible = false;
-        layer.isLoading = false;
-        layer.isLoaded = false;
-        layer.data = null;
-        layer.summary = null;
-        layer.tableData = null;
-    });
-    // Clear legacy structures as well
-    Object.keys(processedData.value).forEach(key => processedData.value[key] = null);
-    Object.keys(rawData.value).forEach(key => {
-        if (Array.isArray(rawData.value[key])) rawData.value[key] = [];
-        else if (typeof rawData.value[key] === 'object' && rawData.value[key] !== null) {
-            if (key === 'metadata') {
-                // don't clear metadata structure
-            } else {
-                 rawData.value[key] = null;
-            }
-        }
-        else rawData.value[key] = null;
-    });
-    selectedFeature.value = null;
-    console.log('All layer data and legacy stores have been cleared.');
-  };
 
   // Other functions (unchanged for now)
   const setRawData = (dataType, data, metadata = {}) => {
@@ -551,7 +525,6 @@ export const useDataStore = defineStore('data', () => {
     updateVisualizationSettings,
     updateAnalysisParameters,
     clearData,
-    clearAllData,
     setSelectedFeature,
     clearSelectedFeature,
 

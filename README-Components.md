@@ -21,14 +21,14 @@
 ```
 App.vue (主應用)
 ├── LoadingOverlay.vue (全屏載入覆蓋層)
-├── LeftPanel.vue (左側控制面板)
+├── LeftView.vue (左側控制面板)
 ├── MainContent.vue (主內容區域)
 │   ├── MapView.vue (地圖視圖)
 │   └── DashboardView.vue (數據儀表板)
-├── BottomPanel.vue (底部控制面板)
+├── BottomView.vue (底部控制面板)
 │   ├── tabs/DataTableTab.vue (數據表格標籤)
 │   └── tabs/ControlsTab.vue (控制面板標籤)
-└── RightPanel.vue (右側控制面板)
+└── RightView.vue (右側控制面板)
     ├── tabs/AnalysisResultsTab.vue (分析結果標籤)
     └── tabs/AnalysisListTab.vue (分析清單標籤)
 ```
@@ -196,9 +196,9 @@ src/
 │   ├── common/          # 共用組件
 │   ├── tabs/            # 標籤頁組件
 │   ├── App.vue          # 主應用組件
-│   ├── LeftPanel.vue    # 左側面板
-│   ├── RightPanel.vue   # 右側面板
-│   ├── BottomPanel.vue  # 底部面板
+│   ├── LeftView.vue    # 左側面板
+│   ├── RightView.vue   # 右側面板
+│   ├── BottomView.vue  # 底部面板
 │   ├── MainContent.vue  # 主內容區域
 │   ├── MapView.vue      # 地圖組件
 │   ├── DashboardView.vue # 儀表板組件

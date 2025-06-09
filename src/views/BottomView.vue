@@ -1,7 +1,7 @@
 <template>
   <!-- 📋 底部面板組件 (Bottom Panel Component) -->
   <!-- 提供資料表格顯示和地圖樣式控制功能 -->
-  <div class="bg-white text-dark border-top" :style="{ height: bottomPanelHeight + 'px' }">
+  <div class="bg-white text-dark border-top" :style="{ height: bottomViewHeight + 'px' }">
     
     <!-- 🔗 底部分頁導航 (Bottom Tab Navigation) -->
     <!-- 提供資料表格和地圖樣式兩個分頁的切換功能 -->
@@ -104,7 +104,7 @@
 
 <script>
 /**
- * 📋 BottomPanel.vue - 底部面板組件
+ * 📋 BottomView.vue - 底部面板組件
  * 
  * 功能說明：
  * 1. 📊 提供資料表格的顯示和互動功能
@@ -133,7 +133,7 @@ import DataTableTab from '../tabs/DataTableTab.vue'
 import { COLOR_SCHEMES } from '../utils/dataProcessor.js'
 
 export default {
-  name: 'BottomPanel',
+  name: 'BottomView',
   
   /**
    * 🧩 組件註冊 (Component Registration)
@@ -154,7 +154,7 @@ export default {
       default: 'table' 
     },
     /** 📏 底部面板高度 (像素) */
-    bottomPanelHeight: { 
+    bottomViewHeight: { 
       type: Number, 
       default: 300 
     },
