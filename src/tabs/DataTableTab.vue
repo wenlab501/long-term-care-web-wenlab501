@@ -1,108 +1,168 @@
 <template>
-  <!-- 📊 資料表格分頁組件 (Data Table Tab Component) -->
-  <!-- 提供資料的表格化顯示、搜尋、排序和高亮功能 -->
+  <!-- 📊 多圖層資料表格分頁組件 (Multi-Layer Data Table Tab Component) -->
+  <!-- 為每個開啟的圖層提供獨立的表格分頁 -->
   <div class="my-data-table-tab-component h-100 d-flex flex-column">
-    <!-- 🔍 搜尋工具列 (Search Toolbar) -->
-    <!-- 提供即時搜尋功能，可搜尋名稱、ID、數量等欄位 -->
+    <!-- 🔍 全域搜尋工具列 (Global Search Toolbar) -->
+    <!-- 提供跨圖層的即時搜尋功能 -->
     <div class="my-search-toolbar-container p-2 bg-light border-bottom">
       <input
         type="text"
         class="form-control form-control-sm"
-        v-model="searchQuery"
-        placeholder="搜尋名稱、ID、數量..."
+        v-model="globalSearchQuery"
+        placeholder="搜尋所有圖層的名稱、ID、數量..."
       />
     </div>
 
-    <!-- 📋 表格容器 (Table Container) -->
-    <!-- 顯示過濾和排序後的資料，包含固定表頭和可捲動內容 -->
-    <div v-if="filteredAndSortedData.length > 0" class="my-table-container flex-grow-1">
-      <div class="table-responsive my-custom-scroll h-100">
-        <table class="table table-sm table-hover table-striped mb-0">
-          <!-- 📝 表格標題列 (Table Header) -->
-          <!-- 固定在頂部的標題列，支援點擊排序功能 -->
-          <thead class="table-light sticky-top">
-            <tr class="text-center">
-              <!-- 🔢 ID 欄位標題 (ID Column Header) -->
-              <th @click="handleSort('id')" class="my-sortable">
-                ID
-                <i
-                  v-if="currentSortKey === 'id'"
-                  :class="currentSortOrder === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down'"
-                ></i>
-              </th>
-              <!-- 📝 名稱欄位標題 (Name Column Header) -->
-              <th @click="handleSort('name')" class="my-sortable">
-                名稱
-                <i
-                  v-if="currentSortKey === 'name'"
-                  :class="currentSortOrder === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down'"
-                ></i>
-              </th>
-              <!-- 📊 數量欄位標題 (Count Column Header) -->
-              <th @click="handleSort('count')" class="my-sortable">
-                數量
-                <i
-                  v-if="currentSortKey === 'count'"
-                  :class="currentSortOrder === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down'"
-                ></i>
-              </th>
-              <!-- 🔗 合併狀態欄位標題 (Merged Status Column Header) -->
-              <th @click="handleSort('merged')" class="my-sortable">
-                合併狀態 <i :class="getSortIcon('merged')"></i>
-              </th>
-              <!-- 🎛️ 操作欄位標題 (Actions Column Header) -->
-              <th>操作</th>
-            </tr>
-          </thead>
+    <!-- 📑 圖層分頁導航 (Layer Tabs Navigation) -->
+    <!-- 顯示所有開啟圖層的分頁 -->
+    <div v-if="visibleLayers.length > 0" class="layer-tabs-nav bg-white border-bottom">
+      <ul class="nav nav-tabs nav-fill small">
+        <li v-for="layer in visibleLayers" :key="layer.id" class="nav-item">
+          <button
+            class="nav-link text-dark border-0 px-2 py-1"
+            :class="{
+              'active bg-primary text-white': activeLayerTab === layer.id,
+              'bg-light': activeLayerTab !== layer.id,
+            }"
+            @click="setActiveLayerTab(layer.id)"
+            :title="`顯示 ${layer.name} 的表格資料`"
+          >
+            <span class="layer-tab-name">{{ layer.name }}</span>
+            <span class="badge bg-secondary ms-1" v-if="getLayerDataCount(layer)">
+              {{ getLayerDataCount(layer) }}
+            </span>
+          </button>
+        </li>
+      </ul>
+    </div>
 
-          <!-- 📄 表格內容列 (Table Body) -->
-          <!-- 顯示實際資料的可捲動區域 -->
-          <tbody>
-            <tr
-              v-for="(item, index) in filteredAndSortedData"
-              :key="item.id || item.name || index"
-              class="text-center align-middle"
-            >
-              <!-- 🔢 ID 資料欄 (ID Data Column) -->
-              <td>{{ item.id }}</td>
-              <!-- 📝 名稱資料欄 (Name Data Column) -->
-              <td>{{ item.name }}</td>
-              <!-- 📊 數量資料欄 (Count Data Column) -->
-              <td>{{ item.count }}</td>
-              <!-- 🔗 合併狀態資料欄 (Merged Status Data Column) -->
-              <td>{{ item.merged ? '是' : '否' }}</td>
-              <!-- 🎛️ 操作按鈕欄 (Actions Button Column) -->
-              <td>
+    <!-- 📋 圖層表格內容區域 (Layer Table Content Area) -->
+    <!-- 顯示當前選中圖層的表格資料 -->
+    <div v-if="visibleLayers.length > 0" class="flex-grow-1 overflow-hidden">
+      <!-- 📊 當前圖層的表格 (Current Layer Table) -->
+      <div
+        v-for="layer in visibleLayers"
+        :key="layer.id"
+        v-show="activeLayerTab === layer.id"
+        class="h-100"
+      >
+        <!-- 🔄 載入中狀態 (Loading State) -->
+        <div v-if="layer.isLoading" class="h-100 d-flex align-items-center justify-content-center">
+          <div class="text-center">
+            <div class="spinner-border text-primary mb-3" role="status">
+              <span class="visually-hidden">載入中...</span>
+            </div>
+            <p class="text-muted">正在載入 {{ layer.name }} 的資料...</p>
+          </div>
+        </div>
+
+        <!-- 📋 表格內容 (Table Content) -->
+        <div
+          v-else-if="layer.isLoaded && getFilteredData(layer).length > 0"
+          class="h-100 d-flex flex-column"
+        >
+          <!-- 📊 圖層統計資訊 (Layer Statistics) -->
+          <div class="layer-stats-bar bg-light px-3 py-2 border-bottom">
+            <div class="row align-items-center small">
+              <div class="col-auto">
+                <strong>{{ layer.name }}</strong>
+              </div>
+              <div class="col-auto text-muted">總計: {{ getLayerDataCount(layer) }} 筆</div>
+              <div class="col-auto text-muted" v-if="globalSearchQuery">
+                搜尋結果: {{ getFilteredData(layer).length }} 筆
+              </div>
+              <div class="col text-end">
                 <button
-                  class="btn btn-primary btn-sm py-0 px-1"
-                  @click="handleHighlight(item)"
-                  title="在地圖上高亮顯示"
+                  class="btn btn-outline-secondary btn-sm"
+                  @click="exportLayerData(layer)"
+                  title="匯出此圖層資料"
                 >
-                  顯示位置
+                  <i class="fas fa-download"></i> 匯出
                 </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- 📋 實際表格 (Actual Table) -->
+          <div class="table-container flex-grow-1 overflow-auto">
+            <table class="table table-sm table-hover table-striped mb-0">
+              <!-- 📝 表格標題列 (Table Header) -->
+              <thead class="table-light sticky-top">
+                <tr class="text-center">
+                  <!-- 🔢 ID 欄位標題 -->
+                  <th @click="handleSort(layer.id, 'id')" class="my-sortable">
+                    ID
+                    <i v-if="getSortIcon(layer.id, 'id')" :class="getSortIcon(layer.id, 'id')"></i>
+                  </th>
+                  <!-- 📝 名稱欄位標題 -->
+                  <th @click="handleSort(layer.id, 'name')" class="my-sortable">
+                    名稱
+                    <i
+                      v-if="getSortIcon(layer.id, 'name')"
+                      :class="getSortIcon(layer.id, 'name')"
+                    ></i>
+                  </th>
+                  <!-- 📊 數量欄位標題 -->
+                  <th @click="handleSort(layer.id, 'count')" class="my-sortable">
+                    數量
+                    <i
+                      v-if="getSortIcon(layer.id, 'count')"
+                      :class="getSortIcon(layer.id, 'count')"
+                    ></i>
+                  </th>
+                  <!-- 🎛️ 操作欄位標題 -->
+                  <th>操作</th>
+                </tr>
+              </thead>
+
+              <!-- 📄 表格內容列 -->
+              <tbody>
+                <tr
+                  v-for="(item, index) in getSortedData(layer)"
+                  :key="item.id || item.name || index"
+                  class="text-center align-middle"
+                >
+                  <!-- 🔢 ID 資料欄 -->
+                  <td>{{ item.id }}</td>
+                  <!-- 📝 名稱資料欄 -->
+                  <td>{{ item.name }}</td>
+                  <!-- 📊 數量資料欄 -->
+                  <td>{{ formatValue(item.count) }}</td>
+                  <!-- 🎛️ 操作按鈕欄 -->
+                  <td>
+                    <button
+                      class="btn btn-primary btn-sm py-0 px-1"
+                      @click="handleHighlight(item, layer)"
+                      title="在地圖上高亮顯示"
+                    >
+                      顯示位置
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 📭 空狀態顯示 (Empty State for this layer) -->
+        <div v-else class="h-100 d-flex align-items-center justify-content-center bg-light">
+          <div class="text-center text-muted">
+            <i class="fas fa-table fa-3x mb-3"></i>
+            <h5>{{ layer.name }}</h5>
+            <p v-if="globalSearchQuery">找不到符合搜尋「{{ globalSearchQuery }}」的結果。</p>
+            <p v-else-if="!layer.isLoaded">此圖層尚未載入資料。</p>
+            <p v-else>此圖層沒有可顯示的資料。</p>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- 📭 空狀態顯示 (Empty State Display) -->
-    <!-- 當沒有資料或搜尋無結果時的提示界面 -->
-    <div
-      v-else
-      class="my-empty-state-container flex-grow-1 d-flex align-items-center justify-content-center"
-    >
+    <!-- 📭 無開啟圖層的空狀態 (No Layers Open Empty State) -->
+    <div v-else class="flex-grow-1 d-flex align-items-center justify-content-center bg-light">
       <div class="text-center text-muted">
-        <i class="fas fa-table fa-3x mb-3"></i>
-        <!-- 🔍 搜尋無結果提示 (No Search Results Message) -->
-        <p v-if="searchQuery">找不到符合搜尋「{{ searchQuery }}」的結果。</p>
-        <!-- 📭 無資料提示 (No Data Message) -->
-        <p v-else-if="!props.tableData || props.tableData.length === 0">
-          目前沒有資料可顯示。請先載入數據。
-        </p>
-        <!-- 🔍 無符合條件資料提示 (No Matching Data Message) -->
-        <p v-else>沒有符合目前篩選條件的資料。</p>
+        <i class="fas fa-layer-group fa-3x mb-3"></i>
+        <h5>沒有開啟的圖層</h5>
+        <p>請在左側面板開啟圖層以查看資料表格。</p>
       </div>
     </div>
   </div>
@@ -110,43 +170,33 @@
 
 <script setup>
   /**
-   * 📊 DataTableTab.vue - 資料表格分頁組件
+   * 📊 DataTableTab.vue - 多圖層資料表格分頁組件
    *
    * 功能說明：
-   * 1. 📋 以表格形式顯示地理資料
-   * 2. 🔍 提供即時搜尋功能，支援多欄位搜尋
-   * 3. 📊 提供欄位排序功能，支援昇序和降序
+   * 1. 📋 為每個開啟的圖層提供獨立的表格分頁
+   * 2. 🔍 提供跨圖層的全域搜尋功能
+   * 3. 📊 支援每個圖層獨立的排序功能
    * 4. 🎯 提供地圖高亮顯示功能
-   * 5. 📭 提供友善的空狀態顯示
-   * 6. 📱 響應式設計，適應不同螢幕尺寸
+   * 5. 📤 支援單一圖層資料匯出
+   * 6. 🔄 響應圖層開啟/關閉狀態
    *
    * 架構說明：
-   * - 搜尋工具列：即時搜尋輸入框
-   * - 表格區域：固定標題列 + 可捲動內容
-   * - 空狀態：無資料時的友善提示
+   * - 圖層分頁：動態顯示所有開啟的圖層
+   * - 表格區域：每個圖層獨立的表格內容
+   * - 搜尋系統：全域搜尋功能
+   * - 排序系統：每個圖層獨立的排序狀態
    *
    * 設計理念：
    * - 使用 Vue 3 Composition API
-   * - 響應式資料處理
-   * - 可存取性友善的表格設計
-   * - 直觀的排序和搜尋互動
+   * - 與 Pinia dataStore 整合
+   * - 響應式的多圖層管理
+   * - 友善的用戶體驗設計
    */
 
   // 🔧 Vue Composition API 引入
-  import { ref, computed, defineProps, defineEmits, onMounted } from 'vue';
-
-  /**
-   * 🔧 組件屬性定義 (Component Props)
-   * 接收來自父組件的資料
-   */
-  const props = defineProps({
-    /** 📊 表格資料陣列，包含要顯示的所有資料項目 */
-    tableData: {
-      type: Array,
-      required: true,
-      default: () => [],
-    },
-  });
+  import { ref, computed, defineEmits, onMounted, watch } from 'vue';
+  // 📦 Pinia 狀態管理引入
+  import { useDataStore } from '@/stores/dataStore.js';
 
   /**
    * 📡 組件事件定義 (Component Events)
@@ -154,60 +204,58 @@
    */
   const emit = defineEmits(['highlight-on-map']);
 
+  // 📦 取得 Pinia 數據存儲實例
+  const dataStore = useDataStore();
+
   // 📊 響應式資料狀態 (Reactive Data State)
-  /** 🔍 搜尋查詢字串 */
-  const searchQuery = ref('');
-  /** 📊 當前排序欄位 */
-  const currentSortKey = ref('id'); // 預設按 ID 排序
-  /** 📊 當前排序方向 */
-  const currentSortOrder = ref('asc'); // 預設昇序排列
+  /** 🔍 全域搜尋查詢字串 */
+  const globalSearchQuery = ref('');
+  /** 📑 當前作用中的圖層分頁 */
+  const activeLayerTab = ref(null);
+  /** 📊 每個圖層的排序狀態 */
+  const layerSortStates = ref({});
 
   /**
-   * 🎯 處理地圖高亮顯示 (Handle Map Highlighting)
-   * 當用戶點擊「顯示位置」按鈕時觸發
-   *
-   * @param {Object} item - 要高亮顯示的資料項目
+   * 🗺️ 可見圖層計算屬性 (Visible Layers Computed Property)
+   * 獲取所有開啟且有資料的圖層
    */
-  const handleHighlight = (item) => {
-    console.log('準備高亮顯示:', { item });
+  const visibleLayers = computed(() => {
+    const allLayers = dataStore.getAllLayers();
+    return allLayers.filter((layer) => layer.visible);
+  });
 
-    // 驗證資料項目是否存在
-    if (!item) {
-      console.warn('無法高亮顯示：資料為空');
-      return;
-    }
-
-    // 驗證名稱欄位是否存在
-    if (!item.name) {
-      console.warn('無法高亮顯示：名稱為空');
-      return;
-    }
-
-    console.log('發送高亮事件:', item.name);
-    // 向父組件發送高亮事件
-    emit('highlight-on-map', item.name);
+  /**
+   * 📑 設定作用中圖層分頁 (Set Active Layer Tab)
+   * @param {string} layerId - 圖層 ID
+   */
+  const setActiveLayerTab = (layerId) => {
+    activeLayerTab.value = layerId;
   };
 
   /**
-   * 🔍 過濾和排序資料計算屬性 (Filtered and Sorted Data Computed Property)
-   * 根據搜尋查詢和排序設定處理原始資料
+   * 📊 取得圖層資料數量 (Get Layer Data Count)
+   * @param {Object} layer - 圖層物件
+   * @returns {number} 資料數量
    */
-  const filteredAndSortedData = computed(() => {
-    console.log('過濾數據:', {
-      hasData: !!props.tableData,
-      dataLength: props.tableData?.length,
-    });
+  const getLayerDataCount = (layer) => {
+    return layer.tableData?.length || 0;
+  };
 
-    // 如果沒有資料，返回空陣列
-    if (!props.tableData) return [];
+  /**
+   * 🔍 取得過濾後的資料 (Get Filtered Data)
+   * 根據全域搜尋條件過濾圖層資料
+   * @param {Object} layer - 圖層物件
+   * @returns {Array} 過濾後的資料陣列
+   */
+  const getFilteredData = (layer) => {
+    if (!layer.tableData) return [];
 
-    let filtered = props.tableData;
+    let filtered = layer.tableData;
 
-    // 🔍 搜尋過濾邏輯 (Search Filtering Logic)
-    if (searchQuery.value) {
-      const query = searchQuery.value.toLowerCase();
+    // 🔍 全域搜尋過濾邏輯
+    if (globalSearchQuery.value) {
+      const query = globalSearchQuery.value.toLowerCase();
       filtered = filtered.filter((item) => {
-        // 在名稱、ID、數量欄位中搜尋
         const nameMatch = item.name?.toLowerCase().includes(query);
         const idMatch = String(item.id).includes(query);
         const countMatch = String(item.count).includes(query);
@@ -215,247 +263,321 @@
       });
     }
 
-    // 📊 排序邏輯 (Sorting Logic)
-    if (currentSortKey.value) {
-      filtered = [...filtered].sort((a, b) => {
-        const aValue = a[currentSortKey.value];
-        const bValue = b[currentSortKey.value];
+    return filtered;
+  };
 
-        // 字串類型的比較
-        if (typeof aValue === 'string' && typeof bValue === 'string') {
-          return currentSortOrder.value === 'asc'
-            ? aValue.localeCompare(bValue) // 昇序：A-Z
-            : bValue.localeCompare(aValue); // 降序：Z-A
-        }
+  /**
+   * 📊 取得排序後的資料 (Get Sorted Data)
+   * 對過濾後的資料進行排序
+   * @param {Object} layer - 圖層物件
+   * @returns {Array} 排序後的資料陣列
+   */
+  const getSortedData = (layer) => {
+    const filtered = getFilteredData(layer);
+    const sortState = layerSortStates.value[layer.id];
 
-        // 數值類型的比較
-        return currentSortOrder.value === 'asc'
-          ? aValue - bValue // 昇序：小到大
-          : bValue - aValue; // 降序：大到小
-      });
+    if (!sortState || !sortState.key) {
+      return filtered;
     }
 
-    console.log('過濾後數據:', {
-      filteredLength: filtered.length,
-      firstItem: filtered[0],
-    });
+    return [...filtered].sort((a, b) => {
+      const aValue = a[sortState.key];
+      const bValue = b[sortState.key];
 
-    return filtered;
-  });
+      // 字串類型的比較
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return sortState.order === 'asc'
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
+      }
+
+      // 數值類型的比較
+      return sortState.order === 'asc' ? aValue - bValue : bValue - aValue;
+    });
+  };
 
   /**
    * 📊 處理排序點擊 (Handle Sort Click)
-   * 當用戶點擊表格標題時觸發排序
-   *
-   * @param {string} key - 要排序的欄位名稱
+   * @param {string} layerId - 圖層 ID
+   * @param {string} key - 排序欄位
    */
-  const handleSort = (key) => {
-    if (currentSortKey.value === key) {
-      // 如果點擊的是當前排序欄位，切換排序方向
-      currentSortOrder.value = currentSortOrder.value === 'asc' ? 'desc' : 'asc';
+  const handleSort = (layerId, key) => {
+    if (!layerSortStates.value[layerId]) {
+      layerSortStates.value[layerId] = { key: null, order: 'asc' };
+    }
+
+    const sortState = layerSortStates.value[layerId];
+
+    if (sortState.key === key) {
+      // 切換排序方向
+      sortState.order = sortState.order === 'asc' ? 'desc' : 'asc';
     } else {
-      // 如果點擊的是新欄位，設定為新的排序欄位並重設為昇序
-      currentSortKey.value = key;
-      currentSortOrder.value = 'asc';
+      // 設定新的排序欄位
+      sortState.key = key;
+      sortState.order = 'asc';
     }
   };
 
   /**
    * 🎨 取得排序圖示 (Get Sort Icon)
-   * 根據當前排序狀態返回對應的 FontAwesome 圖示類別
-   *
+   * @param {string} layerId - 圖層 ID
    * @param {string} key - 欄位名稱
    * @returns {string} FontAwesome 圖示類別
    */
-  function getSortIcon(key) {
-    if (currentSortKey.value !== key) {
-      return 'fas fa-sort'; // 預設排序圖示
+  const getSortIcon = (layerId, key) => {
+    const sortState = layerSortStates.value[layerId];
+    if (!sortState || sortState.key !== key) {
+      return 'fas fa-sort';
     }
-    if (currentSortOrder.value === 'asc') {
-      return 'fas fa-sort-up'; // 昇序排序圖示
+    return sortState.order === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+  };
+
+  /**
+   * 🎯 處理地圖高亮顯示 (Handle Map Highlighting)
+   * @param {Object} item - 要高亮的項目
+   * @param {Object} layer - 圖層物件
+   */
+  const handleHighlight = (item, layer) => {
+    console.log('準備高亮顯示:', { item, layer: layer.name });
+
+    if (!item || !item.name) {
+      console.warn('無法高亮顯示：資料為空或缺少名稱');
+      return;
     }
-    return 'fas fa-sort-down'; // 降序排序圖示
-  }
+
+    console.log('發送高亮事件:', item.name);
+    emit('highlight-on-map', item.name);
+  };
+
+  /**
+   * 🎨 格式化數值 (Format Value)
+   * @param {any} value - 原始值
+   * @returns {string} 格式化後的值
+   */
+  const formatValue = (value) => {
+    if (typeof value === 'number') {
+      return value.toLocaleString();
+    }
+    return value || '-';
+  };
+
+  /**
+   * 📤 匯出圖層資料 (Export Layer Data)
+   * @param {Object} layer - 圖層物件
+   */
+  const exportLayerData = (layer) => {
+    try {
+      const data = getSortedData(layer);
+      const jsonStr = JSON.stringify(data, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${layer.name}_data.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      console.log(`✅ 已匯出 ${layer.name} 資料`);
+    } catch (error) {
+      console.error('匯出資料失敗:', error);
+    }
+  };
+
+  /**
+   * 👀 監聽可見圖層變化，自動設定第一個可見圖層為預設分頁
+   */
+  watch(
+    () => visibleLayers.value,
+    (newLayers) => {
+      // 如果沒有可見圖層，清除選中的分頁
+      if (newLayers.length === 0) {
+        activeLayerTab.value = null;
+        return;
+      }
+
+      // 如果當前沒有選中分頁，或選中的分頁不在可見列表中，選中第一個
+      if (!activeLayerTab.value || !newLayers.find((layer) => layer.id === activeLayerTab.value)) {
+        activeLayerTab.value = newLayers[0].id;
+      }
+    },
+    { deep: true, immediate: true }
+  );
 
   /**
    * 🚀 組件掛載事件 (Component Mounted Event)
-   * 記錄組件初始化狀態
    */
   onMounted(() => {
-    console.log(
-      '[DataTableTab] Component Mounted. Initial props.tableData count:',
-      props.tableData?.length
-    );
+    console.log('[MultiLayerDataTableTab] Component Mounted');
+
+    // 初始化第一個可見圖層為作用中分頁
+    if (visibleLayers.value.length > 0 && !activeLayerTab.value) {
+      activeLayerTab.value = visibleLayers.value[0].id;
+    }
   });
 </script>
 
 <style scoped>
   /**
- * 🎨 資料表格分頁樣式 (Data Table Tab Styles)
- * 
- * 定義表格組件的視覺樣式，包含搜尋框、表格、滾動條等元素
- */
+   * 🎨 多圖層資料表格樣式 (Multi-Layer Data Table Styles)
+   */
 
-  /* 📊 組件基礎樣式 (Component Base Styles) */
+  /* 📊 組件基礎樣式 */
   .my-data-table-tab-component {
-    font-size: 0.875rem; /* 組件基礎字體大小 */
+    font-size: 0.875rem;
   }
 
-  /* 🔍 搜尋工具列樣式 (Search Toolbar Styles) */
+  /* 🔍 搜尋工具列樣式 */
   .my-search-toolbar-container input.form-control {
-    background-color: white; /* 白色背景 */
-    border-color: #ced4da; /* Bootstrap 標準邊框顏色 */
-    color: #495057; /* Bootstrap 標準文字顏色 */
+    background-color: white;
+    border-color: #ced4da;
+    color: #495057;
   }
 
   .my-search-toolbar-container input.form-control:focus {
-    border-color: #007bff; /* 聚焦時的主要藍色邊框 */
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* 聚焦時的藍色陰影 */
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
   }
 
   .my-search-toolbar-container input.form-control::placeholder {
-    color: #6c757d; /* 淡色的佔位符文字 */
+    color: #6c757d;
   }
 
-  /* 📋 表格容器樣式 (Table Container Styles) */
-  .my-table-container {
-    overflow-y: auto; /* 允許表格內容垂直捲動 */
+  /* 📑 圖層分頁導航樣式 */
+  .layer-tabs-nav {
+    border-bottom: 1px solid #dee2e6;
   }
 
-  /* 📊 表格基礎樣式 (Table Base Styles) */
+  .layer-tabs-nav .nav-tabs {
+    border-bottom: none;
+  }
+
+  .layer-tabs-nav .nav-link {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
+    transition: all 0.2s ease;
+    border-radius: 0;
+  }
+
+  .layer-tabs-nav .nav-link:hover {
+    background-color: #e9ecef;
+  }
+
+  .layer-tabs-nav .nav-link.active {
+    border-bottom: 2px solid #007bff;
+  }
+
+  .layer-tab-name {
+    font-weight: 500;
+  }
+
+  /* 📊 圖層統計列樣式 */
+  .layer-stats-bar {
+    border-bottom: 1px solid #dee2e6;
+    background-color: #f8f9fa;
+  }
+
+  /* 📋 表格容器樣式 */
+  .table-container {
+    overflow-y: auto;
+  }
+
+  /* 📊 表格基礎樣式 */
   .table {
-    --bs-table-bg: white; /* 表格背景色 */
-    --bs-table-color: #212529; /* 深色文字，提升可讀性 */
-    --bs-table-striped-bg: #f8f9fa; /* 條紋列的淺灰色背景 */
-    --bs-table-hover-bg: #e9ecef; /* 懸停時的稍深背景色 */
+    --bs-table-bg: white;
+    --bs-table-color: #212529;
+    --bs-table-striped-bg: #f8f9fa;
+    --bs-table-hover-bg: #e9ecef;
   }
 
-  /* 📝 表格標題樣式 (Table Header Styles) */
+  /* 📝 表格標題樣式 */
   .table thead.sticky-top {
-    position: sticky; /* 固定定位 */
-    top: 0; /* 固定在頂部 */
-    z-index: 10; /* 確保標題在捲動內容之上 */
-    background-color: #f8f9fa; /* 標題的淺色背景 */
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #f8f9fa;
   }
 
   .table th {
-    font-weight: 600; /* 粗體標題文字 */
-    text-transform: uppercase; /* 大寫轉換 */
-    font-size: 0.75rem; /* 較小的標題文字 */
-    letter-spacing: 0.5px; /* 字母間距 */
-    vertical-align: middle; /* 垂直居中對齊 */
-    white-space: nowrap; /* 防止標題文字換行 */
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    vertical-align: middle;
+    white-space: nowrap;
   }
 
-  /* 📊 可排序標題樣式 (Sortable Header Styles) */
+  /* 📊 可排序標題樣式 */
   .table th.my-sortable {
-    cursor: pointer; /* 手型游標 */
-    user-select: none; /* 防止點擊時選取文字 */
+    cursor: pointer;
+    user-select: none;
   }
 
   .table th.my-sortable:hover {
-    background-color: #e2e6ea; /* 懸停時的深色背景 */
+    background-color: #e2e6ea;
   }
 
   .table th.my-sortable i {
-    margin-left: 0.3em; /* 圖示左邊距 */
-    font-size: 0.9em; /* 稍小的圖示尺寸 */
-    opacity: 0.7; /* 半透明圖示 */
+    margin-left: 0.3em;
+    font-size: 0.9em;
+    opacity: 0.7;
   }
 
   .table th.my-sortable:hover i {
-    opacity: 1; /* 懸停時完全不透明 */
+    opacity: 1;
   }
 
-  /* 📄 表格內容樣式 (Table Body Styles) */
+  /* 📄 表格內容樣式 */
   .table td {
-    font-size: 0.85rem; /* 稍小的內容文字 */
-    padding: 0.4rem 0.5rem; /* 調整內邊距以獲得緊湊的列 */
-    vertical-align: middle; /* 垂直居中對齊 */
+    font-size: 0.85rem;
+    padding: 0.4rem 0.5rem;
+    vertical-align: middle;
   }
 
   .table tbody tr:hover {
-    background-color: var(--bs-table-hover-bg); /* 一致的懸停效果 */
+    background-color: var(--bs-table-hover-bg);
   }
 
-  /* 🎨 狀態顏色樣式 (Status Color Styles) */
-  .text-success {
-    color: #198754 !important; /* Bootstrap 成功綠色 */
+  /* 📭 空狀態樣式 */
+  .bg-light {
+    background-color: #f8f9fa !important;
   }
 
-  .text-danger {
-    color: #dc3545 !important; /* Bootstrap 危險紅色 */
-  }
-
-  /* 📭 空狀態樣式 (Empty State Styles) */
-  .my-empty-state-container {
-    background-color: #f8f9fa; /* 空狀態的淺色背景 */
-  }
-
-  .my-empty-state-container i {
-    color: #adb5bd; /* 淡色圖示 */
-  }
-
-  .my-empty-state-container p {
-    font-size: 0.95rem; /* 空狀態訊息的字體大小 */
-    color: #495057; /* 稍深的空狀態訊息文字 */
-  }
-
-  /* 📱 自定義滾動條樣式 (Custom Scrollbar Styles) */
-  /* 適用於 WebKit 瀏覽器 (Chrome, Safari, Edge) */
-  .my-custom-scroll::-webkit-scrollbar {
-    width: 8px; /* 垂直滾動條寬度 */
-    height: 8px; /* 水平滾動條高度 */
-  }
-
-  .my-custom-scroll::-webkit-scrollbar-track {
-    background: #f1f1f1; /* 滾動條軌道背景 */
-    border-radius: 10px; /* 圓角軌道 */
-  }
-
-  .my-custom-scroll::-webkit-scrollbar-thumb {
-    background: #ced4da; /* 滾動條滑塊顏色 */
-    border-radius: 10px; /* 圓角滑塊 */
-  }
-
-  .my-custom-scroll::-webkit-scrollbar-thumb:hover {
-    background: #adb5bd; /* 懸停時的深色滑塊 */
-  }
-
-  /* 📱 響應式設計調整 (Responsive Design Adjustments) */
-  @media (max-width: 768px) {
-    .my-data-table-tab-component {
-      font-size: 0.8rem; /* 在小螢幕上縮小字體 */
-    }
-
-    .table th {
-      font-size: 0.7rem; /* 在小螢幕上縮小標題字體 */
-      padding: 0.3rem 0.4rem; /* 在小螢幕上減少標題內邊距 */
-    }
-
-    .table td {
-      font-size: 0.8rem; /* 在小螢幕上縮小內容字體 */
-      padding: 0.3rem 0.4rem; /* 在小螢幕上減少內容內邊距 */
-    }
-
-    .btn-sm {
-      font-size: 0.75rem; /* 在小螢幕上縮小按鈕字體 */
-      padding: 0.2rem 0.4rem; /* 在小螢幕上減少按鈕內邊距 */
-    }
-
-    .my-custom-scroll::-webkit-scrollbar {
-      width: 12px; /* 在觸控設備上增加滾動條寬度 */
-      height: 12px;
-    }
-  }
-
-  /* 🎛️ 按鈕樣式調整 (Button Style Adjustments) */
+  /* 🎛️ 按鈕樣式調整 */
   .btn-primary.btn-sm {
-    transition: all 0.2s ease; /* 平滑的按鈕效果轉換 */
+    transition: all 0.2s ease;
   }
 
   .btn-primary.btn-sm:hover {
-    transform: translateY(-1px); /* 懸停時輕微上移效果 */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15); /* 懸停時陰影效果 */
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  }
+
+  /* 📱 響應式設計調整 */
+  @media (max-width: 768px) {
+    .layer-tab-name {
+      font-size: 0.7rem;
+    }
+
+    .badge {
+      font-size: 0.6rem;
+    }
+
+    .layer-stats-bar .row > .col-auto {
+      margin-bottom: 0.25rem;
+    }
+  }
+
+  /* 🎨 載入動畫 */
+  .spinner-border {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  /* 📊 徽章樣式 */
+  .badge {
+    font-size: 0.7rem;
   }
 </style>

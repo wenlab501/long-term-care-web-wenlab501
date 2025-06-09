@@ -35,10 +35,7 @@
       <!-- 📊 資料表格分頁內容 (Data Table Tab Content) -->
       <!-- 顯示載入的地理資料，支援搜尋、排序、高亮等功能 -->
       <div v-show="activeBottomTab === 'table'" class="h-100">
-        <DataTableTab
-          :tableData="tableData"
-          @highlight-on-map="$emit('highlight-on-map', $event)"
-        />
+        <DataTableTab @highlight-on-map="$emit('highlight-on-map', $event)" />
       </div>
 
       <!-- 🎨 地圖樣式設定分頁內容 (Map Style Configuration Tab Content) -->
@@ -164,11 +161,6 @@
       bottomViewHeight: {
         type: Number,
         default: 300,
-      },
-      /** 📊 表格資料陣列 */
-      tableData: {
-        type: Array,
-        default: () => [],
       },
       /** 🎨 選定的色票方案 ID */
       selectedColorScheme: {

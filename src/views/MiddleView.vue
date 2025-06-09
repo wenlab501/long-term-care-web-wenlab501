@@ -214,7 +214,7 @@
    * 📡 定義向父組件 (HomeView) 發送的所有事件
    * 採用事件轉發模式，確保資料流向清晰
    */
-  const emit = defineEmits([
+  defineEmits([
     // 📑 分頁相關事件
     'update:activeTab', // 更新主要分頁
     'update:activeBottomTab', // 更新底部分頁
@@ -242,9 +242,6 @@
   // --- 📚 內部組件引用 (Internal Component References) ---
   /** 📊 主內容面板引用 (用於呼叫 UpperView 的方法如 highlightFeature) */
   const mainContentRef = ref(null);
-
-  /** 📋 底部面板引用 (用於呼叫 BottomView 的方法) */
-  const bottomViewRef = ref(null);
 
   // --- 🔧 內部垂直拖曳調整邏輯 (Internal Vertical Resizing Logic) ---
 
@@ -517,20 +514,18 @@
       <!-- 📊 底部視圖組件 (Bottom View Component) -->
       <!-- 傳遞表格資料、樣式設定、面板狀態等 props -->
       <BottomView
-        ref="bottomViewRef"
         :activeBottomTab="activeBottomTab"
         :bottomViewHeight="actualBottomViewPixelHeight"
-        :tableData="mergedTableData"
         :selectedColorScheme="selectedColorScheme"
         :selectedBorderColor="selectedBorderColor"
         :selectedBorderWeight="selectedBorderWeight"
         :isPanelDragging="isOverallDragging"
         @update:activeBottomTab="$emit('update:activeBottomTab', $event)"
-        @highlight-on-map="emit('highlight-on-map', $event)"
+        @highlight-on-map="$emit('highlight-on-map', $event)"
         @update:selectedColorScheme="$emit('update:selectedColorScheme', $event)"
         @update:selectedBorderColor="$emit('update:selectedBorderColor', $event)"
         @update:selectedBorderWeight="$emit('update:selectedBorderWeight', $event)"
-        @reset-view="$emit('reset-view', $event)"
+        @reset-view="$emit('reset-view')"
       />
     </div>
   </div>
@@ -539,10 +534,10 @@
 <style scoped>
   /**
  * 🎨 中間面板樣式 (Middle Panel Styles)
- * 
+ *
  * 中間面板專用樣式定義
  * 由於大部分通用樣式已移至 common.css，這裡僅保留必要的組件特定樣式
- * 
+ *
  * 設計原則：
  * - 避免重複定義，依賴全域樣式
  * - 僅定義組件特有的樣式需求
@@ -550,7 +545,7 @@
  */
 
   /* 📱 中間面板專用樣式 (Middle Panel Specific Styles) */
-  /* 
+  /*
  * 註：大部分樣式已整合至 common.css 中，避免重複定義
  * 包含 .my-resizer、.my-resizer-horizontal、.my-no-select 等通用樣式
  * 如需新增中間面板特有樣式，請在此處定義
