@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import AnalysisItem from '../common/AnalysisItem.vue'
+import AnalysisItem from '../components/common/AnalysisItem.vue'
 
 export default {
   name: 'AnalysisListTab',

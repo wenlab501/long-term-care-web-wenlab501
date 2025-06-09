@@ -87,7 +87,7 @@
 
 <script>
 import { computed, ref, watch, nextTick } from 'vue'
-import DataTableTab from './tabs/DataTableTab.vue'
+import DataTableTab from '../tabs/DataTableTab.vue'
 import { COLOR_SCHEMES } from '../utils/dataProcessor.js'
 
 export default {

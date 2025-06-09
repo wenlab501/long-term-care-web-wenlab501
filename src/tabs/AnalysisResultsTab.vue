@@ -56,7 +56,7 @@
 <script>
 import { ref, onMounted } from 'vue';
 import * as d3 from 'd3';
-import DetailItem from '../common/DetailItem.vue';
+import DetailItem from '../components/common/DetailItem.vue';
 
 export default {
   name: 'AnalysisResultsTab',

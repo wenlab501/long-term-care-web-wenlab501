@@ -83,8 +83,8 @@
  * 5. 🎛️ 支援不同的導航模式（浮動按鈕 vs 固定導航條）
  */
 import { ref, watch, nextTick } from 'vue'
-import MapView from './MapView.vue'
-import DashboardView from './DashboardView.vue'
+import MapView from '../components/MapView.vue'
+import DashboardView from '../components/DashboardView.vue'
 
 export default {
   name: 'UpperPanel',

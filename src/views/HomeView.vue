@@ -196,9 +196,9 @@ import { useDataStore } from '@/stores/dataStore'
 
 // 🧩 組件引入
 import LoadingOverlay from '../components/LoadingOverlay.vue'
-import LeftPanel from '../components/LeftPanel.vue'
-import RightPanel from '../components/RightPanel.vue'
-import MiddlePanel from '../components/MiddlePanel.vue'
+import LeftPanel from '../panels/LeftPanel.vue'
+import RightPanel from '../panels/RightPanel.vue'
+import MiddlePanel from '../panels/MiddlePanel.vue'
 import MapView from '../components/MapView.vue'
 
 export default {

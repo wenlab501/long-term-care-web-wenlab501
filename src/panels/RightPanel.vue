@@ -45,8 +45,8 @@
 </template>
 
 <script>
-import AnalysisResultsTab from './tabs/AnalysisResultsTab.vue'
-import AnalysisListTab from './tabs/AnalysisListTab.vue'
+import AnalysisResultsTab from '../tabs/AnalysisResultsTab.vue'
+import AnalysisListTab from '../tabs/AnalysisListTab.vue'
 
 export default {
   name: 'RightPanel',
