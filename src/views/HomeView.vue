@@ -4,7 +4,7 @@
     
     <!-- 📥 載入覆蓋層 (Loading Overlay) -->
     <LoadingOverlay 
-      :isVisible="isLoading" 
+      :isVisible="isAnyLayerLoading" 
       :loadingText="loadingText"
       :progress="loadingProgress"
       :showProgress="showLoadingProgress"
@@ -24,16 +24,7 @@
           
           <!-- 🎛️ 左側控制面板 (Left Control Panel) - Wrapper for content only -->
           <div class="h-100 overflow-auto" :style="{ width: leftPanelWidthPx }" v-if="leftPanelWidth > 0">
-            <LeftPanel
-              :isLoadingData="isLoadingMedical"
-              :showTainanLayer="showTainanLayer"
-              :showMedicalLayer="showMedicalLayer"
-              @update:showTainanLayer="handleTainanLayerVisibility"
-              @update:showMedicalLayer="handleMedicalLayerVisibility"
-              :current-coords="currentCoords"
-              :active-markers="activeMarkers"
-              :merged-table-data="storeMergedTableData"
-            />
+            <LeftPanel />
           </div>
         
           <!-- 🔧 左側拖曳調整器 (Left Resizer) - Now a direct child of the flex row -->
@@ -65,8 +56,7 @@
             :averageCount="averageCount"
             :dataRegionsCount="dataRegionsCount"
             :activeMarkers="activeMarkers"
-            :isLoadingData="isLoadingData"
-            :tableData="tableData"
+            :isLoadingData="isAnyLayerLoading"
             :isSidePanelDragging="isSidePanelDragging"
             :totalCount="totalCount"
             :tainanDataSummary="storeTainanDataSummary"
@@ -106,7 +96,7 @@
               :rightPanelWidth="rightPanelWidth"
               @update:activeRightTab="activeRightTab = $event"
               @fit-map-to-data="fitMapToData"
-              @clear-tainan-data="clearTainanData"
+              @clear-tainan-data="clearAllData"
               @switch-to-dashboard="switchToDashboard"
               @highlight-feature="handleHighlight"
               :current-coords="currentCoords"
@@ -149,9 +139,8 @@
  * 5. 🔧 支援拖拉調整面板大小（完全彈性0-100%範圍）
  * 6. 📈 執行Moran's I空間自相關分析
  */
-import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, computed, nextTick, watch } from 'vue'
 import { formatNumber } from '../utils/utils.js'
-import { loadTainanData as loadTainanDataUtil, loadMedicalData } from '../utils/dataProcessor.js'
 import { useDataStore } from '@/stores/dataStore'
 
 // 🧩 組件引入
@@ -179,8 +168,6 @@ export default {
   setup() {
     const dataStore = useDataStore()
     
-    // 定義必要的響應式變量
-    const showMedicalLayer = ref(false)
     const tableData = ref([])
     const tainanDataSummary = ref({
       totalFeatures: 0,
@@ -215,16 +202,30 @@ export default {
       return windowHeight.value - footerHeight.value;
     });
 
-    // ⏳ 載入狀態 (Loading States)
-    const isLoading = ref(false)
-    const isLoadingData = ref(false)
+    // ⏳ 載入狀態 (Loading States) - Now driven by the store
     const loadingText = ref('載入中...')
     const loadingProgress = ref(0)
     const showLoadingProgress = ref(false)
     const loadingSubText = ref('')
 
+    const isAnyLayerLoading = computed(() => dataStore.layers.some(layer => layer.isLoading));
+
+    watch(isAnyLayerLoading, (loading) => {
+      if (loading) {
+        const loadingLayer = dataStore.layers.find(l => l.isLoading);
+        loadingText.value = `載入 ${loadingLayer.name} 數據中...`;
+        loadingSubText.value = '正在處理地理資訊...';
+      } else {
+        loadingText.value = '載入完成';
+        // You might want to specify which layer finished loading
+        loadingSubText.value = `數據已更新`;
+      }
+    }, { deep: true });
+
+
     // 🗺️ 地圖和圖層狀態 (Map and Layer States)
-    const showTainanLayer = ref(false)
+    // Most of these are now managed by the store, but we might keep some local for UI controls
+    const showTainanLayer = computed(() => dataStore.layers.find(l => l.id === 'tainan')?.visible || false);
     const selectedFilter = ref('')
     const selectedColorScheme = ref('viridis')
     const selectedBorderColor = ref('#666666')
@@ -236,6 +237,7 @@ export default {
     const activeMarkers = ref(0)
     
     // 📊 台南數據相關 (Tainan Data Related)
+    // These should now also pull from the specific layer data in the store
     const storeMergedTableData = computed(() => dataStore.processedData.loadedAndMergedTableData);
     const storeTainanGeoJSONData = computed(() => dataStore.processedData.loadedAndMergedGeoJSON);
     const storeTainanDataSummary = computed(() => dataStore.dataSummary);
@@ -264,63 +266,13 @@ export default {
       return storeMergedTableData.value.filter(row => row.count > 0).length;
     })
 
-    // 在 setup 函數中添加新的狀態
-    const isLoadingMedical = ref(false)
-
-    // 📥 台南數據功能函數 (Tainan Data Functions)
-    
     /**
-     * 📥 載入台南數據 (Load Tainan Data)
-     * 載入GeoJSON和Excel文件並進行數據合併
+     * 🗑️ 清除所有圖層數據 (Clear All Layer Data)
      */
-    const loadTainanData = async () => {
-      try {
-        isLoading.value = true
-        loadingText.value = '載入台南市數據中...'
-        loadingSubText.value = '正在處理地理資訊...'
-        
-        const data = await loadTainanDataUtil()
-        console.log('載入的數據:', data)
-        
-        // 確保數據正確存儲
-        dataStore.storeLoadedData({
-          loadedAndMergedGeoJSON: data.mergedGeoJSON,
-          loadedAndMergedTableData: data.tableData
-        })
-        
-        loadingText.value = '載入完成'
-        loadingSubText.value = `已載入 ${data.tableData.length} 個區域`
-        
-        // 延遲一下再關閉載入視窗，讓用戶看到完成訊息
-        setTimeout(() => {
-          isLoading.value = false
-        }, 1000)
-      } catch (error) {
-        console.error('載入台南市數據失敗:', error)
-        loadingText.value = '載入失敗'
-        loadingSubText.value = error.message
-        // 延遲一下再關閉載入視窗，讓用戶看到錯誤訊息
-        setTimeout(() => {
-          isLoading.value = false
-        }, 2000)
-      }
-    }
-
-    /**
-     * 🗑️ 清除台南數據 (Clear Tainan Data)
-     */
-    const clearTainanData = () => {
-      if (confirm('確定要清除台南數據嗎？')) {
-        dataStore.clearData('loadedAndMergedGeoJSON'); // 假設 clearData 可以處理 processedData 子屬性
-        dataStore.clearData('loadedAndMergedTableData');
-        // 或者一個更通用的 clearProcessedSubData('loadedAndMergedGeoJSON')
-        dataStore.clearData('geojson'); 
-
-        tainanDataSummary.value = null;
-        // local mergedTableData 和 tainanGeoJSONData 因為是 computed，會自動更新
-        selectedFilter.value = '';
-        showTainanLayer.value = false;
-        console.log('✅ 台南數據已從 Pinia Store 和局部狀態中清除');
+    const clearAllData = () => {
+      if (confirm('確定要清除所有圖層數據嗎？')) {
+        dataStore.clearAllData();
+        console.log('✅ 所有圖層數據已從 Pinia Store 中清除');
       }
     };
 
@@ -491,58 +443,6 @@ export default {
       }
     }
 
-    // 載入醫療院所圖層
-    const loadMedicalLayer = async () => {
-      try {
-        isLoading.value = true
-        loadingText.value = '載入醫療院所數據中...'
-        loadingSubText.value = '正在處理地理資訊...'
-        
-        const data = await loadMedicalData()
-        console.log('載入的數據:', data)
-        
-        // 確保數據正確存儲
-        dataStore.storeLoadedData({
-          loadedAndMergedGeoJSON: data.mergedGeoJSON,
-          loadedAndMergedTableData: data.tableData
-        })
-        
-        loadingText.value = '載入完成'
-        loadingSubText.value = `已載入 ${data.tableData.length} 個區域`
-        
-        // 延遲一下再關閉載入視窗，讓用戶看到完成訊息
-        setTimeout(() => {
-          isLoading.value = false
-        }, 1000)
-      } catch (error) {
-        console.error('載入醫療院所數據失敗:', error)
-        loadingText.value = '載入失敗'
-        loadingSubText.value = error.message
-        // 延遲一下再關閉載入視窗，讓用戶看到錯誤訊息
-        setTimeout(() => {
-          isLoading.value = false
-        }, 2000)
-      }
-    }
-
-    // 處理台南市圖層顯示狀態變化
-    const handleTainanLayerVisibility = (show) => {
-      showTainanLayer.value = show
-      // 如果是開啟狀態且數據尚未載入過，才載入數據
-      if (show && !dataStore.isDataLoaded) {
-        loadTainanData()
-      }
-    }
-
-    // 處理醫療院所圖層顯示狀態變化
-    const handleMedicalLayerVisibility = (show) => {
-      showMedicalLayer.value = show
-      // 如果是開啟狀態且數據尚未載入過，才載入數據
-      if (show && !dataStore.isMedicalDataLoaded) {
-        loadMedicalLayer()
-      }
-    }
-
     // 添加更新坐標和標記數量的函數
     const updateCurrentCoords = (coords) => {
       currentCoords.value = coords
@@ -576,8 +476,7 @@ export default {
       activeRightTab,
       
       // ⏳ 載入狀態
-      isLoading,
-      isLoadingData,
+      isAnyLayerLoading,
       loadingText,
       loadingProgress,
       showLoadingProgress,
@@ -618,8 +517,7 @@ export default {
       storeTainanDataSummary,
       
       // 📥 台南數據功能
-      loadTainanData,
-      clearTainanData,
+      clearAllData,
       highlightOnMap,
       fitMapToData,
       resetView,
@@ -638,16 +536,9 @@ export default {
       storeMergedTableData,
       handleHighlight,
 
-      // 新的狀態
-      showMedicalLayer,
-      isLoadingMedical,
-
       // 新的函數
       updateCurrentCoords,
       updateActiveMarkers,
-      loadMedicalLayer,
-      handleTainanLayerVisibility,
-      handleMedicalLayerVisibility,
       handleFeatureSelected
     }
   }

@@ -29,7 +29,7 @@
       <button 
         class="btn btn-outline-primary btn-sm"
         @click="showAllFeatures"
-        :disabled="!tainanGeoJSONData || !showTainanLayer"
+        :disabled="!isAnyLayerVisible"
         title="顯示全部資料範圍">
         顯示全部
       </button>
@@ -38,10 +38,11 @@
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, watch, nextTick, computed } from 'vue'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { getColorByCount } from '../utils/dataProcessor.js'
+import { useDataStore } from '@/stores/dataStore.js'
 
 // 修復 Leaflet 默認圖標問題
 import icon from 'leaflet/dist/images/marker-icon.png'
@@ -62,22 +63,6 @@ export default {
       type: Number,
       default: 10
     },
-    tainanGeoJSONData: {
-      type: Object,
-      default: () => ({})
-    },
-    showTainanLayer: {
-      type: Boolean,
-      default: false
-    },
-    medicalData: {
-      type: Array,
-      default: () => []
-    },
-    showMedicalLayer: {
-      type: Boolean,
-      default: false
-    },
     selectedColorScheme: {
       type: String,
       default: 'default'
@@ -97,20 +82,19 @@ export default {
   },
   emits: ['update:zoomLevel', 'update:currentCoords', 'update:activeMarkers', 'feature-selected'],
   setup(props, { emit }) {
-    console.log('MapView setup:', {
-      hasMedicalData: !!props.medicalData,
-      showMedicalLayer: props.showMedicalLayer
-    })
+    const dataStore = useDataStore();
 
-    const map = ref(null)
-    const tainanLayer = ref(null)
-    const medicalLayer = ref(null)
-    const mapContainer = ref(null)
-    const mapInitialized = ref(false)
-    const currentTileLayer = ref(null)
-    const mapStatus = ref('初始化中...')
-    const selectedBasemap = ref('osm')
+    const map = ref(null);
+    const mapContainer = ref(null);
+    const mapInitialized = ref(false);
+    const currentTileLayer = ref(null);
+    const selectedBasemap = ref('osm');
     
+    // This will store Leaflet layer instances, keyed by our layer ID
+    const leafletLayers = ref({});
+
+    const isAnyLayerVisible = computed(() => dataStore.layers.some(l => l.visible && l.data));
+
     // 底圖配置
     const basemaps = {
       osm: {
@@ -119,629 +103,299 @@ export default {
       },
       esri_street: {
         url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
-        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012'
+        attribution: 'Tiles &copy; Esri'
       },
       esri_topo: {
         url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
-        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012'
+        attribution: 'Tiles &copy; Esri'
       },
       esri_imagery: {
         url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        attribution: 'Tiles &copy; Esri'
       },
       google_road: {
         url: 'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
-        attribution: '© Google',
-        note: 'Google Maps 僅供學術/測試用途，正式產品請用官方 API。'
+        attribution: '© Google'
       },
       google_satellite: {
         url: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
-        attribution: '© Google',
-        note: 'Google Maps 僅供學術/測試用途，正式產品請用官方 API。'
+        attribution: '© Google'
       },
       nlsc_emap: {
         url: 'https://wmts.nlsc.gov.tw/wmts/EMAP/default/GoogleMapsCompatible/{z}/{y}/{x}',
-        attribution: '© 國土測繪中心(NLSC) 電子地圖'
+        attribution: '© NLSC'
       },
       nlsc_photo: {
         url: 'https://wmts.nlsc.gov.tw/wmts/PHOTO2/default/GoogleMapsCompatible/{z}/{y}/{x}',
-        attribution: '© 國土測繪中心(NLSC) 正射影像'
+        attribution: '© NLSC'
       },
       terrain: {
         url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-        attribution: '&copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+        attribution: '&copy; OpenTopoMap'
       },
       aerial: {
         url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        attribution: 'Tiles &copy; Esri'
       },
       blank: {
         url: '',
         attribution: ''
       }
-    }
+    };
     
     // 初始化地圖
     const initMap = () => {
-      if (map.value) {
-        console.log('地圖已存在，跳過初始化')
-        return
-      }
-
+      if (map.value) return;
       try {
-        console.log('開始初始化地圖...')
-        mapStatus.value = '初始化中...'
-        
-        // 創建地圖
         map.value = L.map(mapContainer.value, {
-          center: [25.0330, 121.5654], // 台北市中心
+          center: [25.0330, 121.5654],
           zoom: props.zoomLevel,
-          zoomControl: false, // 禁用默認縮放控件
+          zoomControl: false,
           attributionControl: true
-        })
-        
-        // 手動添加縮放控件到右下角
-        L.control.zoom({ position: 'bottomright' }).addTo(map.value)
-        
-        mapStatus.value = '載入底圖...'
-        
-        // 載入底圖
-        loadBasemap()
-        
-        // 地圖事件
-        map.value.on('zoomend', () => {
-          emit('update:zoomLevel', map.value.getZoom())
-        })
-        
-        map.value.on('moveend', () => {
-          const center = map.value.getCenter()
-          emit('update:currentCoords', { lat: center.lat, lng: center.lng })
-        })
-
-        mapInitialized.value = true
-        console.log('地圖初始化完成')
+        });
+        L.control.zoom({ position: 'bottomright' }).addTo(map.value);
+        loadBasemap();
+        map.value.on('zoomend', () => emit('update:zoomLevel', map.value.getZoom()));
+        map.value.on('moveend', () => emit('update:currentCoords', map.value.getCenter()));
+        mapInitialized.value = true;
       } catch (error) {
-        console.error('地圖初始化失敗:', error)
-        mapStatus.value = '初始化失敗'
+        console.error('Map initialization failed:', error);
       }
-    }
+    };
     
     // 載入底圖
     const loadBasemap = () => {
-      if (currentTileLayer.value) {
-        map.value.removeLayer(currentTileLayer.value)
-        currentTileLayer.value = null
-      }
-      
-      const basemapConfig = basemaps[selectedBasemap.value]
-      
-      if (selectedBasemap.value === 'blank' || !basemapConfig || !basemapConfig.url) {
-        console.log('底圖已切換至: 空白無地圖')
-        if (map.value.attributionControl) {
-          map.value.attributionControl.setPrefix('');
-        }
-        return;
-      }
-      
-      currentTileLayer.value = L.tileLayer(basemapConfig.url, {
-        attribution: basemapConfig.attribution,
-        subdomains: basemapConfig.subdomains || 'abc',
+      if (currentTileLayer.value) map.value.removeLayer(currentTileLayer.value);
+      const config = basemaps[selectedBasemap.value];
+      if (!config || !config.url) return;
+      currentTileLayer.value = L.tileLayer(config.url, {
+        attribution: config.attribution,
         maxZoom: 18
-      })
-      
-      currentTileLayer.value.addTo(map.value)
-      console.log(`底圖已切換至: ${selectedBasemap.value}`)
-      if (basemapConfig.note) {
-        console.warn(basemapConfig.note);
-      }
-    }
+      }).addTo(map.value);
+    };
     
-    // 切換底圖
     const changeBasemap = () => {
-      if (map.value) {
-        loadBasemap()
-      }
-    }
+      if (map.value) loadBasemap();
+    };
     
-    // 創建台南圖層
-    const createTainanLayer = () => {
-      console.log('開始創建圖層...', { 
-        hasData: !!props.tainanGeoJSONData,
-        showLayer: props.showTainanLayer,
-        dataFeatures: props.tainanGeoJSONData?.features?.length
-      })
+    const updateMapLayers = () => {
+      if (!map.value) return;
 
-      if (tainanLayer.value) {
-        console.log('移除現有圖層')
-        map.value.removeLayer(tainanLayer.value)
-        tainanLayer.value = null
-      }
+      dataStore.layers.forEach(layerConfig => {
+        const layerId = layerConfig.id;
+        const existingLayer = leafletLayers.value[layerId];
 
-      if (props.tainanGeoJSONData && props.showTainanLayer) {
-        try {
-          console.log('創建新圖層，數據特徵數量:', props.tainanGeoJSONData.features?.length)
-
-          tainanLayer.value = L.geoJSON(props.tainanGeoJSONData, {
-            style: (feature) => {
-              const count = feature.properties.中位數 || 0
-              return {
-                fillColor: getColorByCount(count, props.maxCount, props.selectedColorScheme),
-                weight: props.selectedBorderWeight,
-                opacity: 1,
-                color: props.selectedBorderColor,
-                fillOpacity: 0.7
+        // Case 1: Layer should be visible
+        if (layerConfig.visible && layerConfig.data) {
+          // If it doesn't exist on the map, create and add it
+          if (!existingLayer) {
+            const newLeafletLayer = L.geoJSON(layerConfig.data, {
+              style: (feature) => {
+                 const count = feature.properties.中位數 || 0
+                 return {
+                   fillColor: getColorByCount(count, props.maxCount, props.selectedColorScheme),
+                   weight: props.selectedBorderWeight,
+                   opacity: 1,
+                   color: props.selectedBorderColor,
+                   fillOpacity: 0.7
+                 }
+              },
+              onEachFeature: (feature, leafletLayer) => {
+                const name = feature.properties.PTVNAME || feature.properties.HospName || '未知區域';
+                const count = feature.properties.中位數 || 0;
+                leafletLayer.bindPopup(`<div class="map-popup"><h6>${name}</h6><p>中位數: ${count}</p></div>`);
+                leafletLayer.bindTooltip(`${name}: ${count}`);
+                leafletLayer.on({
+                  mouseover: (e) => {
+                    e.target.setStyle({ weight: 3, color: '#333', fillOpacity: 0.8 }).bringToFront();
+                  },
+                  mouseout: (e) => {
+                     // We need a way to reset style that doesn't rely on a single layer ref
+                     newLeafletLayer.resetStyle(e.target);
+                  },
+                  click: (e) => {
+                    const center = e.target.getBounds().getCenter();
+                    map.value.panTo(center, { animate: true, duration: 0.5 });
+                    emit('feature-selected', e.target.feature);
+                  }
+                });
               }
-            },
-            onEachFeature: (feature, layer) => {
-              const name = feature.properties.PTVNAME || '未知區域'
-              const count = feature.properties.中位數 || 0
-              
-              // 綁定彈出視窗
-              const popupContent = `
-                <div class="map-popup">
-                  <h6 class="text-primary mb-2">${name}</h6>
-                  <p class="mb-1">中位數: ${count.toLocaleString()}</p>
-                </div>
-              `
-              layer.bindPopup(popupContent)
-              
-              // 綁定工具提示
-              layer.bindTooltip(`${name}: ${count}`, {
-                permanent: false,
-                direction: 'center',
-                className: 'custom-tooltip'
-              })
-              
-              // 滑鼠事件處理
-              layer.on({
-                mouseover: function(e) {
-                  const layer = e.target
-                  requestAnimationFrame(() => {
-                    layer.setStyle({
-                      weight: 3,
-                      color: '#333',
-                      fillOpacity: 0.8
-                    })
-                    layer.bringToFront()
-                  })
-                },
-                mouseout: function(e) {
-                  requestAnimationFrame(() => {
-                    tainanLayer.value.resetStyle(e.target)
-                  })
-                },
-                click: function(e) {
-                  const layer = e.target
-                  const feature = layer.feature
-                  const center = layer.getBounds().getCenter()
-                  
-                  // 使用 requestAnimationFrame 來優化動畫
-                  requestAnimationFrame(() => {
-                    // 移動到畫面中間
-                    map.value.panTo(center, {
-                      animate: true,
-                      duration: 0.5
-                    })
-                  })
-                  
-                  // 立即發送事件，不等待動畫
-                  emit('update:currentCoords', { lat: center.lat, lng: center.lng })
-                  emit('feature-selected', feature)
-                }
-              })
-            }
-          })
-          
-          tainanLayer.value.addTo(map.value)
-          
-          const featureCount = props.tainanGeoJSONData.features ? props.tainanGeoJSONData.features.length : 0
-          emit('update:activeMarkers', featureCount)
-
-          console.log(`圖層創建完成，包含 ${featureCount} 個區域`)
-          
-        } catch (error) {
-          console.error('創建圖層錯誤:', error)
+            });
+            newLeafletLayer.addTo(map.value);
+            leafletLayers.value[layerId] = newLeafletLayer;
+            console.log(`Layer "${layerId}" added to map.`);
+          }
+        } 
+        // Case 2: Layer should NOT be visible
+        else {
+          // If it exists on the map, remove it
+          if (existingLayer) {
+            map.value.removeLayer(existingLayer);
+            delete leafletLayers.value[layerId];
+            console.log(`Layer "${layerId}" removed from map.`);
+          }
         }
-      } else {
-        emit('update:activeMarkers', 0)
-      }
-    }
-    
+      });
+
+      // Update total active markers
+      const totalMarkers = Object.values(leafletLayers.value).reduce((acc, layer) => acc + (layer.getLayers ? layer.getLayers().length : 0), 0);
+      emit('update:activeMarkers', totalMarkers);
+    };
+
     // 顯示所有要素
     const showAllFeatures = () => {
-      if (map.value && tainanLayer.value) {
-        try {
-          const bounds = tainanLayer.value.getBounds()
-          if (bounds.isValid()) {
-            // 只移動到中心點，不縮放
-            map.value.panTo(bounds.getCenter())
-          }
-        } catch (error) {
-          console.error('顯示全部功能錯誤:', error)
-        }
-      }
-    }
+       if (!map.value || !isAnyLayerVisible.value) return;
+       try {
+         const allBounds = new L.LatLngBounds();
+         Object.values(leafletLayers.value).forEach(layer => {
+           if (layer && layer.getBounds) {
+             allBounds.extend(layer.getBounds());
+           }
+         });
+         if (allBounds.isValid()) {
+           map.value.fitBounds(allBounds, { padding: [50, 50] });
+         }
+       } catch (error) {
+         console.error('Error showing all features:', error);
+       }
+    };
     
     // 高亮功能
     const highlightFeature = (name) => {
-      console.log('開始高亮顯示:', { name, tainanLayer: !!tainanLayer.value })
-      
-      if (!tainanLayer.value) {
-        console.warn('無法高亮顯示：tainanLayer 未定義')
-        return
-      }
-      
-      if (!name) {
-        console.warn('無法高亮顯示：名稱為空')
-        return
-      }
-
-      // 重置所有圖層樣式
-      tainanLayer.value.eachLayer((layer) => {
-        tainanLayer.value.resetStyle(layer)
-      })
-
-      // 查找並高亮指定區域
-      let found = false
-      tainanLayer.value.eachLayer((layer) => {
-        const feature = layer.feature
-        console.log('檢查區域:', { 
-          featureName: feature?.properties?.PTVNAME,
-          targetName: name,
-          match: feature?.properties?.PTVNAME === name
-        })
-        
-        if (feature?.properties?.PTVNAME === name) {
-          found = true
-          
-          // 設置高亮樣式
-          layer.setStyle({
-            weight: 4,
-            color: '#ff0000',
-            dashArray: '5,5',
-            fillOpacity: 0.9
-          })
-          
-          // 移動到該區域
-          const bounds = layer.getBounds()
-          map.value.fitBounds(bounds, {
-            padding: [50, 50],
-            animate: true,
-            duration: 1.0
-          })
-          
-          // 顯示彈出視窗
-          layer.openPopup()
+        if (!map.value) return;
+        try {
+          Object.values(leafletLayers.value).forEach(layer => {
+            if (!layer) return;
+            layer.eachLayer(leafletLayer => {
+              if (!leafletLayer || !leafletLayer.feature) return;
+              const featureName = leafletLayer.feature.properties.PTVNAME || leafletLayer.feature.properties.HospName;
+              if (featureName === name) {
+                layer.resetStyle(leafletLayer); // Reset first
+                leafletLayer.setStyle({ weight: 4, color: '#ff0000', dashArray: '5,5', fillOpacity: 0.9 });
+                const bounds = leafletLayer.getBounds();
+                if (bounds && bounds.isValid()) {
+                  map.value.fitBounds(bounds, { padding: [50, 50], animate: true, duration: 1.0 });
+                }
+                leafletLayer.openPopup();
+              } else {
+                layer.resetStyle(leafletLayer);
+              }
+            });
+          });
+        } catch (error) {
+          console.error('Error highlighting feature:', error);
         }
-      })
-
-      if (!found) {
-        console.warn(`未找到區域：${name}`)
-      }
-    }
+    };
     
     // 重置視圖
     const resetView = () => {
-      if (map.value) {
-        map.value.setView([22.9908, 120.2133], 10)
-        console.log('地圖視圖已重置')
+      if (!map.value) return;
+      try {
+        map.value.setView([22.9908, 120.2133], 10);
+      } catch (error) {
+        console.error('Error resetting view:', error);
       }
-    }
+    };
     
     // 適應台南邊界
     const fitToTainanBounds = () => {
-      if (map.value && tainanLayer.value) {
-        map.value.fitBounds(tainanLayer.value.getBounds())
-        console.log('地圖已適應台南邊界')
-      }
-    }
+        if (!map.value || !leafletLayers.value['tainan']) return;
+        try {
+          const tainanBounds = leafletLayers.value['tainan'].getBounds();
+          if (tainanBounds && tainanBounds.isValid()) {
+            map.value.fitBounds(tainanBounds);
+          }
+        } catch (error) {
+          console.error('Error fitting to Tainan bounds:', error);
+        }
+    };
     
     // 刷新地圖大小
     const invalidateSize = () => {
-      if (map.value) {
+      if (!map.value) return;
+      try {
         nextTick(() => {
-          map.value.invalidateSize()
-          console.log('地圖大小已刷新')
-        })
+          if (map.value) {
+            map.value.invalidateSize();
+          }
+        });
+      } catch (error) {
+        console.error('Error invalidating map size:', error);
       }
-    }
+    };
     
-    // 監聽台南圖層顯示狀態變化
-    watch(() => props.showTainanLayer, (newValue) => {
-      if (tainanLayer.value) {
-        if (newValue) {
-          tainanLayer.value.addTo(map.value)
-        } else {
-          map.value.removeLayer(tainanLayer.value)
-        }
-      } else if (newValue && props.tainanGeoJSONData) {
-        createTainanLayer()
-      }
-    })
+    watch(() => dataStore.layers, updateMapLayers, { deep: true });
     
-    // 監聽台南GeoJSON數據變化
-    watch(() => props.tainanGeoJSONData, () => {
-      if (props.showTainanLayer) {
-        createTainanLayer()
-      }
-    })
-    
-    // 監聽醫療院所圖層顯示狀態變化
-    watch(() => props.showMedicalLayer, (newValue) => {
-      if (medicalLayer.value) {
-        if (newValue) {
-          medicalLayer.value.addTo(map.value)
-        } else {
-          map.value.removeLayer(medicalLayer.value)
-        }
-      } else if (newValue && props.medicalData?.rawGeoJSON) {
-        createMedicalLayer()
-      }
-    })
-    
-    // 監聽醫療院所數據變化
-    watch(() => props.medicalData, () => {
-      if (props.showMedicalLayer) {
-        createMedicalLayer()
-      }
-    })
-    
-    watch(() => props.selectedColorScheme, () => {
-      console.log('色票方案變更:', props.selectedColorScheme)
-      createTainanLayer()
-    })
-    
-    watch(() => props.maxCount, () => {
-      console.log('最大計數值變更:', props.maxCount)
-      createTainanLayer()
-    })
-    
-    watch(() => props.selectedBorderColor, () => {
-      console.log('框線顏色變更:', props.selectedBorderColor);
-      createTainanLayer();
+    watch([() => props.selectedColorScheme, () => props.selectedBorderColor, () => props.selectedBorderWeight], () => {
+        // Re-apply styles to all visible layers
+        Object.values(leafletLayers.value).forEach(layer => layer.setStyle({
+            color: props.selectedBorderColor,
+            weight: props.selectedBorderWeight
+        }));
     });
 
-    watch(() => props.selectedBorderWeight, () => {
-      console.log('框線粗細變更:', props.selectedBorderWeight);
-      createTainanLayer();
-    });
-    
-    watch(() => props.zoomLevel, (newZoom) => {
-      if (map.value && map.value.getZoom() !== newZoom) {
-        map.value.setZoom(newZoom)
-      }
-    })
-    
-    // 創建醫療院所圖層
-    const createMedicalLayer = () => {
-      console.log('開始創建圖層...', { 
-        hasData: !!props.medicalData?.rawGeoJSON,
-        showLayer: props.showMedicalLayer,
-        dataFeatures: props.medicalData?.rawGeoJSON?.features?.length
-      })
-
-      if (medicalLayer.value) {
-        console.log('移除現有圖層')
-        map.value.removeLayer(medicalLayer.value)
-        medicalLayer.value = null
-      }
-
-      if (props.medicalData?.rawGeoJSON && props.showMedicalLayer) {
-        try {
-          console.log('創建新圖層，數據特徵數量:', props.medicalData.rawGeoJSON.features?.length)
-
-          medicalLayer.value = L.geoJSON(props.medicalData.rawGeoJSON, {
-            pointToLayer: (feature, latlng) => {
-              return L.circleMarker(latlng, {
-                radius: 6,
-                fillColor: '#ff0000',
-                color: '#fff',
-                weight: 1,
-                opacity: 1,
-                fillOpacity: 0.8
-              })
-            },
-            onEachFeature: (feature, layer) => {
-              const name = feature.properties.name || '未知區域'
-              
-              // 綁定彈出視窗
-              const popupContent = `
-                <div class="map-popup">
-                  <h6 class="text-primary mb-2">${name}</h6>
-                  <p class="mb-1">地址：${feature.properties.address || '無'}</p>
-                  <p class="mb-1">電話：${feature.properties.phone || '無'}</p>
-                  <p class="mb-1">區域：${feature.properties.district || '無'}</p>
-                </div>
-              `
-              layer.bindPopup(popupContent)
-              
-              // 綁定工具提示
-              layer.bindTooltip(`${name}`, {
-                permanent: false,
-                direction: 'center',
-                className: 'custom-tooltip'
-              })
-              
-              // 滑鼠事件處理
-              layer.on({
-                mouseover: function(e) {
-                  const layer = e.target
-                  requestAnimationFrame(() => {
-                    layer.setStyle({
-                      weight: 3,
-                      color: '#333',
-                      fillOpacity: 0.8
-                    })
-                    layer.bringToFront()
-                  })
-                },
-                mouseout: function(e) {
-                  requestAnimationFrame(() => {
-                    medicalLayer.value.resetStyle(e.target)
-                  })
-                },
-                click: function(e) {
-                  const layer = e.target
-                  const feature = layer.feature
-                  const center = layer.getBounds().getCenter()
-                  
-                  // 使用 requestAnimationFrame 來優化動畫
-                  requestAnimationFrame(() => {
-                    // 移動到畫面中間
-                    map.value.panTo(center, {
-                      animate: true,
-                      duration: 0.5
-                    })
-                  })
-                  
-                  // 立即發送事件，不等待動畫
-                  emit('update:currentCoords', { lat: center.lat, lng: center.lng })
-                  emit('feature-selected', feature)
-                }
-              })
-            }
-          })
-          
-          medicalLayer.value.addTo(map.value)
-          
-          const featureCount = props.medicalData.rawGeoJSON.features ? props.medicalData.rawGeoJSON.features.length : 0
-          emit('update:activeMarkers', featureCount)
-
-          console.log(`圖層創建完成，包含 ${featureCount} 個區域`)
-          
-        } catch (error) {
-          console.error('創建圖層錯誤:', error)
-        }
-      } else {
-        emit('update:activeMarkers', 0)
-      }
-    }
-    
-    // 監聽地圖容器大小變化
-    const resizeObserver = new ResizeObserver(() => {
-      if (mapInitialized.value) {
-        invalidateSize()
-      }
-    })
-    
-    // 組件掛載
     onMounted(() => {
-      console.log('MapView 組件已掛載')
-      initMap()
-      
-      // 開始觀察地圖容器大小變化
-      if (mapContainer.value) {
-        resizeObserver.observe(mapContainer.value)
-      }
-    })
-    
-    // 組件卸載
+      initMap();
+    });
+
     onUnmounted(() => {
       if (map.value) {
-        map.value.remove()
-        map.value = null
-        console.log('地圖已清理')
+        map.value.remove();
+        map.value = null;
       }
-      if (medicalLayer.value) {
-        map.value.removeLayer(medicalLayer.value)
-        medicalLayer.value = null
-      }
-      // 停止觀察
-      resizeObserver.disconnect()
-    })
-    
+    });
+
     return {
       mapContainer,
-      mapStatus,
       selectedBasemap,
       changeBasemap,
+      showAllFeatures,
+      isAnyLayerVisible,
+      // Methods for parent to call
       highlightFeature,
       resetView,
       fitToTainanBounds,
-      invalidateSize,
-      showAllFeatures
-    }
+      invalidateSize
+    };
   }
 }
 </script>
 
 <style scoped>
-/* 地圖容器樣式 */
 #map-container {
-  position: relative;
-  height: 100%;
-  width: 100%;
-  background-color: #f0f0f0; /* Fallback background */
+  background-color: #f0f0f0; /* Fallback for blank map */
 }
 
-#leaflet-map {
-  height: 100% !important; /* Ensure Leaflet map takes full dimensions */
-  width: 100% !important;
-  z-index: 1; /* Base z-index for the map */
-}
-
-/* ✨ 新的底部中央地圖控制項樣式 ✨ */
 .map-bottom-controls {
   position: absolute;
-  bottom: 20px;
+  bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 1000; /* Above map tiles */
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 8px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
   display: flex;
   align-items: center;
   gap: 15px;
-  background-color: rgba(255, 255, 255, 0.9);
-  padding: 10px 15px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  backdrop-filter: blur(5px);
 }
 
 .basemap-select-group {
   display: flex;
   align-items: center;
 }
+</style>
 
-/* 自定義工具提示樣式 */
-:global(.custom-tooltip) {
-  background-color: rgba(0, 0, 0, 0.8) !important;
-  border: 1px solid #ccc !important;
-  border-radius: 4px !important;
-  color: white !important;
-  font-size: 12px !important;
-  padding: 4px 8px !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+<style>
+/* Global popup style override */
+.map-popup .leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  padding: 1rem;
 }
-
-/* 地圖彈出視窗樣式 */
-:global(.map-popup) {
-  font-family: 'Noto Sans TC', sans-serif;
-  min-width: 200px;
-}
-
-:global(.map-popup h6) {
-  border-bottom: 1px solid #eee;
-  padding-bottom: 4px;
-  margin-bottom: 8px;
-}
-
-:global(.map-popup .badge) {
-  font-size: 11px;
-}
-
-/* Leaflet 控制項樣式覆蓋 */
-:global(.leaflet-control-zoom a) {
-  background-color: white !important;
-  border-color: #ccc !important;
-  color: #333 !important;
-}
-
-:global(.leaflet-control-zoom a:hover) {
-  background-color: #f4f4f4 !important;
-}
-
-:global(.leaflet-control-attribution) {
-  background-color: rgba(255, 255, 255, 0.8) !important;
-  color: #333 !important;
-  font-size: 11px !important;
+.map-popup .leaflet-popup-content {
+  margin: 0;
+  font-size: 0.9rem;
 }
 </style> 
