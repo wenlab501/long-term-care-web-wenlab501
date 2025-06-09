@@ -39,6 +39,9 @@ export const useDataStore = defineStore('data', () => {
     medicalData: null
   })
 
+  // ==================== 選中物件狀態 ====================
+  const selectedFeature = ref(null)
+
   // ==================== 視覺化設定 ====================
   const visualizationSettings = reactive({
     colors: {
@@ -524,12 +527,42 @@ export const useDataStore = defineStore('data', () => {
     console.log("Finished fetching latest data.");
   }
 
+  /**
+   * 設定選中的物件
+   */
+  const setSelectedFeature = (feature) => {
+    console.log('Pinia Store - Before setting selectedFeature:', {
+      currentValue: selectedFeature.value,
+      newValue: feature,
+      hasProperties: !!feature?.properties
+    })
+    selectedFeature.value = feature
+    console.log('Pinia Store - After setting selectedFeature:', {
+      newValue: selectedFeature.value,
+      hasProperties: !!selectedFeature.value?.properties
+    })
+  }
+
+  /**
+   * 清除選中的物件
+   */
+  const clearSelectedFeature = () => {
+    console.log('Pinia Store - Before clearing selectedFeature:', {
+      currentValue: selectedFeature.value
+    })
+    selectedFeature.value = null
+    console.log('Pinia Store - After clearing selectedFeature:', {
+      newValue: selectedFeature.value
+    })
+  }
+
   return {
     // 狀態
     rawData,
     processedData,
     visualizationSettings,
     analysisParameters,
+    selectedFeature,
     
     // 計算屬性
     dataSummary,
@@ -548,6 +581,8 @@ export const useDataStore = defineStore('data', () => {
     importDataFromJSON,
     getData,
     hasData,
+    setSelectedFeature,
+    clearSelectedFeature,
     
     // 🔥 新增：Python 色票相關 API
     updateColorScheme,

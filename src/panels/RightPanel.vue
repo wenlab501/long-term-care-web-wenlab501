@@ -1,22 +1,21 @@
 <template>
   <div class="my-right-panel bg-light border-start h-100 d-flex flex-column custom-scroll" style="overflow: hidden;">
-
     <!-- 右側Tab導航 -->
     <div class="bg-light" style="min-width: 0;">
       <ul class="nav nav-tabs nav-fill small">
         <li class="nav-item">
           <button 
             class="nav-link text-dark border-0"
-            :class="{ 'active bg-white text-primary fw-bold': activeRightTab === 'results' }" 
-            @click="$emit('update:activeRightTab', 'results')">
-            分析結果
+            :class="{ 'active bg-white text-primary fw-bold': activeRightTab === 'properties' }" 
+            @click="$emit('update:activeRightTab', 'properties')">
+            物件屬性
           </button>
         </li>
         <li class="nav-item">
           <button 
             class="nav-link text-dark border-0"
-            :class="{ 'active bg-white text-primary fw-bold': activeRightTab === 'list' }" 
-            @click="$emit('update:activeRightTab', 'list')">
+            :class="{ 'active bg-white text-primary fw-bold': activeRightTab === 'analysis' }" 
+            @click="$emit('update:activeRightTab', 'analysis')">
             分析清單
           </button>
         </li>
@@ -25,33 +24,32 @@
     
     <!-- 右側Tab內容 -->
     <div class="tab-content flex-grow-1 overflow-auto p-3" style="min-width: 0;">
-      <!-- 分析結果Tab -->
-      <div v-show="activeRightTab === 'results'" class="h-100">
-        <AnalysisResultsTab />
+      <!-- 物件屬性Tab -->
+      <div v-show="activeRightTab === 'properties'" class="h-100">
+        <ObjectPropertiesTab
+          :selected-feature="selectedFeature"
+          @highlight-feature="$emit('highlight-feature', $event)"
+        />
       </div>
       
       <!-- 分析清單Tab -->
-      <div v-show="activeRightTab === 'list'" class="h-100">
-        <AnalysisListTab
-          :analysisList="analysisList"
-          :selectedAnalysisId="selectedAnalysisId"
-          @select-analysis="$emit('select-analysis', $event)"
-          @view-analysis="$emit('view-analysis', $event)"
-          @delete-analysis="$emit('delete-analysis', $event)" />
+      <div v-show="activeRightTab === 'analysis'" class="h-100">
+        <AnalysisListTab />
       </div>
     </div>
-  
   </div>
 </template>
 
 <script>
-import AnalysisResultsTab from '../tabs/AnalysisResultsTab.vue'
+import ObjectPropertiesTab from '../tabs/ObjectPropertiesTab.vue'
 import AnalysisListTab from '../tabs/AnalysisListTab.vue'
+import { useDataStore } from '../stores/dataStore'
+import { computed, watch } from 'vue'
 
 export default {
   name: 'RightPanel',
   components: {
-    AnalysisResultsTab,
+    ObjectPropertiesTab,
     AnalysisListTab
   },
   props: {
@@ -79,9 +77,12 @@ export default {
     'update:activeRightTab',
     'select-analysis',
     'view-analysis',
-    'delete-analysis'
+    'delete-analysis',
+    'highlight-feature'
   ],
   setup(props) {
+    const dataStore = useDataStore()
+
     /**
      * 計算活躍分析項目數量
      * @returns {number} 完成狀態的分析項目數量
@@ -90,8 +91,28 @@ export default {
       return props.analysisList.filter(a => a.status === '完成').length
     }
 
+    // 監聽 selectedFeature 的變化
+    watch(() => dataStore.selectedFeature, (newFeature) => {
+      console.log('RightPanel - selectedFeature changed:', {
+        newFeature: newFeature,
+        properties: newFeature?.properties,
+        store: dataStore
+      })
+    }, { immediate: true })
+
+    // 添加計算屬性的監聽
+    const selectedFeatureComputed = computed(() => {
+      const feature = dataStore.selectedFeature
+      console.log('RightPanel - Computing selectedFeature:', {
+        feature: feature,
+        properties: feature?.properties
+      })
+      return feature
+    })
+
     return {
-      getActiveAnalysisCount
+      getActiveAnalysisCount,
+      selectedFeature: selectedFeatureComputed
     }
   }
 }

@@ -95,7 +95,7 @@ export default {
       default: 2
     }
   },
-  emits: ['update:zoomLevel', 'update:currentCoords', 'update:activeMarkers'],
+  emits: ['update:zoomLevel', 'update:currentCoords', 'update:activeMarkers', 'feature-selected'],
   setup(props, { emit }) {
     console.log('MapView setup:', {
       hasMedicalData: !!props.medicalData,
@@ -296,30 +296,37 @@ export default {
               layer.on({
                 mouseover: function(e) {
                   const layer = e.target
-                  layer.setStyle({
-                    weight: 3,
-                    color: '#333',
-                    fillOpacity: 0.8
+                  requestAnimationFrame(() => {
+                    layer.setStyle({
+                      weight: 3,
+                      color: '#333',
+                      fillOpacity: 0.8
+                    })
+                    layer.bringToFront()
                   })
-                  layer.bringToFront()
                 },
                 mouseout: function(e) {
-                  tainanLayer.value.resetStyle(e.target)
+                  requestAnimationFrame(() => {
+                    tainanLayer.value.resetStyle(e.target)
+                  })
                 },
                 click: function(e) {
                   const layer = e.target
-                  const name = layer.feature.properties.PTVNAME
+                  const feature = layer.feature
                   const center = layer.getBounds().getCenter()
                   
-                  // 移動到畫面中間
-                  map.value.panTo(center, {
-                    animate: true,
-                    duration: 0.5
+                  // 使用 requestAnimationFrame 來優化動畫
+                  requestAnimationFrame(() => {
+                    // 移動到畫面中間
+                    map.value.panTo(center, {
+                      animate: true,
+                      duration: 0.5
+                    })
                   })
                   
+                  // 立即發送事件，不等待動畫
                   emit('update:currentCoords', { lat: center.lat, lng: center.lng })
-                  
-                  console.log(`點擊區域: ${name}`)
+                  emit('feature-selected', feature)
                 }
               })
             }
@@ -559,30 +566,37 @@ export default {
               layer.on({
                 mouseover: function(e) {
                   const layer = e.target
-                  layer.setStyle({
-                    weight: 3,
-                    color: '#333',
-                    fillOpacity: 0.8
+                  requestAnimationFrame(() => {
+                    layer.setStyle({
+                      weight: 3,
+                      color: '#333',
+                      fillOpacity: 0.8
+                    })
+                    layer.bringToFront()
                   })
-                  layer.bringToFront()
                 },
                 mouseout: function(e) {
-                  medicalLayer.value.resetStyle(e.target)
+                  requestAnimationFrame(() => {
+                    medicalLayer.value.resetStyle(e.target)
+                  })
                 },
                 click: function(e) {
                   const layer = e.target
-                  const name = layer.feature.properties.name
-                  const center = layer.getLatLng()
+                  const feature = layer.feature
+                  const center = layer.getBounds().getCenter()
                   
-                  // 移動到畫面中間
-                  map.value.panTo(center, {
-                    animate: true,
-                    duration: 0.5
+                  // 使用 requestAnimationFrame 來優化動畫
+                  requestAnimationFrame(() => {
+                    // 移動到畫面中間
+                    map.value.panTo(center, {
+                      animate: true,
+                      duration: 0.5
+                    })
                   })
                   
+                  // 立即發送事件，不等待動畫
                   emit('update:currentCoords', { lat: center.lat, lng: center.lng })
-                  
-                  console.log(`點擊區域: ${name}`)
+                  emit('feature-selected', feature)
                 }
               })
             }

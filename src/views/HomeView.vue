@@ -26,6 +26,8 @@
           <div class="h-100 overflow-auto" :style="{ width: leftPanelWidthPx }" v-if="leftPanelWidth > 0">
             <LeftPanel
               :isLoadingData="isLoadingMedical"
+              :showTainanLayer="showTainanLayer"
+              :showMedicalLayer="showMedicalLayer"
               @update:showTainanLayer="handleTainanLayerVisibility"
               @update:showMedicalLayer="handleMedicalLayerVisibility"
               :current-coords="currentCoords"
@@ -89,6 +91,7 @@
                   :show-medical-layer="showMedicalLayer"
                   @update:current-coords="updateCurrentCoords"
                   @update:active-markers="updateActiveMarkers"
+                  @feature-selected="handleFeatureSelected"
                 />
                 
                 <!-- 圖層控制面板 -->
@@ -237,7 +240,7 @@ export default {
     // 📑 分頁狀態 (Tab States)
     const activeTab = ref('map')
     const activeBottomTab = ref('table')
-    const activeRightTab = ref('results')
+    const activeRightTab = ref('properties')
 
     // 📏 面板大小狀態 - 使用百分比系統 (Panel Size States - Percentage Based)
     const MIN_LEFT_PANEL_WIDTH_PERCENT = 5; // Define minimum width for left panel
@@ -569,22 +572,20 @@ export default {
 
     // 處理台南市圖層顯示狀態變化
     const handleTainanLayerVisibility = (show) => {
+      showTainanLayer.value = show
       // 如果是開啟狀態且數據尚未載入過，才載入數據
       if (show && !dataStore.isDataLoaded) {
         loadTainanData()
       }
-      // 更新顯示狀態
-      showTainanLayer.value = show
     }
 
     // 處理醫療院所圖層顯示狀態變化
     const handleMedicalLayerVisibility = (show) => {
+      showMedicalLayer.value = show
       // 如果是開啟狀態且數據尚未載入過，才載入數據
       if (show && !dataStore.isMedicalDataLoaded) {
         loadMedicalLayer()
       }
-      // 更新顯示狀態
-      showMedicalLayer.value = show
     }
 
     // 添加更新坐標和標記數量的函數
@@ -594,6 +595,19 @@ export default {
 
     const updateActiveMarkers = (count) => {
       activeMarkers.value = count
+    }
+    
+    const handleFeatureSelected = (feature) => {
+      console.log('HomeView - handleFeatureSelected called with:', {
+        feature: feature,
+        properties: feature.properties,
+        store: dataStore
+      })
+      dataStore.setSelectedFeature(feature)
+      console.log('HomeView - After setting selectedFeature:', {
+        storeSelectedFeature: dataStore.selectedFeature
+      })
+      activeRightTab.value = 'properties' // 自動切換到物件屬性標籤
     }
 
     // 📤 返回響應式數據和函數 (Return Reactive Data and Functions)
@@ -678,7 +692,8 @@ export default {
       updateActiveMarkers,
       loadMedicalLayer,
       handleTainanLayerVisibility,
-      handleMedicalLayerVisibility
+      handleMedicalLayerVisibility,
+      handleFeatureSelected
     }
   }
 }
