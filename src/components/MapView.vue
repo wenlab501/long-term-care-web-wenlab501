@@ -151,13 +151,43 @@ export default {
           center: [25.0330, 121.5654],
           zoom: props.zoomLevel,
           zoomControl: false,
-          attributionControl: true
+          attributionControl: true,
+          preferCanvas: true, // 使用 Canvas 渲染提高性能
+          zoomAnimation: true,
+          fadeAnimation: true,
+          markerZoomAnimation: true
         });
+        
         L.control.zoom({ position: 'bottomright' }).addTo(map.value);
         loadBasemap();
-        map.value.on('zoomend', () => emit('update:zoomLevel', map.value.getZoom()));
-        map.value.on('moveend', () => emit('update:currentCoords', map.value.getCenter()));
-        mapInitialized.value = true;
+        
+        // 安全地綁定事件，避免在動畫過程中觸發
+        map.value.on('zoomend', () => {
+          try {
+            if (map.value && map.value.getZoom) {
+              emit('update:zoomLevel', map.value.getZoom());
+            }
+          } catch (error) {
+            console.warn('Error updating zoom level:', error);
+          }
+        });
+        
+        map.value.on('moveend', () => {
+          try {
+            if (map.value && map.value.getCenter) {
+              emit('update:currentCoords', map.value.getCenter());
+            }
+          } catch (error) {
+            console.warn('Error updating coordinates:', error);
+          }
+        });
+        
+        // 延遲設定初始化完成狀態
+        setTimeout(() => {
+          mapInitialized.value = true;
+          console.log('✅ 地圖初始化完成');
+        }, 100);
+        
       } catch (error) {
         console.error('Map initialization failed:', error);
       }
@@ -179,7 +209,7 @@ export default {
     };
     
     const updateMapLayers = () => {
-      if (!map.value) return;
+      if (!map.value || !mapInitialized.value) return;
 
       dataStore.layers.forEach(layerConfig => {
         const layerId = layerConfig.id;
@@ -311,65 +341,43 @@ export default {
                   click: () => {
                     // 檢查地圖是否已初始化
                     if (!map.value || !mapInitialized.value) {
-                      console.warn('地圖尚未初始化，無法執行縮放操作');
+                      console.warn('地圖尚未初始化，無法執行操作');
                       return;
                     }
 
                     try {
-                      // 智能縮放處理 - 根據幾何類型選擇最佳方式
                       const geometryType = feature.geometry.type;
                       
+                      // 簡單的移動到中心，不縮放
                       if (geometryType === 'Point' || geometryType === 'MultiPoint') {
-                        // 點要素：縮放並居中
+                        // 點要素：移動到點位置
                         if (typeof leafletLayer.getLatLng === 'function') {
                           const latlng = leafletLayer.getLatLng();
                           if (latlng) {
-                            map.value.setView(latlng, Math.max(map.value.getZoom(), 14), {
+                            map.value.panTo(latlng, {
                               animate: true,
-                              duration: 0.8
-                            });
-                          }
-                        }
-                      } else if (geometryType === 'Polygon' || geometryType === 'MultiPolygon' || geometryType === 'LineString' || geometryType === 'MultiLineString') {
-                        // 面/線要素：使用邊界縮放
-                        if (typeof leafletLayer.getBounds === 'function') {
-                          const bounds = leafletLayer.getBounds();
-                          if (bounds && bounds.isValid()) {
-                            // 根據邊界大小調整 padding 和 maxZoom
-                            const boundsSize = bounds.getNorthEast().distanceTo(bounds.getSouthWest());
-                            const padding = boundsSize > 10000 ? [50, 50] : [20, 20]; // 大區域用更大 padding
-                            const maxZoom = boundsSize > 10000 ? 12 : 15; // 大區域限制縮放級別
-                            
-                            map.value.fitBounds(bounds, { 
-                              padding: padding, 
-                              animate: true, 
-                              duration: 0.8,
-                              maxZoom: maxZoom
+                              duration: 0.5
                             });
                           }
                         }
                       } else {
-                        // 其他類型：嘗試通用處理
-                        console.log('未知幾何類型:', geometryType, '使用預設處理');
+                        // 面/線要素：移動到中心點
                         if (typeof leafletLayer.getBounds === 'function') {
                           const bounds = leafletLayer.getBounds();
                           if (bounds && bounds.isValid()) {
-                            map.value.fitBounds(bounds, { padding: [30, 30], animate: true, duration: 0.8 });
-                          }
-                        } else if (typeof leafletLayer.getLatLng === 'function') {
-                          const latlng = leafletLayer.getLatLng();
-                          if (latlng) {
-                            map.value.setView(latlng, 13, { animate: true, duration: 0.8 });
+                            const center = bounds.getCenter();
+                            map.value.panTo(center, {
+                              animate: true,
+                              duration: 0.5
+                            });
                           }
                         }
                       }
                       
-                      // 延遲顯示 popup，等待縮放動畫完成
-                      setTimeout(() => {
-                        if (leafletLayer && leafletLayer.openPopup) {
-                          leafletLayer.openPopup();
-                        }
-                      }, geometryType === 'Point' ? 300 : 500); // 點要素動畫較快
+                      // 立即顯示 popup，不等待動畫
+                      if (leafletLayer && leafletLayer.openPopup) {
+                        leafletLayer.openPopup();
+                      }
                       
                       // 發送選中事件
                       emit('feature-selected', leafletLayer.feature);
@@ -405,7 +413,7 @@ export default {
 
     // 顯示所有要素
     const showAllFeatures = () => {
-       if (!map.value || !isAnyLayerVisible.value) return;
+       if (!map.value || !mapInitialized.value || !isAnyLayerVisible.value) return;
        try {
          const allBounds = new L.LatLngBounds();
          Object.values(leafletLayers.value).forEach(layer => {
@@ -414,7 +422,9 @@ export default {
            }
          });
          if (allBounds.isValid()) {
-           map.value.fitBounds(allBounds, { padding: [50, 50] });
+           // 簡化操作，只移動不縮放
+           const center = allBounds.getCenter();
+           map.value.panTo(center, { animate: true, duration: 0.8 });
          }
        } catch (error) {
          console.error('Error showing all features:', error);
@@ -460,21 +470,22 @@ export default {
                 
                 leafletLayer.setStyle(highlightStyle);
                 
-                // 智能縮放處理
+                // 簡單移動到中心，不縮放
                 if (geometryType === 'Point' || geometryType === 'MultiPoint') {
-                  // 點要素：縮放並居中
+                  // 點要素：移動到點位置
                   if (typeof leafletLayer.getLatLng === 'function') {
                     const latlng = leafletLayer.getLatLng();
                     if (latlng) {
-                      map.value.setView(latlng, 16, { animate: true, duration: 1.0 });
+                      map.value.panTo(latlng, { animate: true, duration: 0.8 });
                     }
                   }
                 } else {
-                  // 面/線要素：使用邊界縮放
+                  // 面/線要素：移動到中心點
                   if (typeof leafletLayer.getBounds === 'function') {
                     const bounds = leafletLayer.getBounds();
                     if (bounds && bounds.isValid()) {
-                      map.value.fitBounds(bounds, { padding: [50, 50], animate: true, duration: 1.0 });
+                      const center = bounds.getCenter();
+                      map.value.panTo(center, { animate: true, duration: 0.8 });
                     }
                   }
                 }
@@ -484,7 +495,7 @@ export default {
                   if (leafletLayer.openPopup) {
                     leafletLayer.openPopup();
                   }
-                }, 800);
+                }, 400);
                 
                 console.log(`✅ 成功高亮顯示 ${geometryType} 類型要素: ${name}`);
               } else {
@@ -503,9 +514,10 @@ export default {
     
     // 重置視圖
     const resetView = () => {
-      if (!map.value) return;
+      if (!map.value || !mapInitialized.value) return;
       try {
-        map.value.setView([22.9908, 120.2133], 10);
+        // 使用 panTo 而不是 setView 避免縮放
+        map.value.panTo([22.9908, 120.2133], { animate: true, duration: 0.8 });
       } catch (error) {
         console.error('Error resetting view:', error);
       }
@@ -513,11 +525,13 @@ export default {
     
     // 適應台南邊界
     const fitToTainanBounds = () => {
-        if (!map.value || !leafletLayers.value['tainan']) return;
+        if (!map.value || !mapInitialized.value || !leafletLayers.value['tainan']) return;
         try {
           const tainanBounds = leafletLayers.value['tainan'].getBounds();
           if (tainanBounds && tainanBounds.isValid()) {
-            map.value.fitBounds(tainanBounds);
+            // 簡化操作，只移動到中心
+            const center = tainanBounds.getCenter();
+            map.value.panTo(center, { animate: true, duration: 0.8 });
           }
         } catch (error) {
           console.error('Error fitting to Tainan bounds:', error);
