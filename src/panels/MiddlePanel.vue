@@ -26,6 +26,7 @@
         @update:zoomLevel="$emit('update:zoomLevel', $event)"
         @update:currentCoords="$emit('update:currentCoords', $event)"
         @update:activeMarkers="$emit('update:activeMarkers', $event)"
+        @feature-selected="$emit('feature-selected', $event)"
       />
     </div>
 
@@ -111,7 +112,8 @@ const emit = defineEmits([
   'update:zoomLevel', 'update:currentCoords', 'update:activeMarkers',
   'update:tableSearchQuery', 'sort-table', 'highlight-on-map',
   'update:selectedColorScheme', 'update:selectedBorderColor', 'update:selectedBorderWeight',
-  'reset-view'
+  'reset-view',
+  'feature-selected'
 ]);
 
 // --- Refs for internal components ---

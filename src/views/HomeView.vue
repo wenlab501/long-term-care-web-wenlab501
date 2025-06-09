@@ -81,51 +81,8 @@
             @reset-view="resetView"
             @highlight-on-map="highlightOnMap"
             @highlight-feature="handleHighlight"
-          >
-            <template #map>
-              <div class="map-container" ref="mapContainer">
-                <MapView
-                  :tainan-geo-json-data="storeTainanGeoJSONData"
-                  :show-tainan-layer="showTainanLayer"
-                  :medical-data="storeMedicalData"
-                  :show-medical-layer="showMedicalLayer"
-                  @update:current-coords="updateCurrentCoords"
-                  @update:active-markers="updateActiveMarkers"
-                  @feature-selected="handleFeatureSelected"
-                />
-                
-                <!-- 圖層控制面板 -->
-                <div class="layer-control-panel">
-                  <div class="layer-control">
-                    <div class="form-check">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        :checked="showTainanLayer"
-                        @change="toggleTainanLayer"
-                        id="tainanLayerCheck"
-                      >
-                      <label class="form-check-label" for="tainanLayerCheck">
-                        台南市圖層
-                      </label>
-                    </div>
-                    <div class="form-check">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        :checked="showMedicalLayer"
-                        @change="toggleMedicalLayer"
-                        id="medicalLayerCheck"
-                      >
-                      <label class="form-check-label" for="medicalLayerCheck">
-                        醫療院所分布
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </template>
-          </MiddlePanel>
+            @feature-selected="handleFeatureSelected"
+          />
 
           <!-- 🔧 右側拖曳調整器 (Right Resizer) - Now a direct child of the flex row -->
           <div class="my-resizer my-resizer-vertical border-start border-end" 
@@ -202,7 +159,6 @@ import LoadingOverlay from '../components/LoadingOverlay.vue'
 import LeftPanel from '../panels/LeftPanel.vue'
 import RightPanel from '../panels/RightPanel.vue'
 import MiddlePanel from '../panels/MiddlePanel.vue'
-import MapView from '../components/MapView.vue'
 
 export default {
   name: 'HomeView',
@@ -214,8 +170,7 @@ export default {
     LoadingOverlay,
     LeftPanel,
     RightPanel,
-    MiddlePanel,
-    MapView
+    MiddlePanel
   },
   
   /**

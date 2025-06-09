@@ -7,7 +7,7 @@
       <h1 class="my-font-size-xl" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
         <div class="d-flex flex-column align-items-center justify-content-center m-3">
           <div class="rounded-circle my-bg-color-gray-300 p-4"></div>
-          <div class="my-font-size-lg my-letter-spacing-lg mt-3">登革熱空間分析</div>
+          <div class="my-font-size-lg my-letter-spacing-lg mt-3">臺北市長照資訊</div>
         </div>
       </h1>
     </div>
@@ -17,34 +17,33 @@
       
       <!-- 圖層控制卡片 -->
       <div class="mb-3">
-        <h6 class="text-muted small text-uppercase mb-2">圖層控制</h6>
-        <div class="d-grid gap-2">
+        <div class="vstack gap-2">
           <!-- 台南市行政區 -->
-          <div class="form-check form-switch">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              :checked="showTainanLayer"
-              @change="$emit('update:showTainanLayer', $event.target.checked)"
-              id="tainanLayerCheck"
+          <div class="d-flex justify-content-between align-items-center">
+            <label class="form-label mb-0">台南市行政區</label>
+            <button 
+              type="button" 
+              class="btn btn-sm"
+              style="width: 60px;"
+              :class="showTainanLayer ? 'btn-success' : 'btn-outline-secondary'"
+              @click="$emit('update:showTainanLayer', !showTainanLayer)"
             >
-            <label class="form-check-label" for="tainanLayerCheck">
-              台南市行政區
-            </label>
+              {{ showTainanLayer ? '開啟' : '關閉' }}
+            </button>
           </div>
 
           <!-- 醫療院所分布 -->
-          <div class="form-check form-switch">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              :checked="showMedicalLayer"
-              @change="$emit('update:showMedicalLayer', $event.target.checked)"
-              id="medicalLayerCheck"
+          <div class="d-flex justify-content-between align-items-center">
+            <label class="form-label mb-0">醫療院所分布</label>
+            <button 
+              type="button" 
+              class="btn btn-sm"
+              style="width: 60px;"
+              :class="showMedicalLayer ? 'btn-success' : 'btn-outline-secondary'"
+              @click="$emit('update:showMedicalLayer', !showMedicalLayer)"
             >
-            <label class="form-check-label" for="medicalLayerCheck">
-              醫療院所分布
-            </label>
+              {{ showMedicalLayer ? '開啟' : '關閉' }}
+            </button>
           </div>
         </div>
       </div>

@@ -35,7 +35,8 @@
           :maxCount="maxCount"
           @update:zoomLevel="$emit('update:zoomLevel', $event)"
           @update:currentCoords="$emit('update:currentCoords', $event)"
-          @update:activeMarkers="$emit('update:activeMarkers', $event)" />
+          @update:activeMarkers="$emit('update:activeMarkers', $event)"
+          @feature-selected="$emit('feature-selected', $event)" />
       </div>
       
       <!-- 📊 儀表板標籤 (Dashboard Tab) -->
@@ -223,7 +224,8 @@ export default {
     'update:activeTab',
     'update:zoomLevel',
     'update:currentCoords',
-    'update:activeMarkers'
+    'update:activeMarkers',
+    'feature-selected'
   ],
   
   /**
