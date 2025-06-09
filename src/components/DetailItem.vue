@@ -10,7 +10,7 @@
     
     <!-- 📊 資訊數值 (Information Value) -->
     <!-- 顯示實際的數值或內容，支援多種數據類型 -->
-    <span class="fw-bold">{{ value }}</span>
+    <span>{{ value }}</span>
   </div>
 </template>
 

@@ -1,11 +1,11 @@
 <template>
   <!-- 📊 資料表格分頁組件 (Data Table Tab Component) -->
   <!-- 提供資料的表格化顯示、搜尋、排序和高亮功能 -->
-  <div class="data-table-tab-component h-100 d-flex flex-column">
+  <div class="my-data-table-tab-component h-100 d-flex flex-column">
     
     <!-- 🔍 搜尋工具列 (Search Toolbar) -->
     <!-- 提供即時搜尋功能，可搜尋名稱、ID、數量等欄位 -->
-    <div class="search-toolbar-container p-2 bg-light border-bottom">
+    <div class="my-search-toolbar-container p-2 bg-light border-bottom">
       <input
         type="text"
         class="form-control form-control-sm"
@@ -16,8 +16,8 @@
 
     <!-- 📋 表格容器 (Table Container) -->
     <!-- 顯示過濾和排序後的資料，包含固定表頭和可捲動內容 -->
-    <div v-if="filteredAndSortedData.length > 0" class="table-container flex-grow-1">
-      <div class="table-responsive custom-scroll h-100">
+    <div v-if="filteredAndSortedData.length > 0" class="my-table-container flex-grow-1">
+      <div class="table-responsive my-custom-scroll h-100">
         <table class="table table-sm table-hover table-striped mb-0">
           
           <!-- 📝 表格標題列 (Table Header) -->
@@ -25,25 +25,25 @@
           <thead class="table-light sticky-top">
             <tr class="text-center">
               <!-- 🔢 ID 欄位標題 (ID Column Header) -->
-              <th @click="handleSort('id')" class="sortable">
+              <th @click="handleSort('id')" class="my-sortable">
                 ID
                 <i v-if="currentSortKey === 'id'" 
                    :class="currentSortOrder === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down'"></i>
               </th>
               <!-- 📝 名稱欄位標題 (Name Column Header) -->
-              <th @click="handleSort('name')" class="sortable">
+              <th @click="handleSort('name')" class="my-sortable">
                 名稱
                 <i v-if="currentSortKey === 'name'" 
                    :class="currentSortOrder === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down'"></i>
               </th>
               <!-- 📊 數量欄位標題 (Count Column Header) -->
-              <th @click="handleSort('count')" class="sortable">
+              <th @click="handleSort('count')" class="my-sortable">
                 數量
                 <i v-if="currentSortKey === 'count'" 
                    :class="currentSortOrder === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down'"></i>
               </th>
               <!-- 🔗 合併狀態欄位標題 (Merged Status Column Header) -->
-              <th @click="handleSort('merged')" class="sortable">
+              <th @click="handleSort('merged')" class="my-sortable">
                 合併狀態 <i :class="getSortIcon('merged')"></i>
               </th>
               <!-- 🎛️ 操作欄位標題 (Actions Column Header) -->
@@ -85,7 +85,7 @@
 
     <!-- 📭 空狀態顯示 (Empty State Display) -->
     <!-- 當沒有資料或搜尋無結果時的提示界面 -->
-    <div v-else class="empty-state-container flex-grow-1 d-flex align-items-center justify-content-center">
+    <div v-else class="my-empty-state-container flex-grow-1 d-flex align-items-center justify-content-center">
       <div class="text-center text-muted">
         <i class="fas fa-table fa-3x mb-3"></i>
         <!-- 🔍 搜尋無結果提示 (No Search Results Message) -->
@@ -285,28 +285,28 @@ onMounted(() => {
  */
 
 /* 📊 組件基礎樣式 (Component Base Styles) */
-.data-table-tab-component {
+.my-data-table-tab-component {
   font-size: 0.875rem; /* 組件基礎字體大小 */
 }
 
 /* 🔍 搜尋工具列樣式 (Search Toolbar Styles) */
-.search-toolbar-container input.form-control {
+.my-search-toolbar-container input.form-control {
   background-color: white;           /* 白色背景 */
   border-color: #ced4da;            /* Bootstrap 標準邊框顏色 */
   color: #495057;                   /* Bootstrap 標準文字顏色 */
 }
 
-.search-toolbar-container input.form-control:focus {
+.my-search-toolbar-container input.form-control:focus {
   border-color: #007bff;            /* 聚焦時的主要藍色邊框 */
   box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* 聚焦時的藍色陰影 */
 }
 
-.search-toolbar-container input.form-control::placeholder {
+.my-search-toolbar-container input.form-control::placeholder {
   color: #6c757d; /* 淡色的佔位符文字 */
 }
 
 /* 📋 表格容器樣式 (Table Container Styles) */
-.table-container {
+.my-table-container {
   overflow-y: auto; /* 允許表格內容垂直捲動 */
 }
 
@@ -336,22 +336,22 @@ onMounted(() => {
 }
 
 /* 📊 可排序標題樣式 (Sortable Header Styles) */
-.table th.sortable {
+.table th.my-sortable {
   cursor: pointer;           /* 手型游標 */
   user-select: none;         /* 防止點擊時選取文字 */
 }
 
-.table th.sortable:hover {
+.table th.my-sortable:hover {
   background-color: #e2e6ea; /* 懸停時的深色背景 */
 }
 
-.table th.sortable i {
+.table th.my-sortable i {
   margin-left: 0.3em;        /* 圖示左邊距 */
   font-size: 0.9em;          /* 稍小的圖示尺寸 */
   opacity: 0.7;              /* 半透明圖示 */
 }
 
-.table th.sortable:hover i {
+.table th.my-sortable:hover i {
   opacity: 1;                /* 懸停時完全不透明 */
 }
 
@@ -376,43 +376,43 @@ onMounted(() => {
 }
 
 /* 📭 空狀態樣式 (Empty State Styles) */
-.empty-state-container {
+.my-empty-state-container {
   background-color: #f8f9fa; /* 空狀態的淺色背景 */
 }
 
-.empty-state-container i {
+.my-empty-state-container i {
   color: #adb5bd; /* 淡色圖示 */
 }
 
-.empty-state-container p {
+.my-empty-state-container p {
   font-size: 0.95rem;        /* 空狀態訊息的字體大小 */
   color: #495057;            /* 稍深的空狀態訊息文字 */
 }
 
 /* 📱 自定義滾動條樣式 (Custom Scrollbar Styles) */
 /* 適用於 WebKit 瀏覽器 (Chrome, Safari, Edge) */
-.custom-scroll::-webkit-scrollbar {
+.my-custom-scroll::-webkit-scrollbar {
   width: 8px;                /* 垂直滾動條寬度 */
   height: 8px;               /* 水平滾動條高度 */
 }
 
-.custom-scroll::-webkit-scrollbar-track {
+.my-custom-scroll::-webkit-scrollbar-track {
   background: #f1f1f1;       /* 滾動條軌道背景 */
   border-radius: 10px;       /* 圓角軌道 */
 }
 
-.custom-scroll::-webkit-scrollbar-thumb {
+.my-custom-scroll::-webkit-scrollbar-thumb {
   background: #ced4da;       /* 滾動條滑塊顏色 */
   border-radius: 10px;       /* 圓角滑塊 */
 }
 
-.custom-scroll::-webkit-scrollbar-thumb:hover {
+.my-custom-scroll::-webkit-scrollbar-thumb:hover {
   background: #adb5bd;       /* 懸停時的深色滑塊 */
 }
 
 /* 📱 響應式設計調整 (Responsive Design Adjustments) */
 @media (max-width: 768px) {
-  .data-table-tab-component {
+  .my-data-table-tab-component {
     font-size: 0.8rem;        /* 在小螢幕上縮小字體 */
   }
   
@@ -431,7 +431,7 @@ onMounted(() => {
     padding: 0.2rem 0.4rem;   /* 在小螢幕上減少按鈕內邊距 */
   }
   
-  .custom-scroll::-webkit-scrollbar {
+  .my-custom-scroll::-webkit-scrollbar {
     width: 12px;              /* 在觸控設備上增加滾動條寬度 */
     height: 12px;
   }

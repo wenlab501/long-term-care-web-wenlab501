@@ -123,7 +123,7 @@ export default {
     const loadingSubText = ref('')
 
     /** ⏳ 是否有任何圖層正在載入 */
-    const isAnyLayerLoading = computed(() => dataStore.layers.some(layer => layer.isLoading));
+    const isAnyLayerLoading = computed(() => dataStore.getAllLayers().some(layer => layer.isLoading));
 
     /**
      * 👀 監聽載入狀態變化 (Watch Loading State Changes)
@@ -131,7 +131,7 @@ export default {
      */
     watch(isAnyLayerLoading, (loading) => {
       if (loading) {
-        const loadingLayer = dataStore.layers.find(l => l.isLoading);
+        const loadingLayer = dataStore.getAllLayers().find(l => l.isLoading);
         loadingText.value = `載入 ${loadingLayer.name} 數據中...`;
         loadingSubText.value = '正在處理地理資訊...';
       } else {
@@ -143,7 +143,7 @@ export default {
     // 🗺️ 地圖和圖層狀態 (Map and Layer States)
     // 大部分狀態由 Pinia store 管理，此處保留 UI 控制相關狀態
     /** 🗺️ 台南圖層顯示狀態（從 store 計算） */
-    const showTainanLayer = computed(() => dataStore.layers.find(l => l.id === 'tainan')?.visible || false);
+    const showTainanLayer = computed(() => dataStore.findLayerById('tainan')?.visible || false);
     /** 🔍 選定的資料篩選器 */
     const selectedFilter = ref('')
     /** 🎨 選定的色票方案 */
@@ -530,18 +530,18 @@ export default {
       :subText="loadingSubText" />
 
     <!-- 📱 主要內容區域 (Main Content Area) -->
-    <!-- 使用 Bootstrap flex-grow-1 佔滿剩餘空間，實現滿版佈局 -->
-    <div class="flex-grow-1 d-flex flex-column overflow-hidden">
+    <!-- 使用計算高度為 footer 留出空間，避免擋住滾動條 -->
+    <div class="d-flex flex-column overflow-hidden">
       
-      <!-- 🚀 路由視圖區域 (Router View Area) -->
-      <!-- 顯示非首頁的路由組件內容 -->
-      <div v-if="$route.path !== '/'" class="flex-grow-1">
-        <router-view />
-      </div>
+        <!-- 🚀 路由視圖區域 (Router View Area) -->
+        <!-- 顯示非首頁的路由組件內容 -->
+        <div v-if="$route.path !== '/'" class="h-100">
+          <router-view />
+        </div>
           
-      <!-- 🏠 首頁內容區域 (Home Page Content Area) -->
-      <!-- 空間分析平台的主要功能界面，使用響應式三面板佈局 -->
-      <div v-if="$route.path === '/'" class="flex-grow-1 d-flex flex-column overflow-hidden">
+        <!-- 🏠 首頁內容區域 (Home Page Content Area) -->
+        <!-- 空間分析平台的主要功能界面，使用響應式三面板佈局 -->
+        <div v-if="$route.path === '/'" class="h-100 d-flex flex-column overflow-hidden">
         <div class="d-flex flex-row flex-grow-1 overflow-hidden">
           
           <!-- 🎛️ 左側控制面板容器 (Left Control Panel Container) -->
@@ -553,7 +553,7 @@ export default {
           <!-- 🔧 左側拖曳調整器 (Left Panel Resizer) -->
           <!-- 提供滑鼠拖曳功能，動態調整左側面板寬度 -->
           <div class="my-resizer my-resizer-vertical border-start border-end" 
-               :class="{ 'dragging': isSidePanelDragging }"
+               :class="{ 'my-dragging': isSidePanelDragging }"
                @mousedown="startResize('left', $event)"
                title="拖曳調整左側面板寬度">
           </div>
@@ -602,7 +602,7 @@ export default {
           <!-- 🔧 右側拖曳調整器 (Right Panel Resizer) -->
           <!-- 提供滑鼠拖曳功能，動態調整右側面板寬度 -->
           <div class="my-resizer my-resizer-vertical border-start border-end" 
-               :class="{ 'dragging': isSidePanelDragging }"
+               :class="{ 'my-dragging': isSidePanelDragging }"
                @mousedown="startResize('right', $event)"
                title="拖曳調整右側面板寬度">
           </div>
@@ -634,20 +634,10 @@ export default {
     </div>
             
     <!-- 🦶 頁腳區域 (Footer Area) -->
-    <!-- Bootstrap sticky footer，提供版權資訊和技術鳴謝 -->
-    <footer class="my-app-footer bg-dark text-light py-2 mt-auto" ref="appFooterRef">
-      <div class="container-fluid">
-        <div class="row">
-          <!-- 📝 版權資訊 (Copyright Information) -->
-          <div class="col-md-6 text-md-start text-center">
-            <small>臺北市長照資訊</small>
-          </div>
-          <!-- 🔗 技術鳴謝連結 (Technology Credits Links) -->
-          <div class="col-md-6 text-md-end text-center">
-            <small>臺北市長照資訊</small>
-          </div>
-        </div>
-      </div>
+    <!-- 固定高度 footer，提供版權資訊和技術鳴謝 -->
+    <footer class="d-flex justify-content-between my-app-footer bg-dark text-light p-2" ref="appFooterRef">
+        <small>臺灣大學地理環境資源學系</small>
+        <small>2025</small>
     </footer>
   </div>
 </template>

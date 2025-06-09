@@ -11,7 +11,7 @@
         <li class="nav-item">
           <button 
             class="nav-link text-dark border-0"
-            :class="{ 'active bg-white text-primary fw-bold': activeBottomTab === 'table' }"
+            :class="{ 'active bg-white text-primary': activeBottomTab === 'table' }"
             @click="$emit('update:activeBottomTab', 'table')">
             數據表格
           </button>
@@ -20,7 +20,7 @@
         <li class="nav-item">
           <button 
             class="nav-link text-dark border-0"
-            :class="{ 'active bg-white text-primary fw-bold': activeBottomTab === 'style' }"
+            :class="{ 'active bg-white text-primary': activeBottomTab === 'style' }"
             @click="$emit('update:activeBottomTab', 'style')">
             地圖樣式
           </button>

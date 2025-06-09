@@ -220,18 +220,18 @@ body {
 }
 
 .my-resizer-vertical:hover,
-.my-resizer-vertical.dragging {
+.my-resizer-vertical.my-dragging {
   min-width: 6px;
   max-width: 6px;
 }
 
 .my-resizer-horizontal:hover,
-.my-resizer-horizontal.dragging {
+.my-resizer-horizontal.my-dragging {
   min-height: 6px;
   max-height: 6px;
 }
 
-.my-resizer.dragging {
+.my-resizer.my-dragging {
   background-color: var(--my-primary-color) !important; /* 拖曳時的背景色 */
 }
 
@@ -255,51 +255,6 @@ body.my-no-select * {
   -moz-user-select: none !important;
   -ms-user-select: none !important;
   user-select: none !important;                /* 防止所有元素被選取 */
-}
-
-/* =============================================================================
-   📱 響應式設計 (Responsive Design)
-   ============================================================================= */
-
-/* 使用 Bootstrap 斷點，在小螢幕上增加拖曳調整器尺寸 */
-@media (max-width: 768px) {
-  .my-main-content .container-fluid {
-    height: calc(100vh - 100px);               /* 行動裝置調整高度 */
-  }
-  
-  .my-resizer-vertical {
-    min-width: 6px;
-    max-width: 6px;
-  }
-  
-  .my-resizer-horizontal {
-    min-height: 6px;
-    max-height: 6px;
-  }
-  
-  .my-resizer-vertical:hover,
-  .my-resizer-vertical.dragging {
-    min-width: 8px;
-    max-width: 8px;
-  }
-  
-  .my-resizer-horizontal:hover,
-  .my-resizer-horizontal.dragging {
-    min-height: 8px;
-    max-height: 8px;
-  }
-  
-  .my-font-size-xl {
-    font-size: var(--my-font-size-lg);          /* 行動裝置調整字體大小 */
-  }
-  
-  .my-font-size-lg {
-    font-size: var(--my-font-size-base);        /* 行動裝置調整字體大小 */
-  }
-  
-  .my-letter-spacing-lg {
-    letter-spacing: var(--my-letter-spacing-base); /* 行動裝置調整字母間距 */
-  }
 }
 
 /* =============================================================================

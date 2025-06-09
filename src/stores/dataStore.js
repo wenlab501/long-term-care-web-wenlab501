@@ -45,6 +45,10 @@ export const useDataStore = defineStore('data', () => {
    * 🗺️ 圖層配置陣列 (Layers Configuration Array)
    * 集中管理所有可用圖層的狀態、資料和載入器
    * 
+   * 新的分組結構：
+   * - groupName: 圖層群組名稱
+   * - groupLayers: 該群組內的圖層陣列
+   * 
    * 每個圖層包含：
    * - id: 唯一識別碼
    * - name: 顯示名稱
@@ -58,26 +62,36 @@ export const useDataStore = defineStore('data', () => {
    */
   const layers = ref([
     {
-      id: 'tainan',
-      name: '臺北市_村里_綜稅綜合所得總額',
-      visible: false,
-      isLoading: false,
-      isLoaded: false,
-      data: null,           // 存放 GeoJSON 資料
-      summary: null,        // 存放資料摘要
-      tableData: null,      // 存放表格資料
-      loader: loadTainanDataUtil,  // 資料載入函數
+      groupName: "基礎地理資料",
+      groupLayers: [
+        {
+          id: 'tainan',
+          name: '臺北市_村里_綜稅綜合所得總額',
+          visible: false,
+          isLoading: false,
+          isLoaded: false,
+          data: null,           // 存放 GeoJSON 資料
+          summary: null,        // 存放資料摘要
+          tableData: null,      // 存放表格資料
+          loader: loadTainanDataUtil,  // 資料載入函數
+        }
+      ]
     },
     {
-      id: 'medical',
-      name: '醫療院所分布',
-      visible: false,
-      isLoading: false,
-      isLoaded: false,
-      data: null,           // 存放 GeoJSON 資料
-      summary: null,        // 存放資料摘要
-      tableData: null,      // 存放表格資料
-      loader: loadMedicalData,     // 資料載入函數
+      groupName: "醫療設施",
+      groupLayers: [
+        {
+          id: 'medical',
+          name: '醫療院所分布',
+          visible: false,
+          isLoading: false,
+          isLoaded: false,
+          data: null,           // 存放 GeoJSON 資料
+          summary: null,        // 存放資料摘要
+          tableData: null,      // 存放表格資料
+          loader: loadMedicalData,     // 資料載入函數
+        }
+      ]
     }
   ]);
 
@@ -88,13 +102,45 @@ export const useDataStore = defineStore('data', () => {
   const lastOpenedLayerId = ref(null);
 
   /**
+   * 🔍 根據 ID 尋找圖層 (Find Layer by ID)
+   * 在新的分組結構中搜尋指定 ID 的圖層
+   * 
+   * @param {string} layerId - 圖層 ID
+   * @returns {object|null} 找到的圖層物件或 null
+   */
+  const findLayerById = (layerId) => {
+    for (const group of layers.value) {
+      for (const layer of group.groupLayers) {
+        if (layer.id === layerId) {
+          return layer;
+        }
+      }
+    }
+    return null;
+  };
+
+  /**
+   * 📋 獲取所有圖層 (Get All Layers)
+   * 從分組結構中提取所有圖層的扁平陣列
+   * 
+   * @returns {Array} 所有圖層的陣列
+   */
+  const getAllLayers = () => {
+    const allLayers = [];
+    for (const group of layers.value) {
+      allLayers.push(...group.groupLayers);
+    }
+    return allLayers;
+  };
+
+  /**
    * 🔄 切換圖層可見性 (Toggle Layer Visibility)
    * 控制圖層的顯示/隱藏，並在需要時自動載入資料
    * 
    * @param {string} layerId - 圖層 ID
    */
   const toggleLayerVisibility = async (layerId) => {
-    const layer = layers.value.find(l => l.id === layerId);
+    const layer = findLayerById(layerId);
     if (!layer) {
       console.error(`Layer with id "${layerId}" not found.`);
       return;
@@ -324,7 +370,7 @@ export const useDataStore = defineStore('data', () => {
    */
   const dataSummary = computed(() => {
     if (!lastOpenedLayerId.value) return null;
-    const layer = layers.value.find(l => l.id === lastOpenedLayerId.value);
+    const layer = findLayerById(lastOpenedLayerId.value);
     return layer?.summary || null;
   });
 
@@ -488,7 +534,7 @@ export const useDataStore = defineStore('data', () => {
    */
   const activeTableData = computed(() => {
     if (lastOpenedLayerId.value) {
-      const lastLayer = layers.value.find(l => l.id === lastOpenedLayerId.value);
+      const lastLayer = findLayerById(lastOpenedLayerId.value);
       if (lastLayer && lastLayer.visible && lastLayer.tableData) {
         return lastLayer.tableData;
       }
@@ -542,8 +588,12 @@ export const useDataStore = defineStore('data', () => {
     fetchLatestData,
     
     // 📊 Computed properties for visibility (使用 computed 確保其他組件可以使用)
-    visibleLayers: computed(() => layers.value.filter(layer => layer.visible)),
-    loadingLayers: computed(() => layers.value.filter(layer => layer.isLoading))
+    visibleLayers: computed(() => getAllLayers().filter(layer => layer.visible)),
+    loadingLayers: computed(() => getAllLayers().filter(layer => layer.isLoading)),
+    
+    // 🛠️ 新增的輔助函數 (New Helper Functions)
+    findLayerById,   // 根據 ID 尋找圖層
+    getAllLayers     // 獲取所有圖層的扁平陣列
   }
 },
 {

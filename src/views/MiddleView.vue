@@ -1,80 +1,3 @@
-<template>
-  <!-- 🎛️ 中間面板組件 (Middle Panel Component) -->
-  <!-- 負責管理上下兩個面板的佈局和垂直拖曳調整功能 -->
-  <!-- 這是一個佈局容器，使用 flexbox 垂直排列，填滿可用空間 -->
-  <div class="d-flex flex-column flex-grow-1 overflow-hidden h-100">
-    
-    <!-- 📊 上半部內容區域 (Upper Content Area) -->
-    <!-- 包含地圖、儀表板等主要顯示內容 -->
-    <!-- 動態高度根據 contentHeight 計算，拖曳時禁用指標事件避免干擾 -->
-    <div :style="{ pointerEvents: isOverallDragging ? 'none' : 'auto', height: contentHeight + 'px', overflow: 'hidden' }">
-      <!-- 🗺️ 上層視圖組件 (Upper View Component) -->
-      <!-- 傳遞所有必要的 props 給 UpperView，包含地圖狀態、資料、樣式設定等 -->
-      <UpperView
-        ref="mainContentRef"
-        :activeTab="activeTab"
-        :mainPanelWidth="mainPanelWidth"
-        :contentHeight="contentHeight"
-        :showTainanLayer="showTainanLayer"
-        :selectedFilter="selectedFilter"
-        :selectedColorScheme="selectedColorScheme"
-        :selectedBorderColor="selectedBorderColor"
-        :selectedBorderWeight="selectedBorderWeight"
-        :zoomLevel="zoomLevel"
-        :tainanGeoJSONData="tainanGeoJSONData"
-        :maxCount="maxCount"
-        :mergedTableData="mergedTableData"
-        :sortedAndFilteredTableData="sortedAndFilteredTableData"
-        :averageCount="averageCount"
-        :dataRegionsCount="dataRegionsCount"
-        :isPanelDragging="isOverallDragging"
-        :activeMarkers="activeMarkers"
-        :totalCount="totalCount"
-        :tainanDataSummary="tainanDataSummary"
-        @update:activeTab="$emit('update:activeTab', $event)"
-        @update:zoomLevel="$emit('update:zoomLevel', $event)"
-        @update:currentCoords="$emit('update:currentCoords', $event)"
-        @update:activeMarkers="$emit('update:activeMarkers', $event)"
-        @feature-selected="$emit('feature-selected', $event)"
-      />
-    </div>
-
-    <!-- 🔧 水平拖曳調整器 (Horizontal Resizer) -->
-    <!-- 用於調整上下面板的高度比例 -->
-    <!-- 監聽 mousedown 事件開始拖曳，動態顯示拖曳狀態的樣式 -->
-    <div
-      class="my-resizer my-resizer-horizontal border-top"
-      :class="{ dragging: isVerticalDragging }"
-      @mousedown="startVerticalResize"
-      title="拖曳調整底部面板高度"
-    ></div>
-
-    <!-- 📋 下半部內容區域 (Bottom Content Area) -->
-    <!-- 包含資料表格、控制項等輔助顯示內容 -->
-    <!-- 動態高度根據 actualBottomViewPixelHeight 計算 -->
-    <div :style="{ pointerEvents: isOverallDragging ? 'none' : 'auto', height: actualBottomViewPixelHeight + 'px', overflow: 'hidden' }">
-      <!-- 📊 底部視圖組件 (Bottom View Component) -->
-      <!-- 傳遞表格資料、樣式設定、面板狀態等 props -->
-      <BottomView
-        ref="bottomViewRef"
-        :activeBottomTab="activeBottomTab"
-        :bottomViewHeight="actualBottomViewPixelHeight"
-        :tableData="mergedTableData"
-        :selectedColorScheme="selectedColorScheme"
-        :selectedBorderColor="selectedBorderColor"
-        :selectedBorderWeight="selectedBorderWeight"
-        :isPanelDragging="isOverallDragging"
-        @update:activeBottomTab="$emit('update:activeBottomTab', $event)"
-        @highlight-on-map="emit('highlight-on-map', $event)"
-        @update:selectedColorScheme="$emit('update:selectedColorScheme', $event)"
-        @update:selectedBorderColor="$emit('update:selectedBorderColor', $event)"
-        @update:selectedBorderWeight="$emit('update:selectedBorderWeight', $event)"
-        @reset-view="$emit('reset-view', $event)"
-      />
-    </div>
-  </div>
-</template>
-
 <script setup>
 /**
  * 🎛️ MiddleView.vue - 中間面板組件 (Middle Panel Component)
@@ -506,6 +429,84 @@ defineExpose({
   // bottomViewRef      // 底部視圖組件引用
 });
 </script>
+
+<template>
+  <!-- 🎛️ 中間面板組件 (Middle Panel Component) -->
+  <!-- 負責管理上下兩個面板的佈局和垂直拖曳調整功能 -->
+  <!-- 這是一個佈局容器，使用 flexbox 垂直排列，填滿可用空間 -->
+  <div class="d-flex flex-column flex-grow-1 overflow-hidden h-100">
+    
+    <!-- 📊 上半部內容區域 (Upper Content Area) -->
+    <!-- 包含地圖、儀表板等主要顯示內容 -->
+    <!-- 動態高度根據 contentHeight 計算，拖曳時禁用指標事件避免干擾 -->
+    <div :style="{ pointerEvents: isOverallDragging ? 'none' : 'auto', height: contentHeight + 'px', overflow: 'hidden' }">
+      <!-- 🗺️ 上層視圖組件 (Upper View Component) -->
+      <!-- 傳遞所有必要的 props 給 UpperView，包含地圖狀態、資料、樣式設定等 -->
+      <UpperView
+        ref="mainContentRef"
+        :activeTab="activeTab"
+        :mainPanelWidth="mainPanelWidth"
+        :contentHeight="contentHeight"
+        :showTainanLayer="showTainanLayer"
+        :selectedFilter="selectedFilter"
+        :selectedColorScheme="selectedColorScheme"
+        :selectedBorderColor="selectedBorderColor"
+        :selectedBorderWeight="selectedBorderWeight"
+        :zoomLevel="zoomLevel"
+        :tainanGeoJSONData="tainanGeoJSONData"
+        :maxCount="maxCount"
+        :mergedTableData="mergedTableData"
+        :sortedAndFilteredTableData="sortedAndFilteredTableData"
+        :averageCount="averageCount"
+        :dataRegionsCount="dataRegionsCount"
+        :isPanelDragging="isOverallDragging"
+        :activeMarkers="activeMarkers"
+        :totalCount="totalCount"
+        :tainanDataSummary="tainanDataSummary"
+        @update:activeTab="$emit('update:activeTab', $event)"
+        @update:zoomLevel="$emit('update:zoomLevel', $event)"
+        @update:currentCoords="$emit('update:currentCoords', $event)"
+        @update:activeMarkers="$emit('update:activeMarkers', $event)"
+        @feature-selected="$emit('feature-selected', $event)"
+      />
+    </div>
+
+    <!-- 🔧 水平拖曳調整器 (Horizontal Resizer) -->
+    <!-- 用於調整上下面板的高度比例 -->
+    <!-- 監聽 mousedown 事件開始拖曳，動態顯示拖曳狀態的樣式 -->
+    <div
+      class="my-resizer my-resizer-horizontal border-top"
+      :class="{ 'my-dragging': isVerticalDragging }"
+      @mousedown="startVerticalResize"
+      title="拖曳調整底部面板高度"
+    ></div>
+
+    <!-- 📋 下半部內容區域 (Bottom Content Area) -->
+    <!-- 包含資料表格、控制項等輔助顯示內容 -->
+    <!-- 動態高度根據 actualBottomViewPixelHeight 計算 -->
+    <div class="overflow-hidden" 
+         :style="{ pointerEvents: isOverallDragging ? 'none' : 'auto', height: actualBottomViewPixelHeight + 'px' }">
+      <!-- 📊 底部視圖組件 (Bottom View Component) -->
+      <!-- 傳遞表格資料、樣式設定、面板狀態等 props -->
+      <BottomView
+        ref="bottomViewRef"
+        :activeBottomTab="activeBottomTab"
+        :bottomViewHeight="actualBottomViewPixelHeight"
+        :tableData="mergedTableData"
+        :selectedColorScheme="selectedColorScheme"
+        :selectedBorderColor="selectedBorderColor"
+        :selectedBorderWeight="selectedBorderWeight"
+        :isPanelDragging="isOverallDragging"
+        @update:activeBottomTab="$emit('update:activeBottomTab', $event)"
+        @highlight-on-map="emit('highlight-on-map', $event)"
+        @update:selectedColorScheme="$emit('update:selectedColorScheme', $event)"
+        @update:selectedBorderColor="$emit('update:selectedBorderColor', $event)"
+        @update:selectedBorderWeight="$emit('update:selectedBorderWeight', $event)"
+        @reset-view="$emit('reset-view', $event)"
+      />
+    </div>
+  </div>
+</template>
 
 <style scoped>
 /**

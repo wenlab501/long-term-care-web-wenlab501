@@ -1,10 +1,10 @@
 <template>
   <!-- 📋 物件屬性分頁組件 (Object Properties Tab Component) -->
   <!-- 顯示地圖上選中物件的詳細屬性資訊 -->
-  <div class="object-properties-tab">
+  <div class="my-object-properties-tab">
     
     <!-- 📊 有選中物件時的屬性顯示區域 (Properties Display Area When Object Selected) -->
-    <div v-if="selectedFeature" class="properties-content">
+    <div v-if="selectedFeature" class="my-properties-content">
       <div class="mb-3">
         <!-- 📝 屬性標題 (Properties Title) -->
         <h6 class="text-primary mb-2">物件屬性</h6>
@@ -160,29 +160,29 @@ export default {
  */
 
 /* 📋 分頁容器基礎樣式 (Tab Container Base Styles) */
-.object-properties-tab {
+.my-object-properties-tab {
   height: 100%;           /* 佔滿容器高度 */
   overflow-y: auto;       /* 內容溢出時可垂直滾動 */
 }
 
 /* 📊 屬性內容區域樣式 (Properties Content Area Styles) */
-.properties-content {
+.my-properties-content {
   padding: 1rem;          /* 內邊距，提供適當的留白 */
 }
 
 /* 📝 屬性標題樣式 (Properties Title Styles) */
-.properties-content h6 {
+.my-properties-content h6 {
   border-bottom: 1px solid #dee2e6; /* 底部分隔線 */
   padding-bottom: 0.5rem;            /* 底部內邊距 */
 }
 
 /* 📱 響應式設計調整 (Responsive Design Adjustments) */
 @media (max-width: 768px) {
-  .properties-content {
+  .my-properties-content {
     padding: 0.75rem;     /* 在小螢幕上減少內邊距 */
   }
   
-  .properties-content h6 {
+  .my-properties-content h6 {
     font-size: 1rem;      /* 在小螢幕上調整標題字體大小 */
   }
 }

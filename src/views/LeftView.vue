@@ -1,4 +1,3 @@
-
 <script>
 /**
  * 🎛️ LeftView.vue - 左側控制面板組件
@@ -87,55 +86,57 @@ export default {
 <template>
   <!-- 🎛️ 左側控制面板組件 (Left Control Panel Component) -->
   <!-- 提供圖層管理、資料載入控制等功能的側邊面板 -->
-  <div class="bg-light border-end h-100 d-flex flex-column" style="overflow: hidden;">
+  <div class="bg-light border-end h-100 d-flex flex-column overflow-hidden">
     
     <!-- 📋 面板標題區域 (Panel Header Section) -->
-    <!-- 顯示應用程式標題和圓形標誌 -->
     <div class="p-3" style="min-width: 0;">
       <h1 class="my-font-size-xl" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
-        <!-- 🏢 標題和圖示區域 (Title and Icon Area) -->
         <div class="d-flex flex-column align-items-center justify-content-center m-3">
-          <!-- 🔘 圓形標誌圖示 (Circular Logo Icon) -->
           <div class="rounded-circle my-bg-color-gray-300 p-4"></div>
-          <!-- 📝 應用程式標題文字 (Application Title Text) -->
           <div class="my-font-size-lg my-letter-spacing-lg mt-3">臺北市長照資訊</div>
         </div>
       </h1>
     </div>
 
     <!-- 🎛️ 主控制區域 (Main Control Area) -->
-    <!-- 使用緊湊樣式，包含所有圖層控制功能 -->
-    <div class="flex-grow-1 overflow-auto p-3" style="min-width: 0;">
+    <div class="flex-grow-1 overflow-auto p-3">
       
       <!-- 🗺️ 圖層控制卡片 (Layer Control Card) -->
-      <!-- 動態顯示所有可用圖層，並提供開關控制 -->
+      <!-- 動態顯示所有可用圖層群組，並提供開關控制 -->
       <div class="mb-3">
-        <div class="vstack gap-2">
-          <!-- 🔄 圖層列表迴圈 (Layer List Loop) -->
-          <!-- 遍歷 Pinia store 中的所有圖層 -->
-          <div v-for="layer in layers" :key="layer.id" class="d-flex justify-content-between align-items-center">
-            <!-- 📝 圖層名稱標籤 (Layer Name Label) -->
-            <label class="form-label mb-0">{{ layer.name }}</label>
-            
-            <!-- 🔘 圖層開關按鈕 (Layer Toggle Button) -->
-            <!-- 顯示圖層狀態：開啟/關閉/載入中 -->
-            <button 
-              type="button" 
-              class="btn btn-sm"
-              style="width: 60px;"
-              :class="{
-                'btn-success': layer.visible, 
-                'btn-outline-secondary': !layer.visible,
-                'disabled': layer.isLoading
-              }"
-              @click="toggleLayer(layer.id)"
-              :disabled="layer.isLoading"
-            >
-              <!-- ⏳ 載入動畫指示器 (Loading Animation Indicator) -->
-              <span v-if="layer.isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-              <!-- 📝 按鈕狀態文字 (Button Status Text) -->
-              <span v-else>{{ layer.visible ? '開啟' : '關閉' }}</span>
-            </button>
+        <!-- 🔄 圖層群組列表迴圈 (Layer Group List Loop) -->
+        <!-- 遍歷 Pinia store 中的所有圖層群組 -->
+        <div v-for="group in layers" :key="group.groupName" class="mb-3">
+          <!-- 📋 群組標題 (Group Title) -->
+          <h6 class="text-muted mb-2">{{ group.groupName }}</h6>
+          
+          <!-- 🗂️ 群組內圖層列表 (Group Layers List) -->
+          <div class="vstack gap-2 ps-2">
+            <!-- 🔄 群組內圖層迴圈 (Group Layers Loop) -->
+            <div v-for="layer in group.groupLayers" :key="layer.id" class="d-flex justify-content-between align-items-center">
+              <!-- 📝 圖層名稱標籤 (Layer Name Label) -->
+              <label class="form-label mb-0">{{ layer.name }}</label>
+              
+              <!-- 🔘 圖層開關按鈕 (Layer Toggle Button) -->
+              <!-- 顯示圖層狀態：開啟/關閉/載入中 -->
+              <button 
+                type="button" 
+                class="btn btn-sm"
+                style="width: 60px;"
+                :class="{
+                  'btn-success': layer.visible, 
+                  'btn-outline-secondary': !layer.visible,
+                  'disabled': layer.isLoading
+                }"
+                @click="toggleLayer(layer.id)"
+                :disabled="layer.isLoading"
+              >
+                <!-- ⏳ 載入動畫指示器 (Loading Animation Indicator) -->
+                <span v-if="layer.isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <!-- 📝 按鈕狀態文字 (Button Status Text) -->
+                <span v-else>{{ layer.visible ? '開啟' : '關閉' }}</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -146,64 +147,4 @@ export default {
 </template>
 
 <style scoped>
-/**
- * 🎨 左側面板樣式 (Left Panel Styles)
- * 
- * 定義左側控制面板的視覺樣式，包含字體、顏色、間距等設定
- */
-
-/* 📝 大號字體樣式 (Extra Large Font Style) */
-.my-font-size-xl {
-  font-size: 1.25rem; /* 20px，用於主標題 */
-}
-
-/* 📝 中大號字體樣式 (Large Font Style) */
-.my-font-size-lg {
-  font-size: 1.1rem; /* 17.6px，用於副標題 */
-}
-
-/* 📝 大字間距樣式 (Large Letter Spacing Style) */
-.my-letter-spacing-lg {
-  letter-spacing: .2rem; /* 增加字母間距，提升視覺質感 */
-}
-
-/* 🎨 灰色背景色樣式 (Gray Background Color Style) */
-.my-bg-color-gray-300 {
-  background-color: #e2e8f0; /* 淺灰色，用於圓形標誌背景 */
-}
-
-/* 📱 響應式設計調整 (Responsive Design Adjustments) */
-@media (max-width: 768px) {
-  .my-font-size-xl {
-    font-size: 1.1rem; /* 在小螢幕上縮小字體 */
-  }
-  
-  .my-font-size-lg {
-    font-size: 1rem; /* 在小螢幕上縮小字體 */
-  }
-  
-  .my-letter-spacing-lg {
-    letter-spacing: .1rem; /* 在小螢幕上減少字間距 */
-  }
-}
-
-/* 🎛️ 控制按鈕樣式調整 (Control Button Style Adjustments) */
-.btn-sm {
-  transition: all 0.2s ease; /* 平滑的按鈕狀態轉換 */
-}
-
-.btn-sm:hover:not(.disabled) {
-  transform: translateY(-1px); /* 懸停時輕微上移效果 */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 懸停時陰影效果 */
-}
-
-/* 📋 面板內容區域樣式 (Panel Content Area Styles) */
-.vstack {
-  /* 確保垂直堆疊元素之間有適當間距 */
-}
-
-.form-label {
-  font-weight: 500; /* 中等字重，提升可讀性 */
-  color: #374151; /* 深灰色文字 */
-}
 </style> 

@@ -156,7 +156,7 @@ export default {
     const leafletLayers = ref({});
 
     /** 📊 是否有任何圖層可見 */
-    const isAnyLayerVisible = computed(() => dataStore.layers.some(l => l.visible && l.data));
+    const isAnyLayerVisible = computed(() => dataStore.getAllLayers().some(l => l.visible && l.data));
 
     // 🗺️ 底圖配置物件 (Basemap Configuration)
     /**
@@ -299,7 +299,7 @@ export default {
     const updateMapLayers = () => {
       if (!map.value || !mapInitialized.value) return;
 
-      dataStore.layers.forEach(layerConfig => {
+      dataStore.getAllLayers().forEach(layerConfig => {
         const layerId = layerConfig.id;
         const existingLayer = leafletLayers.value[layerId];
 
@@ -381,7 +381,7 @@ export default {
                 const isPoint = geometryType === 'Point';
                 const popupContent = `
                   <div class="map-popup">
-                    <h6 class="fw-bold text-primary mb-2">
+                    <h6 class="text-primary mb-2">
                       <i class="fas fa-${isPoint ? 'map-marker-alt' : 'map'} me-1"></i>
                       ${name}
                     </h6>
@@ -688,6 +688,7 @@ export default {
     /**
      * 👀 監聽 Pinia store 圖層變化 (Watch Pinia Store Layers Changes)
      * 當圖層狀態改變時自動更新地圖顯示
+     * 注意：由於新的分組結構，我們仍然監聽 dataStore.layers，因為它包含完整的分組結構
      */
     watch(() => dataStore.layers, updateMapLayers, { deep: true });
     
