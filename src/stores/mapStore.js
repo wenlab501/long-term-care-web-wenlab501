@@ -1,8 +1,37 @@
+/**
+ * 🗺️ mapStore.js - 地圖與面板佈局狀態管理模組
+ * 
+ * 🎯 功能說明：
+ * 1. 📐 管理響應式面板佈局系統（左中右、上下分割）
+ * 2. 🗺️ 處理地圖狀態和互動控制
+ * 3. 📱 提供 Bootstrap RWD 響應式斷點管理
+ * 4. 🔧 支援拖曳調整面板大小功能
+ * 5. 🎨 管理圖層顯示和視覺化控制
+ * 6. 📊 處理座標系統轉換和統計資料
+ * 
+ * 🏗️ 架構說明：
+ * - 面板尺寸管理：leftPanelWidth, rightPanelWidth, bottomPanelHeight
+ * - 地圖狀態控制：zoomLevel, currentCoords, mapLayers
+ * - 響應式斷點：自動適應不同螢幕尺寸
+ * - 圖層管理：geojsonLayer, pointLayer, heatmapLayer 等
+ * 
+ * 💡 設計理念：
+ * - 使用 Pinia Composition API 模式
+ * - 支援 Bootstrap 5 響應式設計
+ * - 提供流暢的拖曳調整體驗
+ * - 整合地圖和面板的協調控制
+ */
+
+// 🔧 Vue Composition API 引入
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
+/**
+ * 🗺️ 地圖與面板存儲定義 (Map and Panel Store Definition)
+ * 統一管理地圖狀態和響應式面板佈局
+ */
 export const useMapStore = defineStore('map', () => {
-  // ==================== 面板尺寸狀態 ====================
+  // ==================== 📐 面板尺寸狀態 (Panel Size States) ====================
   const leftPanelWidth = ref(300)
   const rightPanelWidth = ref(300)
   const bottomPanelHeight = ref(250)

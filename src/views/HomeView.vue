@@ -308,7 +308,7 @@ export default {
     // 📊 台南數據相關計算屬性 (Tainan Data Related Computed Properties)
     // 這些數據從 Pinia store 的特定圖層數據中提取
     /** 📋 從 store 獲取合併的表格資料 */
-    const storeMergedTableData = computed(() => dataStore.processedData.loadedAndMergedTableData);
+    const storeMergedTableData = computed(() => dataStore.activeTableData || dataStore.processedData.loadedAndMergedTableData);
     /** 🗺️ 從 store 獲取台南 GeoJSON 資料 */
     const storeTainanGeoJSONData = computed(() => dataStore.processedData.loadedAndMergedGeoJSON);
     /** 📊 從 store 獲取台南資料統計摘要 */
@@ -677,84 +677,6 @@ export default {
  */
 @import '../assets/css/common.css';
 
-/* 📱 全域防止選取樣式 (Global No-Select Style) */
-/* 拖曳時使用，防止意外選取文字 */
-.my-no-select {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
-/* 🔧 拖拉調整器樣式 (Resize Handle Styles) */
-
-/* 🔧 垂直拖曳調整器 (Vertical Resizer) */
-.my-resizer-vertical {
-  min-width: 4px;
-  max-width: 4px;
-  cursor: col-resize;               /* 左右調整游標 */
-  background-color: #dee2e6;        /* Bootstrap 灰色 */
-  transition: all 0.2s ease;       /* 平滑過渡效果 */
-}
-
-.my-resizer-vertical:hover,
-.my-resizer-vertical.dragging {
-  min-width: 6px;
-  max-width: 6px;
-  background-color: #007bff;        /* Bootstrap 主要藍色 */
-}
-
-/* 🔧 水平拖曳調整器 (Horizontal Resizer) */
-.my-resizer-horizontal {
-  min-height: 4px;
-  max-height: 4px;
-  cursor: row-resize;               /* 上下調整游標 */
-  background-color: #dee2e6;        /* Bootstrap 灰色 */
-  transition: all 0.2s ease;       /* 平滑過渡效果 */
-}
-
-.my-resizer-horizontal:hover,
-.my-resizer-horizontal.dragging {
-  min-height: 6px;
-  max-height: 6px;
-  background-color: #007bff;        /* Bootstrap 主要藍色 */
-}
-
-/* 🔧 拖拉時的全域樣式 (Global Dragging Styles) */
-body.my-no-select {
-  cursor: inherit !important;       /* 保持游標樣式 */
-}
-
-body.my-no-select * {
-  -webkit-user-select: none !important;
-  -moz-user-select: none !important;
-  -ms-user-select: none !important;
-  user-select: none !important;    /* 防止所有元素被選取 */
-}
-
-/* 📱 響應式設計 (Responsive Design) */
-/* 使用 Bootstrap 斷點，在小螢幕上增加拖曳調整器尺寸 */
-@media (max-width: 768px) {
-  .my-resizer-vertical {
-    min-width: 6px;
-    max-width: 6px;
-  }
-  
-  .my-resizer-horizontal {
-    min-height: 6px;
-    max-height: 6px;
-  }
-  
-  .my-resizer-vertical:hover,
-  .my-resizer-vertical.dragging {
-    min-width: 8px;
-    max-width: 8px;
-  }
-  
-  .my-resizer-horizontal:hover,
-  .my-resizer-horizontal.dragging {
-    min-height: 8px;
-    max-height: 8px;
-  }
-}
+/* 📱 HomeView 專用樣式 (HomeView Specific Styles) */
+/* 其他通用樣式已移至 common.css 中統一管理 */
 </style> 

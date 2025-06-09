@@ -1,9 +1,34 @@
+/**
+ * 📊 資料處理工具庫
+ * 
+ * 長照空間分析系統的核心資料處理模組
+ * 提供 GeoJSON、Excel、CSV 檔案載入與處理功能
+ * 包含座標轉換、資料合併、色票映射等功能
+ * 
+ * 主要功能：
+ * - 🗺️ GeoJSON 檔案載入與處理
+ * - 📈 Excel/CSV 檔案解析
+ * - 🔄 資料格式轉換與合併
+ * - 🎨 色票系統與顏色映射
+ * - 📍 座標系統轉換 (TWD97 ↔ WGS84)
+ * - 🏥 醫療院所資料處理
+ * 
+ * @author 長照空間分析團隊
+ * @version 1.0.0
+ * @since 2024
+ */
+
 import * as XLSX from 'xlsx'
 
 /**
- * 載入 GeoJSON 文件
+ * 🗺️ 載入 GeoJSON 文件
+ * 
+ * 從指定路徑載入 GeoJSON 格式的地理資料檔案
+ * 支援錯誤處理與載入狀態回饋
+ * 
  * @param {string} filePath - GeoJSON 文件路徑
- * @returns {Promise<Object>} GeoJSON 數據
+ * @returns {Promise<Object>} GeoJSON 數據物件
+ * @throws {Error} 當檔案載入失敗時拋出錯誤
  */
 export async function loadGeoJSON(filePath) {
   try {
@@ -25,10 +50,15 @@ export async function loadGeoJSON(filePath) {
 }
 
 /**
- * 讀取Excel文件的特定工作表
- * @param {string} filePath - 文件路徑
- * @param {string} sheetName - 工作表名稱
- * @returns {Promise<Array>} Excel數據陣列
+ * 📈 讀取 Excel 文件的特定工作表
+ * 
+ * 使用 XLSX 庫載入並解析 Excel 檔案中的指定工作表
+ * 將工作表資料轉換為 JSON 格式陣列
+ * 
+ * @param {string} filePath - Excel 文件路徑
+ * @param {string} sheetName - 目標工作表名稱
+ * @returns {Promise<Array>} 解析後的 Excel 數據陣列
+ * @throws {Error} 當檔案載入失敗或工作表不存在時拋出錯誤
  */
 export async function loadExcelSheet(filePath, sheetName) {
   try {
@@ -55,12 +85,22 @@ export async function loadExcelSheet(filePath, sheetName) {
 }
 
 /**
- * 合併GeoJSON和Excel數據
- * @param {Object} geojsonData - GeoJSON數據
- * @param {Array} excelData - Excel數據陣列
- * @param {string} geojsonKey - GeoJSON中的合併欄位 (預設: 'PTVNAME')
- * @param {string} excelKey - Excel中的合併欄位 (預設: 'name')
- * @returns {Object} 合併後的數據
+ * 🔄 合併 GeoJSON 和 Excel 數據
+ * 
+ * 根據指定的關鍵欄位將 GeoJSON 地理資料與 Excel 統計資料進行合併
+ * 建立查找表以提高合併效率，並生成合併摘要報告
+ * 
+ * 合併流程：
+ * 1. 建立 Excel 資料的查找表 (key-value mapping)
+ * 2. 遍歷 GeoJSON 特徵，根據關鍵欄位進行匹配
+ * 3. 更新 GeoJSON 屬性，加入 Excel 資料
+ * 4. 生成表格資料和合併摘要
+ * 
+ * @param {Object} geojsonData - GeoJSON 地理資料物件
+ * @param {Array} excelData - Excel 統計資料陣列
+ * @param {string} geojsonKey - GeoJSON 中的合併欄位名稱 (預設: 'PTVNAME')
+ * @param {string} excelKey - Excel 中的合併欄位名稱 (預設: 'name')
+ * @returns {Object} 包含合併後資料、表格資料和摘要的物件
  */
 export function mergeGeoJSONWithExcel(geojsonData, excelData, geojsonKey = 'PTVNAME', excelKey = 'name') {
   try {
@@ -126,11 +166,17 @@ export function mergeGeoJSONWithExcel(geojsonData, excelData, geojsonKey = 'PTVN
 }
 
 /**
- * TWD97 (EPSG:3826) 轉 WGS84 (EPSG:4326) 座標轉換
- * 簡化的座標轉換，適用於台灣地區
- * @param {number} x - TWD97 X座標
- * @param {number} y - TWD97 Y座標  
- * @returns {Array} [lng, lat] WGS84座標
+ * 📍 TWD97 轉 WGS84 座標轉換 (簡化版)
+ * 
+ * 將台灣地區常用的 TWD97 (EPSG:3826) 座標系統轉換為國際標準的 WGS84 (EPSG:4326)
+ * 使用簡化的線性轉換公式，適用於台灣地區的快速轉換需求
+ * 
+ * 注意：此為簡化版本，精度較低但速度快
+ * 如需高精度轉換，請使用 coordinateUtils.js 中的精確版本
+ * 
+ * @param {number} x - TWD97 X座標 (東距，公尺)
+ * @param {number} y - TWD97 Y座標 (北距，公尺)
+ * @returns {Array} [經度, 緯度] WGS84 座標陣列
  */
 export function twd97ToWgs84(x, y) {
   // TWD97轉換參數（簡化版本，適用於台灣地區）

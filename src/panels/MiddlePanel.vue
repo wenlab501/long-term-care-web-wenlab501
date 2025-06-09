@@ -325,37 +325,9 @@ defineExpose({
 /**
  * 🎨 中間面板樣式 (Middle Panel Styles)
  * 
- * 主要處理拖曳調整器的外觀和互動效果
+ * 中間面板專用樣式，通用的拖曳調整器樣式已移至 common.css
  */
 
-/* 🔧 水平拖曳調整器樣式 (Horizontal Resizer Styles) */
-.my-resizer-horizontal {
-  min-height: 4px;
-  max-height: 4px;
-  cursor: row-resize; /* 上下拖曳游標 */
-  background-color: #dee2e6; /* Bootstrap 灰色 */
-  transition: all 0.2s ease; /* 平滑過渡效果 */
-}
-
-/* 🔧 拖曳調整器懸停和拖曳狀態 (Resizer Hover and Dragging States) */
-.my-resizer-horizontal:hover,
-.my-resizer-horizontal.dragging {
-  min-height: 6px;
-  max-height: 6px;
-  background-color: #007bff; /* Bootstrap 主要藍色 */
-}
-
-/* 📱 響應式設計調整 (Responsive Design Adjustments) */
-@media (max-width: 768px) {
-  .my-resizer-horizontal {
-    min-height: 6px;
-    max-height: 6px;
-  }
-  
-  .my-resizer-horizontal:hover,
-  .my-resizer-horizontal.dragging {
-    min-height: 8px;
-    max-height: 8px;
-  }
-}
+/* 📱 中間面板專用樣式 (Middle Panel Specific Styles) */
+/* 大部分樣式已整合至 common.css 中，避免重複定義 */
 </style> 

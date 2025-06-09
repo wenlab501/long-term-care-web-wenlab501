@@ -1,10 +1,61 @@
+/**
+ * 📊 dataStore.js - 核心數據狀態管理模組
+ * 
+ * 🎯 功能說明：
+ * 1. 🗂️ 統一管理應用程式中的所有數據狀態
+ * 2. 🔄 提供數據載入、處理、轉換的核心功能
+ * 3. 🗺️ 管理圖層系統和地理資訊數據
+ * 4. 🎨 整合色彩方案和視覺化設定
+ * 5. 📊 處理空間分析和統計計算
+ * 6. 💾 支援數據持久化和匯入匯出功能
+ * 
+ * 🏗️ 架構說明：
+ * - 圖層管理系統：layers[] 陣列管理所有圖層狀態
+ * - 原始數據存儲：rawData 管理未處理的原始數據
+ * - 處理數據存儲：processedData 管理已處理的數據
+ * - 視覺化設定：visualizationSettings 管理色彩和樣式
+ * - 分析參數：analysisParameters 管理空間分析設定
+ * 
+ * 💡 設計理念：
+ * - 使用 Pinia Composition API 模式
+ * - 支援數據持久化 (persist: true)
+ * - 提供完整的 getter/setter 介面
+ * - 整合 Python 風格色彩方案系統
+ */
+
+// 🔧 Vue 和 Pinia 核心模組引入
 import { defineStore } from 'pinia'
 import { ref, computed, reactive } from 'vue'
+
+// 🎨 色票和視覺化工具引入
 import { defaultColorConfig, ColorSchemeUtils } from '@/utils/pythonColorSchemes.js'
+
+// 📊 資料處理工具引入
 import { loadTainanData as loadTainanDataUtil, loadMedicalData } from '../utils/dataProcessor.js'
 
+/**
+ * 📊 主要數據存儲定義 (Main Data Store Definition)
+ * 使用 Pinia Composition API 語法創建中央化狀態管理
+ */
 export const useDataStore = defineStore('data', () => {
-  // ==================== 圖層管理 (Centralized Layer Management) ====================
+  
+  // ==================== 🗺️ 圖層管理系統 (Centralized Layer Management System) ====================
+  
+  /**
+   * 🗺️ 圖層配置陣列 (Layers Configuration Array)
+   * 集中管理所有可用圖層的狀態、資料和載入器
+   * 
+   * 每個圖層包含：
+   * - id: 唯一識別碼
+   * - name: 顯示名稱
+   * - visible: 是否可見
+   * - isLoading: 是否正在載入
+   * - isLoaded: 是否已載入完成
+   * - data: 圖層資料（GeoJSON 等）
+   * - summary: 資料摘要統計
+   * - tableData: 表格資料
+   * - loader: 資料載入函數
+   */
   const layers = ref([
     {
       id: 'tainan',
@@ -12,10 +63,10 @@ export const useDataStore = defineStore('data', () => {
       visible: false,
       isLoading: false,
       isLoaded: false,
-      data: null, // Will hold the GeoJSON data for this layer
-      summary: null,
-      tableData: null,
-      loader: loadTainanDataUtil,
+      data: null,           // 存放 GeoJSON 資料
+      summary: null,        // 存放資料摘要
+      tableData: null,      // 存放表格資料
+      loader: loadTainanDataUtil,  // 資料載入函數
     },
     {
       id: 'medical',
@@ -23,13 +74,25 @@ export const useDataStore = defineStore('data', () => {
       visible: false,
       isLoading: false,
       isLoaded: false,
-      data: null, // Will hold the GeoJSON data for this layer
-      summary: null,
-      tableData: null,
-      loader: loadMedicalData,
+      data: null,           // 存放 GeoJSON 資料
+      summary: null,        // 存放資料摘要
+      tableData: null,      // 存放表格資料
+      loader: loadMedicalData,     // 資料載入函數
     }
   ]);
 
+  /**
+   * 📊 最後開啟的圖層 ID (Last Opened Layer ID)
+   * 追蹤最近開啟的圖層，用於決定主要顯示的資料
+   */
+  const lastOpenedLayerId = ref(null);
+
+  /**
+   * 🔄 切換圖層可見性 (Toggle Layer Visibility)
+   * 控制圖層的顯示/隱藏，並在需要時自動載入資料
+   * 
+   * @param {string} layerId - 圖層 ID
+   */
   const toggleLayerVisibility = async (layerId) => {
     const layer = layers.value.find(l => l.id === layerId);
     if (!layer) {
@@ -37,7 +100,7 @@ export const useDataStore = defineStore('data', () => {
       return;
     }
 
-    // Toggle visibility
+    // 切換可見性狀態
     layer.visible = !layer.visible;
 
     // 如果開啟圖層，設定為最後開啟的圖層
@@ -46,68 +109,93 @@ export const useDataStore = defineStore('data', () => {
       console.log(`🔄 設定最後開啟圖層: ${layerId}`);
     }
 
-    // Load data if it's being turned on and hasn't been loaded yet
+    // 如果圖層被開啟且尚未載入，則載入資料
     if (layer.visible && !layer.isLoaded && !layer.isLoading) {
       try {
         layer.isLoading = true;
         const result = await layer.loader();
         
-        // Store data directly on the layer object
+        // 將載入的資料直接存儲在圖層物件中
         layer.data = result.mergedGeoJSON || result.rawGeoJSON;
         layer.tableData = result.tableData;
         layer.summary = result.summary;
         layer.isLoaded = true;
 
-        // --- Compatibility with old structure ---
-        // To avoid breaking components that still rely on the old data structure,
-        // we will update them here. This should be phased out over time.
+        // --- 🔄 與舊版結構的相容性處理 (Compatibility with Legacy Structure) ---
+        // 為了避免破壞仍依賴舊資料結構的組件，在此更新舊結構
+        // 這部分應該隨著時間逐步淘汰
         if (layer.id === 'tainan') {
           storeLoadedData(result);
         } else if (layer.id === 'medical') {
           storeMedicalData(result);
         }
-        // --- End Compatibility ---
+        // --- 相容性處理結束 ---
 
       } catch (error) {
         console.error(`Failed to load data for layer "${layer.name}":`, error);
-        layer.visible = false; // Revert visibility on failure
+        layer.visible = false; // 載入失敗時恢復可見性狀態
       } finally {
         layer.isLoading = false;
       }
     }
   };
 
-  // ==================== 原始資料狀態 (Legacy) ====================
+  // ==================== 📊 原始資料狀態 (Raw Data State - Legacy) ====================
+  
+  /**
+   * 📊 原始資料存儲 (Raw Data Storage)
+   * 保存未經處理的原始資料，包含各種格式的地理和表格資料
+   * 
+   * 注意：這是舊版結構，新功能應使用圖層管理系統
+   */
   const rawData = ref({
-    geojson: null,
-    csvData: [],
-    excelData: [],
-    spatialData: [],
-    metadata: {
+    geojson: null,          // 原始 GeoJSON 資料
+    csvData: [],            // CSV 表格資料
+    excelData: [],          // Excel 表格資料
+    spatialData: [],        // 空間資料
+    metadata: {             // 資料元資訊
       tainan: { timestamp: null, source: null, description: null },
       medical: { timestamp: null, source: null, description: null }
     }
   });
 
-  // ==================== 處理後資料狀態 (Legacy) ====================
+  // ==================== 🔄 處理後資料狀態 (Processed Data State - Legacy) ====================
+  
+  /**
+   * 🔄 處理後資料存儲 (Processed Data Storage)
+   * 保存經過轉換、分析和處理的資料
+   * 
+   * 注意：這是舊版結構，新功能應使用圖層管理系統
+   */
   const processedData = ref({
-    transformedGeojson: null,
-    spatialAnalysisResults: {},
-    statisticsResults: {},
-    clusteringResults: {},
-    heatmapData: [],
-    boundaryData: {},
-    loadedAndMergedGeoJSON: null,
-    loadedAndMergedTableData: null,
-    convertedGeoJSON: null,
-    medicalData: null
+    transformedGeojson: null,           // 轉換後的 GeoJSON
+    spatialAnalysisResults: {},        // 空間分析結果
+    statisticsResults: {},             // 統計分析結果
+    clusteringResults: {},             // 聚類分析結果
+    heatmapData: [],                   // 熱力圖資料
+    boundaryData: {},                  // 邊界資料
+    loadedAndMergedGeoJSON: null,      // 載入並合併的 GeoJSON
+    loadedAndMergedTableData: null,    // 載入並合併的表格資料
+    convertedGeoJSON: null,            // 轉換後的 GeoJSON
+    medicalData: null                  // 醫療資料
   });
 
-  // ==================== 選中物件狀態 ====================
+  // ==================== 🎯 選中物件狀態 (Selected Feature State) ====================
+  
+  /**
+   * 🎯 選中的地圖物件 (Selected Map Feature)
+   * 存儲用戶在地圖上點擊選中的地理物件
+   */
   const selectedFeature = ref(null);
 
-  // ==================== 視覺化設定 ====================
+  // ==================== 🎨 視覺化設定 (Visualization Settings) ====================
+  
+  /**
+   * 🎨 視覺化配置物件 (Visualization Configuration Object)
+   * 管理所有視覺化相關的設定，包含色票、圖表、地圖樣式等
+   */
   const visualizationSettings = reactive({
+    // 🎨 色彩配置 (Color Configuration)
     colors: {
       levels: defaultColorConfig.levels,
       pythonSchemes: {
@@ -122,11 +210,14 @@ export const useDataStore = defineStore('data', () => {
         colors: defaultColorConfig.default,
         type: 'sequential'
       },
+      // Bootstrap 色彩等級
       100: '#dbeafe',
       200: '#93c5fd',
       400: '#3b82f6',
       800: '#1e40af'
     },
+    
+    // 📊 圖表配置 (Chart Configuration)
     charts: {
       defaultType: 'bar',
       animationEnabled: true,
@@ -137,6 +228,8 @@ export const useDataStore = defineStore('data', () => {
         colors: ColorSchemeUtils.getColorScheme('tab10', 'matplotlib')
       }
     },
+    
+    // 🗺️ 地圖配置 (Map Configuration)
     maps: {
       defaultStyle: 'openstreetmap',
       showControls: true,
@@ -148,6 +241,8 @@ export const useDataStore = defineStore('data', () => {
         interpolation: 'linear'
       }
     },
+    
+    // 🎭 主題配置 (Theme Configuration)
     themes: {
       current: 'default',
       available: {
@@ -183,64 +278,57 @@ export const useDataStore = defineStore('data', () => {
     }
   });
 
-  // ==================== 分析參數 ====================
-  const analysisParameters = ref({
-    spatialAnalysis: {
-      kValue: 5,
-      weightType: 'inverse_distance',
-      threshold: 0.5,
-      bufferRadius: 1000
-    },
-    clustering: {
-      method: 'kmeans',
-      numClusters: 5,
-      eps: 0.5,
-      minPts: 5
-    },
-    heatmap: {
-      radius: 500,
-      gridSize: 50,
-      intensity: 1.0
-    }
-  });
-
-  // ==================== 計算屬性 & GETTERS ====================
-  const dataSummary = computed(() => {
-    // This could be enhanced to summarize from the new `layers` array
-    const summary = {
-      totalFeatures: 0,
-      totalPoints: 0,
-      dataTypes: [],
-      coordinateSystem: 'unknown',
-      boundingBox: null
-    };
-
-    if (processedData.value.loadedAndMergedGeoJSON) {
-      summary.totalFeatures = processedData.value.loadedAndMergedGeoJSON.features?.length || 0;
-      summary.dataTypes.push('GeoJSON');
-    }
-    return summary;
-  });
+  // ==================== ⚙️ 分析參數 (Analysis Parameters) ====================
   
-  // 儲存最後開啟的圖層 ID
-  const lastOpenedLayerId = ref(null);
-
-  const activeTableData = computed(() => {
-    // 只顯示最後開啟的圖層資料
-    if (lastOpenedLayerId.value) {
-      const lastLayer = layers.value.find(l => l.id === lastOpenedLayerId.value);
-      if (lastLayer && lastLayer.visible && lastLayer.tableData) {
-        return lastLayer.tableData;
+  /**
+   * ⚙️ 分析參數配置 (Analysis Parameters Configuration)
+   * 存儲各種空間分析和統計分析的參數設定
+   */
+  const analysisParameters = ref({
+    // 🗺️ 空間分析參數 (Spatial Analysis Parameters)
+    spatialAnalysis: {
+      kValue: 5,                    // K 值（鄰近分析）
+      weightType: 'inverse_distance', // 權重類型
+      threshold: 0.5,               // 閾值
+      bufferRadius: 1000            // 緩衝區半徑（公尺）
+    },
+    
+    // 🔍 聚類分析參數 (Clustering Parameters)
+    clustering: {
+      method: 'kmeans',             // 聚類方法
+      numClusters: 5,               // 聚類數量
+      eps: 0.5,                     // DBSCAN epsilon 參數
+      minPts: 5                     // DBSCAN 最小點數
+    },
+    
+    // 🔥 熱力圖參數 (Heatmap Parameters)
+    heatmap: {
+      radius: 20,                   // 熱力圖半徑
+      blur: 15,                     // 模糊程度
+      maxZoom: 18,                  // 最大縮放等級
+      gradient: {                   // 漸層色彩
+        0.4: 'blue',
+        0.6: 'cyan',
+        0.7: 'lime',
+        0.8: 'yellow',
+        1.0: 'red'
       }
     }
-    return [];
   });
 
-  // Legacy loading flags
-  const isDataLoaded = computed(() => layers.value.find(l => l.id === 'tainan')?.isLoaded || false);
-  const isMedicalDataLoaded = computed(() => layers.value.find(l => l.id === 'medical')?.isLoaded || false);
+  // ==================== 🧮 計算屬性 (Computed Properties) ====================
+  
+  /**
+   * 📊 資料摘要計算屬性 (Data Summary Computed Property)
+   * 根據最後開啟的圖層提供資料摘要
+   */
+  const dataSummary = computed(() => {
+    if (!lastOpenedLayerId.value) return null;
+    const layer = layers.value.find(l => l.id === lastOpenedLayerId.value);
+    return layer?.summary || null;
+  });
 
-  // ==================== ACTIONS & MUTATIONS ====================
+  // ==================== 🛠️ 資料操作方法 (Data Manipulation Methods) ====================
   
   // Legacy function for compatibility
   const storeLoadedData = (data) => {
@@ -260,7 +348,7 @@ export const useDataStore = defineStore('data', () => {
 
   // Keep this for components that haven't been updated yet.
   // This is the crucial fix: make the legacy property reactive to the new system.
-  processedData.value.loadedAndMergedTableData = activeTableData;
+  // processedData.value.loadedAndMergedTableData = activeTableData.value;
 
   const setSelectedFeature = (feature) => {
     selectedFeature.value = feature;
@@ -419,6 +507,21 @@ export const useDataStore = defineStore('data', () => {
     return currentScheme[colorIndex];
   };
 
+  /**
+   * 📊 活躍資料表格計算屬性 (Active Table Data Computed Property)
+   * 根據最後開啟的圖層提供表格資料
+   * 用於資料表格分頁的資料來源
+   */
+  const activeTableData = computed(() => {
+    if (lastOpenedLayerId.value) {
+      const lastLayer = layers.value.find(l => l.id === lastOpenedLayerId.value);
+      if (lastLayer && lastLayer.visible && lastLayer.tableData) {
+        return lastLayer.tableData;
+      }
+    }
+    return [];
+  });
+
   const fetchLatestData = async () => { /* ... */ };
   const clearSelectedFeature = () => { selectedFeature.value = null; };
 
@@ -428,7 +531,7 @@ export const useDataStore = defineStore('data', () => {
     layers,
     toggleLayerVisibility,
     lastOpenedLayerId,
-    activeTableData,
+    activeTableData, // ✅ 活躍表格資料計算屬性
 
     // Legacy State & Actions (for compatibility)
     rawData,
@@ -437,8 +540,8 @@ export const useDataStore = defineStore('data', () => {
     visualizationSettings,
     analysisParameters,
     dataSummary,
-    isDataLoaded,
-    isMedicalDataLoaded,
+    // isDataLoaded,
+    // isMedicalDataLoaded,
     storeLoadedData,
     storeMedicalData,
 
@@ -463,7 +566,11 @@ export const useDataStore = defineStore('data', () => {
     triggerVisualizationUpdate,
     getAllAvailableColorSchemes,
     mapValueToColor,
-    fetchLatestData
+    fetchLatestData,
+    
+    // 📊 Computed properties for visibility (使用 computed 確保其他組件可以使用)
+    visibleLayers: computed(() => layers.value.filter(layer => layer.visible)),
+    loadingLayers: computed(() => layers.value.filter(layer => layer.isLoading))
   }
 },
 {

@@ -1,7 +1,38 @@
 /**
- * Python Plot 色票系統
- * 參考 matplotlib, seaborn, plotly 等 Python 視覺化庫的色票配置
- * 提供與 Python 一致的色彩映射系統
+ * 🐍 Python 風格色票系統
+ * 
+ * 長照空間分析系統的色彩視覺化模組
+ * 完整移植 Python 科學計算生態系統的色票配置
+ * 確保與主流資料科學工具的視覺化一致性
+ * 
+ * 支援色票庫：
+ * - 🔥 Matplotlib (viridis, plasma, inferno, magma, cividis)
+ * - 📊 Seaborn (deep, muted, bright, pastel, dark, colorblind)
+ * - 📈 Plotly (plotly, hot, earth)
+ * - 🔬 Scientific (temperature, elevation, density)
+ * 
+ * 色票分類：
+ * - 📈 順序色票 (Sequential): 適合連續數值資料
+ * - 🔀 發散色票 (Diverging): 適合正負值或對比資料
+ * - 🎨 類別色票 (Qualitative): 適合分類資料
+ * 
+ * 特色功能：
+ * - 🎯 色盲友善設計
+ * - 🔧 動態色彩插值
+ * - 📊 資料類型自動推薦
+ * - 🌈 四層級色彩生成
+ * 
+ * 科學應用：
+ * - 人口密度熱力圖
+ * - 醫療資源分布圖
+ * - 長照需求強度視覺化
+ * - 地理統計分析圖表
+ * 
+ * @author 長照空間分析團隊
+ * @version 1.0.0
+ * @since 2024
+ * @reference https://matplotlib.org/stable/tutorials/colors/colormaps.html
+ * @reference https://seaborn.pydata.org/tutorial/color_palettes.html
  */
 
 /**
