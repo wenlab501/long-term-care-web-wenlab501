@@ -11,86 +11,86 @@
  */
 :root {
   /* 🎯 主要顏色 (Primary Colors) */
-  --my-primary-color: #007bff;           /* 主要藍色 */
-  --my-primary-hover: #0056b3;           /* 主要藍色懸停 */
-  --my-primary-light: #e3f2fd;          /* 主要藍色淺色 */
-  --my-primary-dark: #003c71;           /* 主要藍色深色 */
-  
+  --my-primary-color: #007bff; /* 主要藍色 */
+  --my-primary-hover: #0056b3; /* 主要藍色懸停 */
+  --my-primary-light: #e3f2fd; /* 主要藍色淺色 */
+  --my-primary-dark: #003c71; /* 主要藍色深色 */
+
   /* 🔘 次要顏色 (Secondary Colors) */
-  --my-secondary-color: #6c757d;        /* 次要灰色 */
-  --my-secondary-hover: #545b62;        /* 次要灰色懸停 */
-  --my-secondary-light: #f8f9fa;        /* 次要灰色淺色 */
-  --my-secondary-dark: #343a40;         /* 次要灰色深色 */
-  
+  --my-secondary-color: #6c757d; /* 次要灰色 */
+  --my-secondary-hover: #545b62; /* 次要灰色懸停 */
+  --my-secondary-light: #f8f9fa; /* 次要灰色淺色 */
+  --my-secondary-dark: #343a40; /* 次要灰色深色 */
+
   /* ✅ 狀態顏色 (Status Colors) */
-  --my-success-color: #28a745;          /* 成功綠色 */
-  --my-success-hover: #218838;          /* 成功綠色懸停 */
-  --my-success-light: #d4edda;          /* 成功綠色淺色 */
-  
-  --my-danger-color: #dc3545;           /* 錯誤紅色 */
-  --my-danger-hover: #c82333;           /* 錯誤紅色懸停 */
-  --my-danger-light: #f8d7da;           /* 錯誤紅色淺色 */
-  
-  --my-warning-color: #ffc107;          /* 警告黃色 */
-  --my-warning-hover: #e0a800;          /* 警告黃色懸停 */
-  --my-warning-light: #fff3cd;          /* 警告黃色淺色 */
-  
-  --my-info-color: #17a2b8;             /* 資訊青色 */
-  --my-info-hover: #138496;             /* 資訊青色懸停 */
-  --my-info-light: #d1ecf1;             /* 資訊青色淺色 */
-  
+  --my-success-color: #28a745; /* 成功綠色 */
+  --my-success-hover: #218838; /* 成功綠色懸停 */
+  --my-success-light: #d4edda; /* 成功綠色淺色 */
+
+  --my-danger-color: #dc3545; /* 錯誤紅色 */
+  --my-danger-hover: #c82333; /* 錯誤紅色懸停 */
+  --my-danger-light: #f8d7da; /* 錯誤紅色淺色 */
+
+  --my-warning-color: #ffc107; /* 警告黃色 */
+  --my-warning-hover: #e0a800; /* 警告黃色懸停 */
+  --my-warning-light: #fff3cd; /* 警告黃色淺色 */
+
+  --my-info-color: #17a2b8; /* 資訊青色 */
+  --my-info-hover: #138496; /* 資訊青色懸停 */
+  --my-info-light: #d1ecf1; /* 資訊青色淺色 */
+
   /* 🎨 背景顏色 (Background Colors) */
-  --my-bg-primary: #ffffff;             /* 主要背景 */
-  --my-bg-secondary: #f8f9fa;           /* 次要背景 */
-  --my-bg-tertiary: #e9ecef;            /* 第三背景 */
-  --my-bg-dark: #212529;                /* 深色背景 */
-  --my-bg-light: #f8f9fa;               /* 淺色背景 */
-  
+  --my-bg-primary: #ffffff; /* 主要背景 */
+  --my-bg-secondary: #f8f9fa; /* 次要背景 */
+  --my-bg-tertiary: #e9ecef; /* 第三背景 */
+  --my-bg-dark: #212529; /* 深色背景 */
+  --my-bg-light: #f8f9fa; /* 淺色背景 */
+
   /* 📝 文字顏色 (Text Colors) */
-  --my-text-primary: #212529;           /* 主要文字 */
-  --my-text-secondary: #6c757d;         /* 次要文字 */
-  --my-text-muted: #6c757d;             /* 淡化文字 */
-  --my-text-light: #ffffff;             /* 淺色文字 */
-  --my-text-dark: #212529;              /* 深色文字 */
-  
+  --my-text-primary: #212529; /* 主要文字 */
+  --my-text-secondary: #6c757d; /* 次要文字 */
+  --my-text-muted: #6c757d; /* 淡化文字 */
+  --my-text-light: #ffffff; /* 淺色文字 */
+  --my-text-dark: #212529; /* 深色文字 */
+
   /* 🔲 邊框顏色 (Border Colors) */
-  --my-border-color: #dee2e6;           /* 主要邊框 */
-  --my-border-light: #e9ecef;           /* 淺色邊框 */
-  --my-border-dark: #adb5bd;            /* 深色邊框 */
-  
+  --my-border-color: #dee2e6; /* 主要邊框 */
+  --my-border-light: #e9ecef; /* 淺色邊框 */
+  --my-border-dark: #adb5bd; /* 深色邊框 */
+
   /* 📋 面板樣式 (Panel Styles) */
-  --my-panel-bg: #ffffff;               /* 面板背景 */
-  --my-panel-border: #dee2e6;           /* 面板邊框 */
-  --my-panel-shadow: rgba(0,0,0,0.1);   /* 面板陰影 */
-  --my-panel-hover: #f8f9fa;            /* 面板懸停 */
-  
+  --my-panel-bg: #ffffff; /* 面板背景 */
+  --my-panel-border: #dee2e6; /* 面板邊框 */
+  --my-panel-shadow: rgba(0, 0, 0, 0.1); /* 面板陰影 */
+  --my-panel-hover: #f8f9fa; /* 面板懸停 */
+
   /* 🔲 按鈕樣式 (Button Styles) */
-  --my-btn-bg: #007bff;                 /* 按鈕背景 */
-  --my-btn-hover: #0056b3;              /* 按鈕懸停 */
-  --my-btn-active: #004085;             /* 按鈕激活 */
-  --my-btn-disabled: #6c757d;           /* 按鈕禁用 */
-  
+  --my-btn-bg: #007bff; /* 按鈕背景 */
+  --my-btn-hover: #0056b3; /* 按鈕懸停 */
+  --my-btn-active: #004085; /* 按鈕激活 */
+  --my-btn-disabled: #6c757d; /* 按鈕禁用 */
+
   /* 📝 輸入框樣式 (Input Styles) */
-  --my-input-bg: #ffffff;               /* 輸入框背景 */
-  --my-input-border: #ced4da;           /* 輸入框邊框 */
-  --my-input-focus: #80bdff;            /* 輸入框焦點 */
-  --my-input-placeholder: #6c757d;      /* 輸入框佔位符 */
-  
+  --my-input-bg: #ffffff; /* 輸入框背景 */
+  --my-input-border: #ced4da; /* 輸入框邊框 */
+  --my-input-focus: #80bdff; /* 輸入框焦點 */
+  --my-input-placeholder: #6c757d; /* 輸入框佔位符 */
+
   /* 🗺️ 地圖樣式 (Map Styles) */
-  --my-map-bg: #f0f0f0;                 /* 地圖背景 */
-  --my-map-border: #ddd;                /* 地圖邊框 */
-  --my-marker-primary: #007bff;         /* 主要標記 */
-  --my-marker-secondary: #28a745;       /* 次要標記 */
-  --my-marker-highlight: #ffc107;       /* 高亮標記 */
-  
+  --my-map-bg: #f0f0f0; /* 地圖背景 */
+  --my-map-border: #ddd; /* 地圖邊框 */
+  --my-marker-primary: #007bff; /* 主要標記 */
+  --my-marker-secondary: #28a745; /* 次要標記 */
+  --my-marker-highlight: #ffc107; /* 高亮標記 */
+
   /* 🔧 調整器樣式 (Resizer Styles) */
-  --my-resizer-bg: #dee2e6;             /* 調整器背景 */
-  --my-resizer-hover: #007bff;          /* 調整器懸停 */
-  --my-resizer-active: #0056b3;         /* 調整器激活 */
-  
+  --my-resizer-bg: #dee2e6; /* 調整器背景 */
+  --my-resizer-hover: #007bff; /* 調整器懸停 */
+  --my-resizer-active: #0056b3; /* 調整器激活 */
+
   /* ⚖️ RGB色彩值 (用於透明度計算) */
-  --my-primary-rgb: 0, 123, 255;        /* 主要色RGB值 */
-  --my-secondary-rgb: 108, 117, 125;    /* 次要色RGB值 */
+  --my-primary-rgb: 0, 123, 255; /* 主要色RGB值 */
+  --my-secondary-rgb: 108, 117, 125; /* 次要色RGB值 */
 }
 
 /**
@@ -99,33 +99,33 @@
  */
 :root {
   /* 📊 標題字體大小 (Heading Font Sizes) */
-  --my-font-size-h1: 2.5rem;            /* 40px */
-  --my-font-size-h2: 2rem;              /* 32px */
-  --my-font-size-h3: 1.75rem;           /* 28px */
-  --my-font-size-h4: 1.5rem;            /* 24px */
-  --my-font-size-h5: 1.25rem;           /* 20px */
-  --my-font-size-h6: 1rem;              /* 16px */
-  
+  --my-font-size-h1: 2.5rem; /* 40px */
+  --my-font-size-h2: 2rem; /* 32px */
+  --my-font-size-h3: 1.75rem; /* 28px */
+  --my-font-size-h4: 1.5rem; /* 24px */
+  --my-font-size-h5: 1.25rem; /* 20px */
+  --my-font-size-h6: 1rem; /* 16px */
+
   /* 📝 內文字體大小 (Body Font Sizes) */
-  --my-font-size-base: 1rem;            /* 16px 基準大小 */
-  --my-font-size-large: 1.125rem;       /* 18px 大字體 */
-  --my-font-size-small: 0.875rem;       /* 14px 小字體 */
-  --my-font-size-xs: 0.75rem;           /* 12px 極小字體 */
-  
+  --my-font-size-base: 1rem; /* 16px 基準大小 */
+  --my-font-size-large: 1.125rem; /* 18px 大字體 */
+  --my-font-size-small: 0.875rem; /* 14px 小字體 */
+  --my-font-size-xs: 0.75rem; /* 12px 極小字體 */
+
   /* 🔲 按鈕字體大小 (Button Font Sizes) */
-  --my-font-size-btn-lg: 1.125rem;      /* 大按鈕 */
-  --my-font-size-btn: 1rem;             /* 普通按鈕 */
-  --my-font-size-btn-sm: 0.875rem;      /* 小按鈕 */
-  
+  --my-font-size-btn-lg: 1.125rem; /* 大按鈕 */
+  --my-font-size-btn: 1rem; /* 普通按鈕 */
+  --my-font-size-btn-sm: 0.875rem; /* 小按鈕 */
+
   /* 📝 輸入框字體大小 (Input Font Sizes) */
-  --my-font-size-input-lg: 1.125rem;    /* 大輸入框 */
-  --my-font-size-input: 1rem;           /* 普通輸入框 */
-  --my-font-size-input-sm: 0.875rem;    /* 小輸入框 */
-  
+  --my-font-size-input-lg: 1.125rem; /* 大輸入框 */
+  --my-font-size-input: 1rem; /* 普通輸入框 */
+  --my-font-size-input-sm: 0.875rem; /* 小輸入框 */
+
   /* 🏷️ 標籤和說明文字 (Label and Caption Text) */
-  --my-font-size-label: 0.875rem;       /* 標籤文字 */
-  --my-font-size-hint: 0.75rem;         /* 提示文字 */
-  --my-font-size-caption: 0.75rem;      /* 說明文字 */
+  --my-font-size-label: 0.875rem; /* 標籤文字 */
+  --my-font-size-hint: 0.75rem; /* 提示文字 */
+  --my-font-size-caption: 0.75rem; /* 說明文字 */
 }
 
 /**
@@ -134,13 +134,13 @@
  */
 [data-theme="dark"] {
   /* 🎨 背景顏色覆蓋 */
-  --my-bg-primary: #1a1a1a;             /* 暗色主要背景 */
-  --my-bg-secondary: #2d2d2d;           /* 暗色次要背景 */
-  --my-bg-tertiary: #404040;            /* 暗色第三背景 */
-  
-  --my-text-primary: #ffffff;           /* 暗色主要文字 */
-  --my-text-secondary: #b0b0b0;         /* 暗色次要文字 */
-  --my-text-muted: #808080;             /* 暗色淡化文字 */
+  --my-bg-primary: #1a1a1a; /* 暗色主要背景 */
+  --my-bg-secondary: #2d2d2d; /* 暗色次要背景 */
+  --my-bg-tertiary: #404040; /* 暗色第三背景 */
+
+  --my-text-primary: #ffffff; /* 暗色主要文字 */
+  --my-text-secondary: #b0b0b0; /* 暗色次要文字 */
+  --my-text-muted: #808080; /* 暗色淡化文字 */
 }
 
 /* =============================================================================
@@ -148,40 +148,90 @@
    ============================================================================= */
 
 /* 📌 背景色彩類別 */
-.bg-theme-primary { background-color: var(--my-bg-primary) !important; }
-.bg-theme-secondary { background-color: var(--my-bg-secondary) !important; }
-.bg-theme-tertiary { background-color: var(--my-bg-tertiary) !important; }
+.bg-theme-primary {
+  background-color: var(--my-bg-primary) !important;
+}
+.bg-theme-secondary {
+  background-color: var(--my-bg-secondary) !important;
+}
+.bg-theme-tertiary {
+  background-color: var(--my-bg-tertiary) !important;
+}
 
 /* 📌 文字色彩類別 */
-.text-theme-primary { color: var(--my-text-primary) !important; }
-.text-theme-secondary { color: var(--my-text-secondary) !important; }
-.text-theme-muted { color: var(--my-text-muted) !important; }
+.text-theme-primary {
+  color: var(--my-text-primary) !important;
+}
+.text-theme-secondary {
+  color: var(--my-text-secondary) !important;
+}
+.text-theme-muted {
+  color: var(--my-text-muted) !important;
+}
 
 /* 📌 邊框色彩類別 */
-.border-theme { border-color: var(--my-border-color) !important; }
-.border-theme-light { border-color: var(--my-border-light) !important; }
-.border-theme-dark { border-color: var(--my-border-dark) !important; }
+.border-theme {
+  border-color: var(--my-border-color) !important;
+}
+.border-theme-light {
+  border-color: var(--my-border-light) !important;
+}
+.border-theme-dark {
+  border-color: var(--my-border-dark) !important;
+}
 
 /* =============================================================================
    📝 字體大小工具類別 (Font Size Utility Classes)
    ============================================================================= */
 
-.fs-h1 { font-size: var(--my-font-size-h1); }
-.fs-h2 { font-size: var(--my-font-size-h2); }
-.fs-h3 { font-size: var(--my-font-size-h3); }
-.fs-h4 { font-size: var(--my-font-size-h4); }
-.fs-h5 { font-size: var(--my-font-size-h5); }
-.fs-h6 { font-size: var(--my-font-size-h6); }
+.fs-h1 {
+  font-size: var(--my-font-size-h1);
+}
+.fs-h2 {
+  font-size: var(--my-font-size-h2);
+}
+.fs-h3 {
+  font-size: var(--my-font-size-h3);
+}
+.fs-h4 {
+  font-size: var(--my-font-size-h4);
+}
+.fs-h5 {
+  font-size: var(--my-font-size-h5);
+}
+.fs-h6 {
+  font-size: var(--my-font-size-h6);
+}
 
-.fs-base { font-size: var(--my-font-size-base); }
-.fs-large { font-size: var(--my-font-size-large); }
-.fs-small { font-size: var(--my-font-size-small); }
-.fs-xs { font-size: var(--my-font-size-xs); }
+.fs-base {
+  font-size: var(--my-font-size-base);
+}
+.fs-large {
+  font-size: var(--my-font-size-large);
+}
+.fs-small {
+  font-size: var(--my-font-size-small);
+}
+.fs-xs {
+  font-size: var(--my-font-size-xs);
+}
 
-.fs-btn-lg { font-size: var(--my-font-size-btn-lg); }
-.fs-btn { font-size: var(--my-font-size-btn); }
-.fs-btn-sm { font-size: var(--my-font-size-btn-sm); }
+.fs-btn-lg {
+  font-size: var(--my-font-size-btn-lg);
+}
+.fs-btn {
+  font-size: var(--my-font-size-btn);
+}
+.fs-btn-sm {
+  font-size: var(--my-font-size-btn-sm);
+}
 
-.fs-label { font-size: var(--my-font-size-label); }
-.fs-hint { font-size: var(--my-font-size-hint); }
-.fs-caption { font-size: var(--my-font-size-caption); } 
+.fs-label {
+  font-size: var(--my-font-size-label);
+}
+.fs-hint {
+  font-size: var(--my-font-size-hint);
+}
+.fs-caption {
+  font-size: var(--my-font-size-caption);
+}

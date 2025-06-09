@@ -29,6 +29,7 @@ src/data/
 - 日期相關檔案可使用 YYYY-MM-DD 格式
 
 例如：
+
 - `taipei-districts-2024.json`
 - `population-data-2023-12.json`
 - `traffic-flow-daily-2024-01-15.json`
@@ -39,39 +40,40 @@ src/data/
 
 ```javascript
 // 方法 1: 靜態引入
-import sampleData from '@/data/sample-data.json'
+import sampleData from '@/data/sample-data.json';
 
 // 方法 2: 動態載入
 const loadData = async () => {
   try {
-    const response = await fetch('/data/sample-data.json')
-    const data = await response.json()
-    return data
+    const response = await fetch('/data/sample-data.json');
+    const data = await response.json();
+    return data;
   } catch (error) {
-    console.error('載入資料時發生錯誤:', error)
+    console.error('載入資料時發生錯誤:', error);
   }
-}
+};
 
 // 方法 3: 使用 Vue 的 ref
-import { ref, onMounted } from 'vue'
-import sampleData from '@/data/sample-data.json'
+import { ref, onMounted } from 'vue';
+import sampleData from '@/data/sample-data.json';
 
 export default {
   setup() {
-    const data = ref(null)
-    
+    const data = ref(null);
+
     onMounted(() => {
-      data.value = sampleData
-    })
-    
-    return { data }
-  }
-}
+      data.value = sampleData;
+    });
+
+    return { data };
+  },
+};
 ```
 
 ## JSON 檔案結構建議
 
 ### 基本結構
+
 ```json
 {
   "metadata": {
@@ -88,6 +90,7 @@ export default {
 ```
 
 ### 地理資料結構
+
 ```json
 {
   "type": "FeatureCollection",
@@ -100,7 +103,7 @@ export default {
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [121.5654, 25.0330]
+        "coordinates": [121.5654, 25.033]
       }
     }
   ]
@@ -120,4 +123,4 @@ export default {
 - 對於大型資料集，考慮使用 Web Workers 處理
 - 實作資料快取機制避免重複載入
 - 使用分頁或虛擬滾動處理大量資料顯示
-- 考慮使用 IndexedDB 存放客戶端資料 
+- 考慮使用 IndexedDB 存放客戶端資料

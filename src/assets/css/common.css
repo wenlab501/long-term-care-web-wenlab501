@@ -12,9 +12,9 @@
    📦 引入依賴 (Dependencies Import)
    ============================================================================= */
 
-@import './variables.css';                    /* 基礎變數定義 */
-@import './theme-colors.css';                 /* 主題顏色配置 */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+@import "./variables.css"; /* 基礎變數定義 */
+@import "./theme-colors.css"; /* 主題顏色配置 */
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap");
 
 /* =============================================================================
    🔧 基礎重置和全局設定 (Base Reset & Global Settings)
@@ -35,42 +35,70 @@ body {
 }
 
 body {
-  font-family: var(--my-font-family-primary);    /* 使用主要字體 */
-  font-size: var(--my-font-size-base);          /* 基礎字體大小 */
+  font-family: var(--my-font-family-primary); /* 使用主要字體 */
+  font-size: var(--my-font-size-base); /* 基礎字體大小 */
   letter-spacing: var(--my-letter-spacing-base);
-  line-height: var(--my-line-height-normal);    /* 行高設定 */
-  color: var(--my-text-primary);                /* 主要文字顏色 */
-  background-color: var(--my-bg-primary);       /* 主要背景顏色 */
+  line-height: var(--my-line-height-normal); /* 行高設定 */
+  color: var(--my-text-primary); /* 主要文字顏色 */
+  background-color: var(--my-bg-primary); /* 主要背景顏色 */
 }
 
 /* =============================================================================
    📝 字體大小工具類別 (Font Size Utility Classes)
    ============================================================================= */
 
-.my-font-size-2xl { font-size: var(--my-font-size-2xl) }
-.my-font-size-xl { font-size: var(--my-font-size-xl) }
-.my-font-size-lg { font-size: var(--my-font-size-lg) }
-.my-font-size-base { font-size: var(--my-font-size-base) }
-.my-font-size-sm { font-size: var(--my-font-size-sm) }
-.my-font-size-xs { font-size: var(--my-font-size-xs) }
+.my-font-size-2xl {
+  font-size: var(--my-font-size-2xl);
+}
+.my-font-size-xl {
+  font-size: var(--my-font-size-xl);
+}
+.my-font-size-lg {
+  font-size: var(--my-font-size-lg);
+}
+.my-font-size-base {
+  font-size: var(--my-font-size-base);
+}
+.my-font-size-sm {
+  font-size: var(--my-font-size-sm);
+}
+.my-font-size-xs {
+  font-size: var(--my-font-size-xs);
+}
 
 /* =============================================================================
    📝 文字間距工具類別 (Letter Spacing Utility Classes)
    ============================================================================= */
 
-.my-letter-spacing-lg { letter-spacing: var(--my-letter-spacing-lg) }
+.my-letter-spacing-lg {
+  letter-spacing: var(--my-letter-spacing-lg);
+}
 
 /* =============================================================================
    🎨 背景顏色工具類別 (Background Color Utility Classes)
    ============================================================================= */
 
-.my-bg-color-gray-50 { background-color: var(--my-color-gray-50); }
-.my-bg-color-gray-100 { background-color: var(--my-color-gray-100); }
-.my-bg-color-gray-200 { background-color: var(--my-color-gray-200); }
-.my-bg-color-gray-300 { background-color: var(--my-color-gray-300); }
-.my-bg-color-gray-400 { background-color: var(--my-color-gray-400); }
-.my-bg-color-gray-500 { background-color: var(--my-color-gray-500); }
-.my-bg-color-gray-600 { background-color: var(--my-color-gray-600); }
+.my-bg-color-gray-50 {
+  background-color: var(--my-color-gray-50);
+}
+.my-bg-color-gray-100 {
+  background-color: var(--my-color-gray-100);
+}
+.my-bg-color-gray-200 {
+  background-color: var(--my-color-gray-200);
+}
+.my-bg-color-gray-300 {
+  background-color: var(--my-color-gray-300);
+}
+.my-bg-color-gray-400 {
+  background-color: var(--my-color-gray-400);
+}
+.my-bg-color-gray-500 {
+  background-color: var(--my-color-gray-500);
+}
+.my-bg-color-gray-600 {
+  background-color: var(--my-color-gray-600);
+}
 
 /* =============================================================================
    🏗️ 應用程式佈局 (Application Layout)
@@ -90,7 +118,7 @@ body {
 }
 
 .my-main-content .container-fluid {
-  height: calc(100vh - 116px);                /* 計算可用高度（扣除導航欄56px+頁腳60px） */
+  height: calc(100vh - 116px); /* 計算可用高度（扣除導航欄56px+頁腳60px） */
 }
 
 /* =============================================================================
@@ -99,11 +127,11 @@ body {
 
 .my-app-footer {
   flex-shrink: 0;
-  background-color: var(--my-bg-dark);          /* 深色背景 */
-  color: var(--my-text-light);                  /* 淺色文字 */
-  padding: var(--my-spacing-4) 0;               /* 上下內距 */
+  background-color: var(--my-bg-dark); /* 深色背景 */
+  color: var(--my-text-light); /* 淺色文字 */
+  padding: var(--my-spacing-4) 0; /* 上下內距 */
   margin-top: auto;
-  font-size: var(--my-font-size-sm);            /* 小字體 */
+  font-size: var(--my-font-size-sm); /* 小字體 */
   border-top: 1px solid var(--my-border-color); /* 上邊框 */
 }
 
@@ -112,13 +140,13 @@ body {
 }
 
 .my-app-footer a {
-  color: var(--my-text-light);                  /* 連結顏色 */
+  color: var(--my-text-light); /* 連結顏色 */
   text-decoration: none;
-  transition: var(--my-transition-colors);      /* 顏色轉換效果 */
+  transition: var(--my-transition-colors); /* 顏色轉換效果 */
 }
 
 .my-app-footer a:hover {
-  color: var(--my-primary-light);               /* 懸停時的顏色 */
+  color: var(--my-primary-light); /* 懸停時的顏色 */
   text-decoration: underline;
 }
 
@@ -136,16 +164,16 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: var(--my-z-index-loading);          /* 最高層級 */
+  z-index: var(--my-z-index-loading); /* 最高層級 */
 }
 
 .my-loading-content {
   text-align: center;
-  color: var(--my-text-light);                  /* 淺色文字 */
-  background-color: var(--my-panel-bg);         /* 面板背景 */
-  padding: var(--my-spacing-6);                 /* 內距 */
-  border-radius: var(--my-radius-lg);           /* 圓角 */
-  box-shadow: var(--my-shadow-lg);              /* 陰影效果 */
+  color: var(--my-text-light); /* 淺色文字 */
+  background-color: var(--my-panel-bg); /* 面板背景 */
+  padding: var(--my-spacing-6); /* 內距 */
+  border-radius: var(--my-radius-lg); /* 圓角 */
+  box-shadow: var(--my-shadow-lg); /* 陰影效果 */
   min-width: 300px;
   max-width: 400px;
 }
@@ -153,34 +181,34 @@ body {
 .my-loading-spinner {
   width: 3rem;
   height: 3rem;
-  margin: 0 auto var(--my-spacing-4);           /* 置中並設定下邊距 */
+  margin: 0 auto var(--my-spacing-4); /* 置中並設定下邊距 */
   border-radius: 50%;
 }
 
 .my-loading-text {
-  font-size: var(--my-font-size-xl);            /* 載入文字大小 */
-  font-weight: var(--my-font-weight-medium);    /* 中等字重 */
-  color: var(--my-text-primary);               /* 主要文字顏色 */
-  margin-bottom: var(--my-spacing-2);           /* 下邊距 */
+  font-size: var(--my-font-size-xl); /* 載入文字大小 */
+  font-weight: var(--my-font-weight-medium); /* 中等字重 */
+  color: var(--my-text-primary); /* 主要文字顏色 */
+  margin-bottom: var(--my-spacing-2); /* 下邊距 */
 }
 
 .my-loading-progress {
-  margin-top: var(--my-spacing-4);              /* 進度條上邊距 */
+  margin-top: var(--my-spacing-4); /* 進度條上邊距 */
 }
 
 .my-loading-progress .progress {
-  height: 6px;                                  /* 進度條高度 */
-  background-color: var(--my-bg-secondary);     /* 進度條背景 */
-  border-radius: var(--my-radius-base);         /* 進度條圓角 */
+  height: 6px; /* 進度條高度 */
+  background-color: var(--my-bg-secondary); /* 進度條背景 */
+  border-radius: var(--my-radius-base); /* 進度條圓角 */
 }
 
 .my-loading-progress .progress-bar {
   background: linear-gradient(
-    90deg, 
-    var(--my-primary-color), 
+    90deg,
+    var(--my-primary-color),
     var(--my-primary-light)
-  );                                            /* 進度條漸層背景 */
-  transition: width 0.3s ease;                 /* 寬度變化動畫 */
+  ); /* 進度條漸層背景 */
+  transition: width 0.3s ease; /* 寬度變化動畫 */
 }
 
 /* =============================================================================
@@ -188,7 +216,7 @@ body {
    ============================================================================= */
 
 .my-right-panel {
-  background-color: var(--my-panel-bg);         /* 面板背景色 */
+  background-color: var(--my-panel-bg); /* 面板背景色 */
   border-left: 1px solid var(--my-border-light); /* 左邊框 */
 }
 
@@ -197,26 +225,26 @@ body {
    ============================================================================= */
 
 .my-resizer {
-  background-color: var(--my-border-color);     /* 調整器背景色 */
-  transition: all 0.2s ease;                   /* 平滑過渡效果 */
+  background-color: var(--my-border-color); /* 調整器背景色 */
+  transition: all 0.2s ease; /* 平滑過渡效果 */
 }
 
 .my-resizer:hover {
-  background-color: var(--my-primary-color);    /* 懸停時的背景色 */
+  background-color: var(--my-primary-color); /* 懸停時的背景色 */
 }
 
 /* 🔧 垂直拖曳調整器 (Vertical Resizer) */
 .my-resizer-vertical {
   min-width: 4px;
   max-width: 4px;
-  cursor: col-resize;                           /* 左右調整游標 */
+  cursor: col-resize; /* 左右調整游標 */
 }
 
 /* 🔧 水平拖曳調整器 (Horizontal Resizer) */
 .my-resizer-horizontal {
   min-height: 4px;
   max-height: 4px;
-  cursor: row-resize;                           /* 上下調整游標 */
+  cursor: row-resize; /* 上下調整游標 */
 }
 
 .my-resizer-vertical:hover,
@@ -247,14 +275,14 @@ body {
 }
 
 body.my-no-select {
-  cursor: inherit !important;                   /* 保持游標樣式 */
+  cursor: inherit !important; /* 保持游標樣式 */
 }
 
 body.my-no-select * {
   -webkit-user-select: none !important;
   -moz-user-select: none !important;
   -ms-user-select: none !important;
-  user-select: none !important;                /* 防止所有元素被選取 */
+  user-select: none !important; /* 防止所有元素被選取 */
 }
 
 /* =============================================================================
@@ -262,19 +290,28 @@ body.my-no-select * {
    ============================================================================= */
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .my-fade-in {
-  animation: fadeIn 0.3s ease-in-out;          /* 淡入動畫 */
+  animation: fadeIn 0.3s ease-in-out; /* 淡入動畫 */
 }
 
 .my-pulse {
-  animation: pulse 2s infinite;                /* 脈衝動畫 */
-} 
+  animation: pulse 2s infinite; /* 脈衝動畫 */
+}

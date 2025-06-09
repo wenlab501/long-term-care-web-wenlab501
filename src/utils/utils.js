@@ -1,9 +1,9 @@
 /**
  * 🔧 通用工具函數庫
- * 
+ *
  * 長照空間分析系統的基礎工具函數集合
  * 提供常用的計算、格式化和輔助功能
- * 
+ *
  * 主要功能：
  * - 📏 地理距離計算 (Haversine 公式)
  * - 🔢 數值格式化與統計計算
@@ -11,12 +11,12 @@
  * - 🎨 顏色生成與處理
  * - ⚡ 效能優化工具 (防抖、節流)
  * - 🛠️ 物件深度複製
- * 
+ *
  * 設計理念：
  * - 純函數設計，無副作用
  * - 輕量級實現，高效能
  * - 廣泛適用於各種前端場景
- * 
+ *
  * @author 長照空間分析團隊
  * @version 1.0.0
  * @since 2024
@@ -31,16 +31,18 @@
  * @returns {number} 距離（公里）
  */
 export function calculateDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371 // 地球半徑（公里）
-  const dLat = (lat2 - lat1) * Math.PI / 180
-  const dLon = (lon2 - lon1) * Math.PI / 180
-  const a = 
-    Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-    Math.sin(dLon/2) * Math.sin(dLon/2)
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
-  const d = R * c
-  return d
+  const R = 6371; // 地球半徑（公里）
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const d = R * c;
+  return d;
 }
 
 /**
@@ -49,7 +51,7 @@ export function calculateDistance(lat1, lon1, lat2, lon2) {
  * @returns {string} 格式化後的字串
  */
 export function formatNumber(num) {
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
 /**
@@ -58,9 +60,9 @@ export function formatNumber(num) {
  * @returns {number} 平均值
  */
 export function calculateAverage(array) {
-  if (!array || array.length === 0) return 0
-  const sum = array.reduce((a, b) => a + b, 0)
-  return sum / array.length
+  if (!array || array.length === 0) return 0;
+  const sum = array.reduce((a, b) => a + b, 0);
+  return sum / array.length;
 }
 
 /**
@@ -69,11 +71,11 @@ export function calculateAverage(array) {
  * @returns {number} 標準差
  */
 export function calculateStandardDeviation(array) {
-  if (!array || array.length === 0) return 0
-  const avg = calculateAverage(array)
-  const squareDiffs = array.map(value => Math.pow(value - avg, 2))
-  const avgSquareDiff = calculateAverage(squareDiffs)
-  return Math.sqrt(avgSquareDiff)
+  if (!array || array.length === 0) return 0;
+  const avg = calculateAverage(array);
+  const squareDiffs = array.map((value) => Math.pow(value - avg, 2));
+  const avgSquareDiff = calculateAverage(squareDiffs);
+  return Math.sqrt(avgSquareDiff);
 }
 
 /**
@@ -82,7 +84,7 @@ export function calculateStandardDeviation(array) {
  * @returns {object} 複製後的對象
  */
 export function deepClone(obj) {
-  return JSON.parse(JSON.stringify(obj))
+  return JSON.parse(JSON.stringify(obj));
 }
 
 /**
@@ -92,15 +94,15 @@ export function deepClone(obj) {
  * @returns {function} 防抖後的函數
  */
 export function debounce(func, wait) {
-  let timeout
+  let timeout;
   return function executedFunction(...args) {
     const later = () => {
-      clearTimeout(timeout)
-      func(...args)
-    }
-    clearTimeout(timeout)
-    timeout = setTimeout(later, wait)
-  }
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
 }
 
 /**
@@ -110,22 +112,25 @@ export function debounce(func, wait) {
  * @returns {function} 節流後的函數
  */
 export function throttle(func, limit) {
-  let lastFunc
-  let lastRan
-  return function(...args) {
+  let lastFunc;
+  let lastRan;
+  return function (...args) {
     if (!lastRan) {
-      func.apply(this, args)
-      lastRan = Date.now()
+      func.apply(this, args);
+      lastRan = Date.now();
     } else {
-      clearTimeout(lastFunc)
-      lastFunc = setTimeout(() => {
-        if ((Date.now() - lastRan) >= limit) {
-          func.apply(this, args)
-          lastRan = Date.now()
-        }
-      }, limit - (Date.now() - lastRan))
+      clearTimeout(lastFunc);
+      lastFunc = setTimeout(
+        () => {
+          if (Date.now() - lastRan >= limit) {
+            func.apply(this, args);
+            lastRan = Date.now();
+          }
+        },
+        limit - (Date.now() - lastRan)
+      );
     }
-  }
+  };
 }
 
 /**
@@ -133,7 +138,7 @@ export function throttle(func, limit) {
  * @returns {string} HEX顏色碼
  */
 export function generateRandomColor() {
-  return '#' + Math.floor(Math.random()*16777215).toString(16)
+  return '#' + Math.floor(Math.random() * 16777215).toString(16);
 }
 
 /**
@@ -143,18 +148,18 @@ export function generateRandomColor() {
  * @returns {string} 格式化後的日期字串
  */
 export function formatDate(date, format = 'YYYY-MM-DD') {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  const hours = String(date.getHours()).padStart(2, '0')
-  const minutes = String(date.getMinutes()).padStart(2, '0')
-  const seconds = String(date.getSeconds()).padStart(2, '0')
-  
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+
   return format
     .replace('YYYY', year)
     .replace('MM', month)
     .replace('DD', day)
     .replace('HH', hours)
     .replace('mm', minutes)
-    .replace('ss', seconds)
-} 
+    .replace('ss', seconds);
+}

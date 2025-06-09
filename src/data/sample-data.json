@@ -23,7 +23,7 @@
           "coordinates": { "lat": 25.0876, "lng": 121.5589 }
         },
         {
-          "type": "school", 
+          "type": "school",
           "name": "中山國小",
           "coordinates": { "lat": 25.0841, "lng": 121.5623 }
         }
@@ -66,7 +66,7 @@
         {
           "type": "landmark",
           "name": "台北101",
-          "coordinates": { "lat": 25.0340, "lng": 121.5645 }
+          "coordinates": { "lat": 25.034, "lng": 121.5645 }
         },
         {
           "type": "shopping",
@@ -94,4 +94,4 @@
     { "year": 2022, "population": 765000, "gdp": 132000 },
     { "year": 2023, "population": 769000, "gdp": 135000 }
   ]
-} 
+}
