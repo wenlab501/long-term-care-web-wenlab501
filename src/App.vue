@@ -1,51 +1,3 @@
-<template>
-  <!-- 🏠 App.vue - 主應用程式組件 (Main Application Component) -->
-  <!-- 提供應用程式整體框架，使用 Bootstrap 實現滿版無空隙佈局 -->
-  <div id="app" class="d-flex flex-column vh-100">
-    
-    <!-- ⏳ 載入覆蓋層 (Loading Overlay) -->
-    <!-- 全域載入狀態顯示，當資料處理時阻止用戶互動 -->
-    <LoadingOverlay 
-      :isVisible="isLoading" 
-      :loadingText="loadingText"
-      :progress="loadingProgress"
-      :showProgress="showLoadingProgress"
-      :subText="loadingSubText" />
-
-    <!-- 📱 主要內容區域 (Main Content Area) -->
-    <!-- 使用 Bootstrap flex-grow-1 佔滿剩餘空間，實現滿版佈局 -->
-    <div class="flex-grow-1 d-flex flex-column overflow-hidden">
-      
-      <!-- 🚀 路由視圖區域 (Router View Area) -->
-      <!-- Vue Router 的動態組件渲染區域，根據路由顯示不同頁面 -->
-      <div class="flex-grow-1">
-        <router-view />
-      </div>
-    </div>
-
-    <!-- 🦶 頁腳區域 (Footer Area) -->
-    <!-- Bootstrap sticky footer，緊貼底部無空隙，提供版權和技術資訊 -->
-    <footer class="my-app-footer bg-dark text-light py-2 mt-auto">
-      <div class="container-fluid">
-        <div class="row">
-          <!-- 📝 版權資訊區域 (Copyright Information Area) -->
-          <div class="col-md-6 text-md-start text-center">
-            <small>© 2024 空間分析視覺化平台. All rights reserved.</small>
-          </div>
-          <!-- 🔗 技術鳴謝連結區域 (Technology Credits Links Area) -->
-          <div class="col-md-6 text-md-end text-center">
-            <small>
-              Powered by <a href="https://vuejs.org/" target="_blank" class="text-light text-decoration-none">Vue.js</a> & 
-              <a href="https://leafletjs.com/" target="_blank" class="text-light text-decoration-none">Leaflet</a> & 
-              <a href="https://d3js.org/" target="_blank" class="text-light text-decoration-none">D3.js</a>
-            </small>
-          </div>
-        </div>
-      </div>
-    </footer>
-  </div>
-</template>
-
 <script>
 /**
  * 🏠 App.vue - 應用程式主組件
@@ -58,21 +10,15 @@
  * 5. 📱 實現響應式滿版佈局，無邊距和空隙
  * 
  * 架構說明：
- * - 載入層：全域載入覆蓋層，處理應用層級的載入狀態
  * - 內容層：路由視圖容器，動態顯示不同頁面組件
- * - 頁腳層：固定在底部的資訊欄，提供版權和技術鳴謝
  * 
  * 設計理念：
- * - 使用 Vue 3 Composition API
- * - Bootstrap 5 響應式設計系統
  * - 滿版無邊距佈局設計
  * - 模組化組件架構
  */
 
 // 🔧 Vue Composition API 引入
 import { ref } from 'vue'
-// 🧩 組件引入
-import LoadingOverlay from './components/LoadingOverlay.vue'
 
 export default {
   name: 'App',
@@ -82,7 +28,6 @@ export default {
    * 註冊應用程式層級使用的組件
    */
   components: {
-    LoadingOverlay    // 載入覆蓋層組件
   },
   
   /**
@@ -114,6 +59,20 @@ export default {
   }
 }
 </script>
+
+<template>
+  <!-- 🏠 App.vue - 主應用程式組件 (Main Application Component) -->
+  <!-- 提供應用程式整體框架，使用 Bootstrap 實現滿版無空隙佈局 -->
+  <div id="app" class="d-flex flex-column vh-100">
+
+    <!-- 📱 主要內容區域 (Main Content Area) -->
+    <!-- 使用 Bootstrap flex-grow-1 佔滿剩餘空間，實現滿版佈局 -->
+    <div class="flex-grow-1 d-flex flex-column overflow-hidden">
+      
+        <router-view />
+    </div>
+  </div>
+</template>
 
 <style>
 /**

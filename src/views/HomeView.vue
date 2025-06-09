@@ -1,143 +1,4 @@
-<template>
-  <!-- 🏠 HomeView.vue - 首頁視圖組件 (Home View Component) -->
-  <!-- 提供長照資訊系統的主要用戶界面，包含響應式三面板佈局系統 -->
-  <div id="app" class="d-flex flex-column vh-100">
-    
-    <!-- 📥 載入覆蓋層 (Loading Overlay) -->
-    <!-- 在資料載入時顯示，提供視覺化的載入進度回饋 -->
-    <LoadingOverlay 
-      :isVisible="isAnyLayerLoading" 
-      :loadingText="loadingText"
-      :progress="loadingProgress"
-      :showProgress="showLoadingProgress"
-      :subText="loadingSubText" />
 
-    <!-- 📱 主要內容區域 (Main Content Area) -->
-    <!-- 使用 Bootstrap flex-grow-1 佔滿剩餘空間，實現滿版佈局 -->
-    <div class="flex-grow-1 d-flex flex-column overflow-hidden">
-      
-      <!-- 🚀 路由視圖區域 (Router View Area) -->
-      <!-- 顯示非首頁的路由組件內容 -->
-      <div v-if="$route.path !== '/'" class="flex-grow-1">
-        <router-view />
-      </div>
-          
-      <!-- 🏠 首頁內容區域 (Home Page Content Area) -->
-      <!-- 空間分析平台的主要功能界面，使用響應式三面板佈局 -->
-      <div v-if="$route.path === '/'" class="flex-grow-1 d-flex flex-column overflow-hidden">
-        <div class="d-flex flex-row flex-grow-1 overflow-hidden">
-          
-          <!-- 🎛️ 左側控制面板容器 (Left Control Panel Container) -->
-          <!-- 包含圖層控制、資料載入等功能，支援動態寬度調整 -->
-          <div class="h-100 overflow-auto" :style="{ width: leftViewWidthPx }" v-if="leftViewWidth > 0">
-            <LeftView />
-          </div>
-        
-          <!-- 🔧 左側拖曳調整器 (Left Panel Resizer) -->
-          <!-- 提供滑鼠拖曳功能，動態調整左側面板寬度 -->
-          <div class="my-resizer my-resizer-vertical border-start border-end" 
-               :class="{ 'dragging': isSidePanelDragging }"
-               @mousedown="startResize('left', $event)"
-               title="拖曳調整左側面板寬度">
-          </div>
-            
-          <!-- 🌟 中間主要顯示區域 (Main Display Area) -->
-          <!-- 包含地圖、儀表板、資料表格等核心功能組件 -->
-          <MiddleView
-            ref="middlePanelRef"
-            class="d-flex flex-column flex-grow-1 overflow-hidden h-100"
-            :style="{ width: mainPanelWidthPx, 'min-width': '0px' }"
-            :dynamicMainAreaHeight="calculatedMiddleViewHeight"
-            :activeTab="activeTab"
-            :activeBottomTab="activeBottomTab"
-            :mainPanelWidth="mainPanelWidth" 
-            :showTainanLayer="showTainanLayer"
-            :selectedFilter="selectedFilter"
-            :selectedColorScheme="selectedColorScheme"
-            :selectedBorderColor="selectedBorderColor"
-            :selectedBorderWeight="selectedBorderWeight"
-            :zoomLevel="zoomLevel"
-            :currentCoords="currentCoords"
-            :tainanGeoJSONData="storeTainanGeoJSONData"
-            :maxCount="maxCount"
-            :mergedTableData="storeMergedTableData"
-            :averageCount="averageCount"
-            :dataRegionsCount="dataRegionsCount"
-            :activeMarkers="activeMarkers"
-            :isLoadingData="isAnyLayerLoading"
-            :isSidePanelDragging="isSidePanelDragging"
-            :totalCount="totalCount"
-            :tainanDataSummary="storeTainanDataSummary"
-            @update:activeTab="activeTab = $event"
-            @update:activeBottomTab="activeBottomTab = $event"
-            @update:zoomLevel="zoomLevel = $event"
-            @update:currentCoords="currentCoords = $event"
-            @update:activeMarkers="activeMarkers = $event"
-            @update:selectedColorScheme="selectedColorScheme = $event"
-            @update:selectedBorderColor="selectedBorderColor = $event"
-            @update:selectedBorderWeight="selectedBorderWeight = $event"
-            @reset-view="resetView"
-            @highlight-on-map="handleHighlight"
-            @highlight-feature="handleHighlight"
-            @feature-selected="handleFeatureSelected"
-          />
-
-          <!-- 🔧 右側拖曳調整器 (Right Panel Resizer) -->
-          <!-- 提供滑鼠拖曳功能，動態調整右側面板寬度 -->
-          <div class="my-resizer my-resizer-vertical border-start border-end" 
-               :class="{ 'dragging': isSidePanelDragging }"
-               @mousedown="startResize('right', $event)"
-               title="拖曳調整右側面板寬度">
-          </div>
-
-          <!-- 📈 右側控制面板容器 (Right Control Panel Container) -->
-          <!-- 包含物件屬性、分析清單等輔助功能，支援動態寬度調整 -->
-          <div class="h-100 overflow-auto" :style="{ width: rightViewWidthPx }" v-if="rightViewWidth > 0">
-            <RightView 
-              :activeRightTab="activeRightTab"
-              :totalCount="totalCount"
-              :activeMarkers="activeMarkers"
-              :tainanDataSummary="storeTainanDataSummary"
-              :mergedTableData="storeMergedTableData"
-              :maxCount="maxCount"
-              :averageCount="averageCount"
-              :dataRegionsCount="dataRegionsCount"
-              :showTainanLayer="showTainanLayer"
-              :rightViewWidth="rightViewWidth"
-              @update:activeRightTab="activeRightTab = $event"
-              @fit-map-to-data="fitMapToData"
-              @switch-to-dashboard="switchToDashboard"
-              @highlight-feature="handleHighlight"
-              :current-coords="currentCoords"
-              @update:current-coords="updateCurrentCoords"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-            
-    <!-- 🦶 頁腳區域 (Footer Area) -->
-    <!-- Bootstrap sticky footer，提供版權資訊和技術鳴謝 -->
-    <footer class="my-app-footer bg-dark text-light py-2 mt-auto" ref="appFooterRef">
-      <div class="container-fluid">
-        <div class="row">
-          <!-- 📝 版權資訊 (Copyright Information) -->
-          <div class="col-md-6 text-md-start text-center">
-            <small>© 2024 空間分析視覺化平台. All rights reserved.</small>
-          </div>
-          <!-- 🔗 技術鳴謝連結 (Technology Credits Links) -->
-          <div class="col-md-6 text-md-end text-center">
-            <small>
-              Powered by <a href="https://vuejs.org/" target="_blank" class="text-light text-decoration-none">Vue.js</a> & 
-              <a href="https://leafletjs.com/" target="_blank" class="text-light text-decoration-none">Leaflet</a> & 
-              <a href="https://d3js.org/" target="_blank" class="text-light text-decoration-none">D3.js</a>
-            </small>
-          </div>
-        </div>
-      </div>
-    </footer>
-  </div>
-</template>
 
 <script>
 /**
@@ -158,8 +19,6 @@
  * - 組件組合：組合多個子組件提供完整功能
  * 
  * 設計理念：
- * - 使用 Vue 3 Composition API
- * - Bootstrap 5 響應式設計
  * - 滿版無邊距佈局
  * - 直觀的拖曳調整體驗
  */
@@ -655,6 +514,143 @@ export default {
   }
 }
 </script>
+
+<template>
+  <!-- 🏠 HomeView.vue - 首頁視圖組件 (Home View Component) -->
+  <!-- 提供長照資訊系統的主要用戶界面，包含響應式三面板佈局系統 -->
+  <div id="app" class="d-flex flex-column vh-100">
+    
+    <!-- 📥 載入覆蓋層 (Loading Overlay) -->
+    <!-- 在資料載入時顯示，提供視覺化的載入進度回饋 -->
+    <LoadingOverlay 
+      :isVisible="isAnyLayerLoading" 
+      :loadingText="loadingText"
+      :progress="loadingProgress"
+      :showProgress="showLoadingProgress"
+      :subText="loadingSubText" />
+
+    <!-- 📱 主要內容區域 (Main Content Area) -->
+    <!-- 使用 Bootstrap flex-grow-1 佔滿剩餘空間，實現滿版佈局 -->
+    <div class="flex-grow-1 d-flex flex-column overflow-hidden">
+      
+      <!-- 🚀 路由視圖區域 (Router View Area) -->
+      <!-- 顯示非首頁的路由組件內容 -->
+      <div v-if="$route.path !== '/'" class="flex-grow-1">
+        <router-view />
+      </div>
+          
+      <!-- 🏠 首頁內容區域 (Home Page Content Area) -->
+      <!-- 空間分析平台的主要功能界面，使用響應式三面板佈局 -->
+      <div v-if="$route.path === '/'" class="flex-grow-1 d-flex flex-column overflow-hidden">
+        <div class="d-flex flex-row flex-grow-1 overflow-hidden">
+          
+          <!-- 🎛️ 左側控制面板容器 (Left Control Panel Container) -->
+          <!-- 包含圖層控制、資料載入等功能，支援動態寬度調整 -->
+          <div class="h-100 overflow-auto" :style="{ width: leftViewWidthPx }" v-if="leftViewWidth > 0">
+            <LeftView />
+          </div>
+        
+          <!-- 🔧 左側拖曳調整器 (Left Panel Resizer) -->
+          <!-- 提供滑鼠拖曳功能，動態調整左側面板寬度 -->
+          <div class="my-resizer my-resizer-vertical border-start border-end" 
+               :class="{ 'dragging': isSidePanelDragging }"
+               @mousedown="startResize('left', $event)"
+               title="拖曳調整左側面板寬度">
+          </div>
+            
+          <!-- 🌟 中間主要顯示區域 (Main Display Area) -->
+          <!-- 包含地圖、儀表板、資料表格等核心功能組件 -->
+          <MiddleView
+            ref="middlePanelRef"
+            class="d-flex flex-column flex-grow-1 overflow-hidden h-100"
+            :style="{ width: mainPanelWidthPx, 'min-width': '0px' }"
+            :dynamicMainAreaHeight="calculatedMiddleViewHeight"
+            :activeTab="activeTab"
+            :activeBottomTab="activeBottomTab"
+            :mainPanelWidth="mainPanelWidth" 
+            :showTainanLayer="showTainanLayer"
+            :selectedFilter="selectedFilter"
+            :selectedColorScheme="selectedColorScheme"
+            :selectedBorderColor="selectedBorderColor"
+            :selectedBorderWeight="selectedBorderWeight"
+            :zoomLevel="zoomLevel"
+            :currentCoords="currentCoords"
+            :tainanGeoJSONData="storeTainanGeoJSONData"
+            :maxCount="maxCount"
+            :mergedTableData="storeMergedTableData"
+            :averageCount="averageCount"
+            :dataRegionsCount="dataRegionsCount"
+            :activeMarkers="activeMarkers"
+            :isLoadingData="isAnyLayerLoading"
+            :isSidePanelDragging="isSidePanelDragging"
+            :totalCount="totalCount"
+            :tainanDataSummary="storeTainanDataSummary"
+            @update:activeTab="activeTab = $event"
+            @update:activeBottomTab="activeBottomTab = $event"
+            @update:zoomLevel="zoomLevel = $event"
+            @update:currentCoords="currentCoords = $event"
+            @update:activeMarkers="activeMarkers = $event"
+            @update:selectedColorScheme="selectedColorScheme = $event"
+            @update:selectedBorderColor="selectedBorderColor = $event"
+            @update:selectedBorderWeight="selectedBorderWeight = $event"
+            @reset-view="resetView"
+            @highlight-on-map="handleHighlight"
+            @highlight-feature="handleHighlight"
+            @feature-selected="handleFeatureSelected"
+          />
+
+          <!-- 🔧 右側拖曳調整器 (Right Panel Resizer) -->
+          <!-- 提供滑鼠拖曳功能，動態調整右側面板寬度 -->
+          <div class="my-resizer my-resizer-vertical border-start border-end" 
+               :class="{ 'dragging': isSidePanelDragging }"
+               @mousedown="startResize('right', $event)"
+               title="拖曳調整右側面板寬度">
+          </div>
+
+          <!-- 📈 右側控制面板容器 (Right Control Panel Container) -->
+          <!-- 包含物件屬性、分析清單等輔助功能，支援動態寬度調整 -->
+          <div class="h-100 overflow-auto" :style="{ width: rightViewWidthPx }" v-if="rightViewWidth > 0">
+            <RightView 
+              :activeRightTab="activeRightTab"
+              :totalCount="totalCount"
+              :activeMarkers="activeMarkers"
+              :tainanDataSummary="storeTainanDataSummary"
+              :mergedTableData="storeMergedTableData"
+              :maxCount="maxCount"
+              :averageCount="averageCount"
+              :dataRegionsCount="dataRegionsCount"
+              :showTainanLayer="showTainanLayer"
+              :rightViewWidth="rightViewWidth"
+              @update:activeRightTab="activeRightTab = $event"
+              @fit-map-to-data="fitMapToData"
+              @switch-to-dashboard="switchToDashboard"
+              @highlight-feature="handleHighlight"
+              :current-coords="currentCoords"
+              @update:current-coords="updateCurrentCoords"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+            
+    <!-- 🦶 頁腳區域 (Footer Area) -->
+    <!-- Bootstrap sticky footer，提供版權資訊和技術鳴謝 -->
+    <footer class="my-app-footer bg-dark text-light py-2 mt-auto" ref="appFooterRef">
+      <div class="container-fluid">
+        <div class="row">
+          <!-- 📝 版權資訊 (Copyright Information) -->
+          <div class="col-md-6 text-md-start text-center">
+            <small>臺北市長照資訊</small>
+          </div>
+          <!-- 🔗 技術鳴謝連結 (Technology Credits Links) -->
+          <div class="col-md-6 text-md-end text-center">
+            <small>臺北市長照資訊</small>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+</template>
 
 <style>
 /**
