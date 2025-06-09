@@ -1,8 +1,10 @@
 <template>
-  <!-- 🏠 App.vue - 主應用程式組件，使用Bootstrap實現滿版無空隙佈局 -->
+  <!-- 🏠 HomeView.vue - 首頁視圖組件 (Home View Component) -->
+  <!-- 提供長照資訊系統的主要用戶界面，包含響應式三面板佈局系統 -->
   <div id="app" class="d-flex flex-column vh-100">
     
     <!-- 📥 載入覆蓋層 (Loading Overlay) -->
+    <!-- 在資料載入時顯示，提供視覺化的載入進度回饋 -->
     <LoadingOverlay 
       :isVisible="isAnyLayerLoading" 
       :loadingText="loadingText"
@@ -10,31 +12,37 @@
       :showProgress="showLoadingProgress"
       :subText="loadingSubText" />
 
-    <!-- 📱 主要內容區域 (Main Content Area) - 使用Bootstrap flex-grow-1佔滿剩餘空間 -->
+    <!-- 📱 主要內容區域 (Main Content Area) -->
+    <!-- 使用 Bootstrap flex-grow-1 佔滿剩餘空間，實現滿版佈局 -->
     <div class="flex-grow-1 d-flex flex-column overflow-hidden">
       
-      <!-- 🚀 路由視圖（非首頁） - 使用Bootstrap佈局 -->
+      <!-- 🚀 路由視圖區域 (Router View Area) -->
+      <!-- 顯示非首頁的路由組件內容 -->
       <div v-if="$route.path !== '/'" class="flex-grow-1">
         <router-view />
       </div>
           
-      <!-- 🏠 首頁內容（空間分析平台） - 使用Bootstrap grid系統 -->
+      <!-- 🏠 首頁內容區域 (Home Page Content Area) -->
+      <!-- 空間分析平台的主要功能界面，使用響應式三面板佈局 -->
       <div v-if="$route.path === '/'" class="flex-grow-1 d-flex flex-column overflow-hidden">
         <div class="d-flex flex-row flex-grow-1 overflow-hidden">
           
-          <!-- 🎛️ 左側控制面板 (Left Control Panel) - Wrapper for content only -->
+          <!-- 🎛️ 左側控制面板容器 (Left Control Panel Container) -->
+          <!-- 包含圖層控制、資料載入等功能，支援動態寬度調整 -->
           <div class="h-100 overflow-auto" :style="{ width: leftPanelWidthPx }" v-if="leftPanelWidth > 0">
             <LeftPanel />
           </div>
         
-          <!-- 🔧 左側拖曳調整器 (Left Resizer) - Now a direct child of the flex row -->
+          <!-- 🔧 左側拖曳調整器 (Left Panel Resizer) -->
+          <!-- 提供滑鼠拖曳功能，動態調整左側面板寬度 -->
           <div class="my-resizer my-resizer-vertical border-start border-end" 
                :class="{ 'dragging': isSidePanelDragging }"
                @mousedown="startResize('left', $event)"
                title="拖曳調整左側面板寬度">
           </div>
             
-          <!-- 🌟 新的主要顯示區域組件 (New Main Display Area Component) -->
+          <!-- 🌟 中間主要顯示區域 (Main Display Area) -->
+          <!-- 包含地圖、儀表板、資料表格等核心功能組件 -->
           <MiddlePanel
             ref="middlePanelRef"
             class="d-flex flex-column flex-grow-1 overflow-hidden h-100"
@@ -74,14 +82,16 @@
             @feature-selected="handleFeatureSelected"
           />
 
-          <!-- 🔧 右側拖曳調整器 (Right Resizer) - Now a direct child of the flex row -->
+          <!-- 🔧 右側拖曳調整器 (Right Panel Resizer) -->
+          <!-- 提供滑鼠拖曳功能，動態調整右側面板寬度 -->
           <div class="my-resizer my-resizer-vertical border-start border-end" 
                :class="{ 'dragging': isSidePanelDragging }"
                @mousedown="startResize('right', $event)"
                title="拖曳調整右側面板寬度">
           </div>
 
-          <!-- 📈 右側控制面板 (Right Control Panel) - Wrapper for content only -->
+          <!-- 📈 右側控制面板容器 (Right Control Panel Container) -->
+          <!-- 包含物件屬性、分析清單等輔助功能，支援動態寬度調整 -->
           <div class="h-100 overflow-auto" :style="{ width: rightPanelWidthPx }" v-if="rightPanelWidth > 0">
             <RightPanel 
               :activeRightTab="activeRightTab"
@@ -107,13 +117,16 @@
       </div>
     </div>
             
-    <!-- 🦶 頁腳區域 (Footer Area) - Bootstrap sticky footer，緊貼底部無空隙 -->
+    <!-- 🦶 頁腳區域 (Footer Area) -->
+    <!-- Bootstrap sticky footer，提供版權資訊和技術鳴謝 -->
     <footer class="my-app-footer bg-dark text-light py-2 mt-auto" ref="appFooterRef">
       <div class="container-fluid">
         <div class="row">
+          <!-- 📝 版權資訊 (Copyright Information) -->
           <div class="col-md-6 text-md-start text-center">
             <small>© 2024 空間分析視覺化平台. All rights reserved.</small>
           </div>
+          <!-- 🔗 技術鳴謝連結 (Technology Credits Links) -->
           <div class="col-md-6 text-md-end text-center">
             <small>
               Powered by <a href="https://vuejs.org/" target="_blank" class="text-light text-decoration-none">Vue.js</a> & 
@@ -129,18 +142,34 @@
 
 <script>
 /**
- *  App.vue - 應用程式主組件
+ * 🏠 HomeView.vue - 首頁視圖組件
  * 
  * 功能說明：
- * 1. 📱 提供響應式三面板佈局系統（左中右，支援0-100%調整）
+ * 1. 📱 提供響應式三面板佈局系統（左中右，支援 0-100% 動態調整）
  * 2. 🗺️ 整合地圖視覺化與空間分析功能
- * 3. 📊 管理台南市登革熱數據的載入、處理與分析
- * 4. 🎨 提供多種Python matplotlib色票方案
- * 5. 🔧 支援拖拉調整面板大小（完全彈性0-100%範圍）
- * 6. 📈 執行Moran's I空間自相關分析
+ * 3. 📊 管理長照資源數據的載入、處理與分析
+ * 4. 🎨 提供多種 Python matplotlib 色票方案
+ * 5. 🔧 支援拖拉調整面板大小（完全彈性 0-100% 範圍）
+ * 6. 📈 整合 Pinia 狀態管理，統一管理應用程式狀態
+ * 7. 🎯 處理地圖互動、特徵選擇、高亮顯示等用戶操作
+ * 
+ * 架構說明：
+ * - 佈局系統：三欄式響應式佈局，支援拖曳調整
+ * - 狀態管理：整合 Pinia store，管理圖層和資料狀態
+ * - 組件組合：組合多個子組件提供完整功能
+ * 
+ * 設計理念：
+ * - 使用 Vue 3 Composition API
+ * - Bootstrap 5 響應式設計
+ * - 滿版無邊距佈局
+ * - 直觀的拖曳調整體驗
  */
+
+// 🔧 Vue Composition API 引入
 import { ref, onMounted, onUnmounted, computed, nextTick, watch } from 'vue'
+// 🛠️ 工具函數引入
 import { formatNumber } from '../utils/utils.js'
+// 📦 Pinia 狀態管理引入
 import { useDataStore } from '@/stores/dataStore'
 
 // 🧩 組件引入
@@ -154,62 +183,94 @@ export default {
   
   /**
    * 🧩 組件註冊 (Component Registration)
+   * 註冊首頁使用的所有子組件
    */
   components: {
-    LoadingOverlay,
-    LeftPanel,
-    RightPanel,
-    MiddlePanel
+    LoadingOverlay,    // 載入覆蓋層組件
+    LeftPanel,         // 左側控制面板組件
+    RightPanel,        // 右側面板組件
+    MiddlePanel        // 中間主要內容面板組件
   },
   
   /**
    * 🔧 組件設定函數 (Component Setup)
+   * 使用 Composition API 設定組件邏輯和狀態管理
    */
   setup() {
+    // 📦 取得 Pinia 數據存儲實例
     const dataStore = useDataStore()
     
+    // 📊 本地資料狀態 (Local Data State)
+    /** 📋 表格資料暫存 */
     const tableData = ref([])
+    /** 📊 台南資料統計摘要 */
     const tainanDataSummary = ref({
       totalFeatures: 0,
       validPoints: 0,
       coordinateSystem: 'WGS84'
     })
 
-    // 📚 元件引用 (Component References)
+    // 📚 組件引用 (Component References)
+    /** 🌟 中間面板組件引用 */
     const middlePanelRef = ref(null)
+    /** 🦶 頁腳元素引用 */
     const appFooterRef = ref(null)
 
     // 📑 分頁狀態 (Tab States)
+    /** 🗺️ 主要分頁狀態（地圖/儀表板） */
     const activeTab = ref('map')
+    /** 📋 底部分頁狀態（表格/樣式） */
     const activeBottomTab = ref('table')
+    /** 📊 右側分頁狀態（屬性/分析） */
     const activeRightTab = ref('properties')
 
-    // 📏 面板大小狀態 - 使用百分比系統 (Panel Size States - Percentage Based)
-    const MIN_LEFT_PANEL_WIDTH_PERCENT = 5; // Define minimum width for left panel
-    const leftPanelWidth = ref(20)        // 左側面板寬度百分比 (0-100%)
-    const rightPanelWidth = ref(20)       // 右側面板寬度百分比 (0-100%)
+    // 📏 面板大小狀態 (Panel Size States)
+    // 使用百分比系統實現響應式佈局
+    const MIN_LEFT_PANEL_WIDTH_PERCENT = 5; // 左側面板最小寬度百分比
+    /** 📏 左側面板寬度百分比 (0-100%) */
+    const leftPanelWidth = ref(20)
+    /** 📏 右側面板寬度百分比 (0-100%) */
+    const rightPanelWidth = ref(20)
+    /** 📏 瀏覽器視窗寬度 */
     const windowWidth = ref(window.innerWidth)
+    /** 📏 瀏覽器視窗高度 */
     const windowHeight = ref(window.innerHeight)
+    /** 📏 頁腳高度 */
     const footerHeight = ref(0)
 
     // 🧮 計算屬性 - 面板尺寸 (Computed Properties - Panel Dimensions)
+    /** 📏 左側面板像素寬度 */
     const leftPanelWidthPx = computed(() => `${leftPanelWidth.value}%`)
+    /** 📏 右側面板像素寬度 */
     const rightPanelWidthPx = computed(() => `${rightPanelWidth.value}%`)
+    /** 📏 中間面板寬度百分比 */
     const mainPanelWidth = computed(() => 100 - leftPanelWidth.value - rightPanelWidth.value)
+    /** 📏 中間面板像素寬度 */
     const mainPanelWidthPx = computed(() => `${mainPanelWidth.value}%`)
 
+    /** 📏 中間面板計算高度 */
     const calculatedMiddlePanelHeight = computed(() => {
       return windowHeight.value - footerHeight.value;
     });
 
-    // ⏳ 載入狀態 (Loading States) - Now driven by the store
+    // ⏳ 載入狀態 (Loading States)
+    // 由 Pinia store 驅動的載入狀態管理
+    /** 📝 載入文字提示 */
     const loadingText = ref('載入中...')
+    /** 📊 載入進度百分比 */
     const loadingProgress = ref(0)
+    /** 📊 是否顯示進度條 */
     const showLoadingProgress = ref(false)
+    /** 📝 載入子文字說明 */
     const loadingSubText = ref('')
 
+    /** ⏳ 是否有任何圖層正在載入 */
     const isAnyLayerLoading = computed(() => dataStore.layers.some(layer => layer.isLoading));
 
+    /**
+     * 👀 監聽載入狀態變化 (Watch Loading State Changes)
+     * 根據 Pinia store 中的圖層載入狀態更新 UI 提示
+     */
     watch(isAnyLayerLoading, (loading) => {
       if (loading) {
         const loadingLayer = dataStore.layers.find(l => l.isLoading);
@@ -217,39 +278,53 @@ export default {
         loadingSubText.value = '正在處理地理資訊...';
       } else {
         loadingText.value = '載入完成';
-        // You might want to specify which layer finished loading
         loadingSubText.value = `數據已更新`;
       }
     }, { deep: true });
 
-
     // 🗺️ 地圖和圖層狀態 (Map and Layer States)
-    // Most of these are now managed by the store, but we might keep some local for UI controls
+    // 大部分狀態由 Pinia store 管理，此處保留 UI 控制相關狀態
+    /** 🗺️ 台南圖層顯示狀態（從 store 計算） */
     const showTainanLayer = computed(() => dataStore.layers.find(l => l.id === 'tainan')?.visible || false);
+    /** 🔍 選定的資料篩選器 */
     const selectedFilter = ref('')
+    /** 🎨 選定的色票方案 */
     const selectedColorScheme = ref('viridis')
+    /** 🖌️ 選定的邊框顏色 */
     const selectedBorderColor = ref('#666666')
+    /** 📏 選定的邊框粗細 */
     const selectedBorderWeight = ref(1)
+    /** 🔍 地圖縮放等級 */
     const zoomLevel = ref(10)
+    /** 📍 當前地圖座標 */
     const currentCoords = ref({ lat: 25.0330, lng: 121.5654 })
+    /** 📊 總數據計數 */
     const totalCount = ref(1250000)
+    /** 📊 選中數據計數 */
     const selectedCount = ref(0)
+    /** 📍 作用中的地圖標記數量 */
     const activeMarkers = ref(0)
     
-    // 📊 台南數據相關 (Tainan Data Related)
-    // These should now also pull from the specific layer data in the store
+    // 📊 台南數據相關計算屬性 (Tainan Data Related Computed Properties)
+    // 這些數據從 Pinia store 的特定圖層數據中提取
+    /** 📋 從 store 獲取合併的表格資料 */
     const storeMergedTableData = computed(() => dataStore.processedData.loadedAndMergedTableData);
+    /** 🗺️ 從 store 獲取台南 GeoJSON 資料 */
     const storeTainanGeoJSONData = computed(() => dataStore.processedData.loadedAndMergedGeoJSON);
+    /** 📊 從 store 獲取台南資料統計摘要 */
     const storeTainanDataSummary = computed(() => dataStore.dataSummary);
 
-    // 🔧 拖曳狀態 (Drag States)
+    // 🔧 拖曳狀態 (Dragging States)
+    /** 🖱️ 側邊面板拖曳進行中狀態 */
     const isSidePanelDragging = ref(false)
 
     // 🧮 統計計算屬性 (Statistical Computed Properties)
+    /** 📊 總資料點數量 */
     const totalDataPoints = computed(() => {
       return storeMergedTableData.value.length || totalCount.value
     })
 
+    /** 📊 最大計數值 */
     const maxCount = computed(() => {
       if (!storeMergedTableData.value || storeMergedTableData.value.length === 0) return 0;
       return Math.max(...storeMergedTableData.value.map(row => 
@@ -257,6 +332,7 @@ export default {
       ));
     })
 
+    /** 📊 平均計數值 */
     const averageCount = computed(() => {
       if (!storeMergedTableData.value || storeMergedTableData.value.length === 0) return 0;
       const counts = storeMergedTableData.value.map(row => 
@@ -265,6 +341,7 @@ export default {
       return counts.reduce((a, b) => a + b, 0) / counts.length;
     })
 
+    /** 📊 包含資料的區域數量 */
     const dataRegionsCount = computed(() => {
       if (!storeMergedTableData.value) return 0;
       return storeMergedTableData.value.filter(row => 
@@ -274,6 +351,7 @@ export default {
 
     /**
      * 🗑️ 清除所有圖層數據 (Clear All Layer Data)
+     * 通過 Pinia store 清除所有已載入的圖層資料
      */
     const clearAllData = () => {
       if (confirm('確定要清除所有圖層數據嗎？')) {
@@ -286,6 +364,7 @@ export default {
     
     /**
      * 🗺️ 適應地圖到數據範圍 (Fit Map to Data)
+     * 調整地圖視圖以包含所有資料範圍
      */
     const fitMapToData = () => {
       if (middlePanelRef.value) {
@@ -294,7 +373,8 @@ export default {
     }
 
     /**
-     * 🗺️ 地圖功能 (Map Functions)
+     * 🔄 重設地圖視圖 (Reset Map View)
+     * 將地圖恢復到初始狀態
      */
     const resetView = () => {
       if (middlePanelRef.value) {
@@ -304,6 +384,7 @@ export default {
 
     /**
      * 📊 切換到儀表板 (Switch to Dashboard)
+     * 將主要分頁切換到儀表板視圖
      */
     const switchToDashboard = () => {
       activeTab.value = 'dashboard'
@@ -311,6 +392,7 @@ export default {
 
     /**
      * 🕐 取得當前時間 (Get Current Time)
+     * 返回格式化的當前時間字串
      */
     const getCurrentTime = () => {
       return new Date().toLocaleString('zh-TW')
@@ -321,11 +403,15 @@ export default {
     /**
      * 🔧 開始調整面板大小 (Start Panel Resize)
      * 改進版本的拖曳系統，提供更流暢的體驗
+     * 
+     * @param {string} direction - 拖曳方向（'left' 或 'right'）
+     * @param {MouseEvent} event - 滑鼠事件對象
      */
     const startResize = (direction, event) => {
       event.preventDefault()
       event.stopPropagation()
       
+      // 設定拖曳狀態和防止文字選取
       isSidePanelDragging.value = true
       document.body.classList.add('my-no-select')
       
@@ -342,6 +428,9 @@ export default {
         rightWidth: startRightWidth,
       })
 
+      /**
+       * 🖱️ 處理滑鼠移動事件 (Handle Mouse Move)
+       */
       const handleMouseMove = (moveEvent) => {
         moveEvent.preventDefault()
         
@@ -349,20 +438,25 @@ export default {
         const deltaXPercent = (deltaX / currentWindowWidth) * 100
         
         if (direction === 'left') {
+          // 調整左側面板寬度
           let newWidth = startLeftWidth + deltaXPercent
-          // Clamp newWidth: min is MIN_LEFT_PANEL_WIDTH_PERCENT, max is 100 - current rightPanelWidth (ensuring main panel isn't negative)
+          // 限制寬度：最小值為 MIN_LEFT_PANEL_WIDTH_PERCENT，最大值確保主面板不為負
           newWidth = Math.max(MIN_LEFT_PANEL_WIDTH_PERCENT, Math.min(100 - rightPanelWidth.value, newWidth))
           leftPanelWidth.value = newWidth
         } else if (direction === 'right') {
+          // 調整右側面板寬度
           let newWidth = startRightWidth - deltaXPercent
-          // Clamp newWidth: min is 0, max is 100 - current leftPanelWidth (ensuring main panel isn't negative)
-          // For now, right panel can still be 0. If needed, apply similar min width logic.
+          // 限制寬度：最小值為 0，最大值確保主面板不為負
           newWidth = Math.max(0, Math.min(100 - leftPanelWidth.value, newWidth))
           rightPanelWidth.value = newWidth
         }
       }
 
+      /**
+       * 🖱️ 處理滑鼠放開事件 (Handle Mouse Up)
+       */
       const handleMouseUp = () => {
+        // 清除拖曳狀態
         isSidePanelDragging.value = false
         document.body.classList.remove('my-no-select')
         document.removeEventListener('mousemove', handleMouseMove)
@@ -378,6 +472,7 @@ export default {
         })
       }
 
+      // 註冊事件監聽器
       document.addEventListener('mousemove', handleMouseMove)
       document.addEventListener('mouseup', handleMouseUp)
     }
@@ -387,10 +482,9 @@ export default {
      * 確保面板尺寸在合理範圍內 (0-100%)
      */
     const validatePanelSizes = () => {
-      // 確保各面板在0-100%範圍內 (左右面板的最小寬度仍可討論，暫定0)
-      // Apply MIN_LEFT_PANEL_WIDTH_PERCENT for left panel
+      // 確保各面板在合理範圍內
       leftPanelWidth.value = Math.max(MIN_LEFT_PANEL_WIDTH_PERCENT, Math.min(100, leftPanelWidth.value))
-      rightPanelWidth.value = Math.max(0, Math.min(100, rightPanelWidth.value)) // Right panel can still be 0
+      rightPanelWidth.value = Math.max(0, Math.min(100, rightPanelWidth.value))
       
       // 四捨五入到一位小數
       leftPanelWidth.value = Math.round(leftPanelWidth.value * 10) / 10
@@ -398,6 +492,9 @@ export default {
     }
 
     // 📏 視窗大小變化處理 (Window Resize Handler)
+    /**
+     * 📏 處理瀏覽器視窗大小變化 (Handle Browser Window Resize)
+     */
     const handleResize = () => {
       windowWidth.value = window.innerWidth;
       windowHeight.value = window.innerHeight;
@@ -409,16 +506,16 @@ export default {
     };
 
     /**
-     * 🚀 組件掛載 (Component Mounted)
+     * 🚀 組件掛載事件 (Component Mounted Event)
+     * 初始化組件和事件監聽器
      */
     onMounted(() => {
-      // 移除自動載入數據
       console.log('🚀 空間分析平台已初始化')
       
       // 添加視窗調整事件監聽
       window.addEventListener('resize', handleResize);
       
-      // 初始化計算高度
+      // 初始化計算頁腳高度
       nextTick(() => {
         if (appFooterRef.value) {
           footerHeight.value = appFooterRef.value.offsetHeight;
@@ -427,42 +524,63 @@ export default {
     })
 
     /**
-     * 🗑️ 組件卸載 (Component Unmounted)
+     * 🗑️ 組件卸載事件 (Component Unmounted Event)
+     * 清理事件監聽器
      */
     onUnmounted(() => {
       window.removeEventListener('resize', handleResize);
     })
 
-    // 添加更新坐標和標記數量的函數
+    // 📍 座標和標記更新函數 (Coordinate and Marker Update Functions)
+    
+    /**
+     * 📍 更新當前座標 (Update Current Coordinates)
+     * @param {Object} coords - 座標對象 {lat, lng}
+     */
     const updateCurrentCoords = (coords) => {
       currentCoords.value = coords
     }
 
+    /**
+     * 📍 更新作用中標記數量 (Update Active Markers Count)
+     * @param {number} count - 標記數量
+     */
     const updateActiveMarkers = (count) => {
       activeMarkers.value = count
     }
     
+    /**
+     * 🎯 處理特徵選中事件 (Handle Feature Selected Event)
+     * 當用戶在地圖上選中某個特徵時觸發
+     * @param {Object} feature - 選中的地理特徵對象
+     */
     const handleFeatureSelected = (feature) => {
       console.log('HomeView - handleFeatureSelected called with:', {
         feature: feature,
         properties: feature.properties,
         store: dataStore
       })
+      // 將選中的特徵設定到 Pinia store
       dataStore.setSelectedFeature(feature)
       console.log('HomeView - After setting selectedFeature:', {
         storeSelectedFeature: dataStore.selectedFeature
       })
-      activeRightTab.value = 'properties' // 自動切換到物件屬性標籤
+      // 自動切換到物件屬性分頁
+      activeRightTab.value = 'properties'
     }
 
-    // 處理高亮顯示
+    /**
+     * 🎯 處理高亮顯示事件 (Handle Highlight Event)
+     * 在地圖上高亮顯示指定名稱的特徵
+     * @param {string} name - 要高亮顯示的特徵名稱
+     */
     const handleHighlight = (name) => {
-      // If the map is not the current view, switch to it first.
+      // 如果當前不在地圖視圖，先切換到地圖
       if (activeTab.value !== 'map') {
         activeTab.value = 'map';
       }
 
-      // Use nextTick to ensure the map component is rendered before calling its method.
+      // 使用 nextTick 確保地圖組件已渲染完成
       nextTick(() => {
         if (middlePanelRef.value) {
           middlePanelRef.value.highlightFeature(name);
@@ -472,80 +590,80 @@ export default {
       });
     }
 
-    // 📤 返回響應式數據和函數 (Return Reactive Data and Functions)
+    // 📤 返回響應式數據和函數給模板使用 (Return Reactive Data and Functions)
     return {
-      // 📚 元件引用
-      middlePanelRef,
+      // 📚 組件引用
+      middlePanelRef,        // 中間面板引用
       
       // 📑 分頁狀態
-      activeTab,
-      activeBottomTab,
-      activeRightTab,
+      activeTab,             // 主要分頁狀態
+      activeBottomTab,       // 底部分頁狀態
+      activeRightTab,        // 右側分頁狀態
       
       // ⏳ 載入狀態
-      isAnyLayerLoading,
-      loadingText,
-      loadingProgress,
-      showLoadingProgress,
-      loadingSubText,
+      isAnyLayerLoading,     // 是否有圖層正在載入
+      loadingText,           // 載入文字
+      loadingProgress,       // 載入進度
+      showLoadingProgress,   // 是否顯示進度條
+      loadingSubText,        // 載入子文字
       
-      // 🗺️ 圖層狀態（已移除showLayer1和showLayer2）
-      showTainanLayer,
-      selectedFilter,
-      selectedColorScheme,
-      selectedBorderColor,
-      selectedBorderWeight,
+      // 🗺️ 圖層狀態
+      showTainanLayer,       // 台南圖層顯示狀態
+      selectedFilter,        // 選定篩選器
+      selectedColorScheme,   // 選定色票方案
+      selectedBorderColor,   // 選定邊框顏色
+      selectedBorderWeight,  // 選定邊框粗細
       
       // 🗺️ 地圖狀態
-      zoomLevel,
-      currentCoords,
+      zoomLevel,             // 地圖縮放等級
+      currentCoords,         // 當前地圖座標
       
       // 📊 統計數據
-      totalCount,
-      totalDataPoints,
-      selectedCount,
-      activeMarkers,
-      maxCount,
-      averageCount,
-      dataRegionsCount,
+      totalCount,            // 總數據計數
+      totalDataPoints,       // 總資料點數
+      selectedCount,         // 選中數據計數
+      activeMarkers,         // 作用中標記數量
+      maxCount,              // 最大計數值
+      averageCount,          // 平均計數值
+      dataRegionsCount,      // 資料區域數量
       
       // 📏 面板尺寸（百分比系統）
-      leftPanelWidth,
-      rightPanelWidth,
-      leftPanelWidthPx,
-      rightPanelWidthPx,
-      mainPanelWidth,
-      mainPanelWidthPx,
+      leftPanelWidth,        // 左側面板寬度百分比
+      rightPanelWidth,       // 右側面板寬度百分比
+      leftPanelWidthPx,      // 左側面板像素寬度
+      rightPanelWidthPx,     // 右側面板像素寬度
+      mainPanelWidth,        // 中間面板寬度百分比
+      mainPanelWidthPx,      // 中間面板像素寬度
       
       // 📊 台南數據
-      tainanDataSummary,
-      tableData,
-      storeTainanGeoJSONData,
-      storeTainanDataSummary,
+      tainanDataSummary,            // 台南資料摘要
+      tableData,                    // 表格資料
+      storeTainanGeoJSONData,       // 從 store 獲取的 GeoJSON 資料
+      storeTainanDataSummary,       // 從 store 獲取的資料摘要
       
-      // 📥 台南數據功能
-      clearAllData,
-      fitMapToData,
-      resetView,
-      switchToDashboard,
+      // 📥 數據管理功能
+      clearAllData,          // 清除所有資料
+      fitMapToData,          // 適應地圖到資料
+      resetView,             // 重設視圖
+      switchToDashboard,     // 切換到儀表板
       
       // 🔧 拖拽調整功能
-      startResize,
-      isSidePanelDragging,
-      validatePanelSizes,
+      startResize,           // 開始調整大小
+      isSidePanelDragging,   // 側邊面板拖曳狀態
+      validatePanelSizes,    // 驗證面板尺寸
       
       // 🛠️ 工具函數
-      formatNumber,
-      getCurrentTime,
-      appFooterRef,
-      calculatedMiddlePanelHeight,
-      storeMergedTableData,
-      handleHighlight,
+      formatNumber,                 // 數字格式化
+      getCurrentTime,               // 取得當前時間
+      appFooterRef,                 // 頁腳引用
+      calculatedMiddlePanelHeight,  // 計算的中間面板高度
+      storeMergedTableData,         // 從 store 獲取的合併表格資料
+      handleHighlight,              // 處理高亮顯示
 
-      // 新的函數
-      updateCurrentCoords,
-      updateActiveMarkers,
-      handleFeatureSelected
+      // 🎯 互動函數
+      updateCurrentCoords,   // 更新當前座標
+      updateActiveMarkers,   // 更新作用中標記
+      handleFeatureSelected  // 處理特徵選中
     }
   }
 }
@@ -555,11 +673,12 @@ export default {
 /**
  * 🎨 應用程式全域樣式 (Application Global Styles)
  * 
- * 引入共用CSS並定義全域樣式，主要使用Bootstrap佈局系統
+ * 引入共用 CSS 並定義全域樣式，主要使用 Bootstrap 佈局系統
  */
 @import '../assets/css/common.css';
 
-/* 📱 全域防止選取樣式 (Global No-Select Style) - 拖曳時使用 */
+/* 📱 全域防止選取樣式 (Global No-Select Style) */
+/* 拖曳時使用，防止意外選取文字 */
 .my-no-select {
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -568,51 +687,53 @@ export default {
 }
 
 /* 🔧 拖拉調整器樣式 (Resize Handle Styles) */
+
 /* 🔧 垂直拖曳調整器 (Vertical Resizer) */
 .my-resizer-vertical {
   min-width: 4px;
   max-width: 4px;
-  cursor: col-resize;
-  background-color: #dee2e6;
-  transition: all 0.2s ease;
+  cursor: col-resize;               /* 左右調整游標 */
+  background-color: #dee2e6;        /* Bootstrap 灰色 */
+  transition: all 0.2s ease;       /* 平滑過渡效果 */
 }
 
 .my-resizer-vertical:hover,
 .my-resizer-vertical.dragging {
   min-width: 6px;
   max-width: 6px;
-  background-color: #007bff;
+  background-color: #007bff;        /* Bootstrap 主要藍色 */
 }
 
 /* 🔧 水平拖曳調整器 (Horizontal Resizer) */
 .my-resizer-horizontal {
   min-height: 4px;
   max-height: 4px;
-  cursor: row-resize;
-  background-color: #dee2e6;
-  transition: all 0.2s ease;
+  cursor: row-resize;               /* 上下調整游標 */
+  background-color: #dee2e6;        /* Bootstrap 灰色 */
+  transition: all 0.2s ease;       /* 平滑過渡效果 */
 }
 
 .my-resizer-horizontal:hover,
 .my-resizer-horizontal.dragging {
   min-height: 6px;
   max-height: 6px;
-  background-color: #007bff;
+  background-color: #007bff;        /* Bootstrap 主要藍色 */
 }
 
 /* 🔧 拖拉時的全域樣式 (Global Dragging Styles) */
 body.my-no-select {
-  cursor: inherit !important;
+  cursor: inherit !important;       /* 保持游標樣式 */
 }
 
 body.my-no-select * {
   -webkit-user-select: none !important;
   -moz-user-select: none !important;
   -ms-user-select: none !important;
-  user-select: none !important;
+  user-select: none !important;    /* 防止所有元素被選取 */
 }
 
-/* 📱 響應式設計 (Responsive Design) - 使用Bootstrap斷點 */
+/* 📱 響應式設計 (Responsive Design) */
+/* 使用 Bootstrap 斷點，在小螢幕上增加拖曳調整器尺寸 */
 @media (max-width: 768px) {
   .my-resizer-vertical {
     min-width: 6px;
@@ -635,76 +756,5 @@ body.my-no-select * {
     min-height: 8px;
     max-height: 8px;
   }
-}
-</style>
-
-<style scoped>
-.home {
-  position: relative;
-  width: 100%;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(255, 255, 255, 0.9);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
-
-.loading-content {
-  text-align: center;
-  padding: 2rem;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.map-container {
-  flex: 1;
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-.layer-control-panel {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  z-index: 1000;
-  background: white;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-.layer-control {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.form-check {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.form-check-input {
-  margin: 0;
-}
-
-.form-check-label {
-  margin: 0;
-  font-size: 14px;
-  color: #333;
 }
 </style> 
