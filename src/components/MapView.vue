@@ -439,25 +439,44 @@ export default {
       }
     }
     
-    // 監聽圖層顯示狀態變化
+    // 監聽台南圖層顯示狀態變化
     watch(() => props.showTainanLayer, (newValue) => {
       if (tainanLayer.value) {
         if (newValue) {
-          // 如果圖層存在且要顯示，則添加到地圖
           tainanLayer.value.addTo(map.value)
         } else {
-          // 如果圖層存在且要隱藏，則從地圖移除
           map.value.removeLayer(tainanLayer.value)
         }
       } else if (newValue && props.tainanGeoJSONData) {
-        // 如果圖層不存在且要顯示，則創建新圖層
         createTainanLayer()
       }
     })
     
+    // 監聽台南GeoJSON數據變化
     watch(() => props.tainanGeoJSONData, () => {
-      console.log('台南GeoJSON數據變更')
-      createTainanLayer()
+      if (props.showTainanLayer) {
+        createTainanLayer()
+      }
+    })
+    
+    // 監聽醫療院所圖層顯示狀態變化
+    watch(() => props.showMedicalLayer, (newValue) => {
+      if (medicalLayer.value) {
+        if (newValue) {
+          medicalLayer.value.addTo(map.value)
+        } else {
+          map.value.removeLayer(medicalLayer.value)
+        }
+      } else if (newValue && props.medicalData?.rawGeoJSON) {
+        createMedicalLayer()
+      }
+    })
+    
+    // 監聽醫療院所數據變化
+    watch(() => props.medicalData, () => {
+      if (props.showMedicalLayer) {
+        createMedicalLayer()
+      }
     })
     
     watch(() => props.selectedColorScheme, () => {
@@ -485,29 +504,6 @@ export default {
         map.value.setZoom(newZoom)
       }
     })
-    
-    // 監聽醫療院所數據和顯示狀態的變化
-    watch(
-      [() => props.medicalData, () => props.showMedicalLayer],
-      ([newData, showLayer]) => {
-        console.log('醫療院所數據或顯示狀態變化:', { 
-          hasData: !!newData, 
-          showLayer,
-          dataPoints: newData?.tableData?.length,
-          sampleData: newData?.tableData?.[0]
-        })
-        
-        if (newData?.tableData && showLayer) {
-          console.log('準備創建醫療院所圖層')
-          createMedicalLayer()
-        } else if (medicalLayer.value) {
-          console.log('移除醫療院所圖層')
-          map.value.removeLayer(medicalLayer.value)
-          medicalLayer.value = null
-        }
-      },
-      { immediate: true, deep: true }
-    )
     
     // 創建醫療院所圖層
     const createMedicalLayer = () => {
