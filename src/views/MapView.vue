@@ -169,44 +169,43 @@
       const basemaps = {
         osm: {
           url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-          attribution:
-            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          attribution: '',
         },
         esri_street: {
           url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
-          attribution: 'Tiles &copy; Esri',
+          attribution: '',
         },
         esri_topo: {
           url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
-          attribution: 'Tiles &copy; Esri',
+          attribution: '',
         },
         esri_imagery: {
           url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-          attribution: 'Tiles &copy; Esri',
+          attribution: '',
         },
         google_road: {
           url: 'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
-          attribution: '© Google',
+          attribution: '',
         },
         google_satellite: {
           url: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
-          attribution: '© Google',
+          attribution: '',
         },
         nlsc_emap: {
           url: 'https://wmts.nlsc.gov.tw/wmts/EMAP/default/GoogleMapsCompatible/{z}/{y}/{x}',
-          attribution: '© NLSC 國土測繪中心',
+          attribution: '',
         },
         nlsc_photo: {
           url: 'https://wmts.nlsc.gov.tw/wmts/PHOTO2/default/GoogleMapsCompatible/{z}/{y}/{x}',
-          attribution: '© NLSC 國土測繪中心',
+          attribution: '',
         },
         terrain: {
           url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-          attribution: '&copy; OpenTopoMap',
+          attribution: '',
         },
         aerial: {
           url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-          attribution: 'Tiles &copy; Esri',
+          attribution: '',
         },
         blank: {
           url: '',
@@ -226,7 +225,7 @@
             center: [25.033, 121.5654], // 台灣台北市中心座標
             zoom: props.zoomLevel,
             zoomControl: false, // 停用預設縮放控制項
-            attributionControl: true, // 啟用版權資訊
+            attributionControl: false, // 停用版權資訊
             preferCanvas: true, // 使用 Canvas 渲染提高效能
             zoomAnimation: true, // 啟用縮放動畫
             fadeAnimation: true, // 啟用淡入淡出動畫

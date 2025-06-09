@@ -1,6 +1,5 @@
 <template>
   <!-- 📊 上半部面板組件 (Upper Panel Component) -->
-  <!-- 負責管理主要內容區域，包含地圖和儀表板的分頁切換 -->
   <div class="d-flex flex-column h-100">
     <!-- 📱 分頁內容區域 (Tab Content Area) -->
     <!-- 地圖和儀表板滿版顯示，提供無縫的用戶體驗 -->
@@ -413,7 +412,7 @@
 <style scoped>
   /**
  * 🎨 上半部面板樣式 (Upper Panel Styles)
- * 
+ *
  * 定義上半部面板的視覺樣式，包含導航、內容區域、滾動條等
  */
 
@@ -489,21 +488,5 @@
     padding: 0.25rem 0.5rem; /* 程式碼內邊距 */
     border-radius: 0.25rem; /* 程式碼圓角 */
     font-family: 'Courier New', monospace; /* 等寬字體 */
-  }
-
-  /* 📱 響應式設計調整 (Responsive Design Adjustments) */
-  @media (max-width: 768px) {
-    .btn-group .btn {
-      font-size: 0.875rem; /* 在小螢幕上縮小字體 */
-      padding: 0.375rem 0.75rem; /* 在小螢幕上減少內邊距 */
-    }
-
-    .position-absolute.top-0.start-0 {
-      margin: 1rem !important; /* 在小螢幕上減少邊距 */
-    }
-
-    .overflow-auto::-webkit-scrollbar {
-      width: 12px; /* 在觸控設備上增加滾動條寬度 */
-    }
   }
 </style>
