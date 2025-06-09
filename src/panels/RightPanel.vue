@@ -1,55 +1,4 @@
-<template>
-  <!-- 📊 右側面板組件 (Right Panel Component) -->
-  <!-- 提供物件屬性查看和分析清單管理功能 -->
-  <div class="my-right-panel bg-light border-start h-100 d-flex flex-column custom-scroll" style="overflow: hidden;">
-    
-    <!-- 🔗 右側分頁導航 (Right Panel Tab Navigation) -->
-    <!-- 提供物件屬性和分析清單兩個分頁的切換功能 -->
-    <div class="bg-light" style="min-width: 0;">
-      <ul class="nav nav-tabs nav-fill small">
-        <!-- 📋 物件屬性分頁標籤 (Object Properties Tab) -->
-        <li class="nav-item">
-          <button 
-            class="nav-link text-dark border-0"
-            :class="{ 'active bg-white text-primary fw-bold': activeRightTab === 'properties' }" 
-            @click="$emit('update:activeRightTab', 'properties')">
-            物件屬性
-          </button>
-        </li>
-        <!-- 📈 分析清單分頁標籤 (Analysis List Tab) -->
-        <li class="nav-item">
-          <button 
-            class="nav-link text-dark border-0"
-            :class="{ 'active bg-white text-primary fw-bold': activeRightTab === 'analysis' }" 
-            @click="$emit('update:activeRightTab', 'analysis')">
-            分析清單
-          </button>
-        </li>
-      </ul>
-    </div>
-    
-    <!-- 📄 右側分頁內容區域 (Right Panel Tab Content Area) -->
-    <!-- 根據選中的分頁顯示對應的內容組件 -->
-    <div class="tab-content flex-grow-1 overflow-auto p-3" style="min-width: 0;">
-      
-      <!-- 📋 物件屬性分頁內容 (Object Properties Tab Content) -->
-      <!-- 顯示選中地圖物件的詳細屬性資訊 -->
-      <div v-show="activeRightTab === 'properties'" class="h-100">
-        <ObjectPropertiesTab
-          :selected-feature="selectedFeature"
-          @highlight-feature="$emit('highlight-feature', $event)"
-        />
-      </div>
-      
-      <!-- 📈 分析清單分頁內容 (Analysis List Tab Content) -->
-      <!-- 顯示和管理空間分析的結果清單 -->
-      <div v-show="activeRightTab === 'analysis'" class="h-100">
-        <AnalysisListTab />
-      </div>
-      
-    </div>
-  </div>
-</template>
+
 
 <script>
 /**
@@ -75,7 +24,6 @@
 
 // 🧩 組件引入
 import ObjectPropertiesTab from '../tabs/ObjectPropertiesTab.vue'
-import AnalysisListTab from '../tabs/AnalysisListTab.vue'
 // 📦 Pinia 數據存儲引入
 import { useDataStore } from '../stores/dataStore'
 // 🔧 Vue Composition API 引入
@@ -84,13 +32,12 @@ import { computed, watch } from 'vue'
 export default {
   name: 'RightPanel',
   
-  /**
+  /**f
    * 🧩 組件註冊 (Component Registration)
    * 註冊右側面板內使用的子組件
    */
   components: {
     ObjectPropertiesTab,    // 物件屬性分頁組件
-    AnalysisListTab        // 分析清單分頁組件
   },
   
   /**
@@ -184,6 +131,30 @@ export default {
   }
 }
 </script>
+
+<template>
+  <!-- 📊 右側面板組件 (Right Panel Component) -->
+  <!-- 提供物件屬性查看和分析清單管理功能 -->
+  <div class="my-right-panel bg-light border-start h-100 d-flex flex-column custom-scroll" style="overflow: hidden;">
+ 
+    <!-- 📄 右側分頁內容區域 (Right Panel Tab Content Area) -->
+    <!-- 根據選中的分頁顯示對應的內容組件 -->
+    <div class="tab-content flex-grow-1 overflow-auto p-3" style="min-width: 0;">
+      
+      <!-- 📋 物件屬性分頁內容 (Object Properties Tab Content) -->
+      <!-- 顯示選中地圖物件的詳細屬性資訊 -->
+      <div v-show="activeRightTab === 'properties'" class="h-100">
+        <ObjectPropertiesTab
+          :selected-feature="selectedFeature"
+          @highlight-feature="$emit('highlight-feature', $event)"
+        />
+      </div>
+      
+
+      
+    </div>
+  </div>
+</template>
 
 <style scoped>
 /**

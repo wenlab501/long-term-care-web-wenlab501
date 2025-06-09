@@ -57,7 +57,7 @@
  */
 
 // 🧩 組件引入
-import DetailItem from '../components/common/DetailItem.vue'
+import DetailItem from '../components/DetailItem.vue'
 // 📦 Pinia 狀態管理引入
 import { useDataStore } from '../stores/dataStore'
 // 🔧 Vue Composition API 引入

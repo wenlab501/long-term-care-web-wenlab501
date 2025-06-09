@@ -39,18 +39,12 @@ App.vue (主應用)
 - **EmptyState.vue**: 空狀態組件，統一的無數據顯示
 
 #### 互動組件
-- **ActionButton.vue**: 操作按鈕組件，統一的按鈕樣式和行為
 - **AnalysisItem.vue**: 分析項目組件，顯示分析歷史記錄
-
-#### 資訊顯示組件
-- **SystemInfo.vue**: 系統資訊組件，顯示鍵值對資訊
-- **LayerStatusIndicator.vue**: 圖層狀態指示器
 
 ### 標籤頁組件 (src/components/tabs/)
 
 #### 底部面板標籤
 - **DataTableTab.vue**: 數據表格標籤，顯示合併後的台南數據
-- **ControlsTab.vue**: 控制面板標籤，地圖控制和系統資訊
 
 #### 右側面板標籤
 - **AnalysisResultsTab.vue**: 分析結果標籤，統計數據和操作按鈕

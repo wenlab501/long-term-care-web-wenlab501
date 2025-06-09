@@ -108,8 +108,8 @@
 // 🔧 Vue Composition API 引入
 import { ref, watch, nextTick } from 'vue'
 // 🧩 子組件引入
-import MapView from '../components/MapView.vue'
-import DashboardView from '../components/DashboardView.vue'
+import MapView from '../views/MapView.vue'
+import DashboardView from '../views/DashboardView.vue'
 
 export default {
   name: 'UpperPanel',
