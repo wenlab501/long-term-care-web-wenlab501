@@ -8,7 +8,7 @@ export const useDataStore = defineStore('data', () => {
   const layers = ref([
     {
       id: 'tainan',
-      name: '台南市行政區',
+      name: '臺北市_村里_綜稅綜合所得總額',
       visible: false,
       isLoading: false,
       isLoaded: false,
@@ -216,6 +216,12 @@ export const useDataStore = defineStore('data', () => {
     return summary;
   });
   
+  const activeTableData = computed(() => {
+    return layers.value
+      .filter(layer => layer.visible && layer.tableData)
+      .flatMap(layer => layer.tableData);
+  });
+
   // Legacy loading flags
   const isDataLoaded = computed(() => layers.value.find(l => l.id === 'tainan')?.isLoaded || false);
   const isMedicalDataLoaded = computed(() => layers.value.find(l => l.id === 'medical')?.isLoaded || false);
@@ -226,7 +232,6 @@ export const useDataStore = defineStore('data', () => {
   const storeLoadedData = (data) => {
     if (data) {
       processedData.value.loadedAndMergedGeoJSON = data.loadedAndMergedGeoJSON;
-      processedData.value.loadedAndMergedTableData = data.tableData;
       console.log('✅ (Legacy) Tainan data stored in Pinia.');
     }
   };
@@ -234,16 +239,14 @@ export const useDataStore = defineStore('data', () => {
   // Legacy function for compatibility
   const storeMedicalData = (data) => {
      if (data) {
-      processedData.value.medicalData = {
-        rawGeoJSON: data.rawGeoJSON,
-        mergedGeoJSON: data.mergedGeoJSON,
-        convertedGeoJSON: data.convertedGeoJSON,
-        tableData: data.tableData,
-        summary: data.summary
-      };
+      processedData.value.medicalData = { ...data };
       console.log('✅ (Legacy) Medical data stored in Pinia.');
     }
   };
+
+  // Keep this for components that haven't been updated yet.
+  // This is the crucial fix: make the legacy property reactive to the new system.
+  processedData.value.loadedAndMergedTableData = activeTableData;
 
   const setSelectedFeature = (feature) => {
     selectedFeature.value = feature;

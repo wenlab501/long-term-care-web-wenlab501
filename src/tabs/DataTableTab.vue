@@ -106,7 +106,7 @@ const handleHighlight = (item) => {
   }
   
   console.log('發送高亮事件:', item.name)
-  emit('highlight-on-map', item)
+  emit('highlight-on-map', item.name)
 }
 
 // 過濾和排序數據

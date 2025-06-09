@@ -69,7 +69,7 @@
             @update:selectedBorderColor="selectedBorderColor = $event"
             @update:selectedBorderWeight="selectedBorderWeight = $event"
             @reset-view="resetView"
-            @highlight-on-map="highlightOnMap"
+            @highlight-on-map="handleHighlight"
             @highlight-feature="handleHighlight"
             @feature-selected="handleFeatureSelected"
           />
@@ -252,18 +252,24 @@ export default {
 
     const maxCount = computed(() => {
       if (!storeMergedTableData.value || storeMergedTableData.value.length === 0) return 0;
-      return Math.max(...storeMergedTableData.value.map(row => row.count || 0));
+      return Math.max(...storeMergedTableData.value.map(row => 
+        row.count || row['中位數'] || row.value || 0
+      ));
     })
 
     const averageCount = computed(() => {
       if (!storeMergedTableData.value || storeMergedTableData.value.length === 0) return 0;
-      const counts = storeMergedTableData.value.map(row => row.count || 0);
+      const counts = storeMergedTableData.value.map(row => 
+        row.count || row['中位數'] || row.value || 0
+      );
       return counts.reduce((a, b) => a + b, 0) / counts.length;
     })
 
     const dataRegionsCount = computed(() => {
       if (!storeMergedTableData.value) return 0;
-      return storeMergedTableData.value.filter(row => row.count > 0).length;
+      return storeMergedTableData.value.filter(row => 
+        (row.count || row['中位數'] || row.value || 0) > 0
+      ).length;
     })
 
     /**
@@ -279,25 +285,6 @@ export default {
     // 🗺️ 地圖互動函數 (Map Interaction Functions)
     
     /**
-     * 🎯 在地圖上高亮顯示 (Highlight on Map)
-     * 專注於地圖定位和tooltip顯示
-     */
-    const highlightOnMap = (row) => {
-      if (!row || !row.name) {
-        console.warn('無法高亮顯示：資料或名稱為空')
-        return
-      }
-
-      console.log('🎯 高亮顯示區域:', row.name)
-      
-      if (middlePanelRef.value) {
-        middlePanelRef.value.highlightFeature(row.name)
-      } else {
-        console.warn('❌ middlePanelRef 未定義')
-      }
-    }
-
-    /**
      * 🗺️ 適應地圖到數據範圍 (Fit Map to Data)
      */
     const fitMapToData = () => {
@@ -307,7 +294,7 @@ export default {
     }
 
     /**
-     * 🔄 重置地圖視圖 (Reset Map View)
+     * 🗺️ 地圖功能 (Map Functions)
      */
     const resetView = () => {
       if (middlePanelRef.value) {
@@ -427,6 +414,16 @@ export default {
     onMounted(() => {
       // 移除自動載入數據
       console.log('🚀 空間分析平台已初始化')
+      
+      // 添加視窗調整事件監聽
+      window.addEventListener('resize', handleResize);
+      
+      // 初始化計算高度
+      nextTick(() => {
+        if (appFooterRef.value) {
+          footerHeight.value = appFooterRef.value.offsetHeight;
+        }
+      });
     })
 
     /**
@@ -435,13 +432,6 @@ export default {
     onUnmounted(() => {
       window.removeEventListener('resize', handleResize);
     })
-
-    // 處理高亮顯示
-    const handleHighlight = (name) => {
-      if (middlePanelRef.value) {
-        middlePanelRef.value.highlightFeature(name)
-      }
-    }
 
     // 添加更新坐標和標記數量的函數
     const updateCurrentCoords = (coords) => {
@@ -463,6 +453,23 @@ export default {
         storeSelectedFeature: dataStore.selectedFeature
       })
       activeRightTab.value = 'properties' // 自動切換到物件屬性標籤
+    }
+
+    // 處理高亮顯示
+    const handleHighlight = (name) => {
+      // If the map is not the current view, switch to it first.
+      if (activeTab.value !== 'map') {
+        activeTab.value = 'map';
+      }
+
+      // Use nextTick to ensure the map component is rendered before calling its method.
+      nextTick(() => {
+        if (middlePanelRef.value) {
+          middlePanelRef.value.highlightFeature(name);
+        } else {
+          console.error("Cannot highlight: middlePanelRef is not available.");
+        }
+      });
     }
 
     // 📤 返回響應式數據和函數 (Return Reactive Data and Functions)
@@ -518,7 +525,6 @@ export default {
       
       // 📥 台南數據功能
       clearAllData,
-      highlightOnMap,
       fitMapToData,
       resetView,
       switchToDashboard,

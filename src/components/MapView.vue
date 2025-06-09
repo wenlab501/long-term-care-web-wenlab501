@@ -190,8 +190,18 @@ export default {
           // If it doesn't exist on the map, create and add it
           if (!existingLayer) {
             const newLeafletLayer = L.geoJSON(layerConfig.data, {
+              pointToLayer: (feature, latlng) => {
+                // Use circle markers for point features so they can be styled
+                // dynamically just like polygons. This unifies behavior.
+                return L.circleMarker(latlng, { radius: 8 });
+              },
               style: (feature) => {
-                 const count = feature.properties.中位數 || 0
+                 // 嘗試多個可能的數值屬性名稱
+                 const count = feature.properties.value || 
+                              feature.properties.count || 
+                              feature.properties['中位數'] || 
+                              feature.properties.population || 
+                              0;
                  return {
                    fillColor: getColorByCount(count, props.maxCount, props.selectedColorScheme),
                    weight: props.selectedBorderWeight,
@@ -201,22 +211,102 @@ export default {
                  }
               },
               onEachFeature: (feature, leafletLayer) => {
-                const name = feature.properties.PTVNAME || feature.properties.HospName || '未知區域';
-                const count = feature.properties.中位數 || 0;
-                leafletLayer.bindPopup(`<div class="map-popup"><h6>${name}</h6><p>中位數: ${count}</p></div>`);
-                leafletLayer.bindTooltip(`${name}: ${count}`);
+                const name = feature.properties.name || 
+                           feature.properties.PTVNAME || 
+                           '未知區域';
+                const count = feature.properties.value || 
+                             feature.properties.count || 
+                             feature.properties['中位數'] || 
+                             feature.properties.population || 
+                             0;
+                
+                // 創建詳細的 popup 內容
+                const popupContent = `
+                  <div class="map-popup">
+                    <h6 class="fw-bold text-primary mb-2">${name}</h6>
+                    <div class="popup-details">
+                      <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="text-muted small">數值:</span>
+                        <span class="fw-medium">${count.toLocaleString()}</span>
+                      </div>
+                      ${feature.properties.area ? `
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <span class="text-muted small">面積:</span>
+                          <span class="fw-medium">${feature.properties.area} km²</span>
+                        </div>
+                      ` : ''}
+                      ${feature.properties.density ? `
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <span class="text-muted small">密度:</span>
+                          <span class="fw-medium">${feature.properties.density}</span>
+                        </div>
+                      ` : ''}
+                    </div>
+                    <div class="text-center mt-2">
+                      <small class="text-muted">點擊查看詳細資訊</small>
+                    </div>
+                  </div>
+                `;
+                
+                leafletLayer.bindPopup(popupContent, {
+                  maxWidth: 250,
+                  className: 'custom-popup'
+                });
+                leafletLayer.bindTooltip(`${name}: ${count.toLocaleString()}`, {
+                  direction: 'top',
+                  offset: [0, -10]
+                });
                 leafletLayer.on({
-                  mouseover: (e) => {
-                    e.target.setStyle({ weight: 3, color: '#333', fillOpacity: 0.8 }).bringToFront();
+                  mouseover: () => {
+                    leafletLayer.setStyle({ weight: 3, color: '#333', fillOpacity: 0.8 }).bringToFront();
                   },
-                  mouseout: (e) => {
+                  mouseout: () => {
                      // We need a way to reset style that doesn't rely on a single layer ref
-                     newLeafletLayer.resetStyle(e.target);
+                     newLeafletLayer.resetStyle(leafletLayer);
                   },
-                  click: (e) => {
-                    const center = e.target.getBounds().getCenter();
-                    map.value.panTo(center, { animate: true, duration: 0.5 });
-                    emit('feature-selected', e.target.feature);
+                  click: () => {
+                    // 檢查地圖是否已初始化
+                    if (!map.value || !mapInitialized.value) {
+                      console.warn('地圖尚未初始化，無法執行縮放操作');
+                      return;
+                    }
+
+                    try {
+                      // 縮放到要素並顯示詳細信息
+                      if (typeof leafletLayer.getBounds === 'function') {
+                        // 對於多邊形，使用 fitBounds 縮放到整個要素
+                        const bounds = leafletLayer.getBounds();
+                        if (bounds && bounds.isValid()) {
+                          map.value.fitBounds(bounds, { 
+                            padding: [20, 20], 
+                            animate: true, 
+                            duration: 0.8,
+                            maxZoom: 15 // 限制最大縮放級別，避免過度放大
+                          });
+                        }
+                      } else if (typeof leafletLayer.getLatLng === 'function') {
+                        // 對於點要素，縮放並居中
+                        const latlng = leafletLayer.getLatLng();
+                        if (latlng) {
+                          map.value.setView(latlng, Math.max(map.value.getZoom(), 12), {
+                            animate: true,
+                            duration: 0.8
+                          });
+                        }
+                      }
+                      
+                      // 顯示 popup
+                      setTimeout(() => {
+                        if (leafletLayer && leafletLayer.openPopup) {
+                          leafletLayer.openPopup();
+                        }
+                      }, 500); // 等待縮放動畫完成後顯示 popup
+                      
+                      // 發送選中事件
+                      emit('feature-selected', leafletLayer.feature);
+                    } catch (error) {
+                      console.error('點擊要素時發生錯誤:', error);
+                    }
                   }
                 });
               }
@@ -262,21 +352,35 @@ export default {
     
     // 高亮功能
     const highlightFeature = (name) => {
-        if (!map.value) return;
+        if (!map.value || !mapInitialized.value) return;
         try {
           Object.values(leafletLayers.value).forEach(layer => {
             if (!layer) return;
             layer.eachLayer(leafletLayer => {
               if (!leafletLayer || !leafletLayer.feature) return;
-              const featureName = leafletLayer.feature.properties.PTVNAME || leafletLayer.feature.properties.HospName;
+              const featureName = leafletLayer.feature.properties.name || 
+                                 leafletLayer.feature.properties.PTVNAME || 
+                                 '';
               if (featureName === name) {
                 layer.resetStyle(leafletLayer); // Reset first
                 leafletLayer.setStyle({ weight: 4, color: '#ff0000', dashArray: '5,5', fillOpacity: 0.9 });
-                const bounds = leafletLayer.getBounds();
-                if (bounds && bounds.isValid()) {
-                  map.value.fitBounds(bounds, { padding: [50, 50], animate: true, duration: 1.0 });
+                
+                // 安全地處理邊界
+                if (typeof leafletLayer.getBounds === 'function') {
+                  const bounds = leafletLayer.getBounds();
+                  if (bounds && bounds.isValid()) {
+                    map.value.fitBounds(bounds, { padding: [50, 50], animate: true, duration: 1.0 });
+                  }
+                } else if (typeof leafletLayer.getLatLng === 'function') {
+                  const latlng = leafletLayer.getLatLng();
+                  if (latlng) {
+                    map.value.setView(latlng, 14, { animate: true, duration: 1.0 });
+                  }
                 }
-                leafletLayer.openPopup();
+                
+                if (leafletLayer.openPopup) {
+                  leafletLayer.openPopup();
+                }
               } else {
                 layer.resetStyle(leafletLayer);
               }
@@ -326,13 +430,27 @@ export default {
     
     watch(() => dataStore.layers, updateMapLayers, { deep: true });
     
-    watch([() => props.selectedColorScheme, () => props.selectedBorderColor, () => props.selectedBorderWeight], () => {
+    watch([() => props.selectedColorScheme, () => props.maxCount, () => props.selectedBorderColor, () => props.selectedBorderWeight], () => {
         // Re-apply styles to all visible layers
-        Object.values(leafletLayers.value).forEach(layer => layer.setStyle({
-            color: props.selectedBorderColor,
-            weight: props.selectedBorderWeight
-        }));
-    });
+        Object.values(leafletLayers.value).forEach(layer => {
+          if (layer && layer.setStyle) {
+            layer.setStyle((feature) => {
+                const count = feature.properties.value || 
+                             feature.properties.count || 
+                             feature.properties['中位數'] || 
+                             feature.properties.population || 
+                             0;
+                return {
+                   fillColor: getColorByCount(count, props.maxCount, props.selectedColorScheme),
+                   weight: props.selectedBorderWeight,
+                   opacity: 1,
+                   color: props.selectedBorderColor,
+                   fillOpacity: 0.7
+                 };
+            });
+          }
+        });
+    }, { deep: true });
 
     onMounted(() => {
       initMap();
@@ -390,12 +508,56 @@ export default {
 
 <style>
 /* Global popup style override */
-.map-popup .leaflet-popup-content-wrapper {
-  border-radius: 8px;
-  padding: 1rem;
+.custom-popup .leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  padding: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e0e0e0;
 }
-.map-popup .leaflet-popup-content {
+
+.custom-popup .leaflet-popup-content {
   margin: 0;
+  padding: 12px;
   font-size: 0.9rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.custom-popup .leaflet-popup-tip {
+  background: white;
+  border: 1px solid #e0e0e0;
+}
+
+.map-popup {
+  min-width: 200px;
+}
+
+.map-popup h6 {
+  margin: 0 0 8px 0;
+  font-size: 1rem;
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 4px;
+}
+
+.popup-details {
+  margin: 8px 0;
+}
+
+.popup-details .d-flex {
+  padding: 2px 0;
+}
+
+/* Tooltip styling */
+.leaflet-tooltip {
+  background: rgba(0, 0, 0, 0.8) !important;
+  border: none !important;
+  border-radius: 6px !important;
+  color: white !important;
+  font-size: 0.85rem !important;
+  padding: 6px 10px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+.leaflet-tooltip-top:before {
+  border-top-color: rgba(0, 0, 0, 0.8) !important;
 }
 </style> 

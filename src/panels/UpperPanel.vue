@@ -231,7 +231,7 @@ export default {
   /**
    * 🔧 組件設定函數 (Component Setup)
    */
-  setup(props) {
+  setup(props, { emit }) {
     // 📚 組件引用 (Component References)
     const mapView = ref(null)
     const dashboardView = ref(null)
@@ -291,28 +291,43 @@ export default {
      * @param {string} name - 區域名稱
      */
     const highlightFeature = (name) => {
-      if (mapView.value) {
-        mapView.value.highlightFeature(name)
+      // If the map isn't the active tab, switch to it first.
+      if (props.activeTab !== 'map') {
+        emit('update:activeTab', 'map');
+        
+        // Wait for the tab to switch and the map to be rendered.
+        nextTick(() => {
+          mapView.value?.highlightFeature(name);
+        });
+      } else {
+        // If the map is already active, just call the method.
+        mapView.value?.highlightFeature(name);
       }
-    }
+    };
 
     /**
      * 🔄 重置地圖視圖 (Reset Map View)
      */
     const resetView = () => {
-      if (mapView.value) {
-        mapView.value.resetView()
+      if (props.activeTab === 'map' && mapView.value) {
+        mapView.value.resetView();
       }
-    }
+    };
 
     /**
      * 🗺️ 適應台南邊界 (Fit to Tainan Bounds)
      */
     const fitToTainanBounds = () => {
-      if (mapView.value) {
-        mapView.value.fitToTainanBounds()
+      if (props.activeTab === 'map' && mapView.value) {
+        mapView.value.fitToTainanBounds();
       }
-    }
+    };
+    
+    const invalidateMapSize = () => {
+      if (props.activeTab === 'map' && mapView.value) {
+        mapView.value.invalidateSize();
+      }
+    };
 
     // 📤 返回數據和方法 (Return Data and Methods)
     return {
@@ -321,7 +336,8 @@ export default {
       dashboardContainerRef,
       highlightFeature,
       resetView,
-      fitToTainanBounds
+      fitToTainanBounds,
+      invalidateMapSize
     }
   }
 }
@@ -372,5 +388,10 @@ export default {
 
 .overflow-auto::-webkit-scrollbar-thumb:hover {
   background-color: #a1a1a1;
+}
+
+/* 可以在此處添加組件特定的樣式 */
+.btn-group .btn {
+  transition: all 0.3s ease;
 }
 </style> 
