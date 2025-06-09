@@ -40,6 +40,12 @@ export const useDataStore = defineStore('data', () => {
     // Toggle visibility
     layer.visible = !layer.visible;
 
+    // 如果開啟圖層，設定為最後開啟的圖層
+    if (layer.visible) {
+      lastOpenedLayerId.value = layerId;
+      console.log(`🔄 設定最後開啟圖層: ${layerId}`);
+    }
+
     // Load data if it's being turned on and hasn't been loaded yet
     if (layer.visible && !layer.isLoaded && !layer.isLoading) {
       try {
@@ -216,10 +222,18 @@ export const useDataStore = defineStore('data', () => {
     return summary;
   });
   
+  // 儲存最後開啟的圖層 ID
+  const lastOpenedLayerId = ref(null);
+
   const activeTableData = computed(() => {
-    return layers.value
-      .filter(layer => layer.visible && layer.tableData)
-      .flatMap(layer => layer.tableData);
+    // 只顯示最後開啟的圖層資料
+    if (lastOpenedLayerId.value) {
+      const lastLayer = layers.value.find(l => l.id === lastOpenedLayerId.value);
+      if (lastLayer && lastLayer.visible && lastLayer.tableData) {
+        return lastLayer.tableData;
+      }
+    }
+    return [];
   });
 
   // Legacy loading flags
@@ -413,6 +427,8 @@ export const useDataStore = defineStore('data', () => {
     // Centralized Layer Management
     layers,
     toggleLayerVisibility,
+    lastOpenedLayerId,
+    activeTableData,
 
     // Legacy State & Actions (for compatibility)
     rawData,

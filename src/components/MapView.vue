@@ -191,54 +191,98 @@ export default {
           if (!existingLayer) {
             const newLeafletLayer = L.geoJSON(layerConfig.data, {
               pointToLayer: (feature, latlng) => {
-                // Use circle markers for point features so they can be styled
-                // dynamically just like polygons. This unifies behavior.
-                return L.circleMarker(latlng, { radius: 8 });
+                // 根據要素類型決定點的大小和樣式
+                const geometryType = feature.geometry.type;
+                const radius = geometryType === 'Point' ? 8 : 6;
+                
+                return L.circleMarker(latlng, { 
+                  radius: radius,
+                  className: `feature-${geometryType.toLowerCase()}`
+                });
               },
               style: (feature) => {
-                 // 嘗試多個可能的數值屬性名稱
+                 // 智能識別數值屬性
                  const count = feature.properties.value || 
                               feature.properties.count || 
                               feature.properties['中位數'] || 
                               feature.properties.population || 
-                              0;
-                 return {
+                              feature.properties.density ||
+                              1; // 預設值為 1（對於點資料）
+                              
+                 // 根據幾何類型調整樣式
+                 const geometryType = feature.geometry.type;
+                 const baseStyle = {
                    fillColor: getColorByCount(count, props.maxCount, props.selectedColorScheme),
                    weight: props.selectedBorderWeight,
                    opacity: 1,
                    color: props.selectedBorderColor,
-                   fillOpacity: 0.7
+                   fillOpacity: geometryType === 'Point' ? 0.8 : 0.7
+                 };
+                 
+                 // 針對不同幾何類型的特殊處理
+                 if (geometryType === 'Point') {
+                   baseStyle.radius = 8;
+                 } else if (geometryType === 'MultiPolygon' || geometryType === 'Polygon') {
+                   baseStyle.fillOpacity = 0.6;
                  }
+                 
+                 return baseStyle;
               },
               onEachFeature: (feature, leafletLayer) => {
+                // 智能識別名稱屬性
                 const name = feature.properties.name || 
                            feature.properties.PTVNAME || 
+                           feature.properties.title ||
+                           feature.properties.label ||
+                           feature.properties.機構名稱 ||
                            '未知區域';
+                           
+                // 智能識別數值屬性
                 const count = feature.properties.value || 
                              feature.properties.count || 
                              feature.properties['中位數'] || 
                              feature.properties.population || 
-                             0;
+                             feature.properties.density ||
+                             1;
+                             
+                // 識別幾何類型以便調整顯示
+                const geometryType = feature.geometry.type;
                 
                 // 創建詳細的 popup 內容
+                const isPoint = geometryType === 'Point';
                 const popupContent = `
                   <div class="map-popup">
-                    <h6 class="fw-bold text-primary mb-2">${name}</h6>
+                    <h6 class="fw-bold text-primary mb-2">
+                      <i class="fas fa-${isPoint ? 'map-marker-alt' : 'map'} me-1"></i>
+                      ${name}
+                    </h6>
                     <div class="popup-details">
                       <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span class="text-muted small">數值:</span>
-                        <span class="fw-medium">${count.toLocaleString()}</span>
+                        <span class="text-muted small">${isPoint ? '類型:' : '數值:'}</span>
+                        <span class="fw-medium">${isPoint ? '點位置' : count.toLocaleString()}</span>
                       </div>
+                      ${!isPoint && count > 1 ? `
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <span class="text-muted small">幾何:</span>
+                          <span class="fw-medium">${geometryType === 'Polygon' ? '多邊形' : geometryType === 'MultiPolygon' ? '複合多邊形' : geometryType}</span>
+                        </div>
+                      ` : ''}
+                      ${feature.properties.address ? `
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <span class="text-muted small">地址:</span>
+                          <span class="fw-medium text-truncate" style="max-width: 150px;" title="${feature.properties.address}">${feature.properties.address}</span>
+                        </div>
+                      ` : ''}
                       ${feature.properties.area ? `
                         <div class="d-flex justify-content-between align-items-center mb-1">
                           <span class="text-muted small">面積:</span>
                           <span class="fw-medium">${feature.properties.area} km²</span>
                         </div>
                       ` : ''}
-                      ${feature.properties.density ? `
+                      ${feature.properties.phone ? `
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                          <span class="text-muted small">密度:</span>
-                          <span class="fw-medium">${feature.properties.density}</span>
+                          <span class="text-muted small">電話:</span>
+                          <span class="fw-medium">${feature.properties.phone}</span>
                         </div>
                       ` : ''}
                     </div>
@@ -272,38 +316,65 @@ export default {
                     }
 
                     try {
-                      // 縮放到要素並顯示詳細信息
-                      if (typeof leafletLayer.getBounds === 'function') {
-                        // 對於多邊形，使用 fitBounds 縮放到整個要素
-                        const bounds = leafletLayer.getBounds();
-                        if (bounds && bounds.isValid()) {
-                          map.value.fitBounds(bounds, { 
-                            padding: [20, 20], 
-                            animate: true, 
-                            duration: 0.8,
-                            maxZoom: 15 // 限制最大縮放級別，避免過度放大
-                          });
+                      // 智能縮放處理 - 根據幾何類型選擇最佳方式
+                      const geometryType = feature.geometry.type;
+                      
+                      if (geometryType === 'Point' || geometryType === 'MultiPoint') {
+                        // 點要素：縮放並居中
+                        if (typeof leafletLayer.getLatLng === 'function') {
+                          const latlng = leafletLayer.getLatLng();
+                          if (latlng) {
+                            map.value.setView(latlng, Math.max(map.value.getZoom(), 14), {
+                              animate: true,
+                              duration: 0.8
+                            });
+                          }
                         }
-                      } else if (typeof leafletLayer.getLatLng === 'function') {
-                        // 對於點要素，縮放並居中
-                        const latlng = leafletLayer.getLatLng();
-                        if (latlng) {
-                          map.value.setView(latlng, Math.max(map.value.getZoom(), 12), {
-                            animate: true,
-                            duration: 0.8
-                          });
+                      } else if (geometryType === 'Polygon' || geometryType === 'MultiPolygon' || geometryType === 'LineString' || geometryType === 'MultiLineString') {
+                        // 面/線要素：使用邊界縮放
+                        if (typeof leafletLayer.getBounds === 'function') {
+                          const bounds = leafletLayer.getBounds();
+                          if (bounds && bounds.isValid()) {
+                            // 根據邊界大小調整 padding 和 maxZoom
+                            const boundsSize = bounds.getNorthEast().distanceTo(bounds.getSouthWest());
+                            const padding = boundsSize > 10000 ? [50, 50] : [20, 20]; // 大區域用更大 padding
+                            const maxZoom = boundsSize > 10000 ? 12 : 15; // 大區域限制縮放級別
+                            
+                            map.value.fitBounds(bounds, { 
+                              padding: padding, 
+                              animate: true, 
+                              duration: 0.8,
+                              maxZoom: maxZoom
+                            });
+                          }
+                        }
+                      } else {
+                        // 其他類型：嘗試通用處理
+                        console.log('未知幾何類型:', geometryType, '使用預設處理');
+                        if (typeof leafletLayer.getBounds === 'function') {
+                          const bounds = leafletLayer.getBounds();
+                          if (bounds && bounds.isValid()) {
+                            map.value.fitBounds(bounds, { padding: [30, 30], animate: true, duration: 0.8 });
+                          }
+                        } else if (typeof leafletLayer.getLatLng === 'function') {
+                          const latlng = leafletLayer.getLatLng();
+                          if (latlng) {
+                            map.value.setView(latlng, 13, { animate: true, duration: 0.8 });
+                          }
                         }
                       }
                       
-                      // 顯示 popup
+                      // 延遲顯示 popup，等待縮放動畫完成
                       setTimeout(() => {
                         if (leafletLayer && leafletLayer.openPopup) {
                           leafletLayer.openPopup();
                         }
-                      }, 500); // 等待縮放動畫完成後顯示 popup
+                      }, geometryType === 'Point' ? 300 : 500); // 點要素動畫較快
                       
                       // 發送選中事件
                       emit('feature-selected', leafletLayer.feature);
+                      
+                      console.log(`✅ 成功處理 ${geometryType} 類型要素點擊: ${name}`);
                     } catch (error) {
                       console.error('點擊要素時發生錯誤:', error);
                     }
@@ -354,38 +425,77 @@ export default {
     const highlightFeature = (name) => {
         if (!map.value || !mapInitialized.value) return;
         try {
+          console.log(`🔍 開始高亮顯示要素: ${name}`);
+          let found = false;
+          
           Object.values(leafletLayers.value).forEach(layer => {
             if (!layer) return;
             layer.eachLayer(leafletLayer => {
               if (!leafletLayer || !leafletLayer.feature) return;
+              
+              // 智能識別名稱屬性
               const featureName = leafletLayer.feature.properties.name || 
                                  leafletLayer.feature.properties.PTVNAME || 
+                                 leafletLayer.feature.properties.title ||
+                                 leafletLayer.feature.properties.label ||
+                                 leafletLayer.feature.properties.機構名稱 ||
                                  '';
+                                 
               if (featureName === name) {
+                found = true;
                 layer.resetStyle(leafletLayer); // Reset first
-                leafletLayer.setStyle({ weight: 4, color: '#ff0000', dashArray: '5,5', fillOpacity: 0.9 });
                 
-                // 安全地處理邊界
-                if (typeof leafletLayer.getBounds === 'function') {
-                  const bounds = leafletLayer.getBounds();
-                  if (bounds && bounds.isValid()) {
-                    map.value.fitBounds(bounds, { padding: [50, 50], animate: true, duration: 1.0 });
+                // 根據幾何類型設定高亮樣式
+                const geometryType = leafletLayer.feature.geometry.type;
+                const highlightStyle = { 
+                  weight: 4, 
+                  color: '#ff0000', 
+                  dashArray: '5,5', 
+                  fillOpacity: geometryType === 'Point' ? 1.0 : 0.9
+                };
+                
+                if (geometryType === 'Point') {
+                  highlightStyle.radius = 12; // 放大點的半徑
+                }
+                
+                leafletLayer.setStyle(highlightStyle);
+                
+                // 智能縮放處理
+                if (geometryType === 'Point' || geometryType === 'MultiPoint') {
+                  // 點要素：縮放並居中
+                  if (typeof leafletLayer.getLatLng === 'function') {
+                    const latlng = leafletLayer.getLatLng();
+                    if (latlng) {
+                      map.value.setView(latlng, 16, { animate: true, duration: 1.0 });
+                    }
                   }
-                } else if (typeof leafletLayer.getLatLng === 'function') {
-                  const latlng = leafletLayer.getLatLng();
-                  if (latlng) {
-                    map.value.setView(latlng, 14, { animate: true, duration: 1.0 });
+                } else {
+                  // 面/線要素：使用邊界縮放
+                  if (typeof leafletLayer.getBounds === 'function') {
+                    const bounds = leafletLayer.getBounds();
+                    if (bounds && bounds.isValid()) {
+                      map.value.fitBounds(bounds, { padding: [50, 50], animate: true, duration: 1.0 });
+                    }
                   }
                 }
                 
-                if (leafletLayer.openPopup) {
-                  leafletLayer.openPopup();
-                }
+                // 延遲顯示 popup
+                setTimeout(() => {
+                  if (leafletLayer.openPopup) {
+                    leafletLayer.openPopup();
+                  }
+                }, 800);
+                
+                console.log(`✅ 成功高亮顯示 ${geometryType} 類型要素: ${name}`);
               } else {
                 layer.resetStyle(leafletLayer);
               }
             });
           });
+          
+          if (!found) {
+            console.warn(`⚠️ 未找到名稱為 "${name}" 的要素`);
+          }
         } catch (error) {
           console.error('Error highlighting feature:', error);
         }
@@ -435,18 +545,32 @@ export default {
         Object.values(leafletLayers.value).forEach(layer => {
           if (layer && layer.setStyle) {
             layer.setStyle((feature) => {
+                // 智能識別數值屬性
                 const count = feature.properties.value || 
                              feature.properties.count || 
                              feature.properties['中位數'] || 
                              feature.properties.population || 
-                             0;
-                return {
+                             feature.properties.density ||
+                             1;
+                             
+                // 根據幾何類型調整樣式
+                const geometryType = feature.geometry.type;
+                const baseStyle = {
                    fillColor: getColorByCount(count, props.maxCount, props.selectedColorScheme),
                    weight: props.selectedBorderWeight,
                    opacity: 1,
                    color: props.selectedBorderColor,
-                   fillOpacity: 0.7
-                 };
+                   fillOpacity: geometryType === 'Point' ? 0.8 : 0.7
+                };
+                
+                // 針對不同幾何類型的特殊處理
+                if (geometryType === 'Point') {
+                  baseStyle.radius = 8;
+                } else if (geometryType === 'MultiPolygon' || geometryType === 'Polygon') {
+                  baseStyle.fillOpacity = 0.6;
+                }
+                
+                return baseStyle;
             });
           }
         });
@@ -559,5 +683,33 @@ export default {
 
 .leaflet-tooltip-top:before {
   border-top-color: rgba(0, 0, 0, 0.8) !important;
+}
+
+/* 不同幾何類型的特殊樣式 */
+.feature-point {
+  transition: all 0.3s ease;
+}
+
+.feature-point:hover {
+  transform: scale(1.2);
+}
+
+.feature-polygon {
+  transition: all 0.2s ease;
+}
+
+.feature-multipolygon {
+  transition: all 0.2s ease;
+}
+
+/* 高亮狀態的動畫效果 */
+@keyframes highlight-pulse {
+  0% { opacity: 0.7; }
+  50% { opacity: 1.0; }
+  100% { opacity: 0.7; }
+}
+
+.leaflet-interactive[style*="dashArray"] {
+  animation: highlight-pulse 2s infinite;
 }
 </style> 
