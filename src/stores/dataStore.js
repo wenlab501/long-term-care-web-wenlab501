@@ -63,6 +63,35 @@ export const useDataStore = defineStore(
      */
     const layers = ref([
       {
+        groupName: '醫療設施',
+        groupLayers: [
+          {
+            id: 'hospital',
+            name: '醫院',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            data: null, // 存放 GeoJSON 資料
+            summary: null, // 存放資料摘要
+            tableData: null, // 存放表格資料
+            loader: loadMedicalData, // 資料載入函數
+            fileName: '112年12月醫療院所分布圖_全國_醫院_coord.csv',
+          },
+          {
+            id: 'clinic',
+            name: '診所',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            data: null, // 存放 GeoJSON 資料
+            summary: null, // 存放資料摘要
+            tableData: null, // 存放表格資料
+            loader: loadMedicalData, // 資料載入函數
+            fileName: '112年12月醫療院所分布圖_全國_診所_coord.csv',
+          },
+        ],
+      },
+      {
         groupName: '基礎地理資料',
         groupLayers: [
           {
@@ -75,22 +104,6 @@ export const useDataStore = defineStore(
             summary: null, // 存放資料摘要
             tableData: null, // 存放表格資料
             loader: loadTainanDataUtil, // 資料載入函數
-          },
-        ],
-      },
-      {
-        groupName: '醫療設施',
-        groupLayers: [
-          {
-            id: 'medical',
-            name: '醫療院所分布',
-            visible: false,
-            isLoading: false,
-            isLoaded: false,
-            data: null, // 存放 GeoJSON 資料
-            summary: null, // 存放資料摘要
-            tableData: null, // 存放表格資料
-            loader: loadMedicalData, // 資料載入函數
           },
         ],
       },
@@ -160,7 +173,7 @@ export const useDataStore = defineStore(
       if (layer.visible && !layer.isLoaded && !layer.isLoading) {
         try {
           layer.isLoading = true;
-          const result = await layer.loader();
+          const result = await layer.loader(layer.fileName);
 
           // 將載入的資料直接存儲在圖層物件中
           layer.data = result.mergedGeoJSON || result.rawGeoJSON;

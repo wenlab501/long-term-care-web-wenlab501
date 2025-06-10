@@ -632,10 +632,10 @@ export const loadCSV = async (filePath) => {
  * 載入醫療院所數據
  * @returns {Promise<Object>} 處理後的數據
  */
-export async function loadMedicalData() {
+export async function loadMedicalData(fileName) {
   try {
     console.log('開始載入醫療院所數據...');
-    const filePath = '/long-term-care-web/data/csv/112年12月醫療院所分布圖_全國.csv';
+    const filePath = `/long-term-care-web/data/csv/${fileName}`;
     console.log('嘗試加載文件:', filePath);
 
     const response = await fetch(filePath);
@@ -666,16 +666,9 @@ export async function loadMedicalData() {
     });
 
     // 只保留臺北市萬華區的數據
-    const wanhuaData = rows.slice(1).filter((row) => {
-      const cityIndex = headers.indexOf('縣市');
-      const districtIndex = headers.indexOf('鄉鎮市區');
-      const isWanhua = row[cityIndex] === '臺北市' && row[districtIndex] === '萬華區';
-      if (isWanhua) {
-        console.log('找到萬華區數據:', row);
-      }
-      return isWanhua;
-    });
-    console.log(`載入 ${wanhuaData.length} 筆萬華區醫療院所數據`);
+    const wanhuaData = rows;
+
+    console.log(`載入 ${wanhuaData.length} 筆醫療院所數據`);
 
     // 創建 GeoJSON 結構
     const geojsonData = {
