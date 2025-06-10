@@ -31,7 +31,10 @@ import { ref, computed, reactive } from 'vue';
 import { defaultColorConfig, ColorSchemeUtils } from '@/utils/pythonColorSchemes.js';
 
 // 📊 資料處理工具引入
-import { loadTainanData as loadTainanDataUtil, loadMedicalData } from '../utils/dataProcessor.js';
+import {
+  loadTainanData as loadTainanDataUtil,
+  loadHospitalClinicData,
+} from '../utils/dataProcessor.js';
 
 /**
  * 📊 主要數據存儲定義 (Main Data Store Definition)
@@ -74,7 +77,7 @@ export const useDataStore = defineStore(
             data: null, // 存放 GeoJSON 資料
             summary: null, // 存放資料摘要
             tableData: null, // 存放表格資料
-            loader: loadMedicalData, // 資料載入函數
+            loader: loadHospitalClinicData, // 資料載入函數
             fileName: '112年12月醫療院所分布圖_全國_醫院_coord.csv',
           },
           {
@@ -86,7 +89,7 @@ export const useDataStore = defineStore(
             data: null, // 存放 GeoJSON 資料
             summary: null, // 存放資料摘要
             tableData: null, // 存放表格資料
-            loader: loadMedicalData, // 資料載入函數
+            loader: loadHospitalClinicData, // 資料載入函數
             fileName: '112年12月醫療院所分布圖_全國_診所_coord.csv',
           },
         ],
@@ -95,7 +98,43 @@ export const useDataStore = defineStore(
         groupName: '基礎地理資料',
         groupLayers: [
           {
-            id: 'tainan',
+            id: '3_section_age',
+            name: '113年12月行政區三段年齡組性別人口統計',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            data: null, // 存放 GeoJSON 資料
+            summary: null, // 存放資料摘要
+            tableData: null, // 存放表格資料
+            loader: loadTainanDataUtil, // 資料載入函數
+            fileName: '113年12月行政區三段年齡組性別人口統計_村里_臺北市_WGS84.geojson',
+          },
+          {
+            id: '5_year',
+            name: '113年12月行政區五歲年齡組性別人口統計',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            data: null, // 存放 GeoJSON 資料
+            summary: null, // 存放資料摘要
+            tableData: null, // 存放表格資料
+            loader: loadTainanDataUtil, // 資料載入函數
+            fileName: '113年12月行政區五歲年齡組性別人口統計_村里_臺北市_WGS84.geojson',
+          },
+          {
+            id: '10_year',
+            name: '113年12月行政區十歲年齡組性別人口統計',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            data: null, // 存放 GeoJSON 資料
+            summary: null, // 存放資料摘要
+            tableData: null, // 存放表格資料
+            loader: loadTainanDataUtil, // 資料載入函數
+            fileName: '113年12月行政區十歲年齡組性別人口統計_村里_臺北市_WGS84.geojson',
+          },
+          {
+            id: 'taipei',
             name: '臺北市_村里_綜稅綜合所得總額',
             visible: false,
             isLoading: false,
@@ -104,6 +143,7 @@ export const useDataStore = defineStore(
             summary: null, // 存放資料摘要
             tableData: null, // 存放表格資料
             loader: loadTainanDataUtil, // 資料載入函數
+            fileName: '臺北市_村里_綜稅綜合所得總額.geojson',
           },
         ],
       },

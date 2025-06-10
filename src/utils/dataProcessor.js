@@ -1,23 +1,145 @@
 /**
- * 📊 資料處理工具庫
- *
- * 長照空間分析系統的核心資料處理模組
- * 提供 GeoJSON、Excel、CSV 檔案載入與處理功能
- * 包含座標轉換、資料合併、色票映射等功能
- *
- * 主要功能：
- * - 🗺️ GeoJSON 檔案載入與處理
- * - 📈 Excel/CSV 檔案解析
- * - 🔄 資料格式轉換與合併
- * - 🎨 色票系統與顏色映射
- * - 🏥 醫療院所資料處理
- *
- * @author 長照空間分析團隊
- * @version 1.0.0
- * @since 2024
+ * 載入醫療院所數據
+ * @returns {Promise<Object>} 處理後的數據
  */
+export async function loadHospitalClinicData(fileName) {
+  try {
+    console.log('開始載入醫療院所數據...');
+    const filePath = `/long-term-care-web/data/csv/${fileName}`;
+    console.log('嘗試加載文件:', filePath);
 
-import * as XLSX from 'xlsx';
+    const response = await fetch(filePath);
+    if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const csvText = await response.text();
+    console.log('CSV 文件內容前 500 字符:', csvText.substring(0, 500));
+
+    const rows = csvText.split('\n').map((row) => row.split(','));
+    console.log('CSV 標題行:', rows[0]);
+    console.log('CSV 數據行數:', rows.length);
+
+    const headers = rows[0];
+    console.log('CSV 標題索引:', {
+      WKT: headers.indexOf('WKT'),
+      機構名稱: headers.indexOf('機構名稱'),
+      縣市: headers.indexOf('縣市'),
+      鄉鎮市區: headers.indexOf('鄉鎮市區'),
+      地址: headers.indexOf('地址'),
+      電話: headers.indexOf('電話'),
+    });
+
+    console.log(`載入 ${rows.length} 筆醫療院所數據`);
+
+    // 創建 GeoJSON 結構
+    const geojsonData = {
+      type: 'FeatureCollection',
+      features: rows
+        .map((row) => {
+          // 解析 WKT 格式的座標
+          const wktMatch = row[headers.indexOf('WKT')]?.match(/POINT \(([-\d.]+) ([-\d.]+)\)/);
+          if (!wktMatch) {
+            console.warn('無效的 WKT 格式:', row[headers.indexOf('WKT')]);
+            return null;
+          }
+
+          const lng = parseFloat(wktMatch[1]);
+          const lat = parseFloat(wktMatch[2]);
+
+          if (isNaN(lat) || isNaN(lng)) {
+            console.warn('無效的座標:', row);
+            return null;
+          }
+
+          return {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [lng, lat],
+            },
+            properties: {
+              name: row[headers.indexOf('機構名稱')],
+              address: row[headers.indexOf('地址')],
+              phone: row[headers.indexOf('電話')],
+              city: row[headers.indexOf('縣市')],
+              district: row[headers.indexOf('鄉鎮市區')],
+            },
+          };
+        })
+        .filter((feature) => feature !== null),
+    };
+
+    // 打印完整的 GeoJSON 數據
+    console.log('轉換後的 GeoJSON 數據:', JSON.stringify(geojsonData, null, 2));
+
+    // 生成表格數據
+    const tableData = geojsonData.features.map((feature) => ({
+      id: feature.properties.name || '',
+      name: feature.properties.name || '',
+      count: 1, // 每個醫療院所計數為1
+      ...feature.properties,
+    }));
+
+    // 生成摘要信息
+    const summary = {
+      totalFeatures: geojsonData.features.length,
+      conversionInfo: 'CSV轉GeoJSON',
+    };
+
+    return {
+      rawGeoJSON: geojsonData,
+      convertedGeoJSON: geojsonData,
+      tableData,
+      summary,
+    };
+  } catch (error) {
+    console.error('❌ 醫療院所數據載入失敗:', error);
+    throw error;
+  }
+}
+
+/**
+ * 載入臺北市 GeoJSON 數據
+ * @returns {Promise<Object>} 處理後的數據
+ */
+export async function loadTainanData(fileName) {
+  try {
+    console.log('開始載入臺北市 GeoJSON 數據...');
+    const rawGeoJSON = await loadGeoJSON(`/long-term-care-web/data/geojson/${fileName}`);
+    console.log('✅ 臺北市 GeoJSON 數據載入成功');
+
+    // 生成表格數據
+    const tableData = rawGeoJSON.features.map((feature) => ({
+      id: feature.properties.VILLCODE || '',
+      name: feature.properties.PTVNAME || '',
+      count: feature.properties.中位數 || 0,
+      ...feature.properties,
+      geometry: feature.geometry,
+    }));
+
+    // 生成摘要信息
+    const summary = {
+      totalFeatures: rawGeoJSON.features.length,
+      conversionInfo: rawGeoJSON.conversionInfo || '無轉換',
+    };
+
+    return {
+      rawGeoJSON,
+      convertedGeoJSON: rawGeoJSON,
+      tableData,
+      summary,
+    };
+  } catch (error) {
+    console.error('❌ 臺北市 GeoJSON 數據載入失敗:', error);
+    throw error;
+  }
+}
 
 /**
  * 🗺️ 載入 GeoJSON 文件
@@ -44,106 +166,6 @@ export async function loadGeoJSON(filePath) {
     return geojsonData;
   } catch (error) {
     console.error('❌ GeoJSON 文件載入失敗:', error);
-    throw error;
-  }
-}
-
-/**
- * 📈 讀取 Excel 文件的特定工作表
- *
- * 使用 XLSX 庫載入並解析 Excel 檔案中的指定工作表
- * 將工作表資料轉換為 JSON 格式陣列
- *
- * @param {string} filePath - Excel 文件路徑
- * @param {string} sheetName - 目標工作表名稱
- * @returns {Promise<Array>} 解析後的 Excel 數據陣列
- * @throws {Error} 當檔案載入失敗或工作表不存在時拋出錯誤
- */
-export async function loadExcelSheet(filePath, sheetName) {
-  try {
-    const response = await fetch(filePath);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const arrayBuffer = await response.arrayBuffer();
-    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-
-    if (!workbook.SheetNames.includes(sheetName)) {
-      throw new Error(`Sheet "${sheetName}" not found in workbook`);
-    }
-
-    const worksheet = workbook.Sheets[sheetName];
-    const jsonData = XLSX.utils.sheet_to_json(worksheet);
-
-    return jsonData;
-  } catch (error) {
-    console.error('Error loading Excel file:', error);
-    throw error;
-  }
-}
-
-/**
- * 🔄 合併 GeoJSON 和 Excel 數據
- *
- * 根據指定的關鍵欄位將 GeoJSON 地理資料與 Excel 統計資料進行合併
- * 建立查找表以提高合併效率，並生成合併摘要報告
- *
- * 合併流程：
- * 1. 建立 Excel 資料的查找表 (key-value mapping)
- * 2. 遍歷 GeoJSON 特徵，根據關鍵欄位進行匹配
- * 3. 更新 GeoJSON 屬性，加入 Excel 資料
- * 4. 生成表格資料和合併摘要
- *
- * @param {Object} geojsonData - GeoJSON 地理資料物件
- * @param {Array} excelData - Excel 統計資料陣列
- * @param {string} geojsonKey - GeoJSON 中的合併欄位名稱 (預設: 'PTVNAME')
- * @param {string} excelKey - Excel 中的合併欄位名稱 (預設: 'name')
- * @returns {Object} 包含合併後資料、表格資料和摘要的物件
- */
-export function mergeGeoJSONWithExcel(
-  geojsonData,
-  excelData,
-  geojsonKey = 'PTVNAME',
-  excelKey = 'name'
-) {
-  try {
-    // 創建Excel數據的查找表
-    const excelLookup = {};
-    excelData.forEach((row) => {
-      if (row[excelKey]) {
-        excelLookup[row[excelKey].toUpperCase()] = row;
-      }
-    });
-
-    // 創建表格數據
-    const tableData = geojsonData.features.map((feature, index) => {
-      const props = feature.properties;
-      const excelRow = excelLookup[props[geojsonKey]?.toUpperCase()];
-
-      return {
-        id: index + 1,
-        name: props[geojsonKey] || '',
-        count: excelRow ? excelRow.count || 0 : 0,
-        merged: excelRow ? '成功' : '失敗',
-        // 保留原始屬性
-        ...props,
-      };
-    });
-
-    const mergedCount = tableData.filter((row) => row.merged === '成功').length;
-
-    return {
-      tableData,
-      summary: {
-        totalFeatures: geojsonData.features.length,
-        mergedCount,
-        excelRows: excelData.length,
-        mergeRate: ((mergedCount / geojsonData.features.length) * 100).toFixed(1),
-      },
-    };
-  } catch (error) {
-    console.error('Error merging data:', error);
     throw error;
   }
 }
@@ -497,190 +519,4 @@ function hexToRgb(hex) {
         b: parseInt(result[3], 16),
       }
     : null;
-}
-
-/**
- * 載入臺北市 GeoJSON 數據
- * @returns {Promise<Object>} 處理後的數據
- */
-export async function loadTainanData() {
-  try {
-    console.log('開始載入臺北市 GeoJSON 數據...');
-    const rawGeoJSON = await loadGeoJSON(
-      '/long-term-care-web/data/geojson/臺北市_村里_綜稅綜合所得總額.geojson'
-    );
-    console.log('✅ 臺北市 GeoJSON 數據載入成功');
-
-    // 生成表格數據
-    const tableData = rawGeoJSON.features.map((feature) => ({
-      id: feature.properties.VILLCODE || '',
-      name: feature.properties.PTVNAME || '',
-      count: feature.properties.中位數 || 0,
-      ...feature.properties,
-      geometry: feature.geometry,
-    }));
-
-    // 生成摘要信息
-    const summary = {
-      totalFeatures: rawGeoJSON.features.length,
-      conversionInfo: rawGeoJSON.conversionInfo || '無轉換',
-    };
-
-    return {
-      rawGeoJSON,
-      convertedGeoJSON: rawGeoJSON,
-      tableData,
-      summary,
-    };
-  } catch (error) {
-    console.error('❌ 臺北市 GeoJSON 數據載入失敗:', error);
-    throw error;
-  }
-}
-
-/**
- * 載入 CSV 文件
- * @param {string} filePath - CSV 文件的路徑
- * @returns {Promise<Array>} - 解析後的數據數組
- */
-export const loadCSV = async (filePath) => {
-  try {
-    console.log('開始加載 CSV 文件:', filePath);
-    const response = await fetch(filePath);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    console.log('CSV 文件加載成功，開始解析...');
-    const csvText = await response.text();
-    console.log('CSV 文本內容:', csvText.substring(0, 200) + '...'); // 只顯示前200個字符
-
-    // 使用 XLSX 解析 CSV
-    const workbook = XLSX.read(csvText, { type: 'string' });
-    const firstSheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[firstSheetName];
-
-    // 將工作表轉換為 JSON 數組
-    const data = XLSX.utils.sheet_to_json(worksheet);
-
-    console.log('CSV 解析完成:', {
-      rows: data.length,
-      fields: Object.keys(data[0] || {}),
-      firstRow: data[0],
-    });
-
-    return data;
-  } catch (error) {
-    console.error('加載 CSV 文件失敗:', error);
-    throw error;
-  }
-};
-
-/**
- * 載入醫療院所數據
- * @returns {Promise<Object>} 處理後的數據
- */
-export async function loadMedicalData(fileName) {
-  try {
-    console.log('開始載入醫療院所數據...');
-    const filePath = `/long-term-care-web/data/csv/${fileName}`;
-    console.log('嘗試加載文件:', filePath);
-
-    const response = await fetch(filePath);
-    if (!response.ok) {
-      console.error('HTTP 錯誤:', {
-        status: response.status,
-        statusText: response.statusText,
-        url: response.url,
-      });
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const csvText = await response.text();
-    console.log('CSV 文件內容前 500 字符:', csvText.substring(0, 500));
-
-    const rows = csvText.split('\n').map((row) => row.split(','));
-    console.log('CSV 標題行:', rows[0]);
-    console.log('CSV 數據行數:', rows.length);
-
-    const headers = rows[0];
-    console.log('CSV 標題索引:', {
-      WKT: headers.indexOf('WKT'),
-      機構名稱: headers.indexOf('機構名稱'),
-      縣市: headers.indexOf('縣市'),
-      鄉鎮市區: headers.indexOf('鄉鎮市區'),
-      地址: headers.indexOf('地址'),
-      電話: headers.indexOf('電話'),
-    });
-
-    // 只保留臺北市萬華區的數據
-    const wanhuaData = rows;
-
-    console.log(`載入 ${wanhuaData.length} 筆醫療院所數據`);
-
-    // 創建 GeoJSON 結構
-    const geojsonData = {
-      type: 'FeatureCollection',
-      features: wanhuaData
-        .map((row) => {
-          // 解析 WKT 格式的座標
-          const wktMatch = row[headers.indexOf('WKT')]?.match(/POINT \(([-\d.]+) ([-\d.]+)\)/);
-          if (!wktMatch) {
-            console.warn('無效的 WKT 格式:', row[headers.indexOf('WKT')]);
-            return null;
-          }
-
-          const lng = parseFloat(wktMatch[1]);
-          const lat = parseFloat(wktMatch[2]);
-
-          if (isNaN(lat) || isNaN(lng)) {
-            console.warn('無效的座標:', row);
-            return null;
-          }
-
-          return {
-            type: 'Feature',
-            geometry: {
-              type: 'Point',
-              coordinates: [lng, lat],
-            },
-            properties: {
-              name: row[headers.indexOf('機構名稱')],
-              address: row[headers.indexOf('地址')],
-              phone: row[headers.indexOf('電話')],
-              city: row[headers.indexOf('縣市')],
-              district: row[headers.indexOf('鄉鎮市區')],
-            },
-          };
-        })
-        .filter((feature) => feature !== null),
-    };
-
-    // 打印完整的 GeoJSON 數據
-    console.log('轉換後的 GeoJSON 數據:', JSON.stringify(geojsonData, null, 2));
-
-    // 生成表格數據
-    const tableData = geojsonData.features.map((feature) => ({
-      id: feature.properties.name || '',
-      name: feature.properties.name || '',
-      count: 1, // 每個醫療院所計數為1
-      ...feature.properties,
-    }));
-
-    // 生成摘要信息
-    const summary = {
-      totalFeatures: geojsonData.features.length,
-      conversionInfo: 'CSV轉GeoJSON',
-    };
-
-    return {
-      rawGeoJSON: geojsonData,
-      convertedGeoJSON: geojsonData,
-      tableData,
-      summary,
-    };
-  } catch (error) {
-    console.error('❌ 醫療院所數據載入失敗:', error);
-    throw error;
-  }
 }
