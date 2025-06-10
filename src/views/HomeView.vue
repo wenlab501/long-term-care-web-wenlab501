@@ -160,8 +160,6 @@
       const zoomLevel = ref(10);
       /** 📍 當前地圖座標 */
       const currentCoords = ref({ lat: 25.033, lng: 121.5654 });
-      /** 📊 總數據計數 */
-      const totalCount = ref(1250000);
       /** 📊 選中數據計數 */
       const selectedCount = ref(0);
       /** 📍 作用中的地圖標記數量 */
@@ -169,10 +167,7 @@
 
       // 📊 台南數據相關計算屬性 (Tainan Data Related Computed Properties)
       // 這些數據從 Pinia store 的特定圖層數據中提取
-      /** 📋 從 store 獲取合併的表格資料 */
-      const storeMergedTableData = computed(
-        () => dataStore.activeTableData || dataStore.processedData.loadedAndMergedTableData
-      );
+
       /** 🗺️ 從 store 獲取台南 GeoJSON 資料 */
       const storeTainanGeoJSONData = computed(() => dataStore.processedData.loadedAndMergedGeoJSON);
       /** 📊 從 store 獲取台南資料統計摘要 */
@@ -181,37 +176,6 @@
       // 🔧 拖曳狀態 (Dragging States)
       /** 🖱️ 側邊面板拖曳進行中狀態 */
       const isSidePanelDragging = ref(false);
-
-      // 🧮 統計計算屬性 (Statistical Computed Properties)
-      /** 📊 總資料點數量 */
-      const totalDataPoints = computed(() => {
-        return storeMergedTableData.value.length || totalCount.value;
-      });
-
-      /** 📊 最大計數值 */
-      const maxCount = computed(() => {
-        if (!storeMergedTableData.value || storeMergedTableData.value.length === 0) return 0;
-        return Math.max(
-          ...storeMergedTableData.value.map((row) => row.count || row['中位數'] || row.value || 0)
-        );
-      });
-
-      /** 📊 平均計數值 */
-      const averageCount = computed(() => {
-        if (!storeMergedTableData.value || storeMergedTableData.value.length === 0) return 0;
-        const counts = storeMergedTableData.value.map(
-          (row) => row.count || row['中位數'] || row.value || 0
-        );
-        return counts.reduce((a, b) => a + b, 0) / counts.length;
-      });
-
-      /** 📊 包含資料的區域數量 */
-      const dataRegionsCount = computed(() => {
-        if (!storeMergedTableData.value) return 0;
-        return storeMergedTableData.value.filter(
-          (row) => (row.count || row['中位數'] || row.value || 0) > 0
-        ).length;
-      });
 
       // 🗺️ 地圖互動函數 (Map Interaction Functions)
 
@@ -478,13 +442,8 @@
         currentCoords, // 當前地圖座標
 
         // 📊 統計數據
-        totalCount, // 總數據計數
-        totalDataPoints, // 總資料點數
         selectedCount, // 選中數據計數
         activeMarkers, // 作用中標記數量
-        maxCount, // 最大計數值
-        averageCount, // 平均計數值
-        dataRegionsCount, // 資料區域數量
 
         // 📏 面板尺寸（百分比系統）
         leftViewWidth, // 左側面板寬度百分比
@@ -515,7 +474,6 @@
         getCurrentTime, // 取得當前時間
         appFooterRef, // 頁腳引用
         calculatedMiddleViewHeight, // 計算的中間面板高度
-        storeMergedTableData, // 從 store 獲取的合併表格資料
         handleHighlight, // 處理高亮顯示
 
         // 🎯 互動函數
@@ -592,13 +550,11 @@
             :currentCoords="currentCoords"
             :tainanGeoJSONData="storeTainanGeoJSONData"
             :maxCount="maxCount"
-            :mergedTableData="storeMergedTableData"
             :averageCount="averageCount"
             :dataRegionsCount="dataRegionsCount"
             :activeMarkers="activeMarkers"
             :isLoadingData="isAnyLayerLoading"
             :isSidePanelDragging="isSidePanelDragging"
-            :totalCount="totalCount"
             :tainanDataSummary="storeTainanDataSummary"
             @update:activeTab="activeTab = $event"
             @update:activeBottomTab="activeBottomTab = $event"
@@ -632,10 +588,8 @@
           >
             <RightView
               :activeRightTab="activeRightTab"
-              :totalCount="totalCount"
               :activeMarkers="activeMarkers"
               :tainanDataSummary="storeTainanDataSummary"
-              :mergedTableData="storeMergedTableData"
               :maxCount="maxCount"
               :averageCount="averageCount"
               :dataRegionsCount="dataRegionsCount"
