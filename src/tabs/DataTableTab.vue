@@ -1,201 +1,9 @@
-<template>
-  <!-- 📊 多圖層資料表格分頁組件 (Multi-Layer Data Table Tab Component) -->
-  <!-- 為每個開啟的圖層提供獨立的表格分頁 -->
-  <div class="my-data-table-tab-component h-100 d-flex flex-column">
-    <!-- 🔍 全域搜尋工具列 (Global Search Toolbar) -->
-    <!-- 提供跨圖層的即時搜尋功能 -->
-    <div class="my-search-toolbar-container p-2 bg-light border-bottom">
-      <input
-        type="text"
-        class="form-control form-control-sm"
-        v-model="globalSearchQuery"
-        placeholder="搜尋所有圖層的名稱、ID、數量..."
-      />
-    </div>
-
-    <!-- 📑 圖層分頁導航 (Layer Tabs Navigation) -->
-    <!-- 顯示所有開啟圖層的分頁 -->
-    <div v-if="visibleLayers.length > 0" class="layer-tabs-nav bg-white border-bottom">
-      <ul class="nav nav-tabs nav-fill small">
-        <li v-for="layer in visibleLayers" :key="layer.id" class="nav-item">
-          <button
-            class="nav-link text-dark border-0 px-2 py-1"
-            :class="{
-              'active bg-primary text-white': activeLayerTab === layer.id,
-              'bg-light': activeLayerTab !== layer.id,
-            }"
-            @click="setActiveLayerTab(layer.id)"
-            :title="`顯示 ${layer.name} 的表格資料`"
-          >
-            <span class="layer-tab-name">{{ layer.name }}</span>
-            <span class="badge bg-secondary ms-1" v-if="getLayerDataCount(layer)">
-              {{ getLayerDataCount(layer) }}
-            </span>
-          </button>
-        </li>
-      </ul>
-    </div>
-
-    <!-- 📋 圖層表格內容區域 (Layer Table Content Area) -->
-    <!-- 顯示當前選中圖層的表格資料 -->
-    <div v-if="visibleLayers.length > 0" class="flex-grow-1 overflow-hidden">
-      <!-- 📊 當前圖層的表格 (Current Layer Table) -->
-      <div
-        v-for="layer in visibleLayers"
-        :key="layer.id"
-        v-show="activeLayerTab === layer.id"
-        class="h-100"
-      >
-        <!-- 🔄 載入中狀態 (Loading State) -->
-        <div v-if="layer.isLoading" class="h-100 d-flex align-items-center justify-content-center">
-          <div class="text-center">
-            <div class="spinner-border text-primary mb-3" role="status">
-              <span class="visually-hidden">載入中...</span>
-            </div>
-            <p class="text-muted">正在載入 {{ layer.name }} 的資料...</p>
-          </div>
-        </div>
-
-        <!-- 📋 表格內容 (Table Content) -->
-        <div
-          v-else-if="layer.isLoaded && getFilteredData(layer).length > 0"
-          class="h-100 d-flex flex-column"
-        >
-          <!-- 📊 圖層統計資訊 (Layer Statistics) -->
-          <div class="layer-stats-bar bg-light px-3 py-2 border-bottom">
-            <div class="row align-items-center small">
-              <div class="col-auto">
-                <strong>{{ layer.name }}</strong>
-              </div>
-              <div class="col-auto text-muted">總計: {{ getLayerDataCount(layer) }} 筆</div>
-              <div class="col-auto text-muted" v-if="globalSearchQuery">
-                搜尋結果: {{ getFilteredData(layer).length }} 筆
-              </div>
-            </div>
-          </div>
-
-          <!-- 📋 實際表格 (Actual Table) -->
-          <div class="table-container flex-grow-1 overflow-auto">
-            <table class="table table-sm table-hover table-striped mb-0">
-              <!-- 📝 表格標題列 (Table Header) -->
-              <thead class="table-light sticky-top">
-                <tr class="text-center">
-                  <!-- 🔢 ID 欄位標題 -->
-                  <th @click="handleSort(layer.id, 'id')" class="my-sortable">
-                    ID
-                    <i v-if="getSortIcon(layer.id, 'id')" :class="getSortIcon(layer.id, 'id')"></i>
-                  </th>
-                  <!-- 📝 名稱欄位標題 -->
-                  <th @click="handleSort(layer.id, 'name')" class="my-sortable">
-                    名稱
-                    <i
-                      v-if="getSortIcon(layer.id, 'name')"
-                      :class="getSortIcon(layer.id, 'name')"
-                    ></i>
-                  </th>
-                  <!-- 📊 數量欄位標題 -->
-                  <th @click="handleSort(layer.id, 'count')" class="my-sortable">
-                    數量
-                    <i
-                      v-if="getSortIcon(layer.id, 'count')"
-                      :class="getSortIcon(layer.id, 'count')"
-                    ></i>
-                  </th>
-                  <!-- 🎛️ 操作欄位標題 -->
-                  <th>操作</th>
-                </tr>
-              </thead>
-
-              <!-- 📄 表格內容列 -->
-              <tbody>
-                <tr
-                  v-for="(item, index) in getSortedData(layer)"
-                  :key="item.id || item.name || index"
-                  class="text-center align-middle"
-                >
-                  <!-- 🔢 ID 資料欄 -->
-                  <td>{{ item.id }}</td>
-                  <!-- 📝 名稱資料欄 -->
-                  <td>{{ item.name }}</td>
-                  <!-- 📊 數量資料欄 -->
-                  <td>{{ formatValue(item.count) }}</td>
-                  <!-- 🎛️ 操作按鈕欄 -->
-                  <td>
-                    <button
-                      class="btn btn-primary btn-sm py-0 px-1"
-                      @click="handleHighlight(item, layer)"
-                      title="在地圖上高亮顯示"
-                    >
-                      顯示位置
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- 📭 空狀態顯示 (Empty State for this layer) -->
-        <div v-else class="h-100 d-flex align-items-center justify-content-center bg-light">
-          <div class="text-center text-muted">
-            <i class="fas fa-table fa-3x mb-3"></i>
-            <h5>{{ layer.name }}</h5>
-            <p v-if="globalSearchQuery">找不到符合搜尋「{{ globalSearchQuery }}」的結果。</p>
-            <p v-else-if="!layer.isLoaded">此圖層尚未載入資料。</p>
-            <p v-else>此圖層沒有可顯示的資料。</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 📭 無開啟圖層的空狀態 (No Layers Open Empty State) -->
-    <div v-else class="flex-grow-1 d-flex align-items-center justify-content-center bg-light">
-      <div class="text-center text-muted">
-        <i class="fas fa-layer-group fa-3x mb-3"></i>
-        <h5>沒有開啟的圖層</h5>
-        <p>請在左側面板開啟圖層以查看資料表格。</p>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup>
-  /**
-   * 📊 DataTableTab.vue - 多圖層資料表格分頁組件
-   *
-   * 功能說明：
-   * 1. 📋 為每個開啟的圖層提供獨立的表格分頁
-   * 2. 🔍 提供跨圖層的全域搜尋功能
-   * 3. 📊 支援每個圖層獨立的排序功能
-   * 4. 🎯 提供地圖高亮顯示功能
-   * 5. 📤 支援單一圖層資料匯出
-   * 6. 🔄 響應圖層開啟/關閉狀態
-   *
-   * 架構說明：
-   * - 圖層分頁：動態顯示所有開啟的圖層
-   * - 表格區域：每個圖層獨立的表格內容
-   * - 搜尋系統：全域搜尋功能
-   * - 排序系統：每個圖層獨立的排序狀態
-   *
-   * 設計理念：
-   * - 使用 Vue 3 Composition API
-   * - 與 Pinia dataStore 整合
-   * - 響應式的多圖層管理
-   * - 友善的用戶體驗設計
-   */
-
-  // 🔧 Vue Composition API 引入
   import { ref, computed, defineEmits, onMounted, watch } from 'vue';
-  // 📦 Pinia 狀態管理引入
   import { useDataStore } from '@/stores/dataStore.js';
 
-  /**
-   * 📡 組件事件定義 (Component Events)
-   * 定義向父組件發送的事件
-   */
   const emit = defineEmits(['highlight-on-map']);
 
-  // 📦 取得 Pinia 數據存儲實例
   const dataStore = useDataStore();
 
   // 📊 響應式資料狀態 (Reactive Data State)
@@ -384,6 +192,167 @@
     }
   });
 </script>
+
+<template>
+  <!-- 📊 多圖層資料表格分頁組件 (Multi-Layer Data Table Tab Component) -->
+  <!-- 為每個開啟的圖層提供獨立的表格分頁 -->
+  <div class="my-data-table-tab-component h-100 d-flex flex-column">
+    <!-- 🔍 全域搜尋工具列 (Global Search Toolbar) -->
+    <!-- 提供跨圖層的即時搜尋功能 -->
+    <div class="my-search-toolbar-container p-2 bg-light border-bottom">
+      <input
+        type="text"
+        class="form-control form-control-sm"
+        v-model="globalSearchQuery"
+        placeholder="搜尋所有圖層的名稱、ID、數量..."
+      />
+    </div>
+
+    <!-- 📑 圖層分頁導航 (Layer Tabs Navigation) -->
+    <!-- 顯示所有開啟圖層的分頁 -->
+    <div v-if="visibleLayers.length > 0" class="layer-tabs-nav bg-white border-bottom">
+      <ul class="nav nav-tabs nav-fill small">
+        <li v-for="layer in visibleLayers" :key="layer.id" class="nav-item">
+          <button
+            class="nav-link text-dark border-0 px-2 py-1"
+            :class="{
+              'active bg-primary text-white': activeLayerTab === layer.id,
+              'bg-light': activeLayerTab !== layer.id,
+            }"
+            @click="setActiveLayerTab(layer.id)"
+            :title="`顯示 ${layer.name} 的表格資料`"
+          >
+            <span class="layer-tab-name">{{ layer.name }}</span>
+            <span class="badge bg-secondary ms-1" v-if="getLayerDataCount(layer)">
+              {{ getLayerDataCount(layer) }}
+            </span>
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <!-- 📋 圖層表格內容區域 (Layer Table Content Area) -->
+    <!-- 顯示當前選中圖層的表格資料 -->
+    <div v-if="visibleLayers.length > 0" class="flex-grow-1 overflow-hidden">
+      <!-- 📊 當前圖層的表格 (Current Layer Table) -->
+      <div
+        v-for="layer in visibleLayers"
+        :key="layer.id"
+        v-show="activeLayerTab === layer.id"
+        class="h-100"
+      >
+        <!-- 🔄 載入中狀態 (Loading State) -->
+        <div v-if="layer.isLoading" class="h-100 d-flex align-items-center justify-content-center">
+          <div class="text-center">
+            <div class="spinner-border text-primary mb-3" role="status">
+              <span class="visually-hidden">載入中...</span>
+            </div>
+            <p class="text-muted">正在載入 {{ layer.name }} 的資料...</p>
+          </div>
+        </div>
+
+        <!-- 📋 表格內容 (Table Content) -->
+        <div
+          v-else-if="layer.isLoaded && getFilteredData(layer).length > 0"
+          class="h-100 d-flex flex-column"
+        >
+          <!-- 📊 圖層統計資訊 (Layer Statistics) -->
+          <div class="layer-stats-bar bg-light px-3 py-2 border-bottom">
+            <div class="row align-items-center small">
+              <div class="col-auto">
+                <strong>{{ layer.name }}</strong>
+              </div>
+              <div class="col-auto text-muted">總計: {{ getLayerDataCount(layer) }} 筆</div>
+              <div class="col-auto text-muted" v-if="globalSearchQuery">
+                搜尋結果: {{ getFilteredData(layer).length }} 筆
+              </div>
+            </div>
+          </div>
+
+          <!-- 📋 實際表格 (Actual Table) -->
+          <div class="table-container flex-grow-1 overflow-auto">
+            <table class="table table-sm table-hover table-striped mb-0">
+              <!-- 📝 表格標題列 (Table Header) -->
+              <thead class="table-light sticky-top">
+                <tr class="text-center">
+                  <!-- 🔢 ID 欄位標題 -->
+                  <th @click="handleSort(layer.id, 'id')" class="my-sortable">
+                    ID
+                    <i v-if="getSortIcon(layer.id, 'id')" :class="getSortIcon(layer.id, 'id')"></i>
+                  </th>
+                  <!-- 📝 名稱欄位標題 -->
+                  <th @click="handleSort(layer.id, 'name')" class="my-sortable">
+                    名稱
+                    <i
+                      v-if="getSortIcon(layer.id, 'name')"
+                      :class="getSortIcon(layer.id, 'name')"
+                    ></i>
+                  </th>
+                  <!-- 📊 數量欄位標題 -->
+                  <th @click="handleSort(layer.id, 'count')" class="my-sortable">
+                    數量
+                    <i
+                      v-if="getSortIcon(layer.id, 'count')"
+                      :class="getSortIcon(layer.id, 'count')"
+                    ></i>
+                  </th>
+                  <!-- 🎛️ 操作欄位標題 -->
+                  <th>操作</th>
+                </tr>
+              </thead>
+
+              <!-- 📄 表格內容列 -->
+              <tbody>
+                <tr
+                  v-for="(item, index) in getSortedData(layer)"
+                  :key="item.id || item.name || index"
+                  class="text-center align-middle"
+                >
+                  <!-- 🔢 ID 資料欄 -->
+                  <td>{{ item.id }}</td>
+                  <!-- 📝 名稱資料欄 -->
+                  <td>{{ item.name }}</td>
+                  <!-- 📊 數量資料欄 -->
+                  <td>{{ formatValue(item.count) }}</td>
+                  <!-- 🎛️ 操作按鈕欄 -->
+                  <td>
+                    <button
+                      class="btn btn-primary btn-sm py-0 px-1"
+                      @click="handleHighlight(item, layer)"
+                      title="在地圖上高亮顯示"
+                    >
+                      顯示位置
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 📭 空狀態顯示 (Empty State for this layer) -->
+        <div v-else class="h-100 d-flex align-items-center justify-content-center bg-light">
+          <div class="text-center text-muted">
+            <i class="fas fa-table fa-3x mb-3"></i>
+            <h5>{{ layer.name }}</h5>
+            <p v-if="globalSearchQuery">找不到符合搜尋「{{ globalSearchQuery }}」的結果。</p>
+            <p v-else-if="!layer.isLoaded">此圖層尚未載入資料。</p>
+            <p v-else>此圖層沒有可顯示的資料。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 📭 無開啟圖層的空狀態 (No Layers Open Empty State) -->
+    <div v-else class="flex-grow-1 d-flex align-items-center justify-content-center bg-light">
+      <div class="text-center text-muted">
+        <i class="fas fa-layer-group fa-3x mb-3"></i>
+        <h5>沒有開啟的圖層</h5>
+        <p>請在左側面板開啟圖層以查看資料表格。</p>
+      </div>
+    </div>
+  </div>
+</template>
 
 <style scoped>
   /**

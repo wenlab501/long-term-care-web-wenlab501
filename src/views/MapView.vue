@@ -305,15 +305,10 @@
           const layerId = layerConfig.id;
           const existingLayer = leafletLayers.value[layerId];
 
-          // 📊 情況 1：圖層應該顯示 (Layer should be visible)
           if (layerConfig.visible && layerConfig.data) {
-            // 如果地圖上不存在該圖層，創建並添加
             if (!existingLayer) {
+              // 如果地圖上不存在該圖層，創建並添加
               const newLeafletLayer = L.geoJSON(layerConfig.data, {
-                /**
-                 * 🎯 點要素渲染函數 (Point Feature Renderer)
-                 * 為點型幾何建立圓形標記
-                 */
                 pointToLayer: (feature, latlng) => {
                   const geometryType = feature.geometry.type;
                   const radius = 8;
@@ -347,64 +342,38 @@
                 },
                 onEachFeature: (feature, leafletLayer) => {
                   const name = feature.properties.name;
-                  const count = feature.properties.value;
-                  const geometryType = feature.geometry.type;
 
-                  // 🎨 創建詳細的 popup 內容
-                  const isPoint = geometryType === 'point';
+                  const propertiesHtml = Object.entries(feature.properties)
+                    .map(([key, value]) => {
+                      // 為了讓顯示更穩定，先處理 value 的格式
+                      let displayValue = value;
+                      if (value === null || value === undefined) {
+                        displayValue = 'N/A'; // 如果值是空的，顯示 N/A
+                      } else if (typeof value === 'object') {
+                        // 如果值是物件，轉成文字顯示，避免出現 [object Object]
+                        displayValue = JSON.stringify(value);
+                      }
+
+                      // 返回一個符合您指定結構的 HTML 字串
+                      return `
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <span class="text-muted small text-capitalize">${key}</span>
+                          <span class="fw-medium text-truncate" style="max-width: 150px;" title="${displayValue}">${displayValue}</span>
+                        </div>
+                      `;
+                    })
+                    .join(''); // 3. 將所有產生的 HTML 組合起來
+
                   const popupContent = `
-                  <div class="map-popup">
-                    <h6 class="text-primary mb-2">
-                      <i class="fas fa-${isPoint ? 'map-marker-alt' : 'map'} me-1"></i>
-                      ${name}
-                    </h6>
-                    <div class="popup-details">
-                      ${
-                        !isPoint && count > 1
-                          ? `
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <span class="text-muted small">幾何:</span>
-                          <span class="fw-medium">${geometryType}</span>
-                        </div>
-                      `
-                          : ''
-                      }
-                      ${
-                        feature.properties.address
-                          ? `
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <span class="text-muted small">地址:</span>
-                          <span class="fw-medium text-truncate" style="max-width: 150px;" title="${feature.properties.address}">${feature.properties.address}</span>
-                        </div>
-                      `
-                          : ''
-                      }
-                      ${
-                        feature.properties.area
-                          ? `
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <span class="text-muted small">面積:</span>
-                          <span class="fw-medium">${feature.properties.area} km²</span>
-                        </div>
-                      `
-                          : ''
-                      }
-                      ${
-                        feature.properties.phone
-                          ? `
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <span class="text-muted small">電話:</span>
-                          <span class="fw-medium">${feature.properties.phone}</span>
-                        </div>
-                      `
-                          : ''
-                      }
+                    <div class="map-popup">
+                      <h6 class="text-primary mb-2">
+                        ${name}
+                      </h6>
+                      <div class="popup-details" style="max-height: 200px; overflow-y: auto;">
+                        ${propertiesHtml}
+                      </div>
                     </div>
-                    <div class="text-center mt-2">
-                      <small class="text-muted">點擊查看詳細資訊</small>
-                    </div>
-                  </div>
-                `;
+                  `;
 
                   // 🎨 綁定彈出視窗和工具提示
                   leafletLayer.bindPopup(popupContent, {
@@ -447,7 +416,7 @@
                         const geometryType = feature.geometry.type;
 
                         // 🎯 根據幾何類型定位地圖
-                        if (geometryType === 'Point' || geometryType === 'MultiPoint') {
+                        if (geometryType === 'point') {
                           // 點要素：移動到點位置
                           if (typeof leafletLayer.getLatLng === 'function') {
                             const latlng = leafletLayer.getLatLng();
