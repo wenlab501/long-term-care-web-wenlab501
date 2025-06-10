@@ -61,7 +61,7 @@
       const tableData = ref([]);
       /** 📊 台南資料統計摘要 */
       const tainanDataSummary = ref({
-        totalFeatures: 0,
+        totalCount: 0,
         validPoints: 0,
       });
 
