@@ -59,7 +59,6 @@ export const useMapStore = defineStore('map', () => {
   });
 
   // ==================== 座標轉換狀態 ====================
-  const coordinateSystem = ref('WGS84'); // 'WGS84' 或 'TWD97'
   const transformedData = ref(null);
 
   // ==================== Bootstrap RWD 斷點 ====================
@@ -292,7 +291,6 @@ export const useMapStore = defineStore('map', () => {
     selectedCount,
     chartType,
     mapLayers,
-    coordinateSystem,
     transformedData,
 
     // 計算屬性

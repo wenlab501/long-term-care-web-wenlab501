@@ -10,7 +10,6 @@
  * - 📈 Excel/CSV 檔案解析
  * - 🔄 資料格式轉換與合併
  * - 🎨 色票系統與顏色映射
- * - 📍 座標系統轉換 (TWD97 ↔ WGS84)
  * - 🏥 醫療院所資料處理
  *
  * @author 長照空間分析團隊
@@ -147,34 +146,6 @@ export function mergeGeoJSONWithExcel(
     console.error('Error merging data:', error);
     throw error;
   }
-}
-
-/**
- * 📍 TWD97 轉 WGS84 座標轉換 (簡化版)
- *
- * 將台灣地區常用的 TWD97 (EPSG:3826) 座標系統轉換為國際標準的 WGS84 (EPSG:4326)
- * 使用簡化的線性轉換公式，適用於台灣地區的快速轉換需求
- *
- * 注意：此為簡化版本，精度較低但速度快
- * 如需高精度轉換，請使用 coordinateUtils.js 中的精確版本
- *
- * @param {number} x - TWD97 X座標 (東距，公尺)
- * @param {number} y - TWD97 Y座標 (北距，公尺)
- * @returns {Array} [經度, 緯度] WGS84 座標陣列
- */
-export function twd97ToWgs84(x, y) {
-  // TWD97轉換參數（簡化版本，適用於台灣地區）
-  const k0 = 0.9999; // 比例因子
-  const dx = 250000; // 東偏移量
-
-  const y_norm = y / k0;
-  const x_norm = (x - dx) / k0;
-
-  // 概算轉換（適用於台灣地區的近似轉換）
-  const lat = 23.0 + (y_norm - 2500000) / 111000;
-  const lng = 121.0 + x_norm / (111000 * Math.cos((lat * Math.PI) / 180));
-
-  return [lng, lat];
 }
 
 /**
@@ -552,7 +523,6 @@ export async function loadTainanData() {
     // 生成摘要信息
     const summary = {
       totalFeatures: rawGeoJSON.features.length,
-      coordinateSystem: rawGeoJSON.crs?.properties?.name || '未知',
       conversionInfo: rawGeoJSON.conversionInfo || '無轉換',
     };
 
@@ -700,7 +670,6 @@ export async function loadMedicalData(fileName) {
     // 生成摘要信息
     const summary = {
       totalFeatures: geojsonData.features.length,
-      coordinateSystem: 'WGS84',
       conversionInfo: 'CSV轉GeoJSON',
     };
 

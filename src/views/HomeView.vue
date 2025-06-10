@@ -63,7 +63,6 @@
       const tainanDataSummary = ref({
         totalFeatures: 0,
         validPoints: 0,
-        coordinateSystem: 'WGS84',
       });
 
       // 📚 組件引用 (Component References)
