@@ -176,7 +176,7 @@ export const useDataStore = defineStore(
           const result = await layer.loader(layer.fileName);
 
           // 將載入的資料直接存儲在圖層物件中
-          layer.data = result.mergedGeoJSON || result.rawGeoJSON;
+          layer.data = result.rawGeoJSON;
           layer.tableData = result.tableData;
           layer.summary = result.summary;
           layer.isLoaded = true;

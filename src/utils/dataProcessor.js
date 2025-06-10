@@ -132,30 +132,9 @@ export function mergeGeoJSONWithExcel(
       };
     });
 
-    // 更新 GeoJSON 屬性
-    const mergedGeoJSON = {
-      ...geojsonData,
-      features: geojsonData.features.map((feature) => {
-        const props = feature.properties;
-        const excelRow = excelLookup[props[geojsonKey]?.toUpperCase()];
-
-        return {
-          ...feature,
-          properties: {
-            ...props,
-            ...(excelRow || {}),
-            count: excelRow ? excelRow.count || 0 : 0,
-            PTVNAME: excelRow ? excelRow[excelKey] : props.TOWN || '',
-            _merged: !!excelRow,
-          },
-        };
-      }),
-    };
-
     const mergedCount = tableData.filter((row) => row.merged === '成功').length;
 
     return {
-      mergedGeoJSON,
       tableData,
       summary: {
         totalFeatures: geojsonData.features.length,
@@ -579,7 +558,6 @@ export async function loadTainanData() {
 
     return {
       rawGeoJSON,
-      mergedGeoJSON: rawGeoJSON,
       convertedGeoJSON: rawGeoJSON,
       tableData,
       summary,
@@ -728,7 +706,6 @@ export async function loadMedicalData(fileName) {
 
     return {
       rawGeoJSON: geojsonData,
-      mergedGeoJSON: geojsonData,
       convertedGeoJSON: geojsonData,
       tableData,
       summary,
