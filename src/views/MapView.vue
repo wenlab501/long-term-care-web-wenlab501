@@ -316,26 +316,15 @@
                  */
                 pointToLayer: (feature, latlng) => {
                   const geometryType = feature.geometry.type;
-                  const radius = geometryType === 'Point' ? 8 : 6;
+                  const radius = 8;
 
                   return L.circleMarker(latlng, {
                     radius: radius,
                     className: `feature-${geometryType.toLowerCase()}`,
                   });
                 },
-                /**
-                 * 🎨 樣式設定函數 (Style Configuration Function)
-                 * 根據數值和幾何類型設定視覺樣式
-                 */
                 style: (feature) => {
-                  // 智能識別數值屬性
-                  const count =
-                    feature.properties.value ||
-                    feature.properties.count ||
-                    feature.properties['中位數'] ||
-                    feature.properties.population ||
-                    feature.properties.density ||
-                    1; // 預設值為 1（對於點資料）
+                  const count = feature.properties.value;
 
                   // 根據幾何類型調整樣式
                   const geometryType = feature.geometry.type;
@@ -344,42 +333,21 @@
                     weight: props.selectedBorderWeight,
                     opacity: 1,
                     color: props.selectedBorderColor,
-                    fillOpacity: geometryType === 'Point' ? 0.8 : 0.7,
+                    fillOpacity: 0.8,
                   };
 
                   // 針對不同幾何類型的特殊處理
-                  if (geometryType === 'Point') {
+                  if (geometryType === 'point') {
                     baseStyle.radius = 8;
-                  } else if (geometryType === 'MultiPolygon' || geometryType === 'Polygon') {
+                  } else if (geometryType === 'polygon') {
                     baseStyle.fillOpacity = 0.6;
                   }
 
                   return baseStyle;
                 },
-                /**
-                 * 🎯 特徵互動設定 (Feature Interaction Setup)
-                 * 為每個地理特徵添加彈出視窗、工具提示和事件處理
-                 */
                 onEachFeature: (feature, leafletLayer) => {
-                  // 🏷️ 智能識別名稱屬性
-                  const name =
-                    feature.properties.name ||
-                    feature.properties.PTVNAME ||
-                    feature.properties.title ||
-                    feature.properties.label ||
-                    feature.properties.機構名稱 ||
-                    '未知區域';
-
-                  // 📊 智能識別數值屬性
-                  const count =
-                    feature.properties.value ||
-                    feature.properties.count ||
-                    feature.properties['中位數'] ||
-                    feature.properties.population ||
-                    feature.properties.density ||
-                    1;
-
-                  // 🔍 識別幾何類型以便調整顯示
+                  const name = feature.properties.name;
+                  const count = feature.properties.value;
                   const geometryType = feature.geometry.type;
 
                   // 🎨 創建詳細的 popup 內容
@@ -391,10 +359,6 @@
                       ${name}
                     </h6>
                     <div class="popup-details">
-                      <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span class="text-muted small">${isPoint ? '類型:' : '數值:'}</span>
-                        <span class="fw-medium">${isPoint ? '點位置' : count.toLocaleString()}</span>
-                      </div>
                       ${
                         !isPoint && count > 1
                           ? `
@@ -525,19 +489,14 @@
                 },
               });
 
-              // 📊 將新圖層添加到地圖和儲存中
               newLeafletLayer.addTo(map.value);
               leafletLayers.value[layerId] = newLeafletLayer;
-              console.log(`圖層 "${layerId}" 已添加到地圖`);
             }
-          }
-          // 📊 情況 2：圖層不應該顯示 (Layer should NOT be visible)
-          else {
+          } else {
             // 如果地圖上存在該圖層，移除它
             if (existingLayer) {
               map.value.removeLayer(existingLayer);
               delete leafletLayers.value[layerId];
-              console.log(`圖層 "${layerId}" 已從地圖移除`);
             }
           }
         });
