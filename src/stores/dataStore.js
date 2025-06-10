@@ -228,16 +228,8 @@ export const useDataStore = defineStore(
      * 注意：這是舊版結構，新功能應使用圖層管理系統
      */
     const processedData = ref({
-      transformedGeojson: null, // 轉換後的 GeoJSON
-      spatialAnalysisResults: {}, // 空間分析結果
-      statisticsResults: {}, // 統計分析結果
-      clusteringResults: {}, // 聚類分析結果
-      heatmapData: [], // 熱力圖資料
-      boundaryData: {}, // 邊界資料
       loadedAndMergedGeoJSON: null, // 載入並合併的 GeoJSON
-      loadedAndMergedTableData: null, // 載入並合併的表格資料
       convertedGeoJSON: null, // 轉換後的 GeoJSON
-      medicalData: null, // 醫療資料
     });
 
     // ==================== 🎯 選中物件狀態 (Selected Feature State) ====================
@@ -409,7 +401,6 @@ export const useDataStore = defineStore(
 
     // Keep this for components that haven't been updated yet.
     // This is the crucial fix: make the legacy property reactive to the new system.
-    // processedData.value.loadedAndMergedTableData = activeTableData.value;
 
     const setSelectedFeature = (feature) => {
       selectedFeature.value = feature;
