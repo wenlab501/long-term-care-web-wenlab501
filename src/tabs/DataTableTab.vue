@@ -71,15 +71,6 @@
               <div class="col-auto text-muted" v-if="globalSearchQuery">
                 搜尋結果: {{ getFilteredData(layer).length }} 筆
               </div>
-              <div class="col text-end">
-                <button
-                  class="btn btn-outline-secondary btn-sm"
-                  @click="exportLayerData(layer)"
-                  title="匯出此圖層資料"
-                >
-                  <i class="fas fa-download"></i> 匯出
-                </button>
-              </div>
             </div>
           </div>
 
@@ -359,31 +350,6 @@
       return value.toLocaleString();
     }
     return value || '-';
-  };
-
-  /**
-   * 📤 匯出圖層資料 (Export Layer Data)
-   * @param {Object} layer - 圖層物件
-   */
-  const exportLayerData = (layer) => {
-    try {
-      const data = getSortedData(layer);
-      const jsonStr = JSON.stringify(data, null, 2);
-      const blob = new Blob([jsonStr], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${layer.name}_data.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      console.log(`✅ 已匯出 ${layer.name} 資料`);
-    } catch (error) {
-      console.error('匯出資料失敗:', error);
-    }
   };
 
   /**

@@ -23,7 +23,7 @@ export async function loadHospitalClinicData(fileName) {
     const headers = rows[0].map((h) => h.trim());
 
     const headerIndices = {
-      name: headers.indexOf('機構名稱'),
+      name: headers.indexOf('醫療院所'),
       city: headers.indexOf('縣市'),
       district: headers.indexOf('鄉鎮市區'),
       address: headers.indexOf('地址'),
@@ -69,6 +69,7 @@ export async function loadHospitalClinicData(fileName) {
     // 包含為表格量身打造的數據陣列
     const tableData = geoJsonText.features.map((feature, index) => ({
       id: index + 1,
+      name: feature.properties.name,
       ...feature.properties,
     })); // .map() 方法結束
 
@@ -108,6 +109,8 @@ export async function loadGeoJson(fileName) {
     // 包含為表格量身打造的數據陣列
     const tableData = geoJsonText.features.map((feature, index) => ({
       id: index + 1,
+      name: feature.properties.FULL,
+      value: feature.properties['中位數'],
       ...feature.properties,
       geometry: feature.geometry,
     }));

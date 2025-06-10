@@ -1,28 +1,3 @@
-/**
- * 📊 dataStore.js - 核心數據狀態管理模組
- *
- * 🎯 功能說明：
- * 1. 🗂️ 統一管理應用程式中的所有數據狀態
- * 2. 🔄 提供數據載入、處理、轉換的核心功能
- * 3. 🗺️ 管理圖層系統和地理資訊數據
- * 4. 🎨 整合色彩方案和視覺化設定
- * 5. 📊 處理空間分析和統計計算
- * 6. 💾 支援數據持久化和匯入匯出功能
- *
- * 🏗️ 架構說明：
- * - 圖層管理系統：layers[] 陣列管理所有圖層狀態
- * - 原始數據存儲：rawData 管理未處理的原始數據
- * - 處理數據存儲：processedData 管理已處理的數據
- * - 視覺化設定：visualizationSettings 管理色彩和樣式
- * - 分析參數：analysisParameters 管理空間分析設定
- *
- * 💡 設計理念：
- * - 使用 Pinia Composition API 模式
- * - 支援數據持久化 (persist: true)
- * - 提供完整的 getter/setter 介面
- * - 整合 Python 風格色彩方案系統
- */
-
 // 🔧 Vue 和 Pinia 核心模組引入
 import { defineStore } from 'pinia';
 import { ref, computed, reactive } from 'vue';
@@ -40,27 +15,6 @@ import { loadGeoJson as loadGeoJsonUtil, loadHospitalClinicData } from '../utils
 export const useDataStore = defineStore(
   'data',
   () => {
-    // ==================== 🗺️ 圖層管理系統 (Centralized Layer Management System) ====================
-
-    /**
-     * 🗺️ 圖層配置陣列 (Layers Configuration Array)
-     * 集中管理所有可用圖層的狀態、資料和載入器
-     *
-     * 新的分組結構：
-     * - groupName: 圖層群組名稱
-     * - groupLayers: 該群組內的圖層陣列
-     *
-     * 每個圖層包含：
-     * - id: 唯一識別碼
-     * - name: 顯示名稱
-     * - visible: 是否可見
-     * - isLoading: 是否正在載入
-     * - isLoaded: 是否已載入完成
-     * - data: 圖層資料（GeoJSON 等）
-     * - summary: 資料摘要統計
-     * - tableData: 表格資料
-     * - loader: 資料載入函數
-     */
     const layers = ref([
       {
         groupName: '醫療設施',
@@ -71,6 +25,7 @@ export const useDataStore = defineStore(
             visible: false,
             isLoading: false,
             isLoaded: false,
+            type: 'point',
             data: null, // 存放 GeoJSON 資料
             summary: null, // 存放資料摘要
             tableData: null, // 存放表格資料
@@ -83,6 +38,7 @@ export const useDataStore = defineStore(
             visible: false,
             isLoading: false,
             isLoaded: false,
+            type: 'point',
             data: null, // 存放 GeoJSON 資料
             summary: null, // 存放資料摘要
             tableData: null, // 存放表格資料
@@ -96,10 +52,11 @@ export const useDataStore = defineStore(
         groupLayers: [
           {
             id: '3_section_age',
-            name: '113年12月行政區三段年齡組性別人口統計',
+            name: '三段年齡組性別人口統計',
             visible: false,
             isLoading: false,
             isLoaded: false,
+            type: 'polygon',
             data: null, // 存放 GeoJSON 資料
             summary: null, // 存放資料摘要
             tableData: null, // 存放表格資料
@@ -108,10 +65,11 @@ export const useDataStore = defineStore(
           },
           {
             id: '5_year',
-            name: '113年12月行政區五歲年齡組性別人口統計',
+            name: '五歲年齡組性別人口統計',
             visible: false,
             isLoading: false,
             isLoaded: false,
+            type: 'polygon',
             data: null, // 存放 GeoJSON 資料
             summary: null, // 存放資料摘要
             tableData: null, // 存放表格資料
@@ -120,10 +78,11 @@ export const useDataStore = defineStore(
           },
           {
             id: '10_year',
-            name: '113年12月行政區十歲年齡組性別人口統計',
+            name: '十歲年齡組性別人口統計',
             visible: false,
             isLoading: false,
             isLoaded: false,
+            type: 'polygon',
             data: null, // 存放 GeoJSON 資料
             summary: null, // 存放資料摘要
             tableData: null, // 存放表格資料
@@ -132,10 +91,11 @@ export const useDataStore = defineStore(
           },
           {
             id: 'taipei',
-            name: '臺北市_村里_綜稅綜合所得總額',
+            name: '綜稅綜合所得總額',
             visible: false,
             isLoading: false,
             isLoaded: false,
+            type: 'polygon',
             data: null, // 存放 GeoJSON 資料
             summary: null, // 存放資料摘要
             tableData: null, // 存放表格資料

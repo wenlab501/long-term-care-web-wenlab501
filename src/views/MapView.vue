@@ -383,7 +383,7 @@
                   const geometryType = feature.geometry.type;
 
                   // 🎨 創建詳細的 popup 內容
-                  const isPoint = geometryType === 'Point';
+                  const isPoint = geometryType === 'point';
                   const popupContent = `
                   <div class="map-popup">
                     <h6 class="text-primary mb-2">
@@ -400,7 +400,7 @@
                           ? `
                         <div class="d-flex justify-content-between align-items-center mb-1">
                           <span class="text-muted small">幾何:</span>
-                          <span class="fw-medium">${geometryType === 'Polygon' ? '多邊形' : geometryType === 'MultiPolygon' ? '複合多邊形' : geometryType}</span>
+                          <span class="fw-medium">${geometryType}</span>
                         </div>
                       `
                           : ''
@@ -447,7 +447,7 @@
                     maxWidth: 250,
                     className: 'custom-popup',
                   });
-                  leafletLayer.bindTooltip(`${name}: ${count.toLocaleString()}`, {
+                  leafletLayer.bindTooltip(`${name}`, {
                     direction: 'top',
                     offset: [0, -10],
                   });
