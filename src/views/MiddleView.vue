@@ -57,11 +57,7 @@
     selectedBorderWeight: { type: Number, default: 1 },
     zoomLevel: { type: Number, default: 10 },
     currentCoords: { type: Object, default: () => ({ lat: 0, lng: 0 }) },
-    tainanGeoJSONData: { type: Object, default: null },
-    maxCount: { type: Number, default: 0 },
-    mergedTableData: { type: Array, default: () => [] },
     sortedAndFilteredTableData: { type: Array, default: () => [] },
-    averageCount: { type: Number, default: 0 },
     dataRegionsCount: { type: Number, default: 0 },
     activeMarkers: { type: Number, default: 0 },
     isLoadingData: { type: Boolean, default: false },
@@ -72,8 +68,6 @@
       default: 'asc',
       validator: (value) => ['asc', 'desc'].includes(value),
     },
-    totalCount: { type: Number, default: 0 },
-    tainanDataSummary: { type: Object, default: null },
     isSidePanelDragging: { type: Boolean, default: false },
   });
 
@@ -342,16 +336,10 @@
         :selectedBorderColor="selectedBorderColor"
         :selectedBorderWeight="selectedBorderWeight"
         :zoomLevel="zoomLevel"
-        :tainanGeoJSONData="tainanGeoJSONData"
-        :maxCount="maxCount"
-        :mergedTableData="mergedTableData"
         :sortedAndFilteredTableData="sortedAndFilteredTableData"
-        :averageCount="averageCount"
         :dataRegionsCount="dataRegionsCount"
         :isPanelDragging="isOverallDragging"
         :activeMarkers="activeMarkers"
-        :totalCount="totalCount"
-        :tainanDataSummary="tainanDataSummary"
         @update:activeTab="$emit('update:activeTab', $event)"
         @update:zoomLevel="$emit('update:zoomLevel', $event)"
         @update:currentCoords="$emit('update:currentCoords', $event)"

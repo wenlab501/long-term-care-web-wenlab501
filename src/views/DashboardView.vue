@@ -1,6 +1,5 @@
 <script setup>
   import { ref, computed, watch, onMounted } from 'vue';
-  // import { formatNumber } from '../utils/utils.js'; // 暫時移除未使用的import
   import { useDataStore } from '@/stores/dataStore.js';
 
   const dataStore = useDataStore();
@@ -20,15 +19,6 @@
   const setActiveLayerTab = (layerId) => {
     activeLayerTab.value = layerId;
   };
-
-  // /**
-  //  * 📊 當前圖層資料 (Current Layer Data)
-  //  */
-  // const currentLayerData = computed(() => {
-  //   if (!activeLayerTab.value) return [];
-  //   const layer = visibleLayers.value.find((l) => l.id === activeLayerTab.value);
-  //   return layer ? layer.tableData || [] : [];
-  // });
 
   /**
    * 📊 當前圖層摘要 (Current Layer Summary)

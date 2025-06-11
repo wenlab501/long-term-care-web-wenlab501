@@ -44,7 +44,6 @@
           :selectedBorderColor="selectedBorderColor"
           :selectedBorderWeight="selectedBorderWeight"
           :zoomLevel="zoomLevel"
-          :tainanGeoJSONData="tainanGeoJSONData"
           :maxCount="maxCount"
           @update:zoomLevel="$emit('update:zoomLevel', $event)"
           @update:currentCoords="$emit('update:currentCoords', $event)"
@@ -64,15 +63,9 @@
         <div style="height: 40px"></div>
         <DashboardView
           ref="dashboardView"
-          :mergedTableData="mergedTableData"
-          :maxCount="maxCount"
-          :averageCount="averageCount"
-          :dataRegionsCount="dataRegionsCount"
           :containerHeight="contentHeight"
           :isPanelDragging="isPanelDragging"
           :activeMarkers="activeMarkers"
-          :totalCount="totalCount"
-          :tainanDataSummary="tainanDataSummary"
         />
       </div>
 
@@ -156,14 +149,8 @@
       selectedBorderColor: { type: String, default: '#666666', required: true },
       selectedBorderWeight: { type: Number, default: 1, required: true },
       zoomLevel: { type: Number, default: 10, required: true },
-      tainanGeoJSONData: { type: Object, default: null },
-      maxCount: { type: Number, default: 0, required: true },
-      mergedTableData: { type: Array, default: () => [], required: true },
-      averageCount: { type: Number, default: 0, required: true },
       dataRegionsCount: { type: Number, default: 0, required: true },
       activeMarkers: { type: Number, default: 0 },
-      totalCount: { type: Number, default: 0 },
-      tainanDataSummary: { type: Object, default: null },
     },
 
     /**

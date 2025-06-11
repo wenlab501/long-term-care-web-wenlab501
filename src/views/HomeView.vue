@@ -1,31 +1,5 @@
 <script>
-  /**
-   * 🏠 HomeView.vue - 首頁視圖組件
-   *
-   * 功能說明：
-   * 1. 📱 提供響應式三面板佈局系統（左中右，支援 0-100% 動態調整）
-   * 2. 🗺️ 整合地圖視覺化與空間分析功能
-   * 3. 📊 管理長照資源數據的載入、處理與分析
-   * 4. 🎨 提供多種 Python matplotlib 色票方案
-   * 5. 🔧 支援拖拉調整面板大小（完全彈性 0-100% 範圍）
-   * 6. 📈 整合 Pinia 狀態管理，統一管理應用程式狀態
-   * 7. 🎯 處理地圖互動、特徵選擇、高亮顯示等用戶操作
-   *
-   * 架構說明：
-   * - 佈局系統：三欄式響應式佈局，支援拖曳調整
-   * - 狀態管理：整合 Pinia store，管理圖層和資料狀態
-   * - 組件組合：組合多個子組件提供完整功能
-   *
-   * 設計理念：
-   * - 滿版無邊距佈局
-   * - 直觀的拖曳調整體驗
-   */
-
-  // 🔧 Vue Composition API 引入
   import { ref, onMounted, onUnmounted, computed, nextTick, watch } from 'vue';
-  // 🛠️ 工具函數引入
-  import { formatNumber } from '../utils/utils.js';
-  // 📦 Pinia 狀態管理引入
   import { useDataStore } from '@/stores/dataStore';
 
   // 🧩 組件引入
@@ -59,11 +33,6 @@
       // 📊 本地資料狀態 (Local Data State)
       /** 📋 表格資料暫存 */
       const tableData = ref([]);
-      /** 📊 台南資料統計摘要 */
-      const tainanDataSummary = ref({
-        totalCount: 0,
-        validPoints: 0,
-      });
 
       // 📚 組件引用 (Component References)
       /** 🌟 中間面板組件引用 */
@@ -163,14 +132,6 @@
       const selectedCount = ref(0);
       /** 📍 作用中的地圖標記數量 */
       const activeMarkers = ref(0);
-
-      // 📊 台南數據相關計算屬性 (Tainan Data Related Computed Properties)
-      // 這些數據從 Pinia store 的特定圖層數據中提取
-
-      /** 🗺️ 從 store 獲取台南 GeoJSON 資料 */
-      const storeTainanGeoJSONData = computed(() => dataStore.processedData.loadedAndMergedGeoJSON);
-      /** 📊 從 store 獲取台南資料統計摘要 */
-      const storeTainanDataSummary = computed(() => dataStore.dataSummary);
 
       // 🔧 拖曳狀態 (Dragging States)
       /** 🖱️ 側邊面板拖曳進行中狀態 */
@@ -458,11 +419,7 @@
         mainPanelWidth, // 中間面板寬度百分比
         mainPanelWidthPx, // 中間面板像素寬度
 
-        // 📊 台南數據
-        tainanDataSummary, // 台南資料摘要
         tableData, // 表格資料
-        storeTainanGeoJSONData, // 從 store 獲取的 GeoJSON 資料
-        storeTainanDataSummary, // 從 store 獲取的資料摘要
 
         // 📥 數據管理功能
         fitMapToData, // 適應地圖到資料
@@ -475,7 +432,6 @@
         validatePanelSizes, // 驗證面板尺寸
 
         // 🛠️ 工具函數
-        formatNumber, // 數字格式化
         getCurrentTime, // 取得當前時間
         appFooterRef, // 頁腳引用
         calculatedMiddleViewHeight, // 計算的中間面板高度
@@ -553,14 +509,9 @@
             :selectedBorderWeight="selectedBorderWeight"
             :zoomLevel="zoomLevel"
             :currentCoords="currentCoords"
-            :tainanGeoJSONData="storeTainanGeoJSONData"
-            :maxCount="maxCount"
-            :averageCount="averageCount"
-            :dataRegionsCount="dataRegionsCount"
             :activeMarkers="activeMarkers"
             :isLoadingData="isAnyLayerLoading"
             :isSidePanelDragging="isSidePanelDragging"
-            :tainanDataSummary="storeTainanDataSummary"
             @update:activeTab="activeTab = $event"
             @update:activeBottomTab="activeBottomTab = $event"
             @update:zoomLevel="zoomLevel = $event"
