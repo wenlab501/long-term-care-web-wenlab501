@@ -6,8 +6,6 @@
 
   const dataStore = useDataStore();
 
-  /** 🔍 全域搜尋查詢字串 */
-  const globalSearchQuery = ref('');
   /** 📑 當前作用中的圖層分頁 */
   const activeLayerTab = ref(null);
   /** 📊 每個圖層的排序狀態 */
@@ -40,45 +38,19 @@
   };
 
   /**
-   * 🔍 取得過濾後的資料 (Get Filtered Data)
-   * 根據全域搜尋條件過濾圖層資料
-   * @param {Object} layer - 圖層物件
-   * @returns {Array} 過濾後的資料陣列
-   */
-  const getFilteredData = (layer) => {
-    if (!layer.tableData) return [];
-
-    let filtered = layer.tableData;
-
-    // 🔍 全域搜尋過濾邏輯
-    if (globalSearchQuery.value) {
-      const query = globalSearchQuery.value.toLowerCase();
-      filtered = filtered.filter((item) => {
-        const nameMatch = item.name?.toLowerCase().includes(query);
-        const idMatch = String(item.id).includes(query);
-        const countMatch = String(item.count).includes(query);
-        return nameMatch || idMatch || countMatch;
-      });
-    }
-
-    return filtered;
-  };
-
-  /**
    * 📊 取得排序後的資料 (Get Sorted Data)
-   * 對過濾後的資料進行排序
    * @param {Object} layer - 圖層物件
    * @returns {Array} 排序後的資料陣列
    */
   const getSortedData = (layer) => {
-    const filtered = getFilteredData(layer);
-    const sortState = layerSortStates.value[layer.id];
+    if (!layer.tableData) return [];
 
+    const sortState = layerSortStates.value[layer.id];
     if (!sortState || !sortState.key) {
-      return filtered;
+      return layer.tableData;
     }
 
-    return [...filtered].sort((a, b) => {
+    return [...layer.tableData].sort((a, b) => {
       const aValue = a[sortState.key];
       const bValue = b[sortState.key];
 
@@ -159,8 +131,11 @@
     return value || '-';
   };
 
+  // 記錄上一次的圖層列表用於比較
+  const previousLayers = ref([]);
+
   /**
-   * 👀 監聽可見圖層變化，自動設定第一個可見圖層為預設分頁
+   * 👀 監聽可見圖層變化，自動切換到新開啟的圖層分頁
    */
   watch(
     () => visibleLayers.value,
@@ -168,13 +143,33 @@
       // 如果沒有可見圖層，清除選中的分頁
       if (newLayers.length === 0) {
         activeLayerTab.value = null;
+        previousLayers.value = [];
         return;
       }
 
+      // 找出新增的圖層（比較新舊圖層列表）
+      const previousLayerIds = previousLayers.value.map((layer) => layer.id);
+      const newLayerIds = newLayers.map((layer) => layer.id);
+      const addedLayerIds = newLayerIds.filter((id) => !previousLayerIds.includes(id));
+
+      // 如果有新增的圖層，自動切換到最新新增的圖層
+      if (addedLayerIds.length > 0) {
+        const newestAddedLayerId = addedLayerIds[addedLayerIds.length - 1];
+        activeLayerTab.value = newestAddedLayerId;
+        console.log(
+          `🔄 自動切換到新開啟的圖層: ${newLayers.find((layer) => layer.id === newestAddedLayerId)?.name}`
+        );
+      }
       // 如果當前沒有選中分頁，或選中的分頁不在可見列表中，選中第一個
-      if (!activeLayerTab.value || !newLayers.find((layer) => layer.id === activeLayerTab.value)) {
+      else if (
+        !activeLayerTab.value ||
+        !newLayers.find((layer) => layer.id === activeLayerTab.value)
+      ) {
         activeLayerTab.value = newLayers[0].id;
       }
+
+      // 更新記錄的圖層列表
+      previousLayers.value = [...newLayers];
     },
     { deep: true, immediate: true }
   );
@@ -193,36 +188,22 @@
 </script>
 
 <template>
-  <!-- 📊 多圖層資料表格分頁組件 (Multi-Layer Data Table Tab Component) -->
-  <!-- 為每個開啟的圖層提供獨立的表格分頁 -->
+  <!-- 📊 多圖層資料表格分頁組件 -->
   <div class="h-100 d-flex flex-column">
-    <!-- 🔍 全域搜尋工具列 (Global Search Toolbar) -->
-    <!-- 提供跨圖層的即時搜尋功能 -->
-    <div class="my-search-toolbar-container p-2 bg-light border-bottom">
-      <input
-        type="text"
-        class="form-control form-control-sm"
-        v-model="globalSearchQuery"
-        placeholder="搜尋所有圖層的名稱、ID、數量..."
-      />
-    </div>
-
-    <!-- 📑 圖層分頁導航 (Layer Tabs Navigation) -->
-    <!-- 顯示所有開啟圖層的分頁 -->
-    <div v-if="visibleLayers.length > 0" class="layer-tabs-nav bg-white border-bottom">
-      <ul class="nav nav-tabs nav-fill small">
+    <!-- 📑 圖層分頁導航 -->
+    <div v-if="visibleLayers.length > 0" class="bg-white border-bottom">
+      <ul class="nav nav-tabs nav-fill">
         <li v-for="layer in visibleLayers" :key="layer.id" class="nav-item">
           <button
-            class="nav-link text-dark border-0 px-2 py-1"
+            class="nav-link"
             :class="{
-              'active bg-primary text-white': activeLayerTab === layer.id,
-              'bg-light': activeLayerTab !== layer.id,
+              active: activeLayerTab === layer.id,
             }"
             @click="setActiveLayerTab(layer.id)"
             :title="`顯示 ${layer.name} 的表格資料`"
           >
-            <span class="layer-tab-name">{{ layer.name }}</span>
-            <span class="badge bg-secondary ms-1" v-if="getLayerDataCount(layer)">
+            {{ layer.name }}
+            <span class="badge bg-secondary ms-2" v-if="getLayerDataCount(layer)">
               {{ getLayerDataCount(layer) }}
             </span>
           </button>
@@ -230,17 +211,15 @@
       </ul>
     </div>
 
-    <!-- 📋 圖層表格內容區域 (Layer Table Content Area) -->
-    <!-- 顯示當前選中圖層的表格資料 -->
+    <!-- 📋 圖層表格內容區域 -->
     <div v-if="visibleLayers.length > 0" class="flex-grow-1 overflow-hidden">
-      <!-- 📊 當前圖層的表格 (Current Layer Table) -->
       <div
         v-for="layer in visibleLayers"
         :key="layer.id"
         v-show="activeLayerTab === layer.id"
         class="h-100"
       >
-        <!-- 🔄 載入中狀態 (Loading State) -->
+        <!-- 🔄 載入中狀態 -->
         <div v-if="layer.isLoading" class="h-100 d-flex align-items-center justify-content-center">
           <div class="text-center">
             <div class="spinner-border text-primary mb-3" role="status">
@@ -250,73 +229,65 @@
           </div>
         </div>
 
-        <!-- 📋 表格內容 (Table Content) -->
+        <!-- 📋 表格內容 -->
         <div
-          v-else-if="layer.isLoaded && getFilteredData(layer).length > 0"
+          v-else-if="layer.isLoaded && getSortedData(layer).length > 0"
           class="h-100 d-flex flex-column"
         >
-          <!-- 📊 圖層統計資訊 (Layer Statistics) -->
-          <div class="layer-stats-bar bg-light px-3 py-2 border-bottom">
-            <div class="row align-items-center small">
-              <div class="col-auto">
+          <!-- 📊 圖層統計資訊 -->
+          <div class="bg-light px-3 py-2 border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+              <div>
                 <strong>{{ layer.name }}</strong>
-              </div>
-              <div class="col-auto text-muted">總計: {{ getLayerDataCount(layer) }} 筆</div>
-              <div class="col-auto text-muted" v-if="globalSearchQuery">
-                搜尋結果: {{ getFilteredData(layer).length }} 筆
+                <span class="text-muted ms-2">總計: {{ getLayerDataCount(layer) }} 筆</span>
               </div>
             </div>
           </div>
 
-          <!-- 📋 實際表格 (Actual Table) -->
-          <div class="table-container flex-grow-1 overflow-auto">
+          <!-- 📋 Bootstrap 表格 -->
+          <div class="flex-grow-1 overflow-auto">
             <table class="table table-sm table-hover table-striped mb-0">
-              <!-- 📝 表格標題列 (Table Header) -->
               <thead class="table-light sticky-top">
                 <tr class="text-center">
-                  <!-- 🔢 ID 欄位標題 -->
-                  <th @click="handleSort(layer.id, 'id')" class="my-sortable">
+                  <th
+                    @click="handleSort(layer.id, 'id')"
+                    class="user-select-none"
+                    style="cursor: pointer"
+                  >
                     ID
-                    <i v-if="getSortIcon(layer.id, 'id')" :class="getSortIcon(layer.id, 'id')"></i>
+                    <i :class="getSortIcon(layer.id, 'id')" class="ms-1"></i>
                   </th>
-                  <!-- 📝 名稱欄位標題 -->
-                  <th @click="handleSort(layer.id, 'name')" class="my-sortable">
+                  <th
+                    @click="handleSort(layer.id, 'name')"
+                    class="user-select-none"
+                    style="cursor: pointer"
+                  >
                     名稱
-                    <i
-                      v-if="getSortIcon(layer.id, 'name')"
-                      :class="getSortIcon(layer.id, 'name')"
-                    ></i>
+                    <i :class="getSortIcon(layer.id, 'name')" class="ms-1"></i>
                   </th>
-                  <!-- 📊 數量欄位標題 -->
-                  <th @click="handleSort(layer.id, 'count')" class="my-sortable">
+                  <th
+                    @click="handleSort(layer.id, 'count')"
+                    class="user-select-none"
+                    style="cursor: pointer"
+                  >
                     數量
-                    <i
-                      v-if="getSortIcon(layer.id, 'count')"
-                      :class="getSortIcon(layer.id, 'count')"
-                    ></i>
+                    <i :class="getSortIcon(layer.id, 'count')" class="ms-1"></i>
                   </th>
-                  <!-- 🎛️ 操作欄位標題 -->
                   <th>操作</th>
                 </tr>
               </thead>
-
-              <!-- 📄 表格內容列 -->
               <tbody>
                 <tr
                   v-for="(item, index) in getSortedData(layer)"
                   :key="item.id || item.name || index"
                   class="text-center align-middle"
                 >
-                  <!-- 🔢 ID 資料欄 -->
                   <td>{{ item.id }}</td>
-                  <!-- 📝 名稱資料欄 -->
                   <td>{{ item.name }}</td>
-                  <!-- 📊 數量資料欄 -->
                   <td>{{ formatValue(item.count) }}</td>
-                  <!-- 🎛️ 操作按鈕欄 -->
                   <td>
                     <button
-                      class="btn btn-primary btn-sm py-0 px-1"
+                      class="btn btn-primary btn-sm"
                       @click="handleHighlight(item, layer)"
                       title="在地圖上高亮顯示"
                     >
@@ -329,20 +300,19 @@
           </div>
         </div>
 
-        <!-- 📭 空狀態顯示 (Empty State for this layer) -->
+        <!-- 📭 空狀態顯示 -->
         <div v-else class="h-100 d-flex align-items-center justify-content-center bg-light">
           <div class="text-center text-muted">
             <i class="fas fa-table fa-3x mb-3"></i>
             <h5>{{ layer.name }}</h5>
-            <p v-if="globalSearchQuery">找不到符合搜尋「{{ globalSearchQuery }}」的結果。</p>
-            <p v-else-if="!layer.isLoaded">此圖層尚未載入資料。</p>
+            <p v-if="!layer.isLoaded">此圖層尚未載入資料。</p>
             <p v-else>此圖層沒有可顯示的資料。</p>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 📭 無開啟圖層的空狀態 (No Layers Open Empty State) -->
+    <!-- 📭 無開啟圖層的空狀態 -->
     <div v-else class="flex-grow-1 d-flex align-items-center justify-content-center bg-light">
       <div class="text-center text-muted">
         <i class="fas fa-layer-group fa-3x mb-3"></i>
@@ -354,155 +324,5 @@
 </template>
 
 <style scoped>
-  /* 🔍 搜尋工具列樣式 */
-  .my-search-toolbar-container input.form-control {
-    background-color: white;
-    border-color: #ced4da;
-    color: #495057;
-  }
-
-  .my-search-toolbar-container input.form-control:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-  }
-
-  .my-search-toolbar-container input.form-control::placeholder {
-    color: #6c757d;
-  }
-
-  /* 📑 圖層分頁導航樣式 */
-  .layer-tabs-nav {
-    border-bottom: 1px solid #dee2e6;
-  }
-
-  .layer-tabs-nav .nav-tabs {
-    border-bottom: none;
-  }
-
-  .layer-tabs-nav .nav-link {
-    font-size: 0.8rem;
-    padding: 0.5rem 0.75rem;
-    transition: all 0.2s ease;
-    border-radius: 0;
-  }
-
-  .layer-tabs-nav .nav-link:hover {
-    background-color: #e9ecef;
-  }
-
-  .layer-tabs-nav .nav-link.active {
-    border-bottom: 2px solid #007bff;
-  }
-
-  .layer-tab-name {
-    font-weight: 500;
-  }
-
-  /* 📊 圖層統計列樣式 */
-  .layer-stats-bar {
-    border-bottom: 1px solid #dee2e6;
-    background-color: #f8f9fa;
-  }
-
-  /* 📋 表格容器樣式 */
-  .table-container {
-    overflow-y: auto;
-  }
-
-  /* 📊 表格基礎樣式 */
-  .table {
-    --bs-table-bg: white;
-    --bs-table-color: #212529;
-    --bs-table-striped-bg: #f8f9fa;
-    --bs-table-hover-bg: #e9ecef;
-  }
-
-  /* 📝 表格標題樣式 */
-  .table thead.sticky-top {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background-color: #f8f9fa;
-  }
-
-  .table th {
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 0.5px;
-    vertical-align: middle;
-    white-space: nowrap;
-  }
-
-  /* 📊 可排序標題樣式 */
-  .table th.my-sortable {
-    cursor: pointer;
-    user-select: none;
-  }
-
-  .table th.my-sortable:hover {
-    background-color: #e2e6ea;
-  }
-
-  .table th.my-sortable i {
-    margin-left: 0.3em;
-    font-size: 0.9em;
-    opacity: 0.7;
-  }
-
-  .table th.my-sortable:hover i {
-    opacity: 1;
-  }
-
-  /* 📄 表格內容樣式 */
-  .table td {
-    font-size: 0.85rem;
-    padding: 0.4rem 0.5rem;
-    vertical-align: middle;
-  }
-
-  .table tbody tr:hover {
-    background-color: var(--bs-table-hover-bg);
-  }
-
-  /* 📭 空狀態樣式 */
-  .bg-light {
-    background-color: #f8f9fa !important;
-  }
-
-  /* 🎛️ 按鈕樣式調整 */
-  .btn-primary.btn-sm {
-    transition: all 0.2s ease;
-  }
-
-  .btn-primary.btn-sm:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-  }
-
-  /* 📱 響應式設計調整 */
-  @media (max-width: 768px) {
-    .layer-tab-name {
-      font-size: 0.7rem;
-    }
-
-    .badge {
-      font-size: 0.6rem;
-    }
-
-    .layer-stats-bar .row > .col-auto {
-      margin-bottom: 0.25rem;
-    }
-  }
-
-  /* 🎨 載入動畫 */
-  .spinner-border {
-    width: 3rem;
-    height: 3rem;
-  }
-
-  /* 📊 徽章樣式 */
-  .badge {
-    font-size: 0.7rem;
-  }
+  /* 最小化自定義樣式，主要使用 Bootstrap */
 </style>
