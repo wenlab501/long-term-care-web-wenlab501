@@ -197,7 +197,30 @@
        */
       const initMap = () => {
         if (map.value) return;
+
         try {
+          // 🔍 檢查容器是否存在且有尺寸
+          if (!mapContainer.value) {
+            console.error('❌ 地圖容器不存在，延遲初始化');
+            setTimeout(initMap, 100);
+            return;
+          }
+
+          // 確保容器有尺寸
+          const containerRect = mapContainer.value.getBoundingClientRect();
+          if (containerRect.width === 0 || containerRect.height === 0) {
+            console.warn('⚠️ 地圖容器尺寸為零，延遲初始化');
+            setTimeout(initMap, 100);
+            return;
+          }
+
+          console.log(
+            '🗺️ 開始初始化地圖，容器尺寸:',
+            containerRect.width,
+            'x',
+            containerRect.height
+          );
+
           // 建立地圖實例
           map.value = L.map(mapContainer.value, {
             center: [25.033, 121.5654], // 台灣台北市中心座標
@@ -209,6 +232,10 @@
             fadeAnimation: true, // 啟用淡入淡出動畫
             markerZoomAnimation: true, // 啟用標記縮放動畫
           });
+
+          // 立即刷新尺寸，確保地圖知道容器大小
+          map.value.invalidateSize();
+
           // 載入預設底圖
           loadBasemap();
 
@@ -235,11 +262,16 @@
 
           // ⏰ 延遲設定初始化完成狀態，確保地圖完全載入
           setTimeout(() => {
-            mapInitialized.value = true;
-            console.log('✅ 地圖初始化完成');
-          }, 100);
+            if (map.value) {
+              mapInitialized.value = true;
+              console.log('✅ 地圖初始化完成');
+              // 再次確保尺寸正確
+              map.value.invalidateSize();
+            }
+          }, 200);
         } catch (error) {
           console.error('❌ 地圖初始化失敗:', error);
+          mapInitialized.value = false;
         }
       };
 
@@ -391,43 +423,61 @@
                       }
 
                       try {
+                        // 🛑 停止所有正在進行的動畫，避免_latLngToNewLayerPoint錯誤
+                        if (map.value.stop) {
+                          map.value.stop();
+                        }
+
                         const geometryType = feature.geometry.type;
 
-                        // 🎯 根據幾何類型定位地圖
-                        if (geometryType === 'point') {
-                          // 點要素：移動到點位置
-                          if (typeof leafletLayer.getLatLng === 'function') {
-                            const latlng = leafletLayer.getLatLng();
-                            if (latlng) {
-                              map.value.panTo(latlng, {
-                                animate: true,
-                                duration: 0.5,
-                              });
+                        // ⏰ 等待一小段時間，確保動畫完全停止
+                        setTimeout(() => {
+                          if (!map.value || !mapInitialized.value) return;
+
+                          try {
+                            // 🎯 根據幾何類型定位地圖
+                            if (geometryType === 'Point') {
+                              // 點要素：移動到點位置
+                              if (typeof leafletLayer.getLatLng === 'function') {
+                                const latlng = leafletLayer.getLatLng();
+                                if (latlng && latlng.lat && latlng.lng) {
+                                  map.value.panTo(latlng, {
+                                    animate: true,
+                                    duration: 0.3,
+                                  });
+                                }
+                              }
+                            } else {
+                              // 面/線要素：移動到中心點
+                              if (typeof leafletLayer.getBounds === 'function') {
+                                const bounds = leafletLayer.getBounds();
+                                if (bounds && bounds.isValid()) {
+                                  const center = bounds.getCenter();
+                                  if (center && center.lat && center.lng) {
+                                    map.value.panTo(center, {
+                                      animate: true,
+                                      duration: 0.3,
+                                    });
+                                  }
+                                }
+                              }
                             }
+
+                            // ⏰ 延遲顯示 popup，等待地圖移動完成
+                            setTimeout(() => {
+                              if (leafletLayer && leafletLayer.openPopup && map.value) {
+                                leafletLayer.openPopup();
+                              }
+                            }, 350);
+
+                            // 📡 發送選中事件到父組件
+                            emit('feature-selected', leafletLayer.feature);
+
+                            console.log(`✅ 成功處理 ${geometryType} 類型要素點擊: ${name}`);
+                          } catch (innerError) {
+                            console.error('處理地圖移動時發生錯誤:', innerError);
                           }
-                        } else {
-                          // 面/線要素：移動到中心點
-                          if (typeof leafletLayer.getBounds === 'function') {
-                            const bounds = leafletLayer.getBounds();
-                            if (bounds && bounds.isValid()) {
-                              const center = bounds.getCenter();
-                              map.value.panTo(center, {
-                                animate: true,
-                                duration: 0.5,
-                              });
-                            }
-                          }
-                        }
-
-                        // 立即顯示 popup，不等待動畫
-                        if (leafletLayer && leafletLayer.openPopup) {
-                          leafletLayer.openPopup();
-                        }
-
-                        // 📡 發送選中事件到父組件
-                        emit('feature-selected', leafletLayer.feature);
-
-                        console.log(`✅ 成功處理 ${geometryType} 類型要素點擊: ${name}`);
+                        }, 50);
                       } catch (error) {
                         console.error('點擊要素時發生錯誤:', error);
                       }
@@ -476,16 +526,40 @@
       const showAllFeatures = () => {
         if (!map.value || !mapInitialized.value || !isAnyLayerVisible.value) return;
         try {
+          // 🛑 停止所有正在進行的動畫
+          if (map.value.stop) {
+            map.value.stop();
+          }
+
           const allBounds = new L.LatLngBounds();
           Object.values(leafletLayers.value).forEach((layer) => {
             if (layer && layer.getBounds) {
-              allBounds.extend(layer.getBounds());
+              try {
+                const layerBounds = layer.getBounds();
+                if (layerBounds && layerBounds.isValid()) {
+                  allBounds.extend(layerBounds);
+                }
+              } catch (boundsError) {
+                console.warn('獲取圖層邊界時發生警告:', boundsError);
+              }
             }
           });
+
           if (allBounds.isValid()) {
-            // 移動到所有要素的中心點，不進行縮放
-            const center = allBounds.getCenter();
-            map.value.panTo(center, { animate: true, duration: 0.8 });
+            // ⏰ 延遲執行，確保動畫停止完成
+            setTimeout(() => {
+              if (map.value && mapInitialized.value) {
+                try {
+                  // 移動到所有要素的中心點，不進行縮放
+                  const center = allBounds.getCenter();
+                  if (center && center.lat && center.lng) {
+                    map.value.panTo(center, { animate: true, duration: 0.5 });
+                  }
+                } catch (panError) {
+                  console.error('移動地圖時發生錯誤:', panError);
+                }
+              }
+            }, 50);
           }
         } catch (error) {
           console.error('顯示所有要素時發生錯誤:', error);
@@ -555,62 +629,84 @@
        * 將高亮邏輯抽取為獨立函數，提高程式碼複用性
        */
       const performHighlight = (leafletLayer, layer, id, layerInfo) => {
-        layer.resetStyle(leafletLayer); // 先重設樣式
+        if (!map.value || !mapInitialized.value) return;
 
-        // 🎨 根據幾何類型設定高亮樣式
-        const geometryType = leafletLayer.feature.geometry.type;
-        const highlightStyle = {
-          weight: 4,
-          color: '#ff0000',
-          dashArray: '5,5',
-          fillOpacity: 1.0,
-        };
+        try {
+          // 🛑 停止所有正在進行的動畫
+          if (map.value.stop) {
+            map.value.stop();
+          }
 
-        if (geometryType === 'Point') {
-          highlightStyle.radius = 12; // 放大點的半徑
-        }
+          layer.resetStyle(leafletLayer); // 先重設樣式
 
-        leafletLayer.setStyle(highlightStyle);
+          // 🎨 根據幾何類型設定高亮樣式
+          const geometryType = leafletLayer.feature.geometry.type;
+          const highlightStyle = {
+            weight: 4,
+            color: '#ff0000',
+            dashArray: '5,5',
+            fillOpacity: 1.0,
+          };
 
-        // 🎯 根據幾何類型移動地圖到特徵位置並zoom in
-        if (geometryType === 'Point') {
-          // 點要素：移動到點位置並zoom in
-          if (typeof leafletLayer.getLatLng === 'function') {
-            const latlng = leafletLayer.getLatLng();
-            if (latlng) {
-              map.value.setView(latlng, Math.max(map.value.getZoom(), 15), {
-                animate: true,
-                duration: 1.0,
-              });
+          if (geometryType === 'Point') {
+            highlightStyle.radius = 12; // 放大點的半徑
+          }
+
+          leafletLayer.setStyle(highlightStyle);
+
+          // ⏰ 延遲執行地圖移動，確保動畫停止完成
+          setTimeout(() => {
+            if (!map.value || !mapInitialized.value) return;
+
+            try {
+              // 🎯 根據幾何類型移動地圖到特徵位置並zoom in
+              if (geometryType === 'Point') {
+                // 點要素：移動到點位置並zoom in
+                if (typeof leafletLayer.getLatLng === 'function') {
+                  const latlng = leafletLayer.getLatLng();
+                  if (latlng && latlng.lat && latlng.lng) {
+                    map.value.setView(latlng, Math.max(map.value.getZoom(), 15), {
+                      animate: true,
+                      duration: 0.8,
+                    });
+                  }
+                }
+              } else {
+                // 面/線要素：fit到邊界並適當zoom in
+                if (typeof leafletLayer.getBounds === 'function') {
+                  const bounds = leafletLayer.getBounds();
+                  if (bounds && bounds.isValid()) {
+                    map.value.fitBounds(bounds, {
+                      animate: true,
+                      duration: 0.8,
+                      padding: [20, 20],
+                      maxZoom: 16,
+                    });
+                  }
+                }
+              }
+
+              // ⏰ 延遲顯示 tooltip，等待地圖移動完成
+              setTimeout(() => {
+                if (leafletLayer && map.value) {
+                  if (leafletLayer.openTooltip) {
+                    leafletLayer.openTooltip();
+                  }
+                  if (leafletLayer.openPopup) {
+                    leafletLayer.openPopup();
+                  }
+                }
+              }, 900);
+            } catch (moveError) {
+              console.error('移動地圖到高亮位置時發生錯誤:', moveError);
             }
-          }
-        } else {
-          // 面/線要素：fit到邊界並適當zoom in
-          if (typeof leafletLayer.getBounds === 'function') {
-            const bounds = leafletLayer.getBounds();
-            if (bounds && bounds.isValid()) {
-              map.value.fitBounds(bounds, {
-                animate: true,
-                duration: 1.0,
-                padding: [20, 20],
-                maxZoom: 16,
-              });
-            }
-          }
+          }, 50);
+
+          const layerName = layerInfo ? layerInfo.layerName : '未知圖層';
+          console.log(`✅ 成功在圖層 "${layerName}" 中高亮顯示 ${geometryType} 類型要素: ${id}`);
+        } catch (error) {
+          console.error('執行高亮顯示時發生錯誤:', error);
         }
-
-        // ⏰ 延遲顯示 tooltip，等待地圖移動完成
-        setTimeout(() => {
-          if (leafletLayer.openTooltip) {
-            leafletLayer.openTooltip();
-          }
-          if (leafletLayer.openPopup) {
-            leafletLayer.openPopup();
-          }
-        }, 600);
-
-        const layerName = layerInfo ? layerInfo.layerName : '未知圖層';
-        console.log(`✅ 成功在圖層 "${layerName}" 中高亮顯示 ${geometryType} 類型要素: ${id}`);
       };
 
       /**
@@ -620,8 +716,22 @@
       const resetView = () => {
         if (!map.value || !mapInitialized.value) return;
         try {
-          // 移動到台灣中南部中心位置，不改變縮放等級
-          map.value.panTo([22.9908, 120.2133], { animate: true, duration: 0.8 });
+          // 🛑 停止所有正在進行的動畫
+          if (map.value.stop) {
+            map.value.stop();
+          }
+
+          // ⏰ 延遲執行，確保動畫停止完成
+          setTimeout(() => {
+            if (map.value && mapInitialized.value) {
+              try {
+                // 移動到台灣中南部中心位置，不改變縮放等級
+                map.value.panTo([22.9908, 120.2133], { animate: true, duration: 0.5 });
+              } catch (panError) {
+                console.error('移動地圖時發生錯誤:', panError);
+              }
+            }
+          }, 50);
         } catch (error) {
           console.error('重置視圖時發生錯誤:', error);
         }
@@ -634,11 +744,27 @@
       const fitToTainanBounds = () => {
         if (!map.value || !mapInitialized.value || !leafletLayers.value['tainan']) return;
         try {
+          // 🛑 停止所有正在進行的動畫
+          if (map.value.stop) {
+            map.value.stop();
+          }
+
           const tainanBounds = leafletLayers.value['tainan'].getBounds();
           if (tainanBounds && tainanBounds.isValid()) {
-            // 移動到台南邊界的中心點
-            const center = tainanBounds.getCenter();
-            map.value.panTo(center, { animate: true, duration: 0.8 });
+            // ⏰ 延遲執行，確保動畫停止完成
+            setTimeout(() => {
+              if (map.value && mapInitialized.value) {
+                try {
+                  // 移動到台南邊界的中心點
+                  const center = tainanBounds.getCenter();
+                  if (center && center.lat && center.lng) {
+                    map.value.panTo(center, { animate: true, duration: 0.5 });
+                  }
+                } catch (panError) {
+                  console.error('移動地圖時發生錯誤:', panError);
+                }
+              }
+            }, 50);
           }
         } catch (error) {
           console.error('適應台南邊界時發生錯誤:', error);
@@ -749,7 +875,11 @@
        * 初始化地圖實例
        */
       onMounted(() => {
-        initMap();
+        console.log('🚀 MapView 組件已掛載，開始初始化地圖');
+        // 確保 DOM 已完全渲染
+        nextTick(() => {
+          initMap();
+        });
       });
 
       /**
@@ -757,9 +887,51 @@
        * 清理地圖實例和釋放記憶體
        */
       onUnmounted(() => {
-        if (map.value) {
-          map.value.remove();
-          map.value = null;
+        console.log('🗑️ MapView 組件即將卸載，開始清理地圖資源');
+        try {
+          // 🛑 停止所有動畫
+          if (map.value && map.value.stop) {
+            map.value.stop();
+          }
+
+          // 🔄 清理所有圖層
+          Object.values(leafletLayers.value).forEach((layer) => {
+            if (layer) {
+              try {
+                if (map.value && map.value.hasLayer(layer)) {
+                  map.value.removeLayer(layer);
+                }
+              } catch (removeError) {
+                console.warn('移除圖層時發生警告:', removeError);
+              }
+            }
+          });
+          leafletLayers.value = {};
+
+          // 🗺️ 移除底圖圖層
+          if (currentTileLayer.value && map.value) {
+            try {
+              map.value.removeLayer(currentTileLayer.value);
+            } catch (removeError) {
+              console.warn('移除底圖時發生警告:', removeError);
+            }
+          }
+          currentTileLayer.value = null;
+
+          // 🗑️ 移除地圖實例
+          if (map.value) {
+            try {
+              map.value.off(); // 移除所有事件監聽器
+              map.value.remove(); // 完全移除地圖
+              map.value = null;
+              mapInitialized.value = false;
+              console.log('✅ 地圖資源清理完成');
+            } catch (removeError) {
+              console.error('清理地圖實例時發生錯誤:', removeError);
+            }
+          }
+        } catch (error) {
+          console.error('組件卸載清理時發生錯誤:', error);
         }
       });
 
@@ -795,6 +967,14 @@
   /* 🗺️ 地圖容器樣式 (Map Container Styles) */
   #map-container {
     background-color: #f0f0f0; /* 空白地圖時的後備背景色 */
+    min-height: 400px; /* 確保容器有最小高度 */
+  }
+
+  /* 🗺️ Leaflet 地圖容器樣式 (Leaflet Map Container Styles) */
+  #leaflet-map {
+    min-height: 400px; /* 確保地圖容器有最小高度 */
+    width: 100% !important; /* 強制寬度100% */
+    height: 100% !important; /* 強制高度100% */
   }
 
   /* ✨ 地圖底部控制項樣式 (Map Bottom Controls Styles) */
