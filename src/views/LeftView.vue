@@ -95,35 +95,38 @@
             <div
               v-for="layer in group.groupLayers"
               :key="layer.id"
-              class="d-flex justify-content-between align-items-center"
+              class="d-flex justify-content-between align-items-center py-2"
             >
-              <!-- 📝 圖層名稱標籤 (Layer Name Label) -->
-              <label class="form-label mb-0">{{ layer.name }}</label>
+              <!-- 📝 圖層名稱和顏色指示器 (Layer Name and Color Indicator) -->
+              <div class="d-flex align-items-center">
+                <!-- 🎨 圖層顏色指示器 (Layer Color Indicator) -->
+                <div
+                  class="layer-color-indicator me-2"
+                  :style="{ backgroundColor: layer.color }"
+                ></div>
+                <label class="form-label mb-0 small">{{ layer.name }}</label>
+              </div>
 
-              <!-- 🔘 圖層開關按鈕 (Layer Toggle Button) -->
-              <!-- 顯示圖層狀態：開啟/關閉/載入中 -->
-              <button
-                type="button"
-                class="btn btn-sm"
-                style="width: 60px"
-                :class="{
-                  'btn-success': layer.visible,
-                  'btn-outline-secondary': !layer.visible,
-                  disabled: layer.isLoading,
-                }"
-                @click="toggleLayer(layer.id)"
-                :disabled="layer.isLoading"
-              >
-                <!-- ⏳ 載入動畫指示器 (Loading Animation Indicator) -->
-                <span
-                  v-if="layer.isLoading"
-                  class="spinner-border spinner-border-sm"
-                  role="status"
-                  aria-hidden="true"
-                ></span>
-                <!-- 📝 按鈕狀態文字 (Button Status Text) -->
-                <span v-else>{{ layer.visible ? '開啟' : '關閉' }}</span>
-              </button>
+              <!-- 🔘 CSS開關樣式 (CSS Toggle Switch) -->
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  :id="'switch-' + layer.id"
+                  :checked="layer.visible"
+                  :disabled="layer.isLoading"
+                  @change="toggleLayer(layer.id)"
+                />
+                <label class="form-check-label" :for="'switch-' + layer.id">
+                  <!-- ⏳ 載入動畫指示器 (Loading Animation Indicator) -->
+                  <span
+                    v-if="layer.isLoading"
+                    class="spinner-border spinner-border-sm ms-2"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
+                </label>
+              </div>
             </div>
           </div>
         </div>
@@ -132,4 +135,50 @@
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+  /* 🎨 圖層顏色指示器樣式 (Layer Color Indicator Styles) */
+  .layer-color-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+    flex-shrink: 0;
+  }
+
+  /* 🔘 開關樣式優化 (Toggle Switch Optimization) */
+  .form-check-input:checked {
+    background-color: #198754;
+    border-color: #198754;
+  }
+
+  .form-check-input:focus {
+    border-color: #198754;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+  }
+
+  /* 📝 標籤樣式調整 (Label Style Adjustments) */
+  .form-label {
+    cursor: pointer;
+    user-select: none;
+  }
+
+  /* 🎛️ 面板標題樣式 (Panel Title Styles) */
+  .my-font-size-xl {
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  .my-font-size-lg {
+    font-size: 1.25rem;
+    font-weight: 500;
+  }
+
+  .my-letter-spacing-lg {
+    letter-spacing: 0.1em;
+  }
+
+  .my-bg-color-gray-300 {
+    background-color: #dee2e6;
+  }
+</style>

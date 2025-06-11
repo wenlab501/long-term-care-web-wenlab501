@@ -11,6 +11,17 @@ import {
 } from '../utils/dataProcessor.js';
 
 /**
+ * 🎨 生成隨機RGB顏色 (Generate Random RGB Color)
+ * @returns {string} 隨機RGB顏色字串
+ */
+const generateRandomColor = () => {
+  const r = Math.floor(Math.random() * 156 + 100); // 100-255 確保顏色不會太暗
+  const g = Math.floor(Math.random() * 156 + 100);
+  const b = Math.floor(Math.random() * 156 + 100);
+  return `rgb(${r}, ${g}, ${b})`;
+};
+
+/**
  * 📊 主要數據存儲定義 (Main Data Store Definition)
  * 使用 Pinia Composition API 語法創建中央化狀態管理
  */
@@ -28,6 +39,7 @@ export const useDataStore = defineStore(
             isLoading: false,
             isLoaded: false,
             type: 'point',
+            color: generateRandomColor(), // 隨機顏色
             data: null, // 存放 GeoJSON 資料
             summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
@@ -46,6 +58,7 @@ export const useDataStore = defineStore(
             isLoading: false,
             isLoaded: false,
             type: 'point',
+            color: generateRandomColor(), // 隨機顏色
             data: null, // 存放 GeoJSON 資料
             summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
@@ -59,6 +72,7 @@ export const useDataStore = defineStore(
             isLoading: false,
             isLoaded: false,
             type: 'point',
+            color: generateRandomColor(), // 隨機顏色
             data: null, // 存放 GeoJSON 資料
             summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
@@ -72,6 +86,7 @@ export const useDataStore = defineStore(
             isLoading: false,
             isLoaded: false,
             type: 'point',
+            color: generateRandomColor(), // 隨機顏色
             data: null, // 存放 GeoJSON 資料
             summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
@@ -90,6 +105,7 @@ export const useDataStore = defineStore(
             isLoading: false,
             isLoaded: false,
             type: 'polygon',
+            color: generateRandomColor(), // 隨機顏色
             data: null, // 存放 GeoJSON 資料
             summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
@@ -103,6 +119,7 @@ export const useDataStore = defineStore(
             isLoading: false,
             isLoaded: false,
             type: 'polygon',
+            color: generateRandomColor(), // 隨機顏色
             data: null, // 存放 GeoJSON 資料
             summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
@@ -116,6 +133,7 @@ export const useDataStore = defineStore(
             isLoading: false,
             isLoaded: false,
             type: 'polygon',
+            color: generateRandomColor(), // 隨機顏色
             data: null, // 存放 GeoJSON 資料
             summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
@@ -129,6 +147,7 @@ export const useDataStore = defineStore(
             isLoading: false,
             isLoaded: false,
             type: 'polygon',
+            color: generateRandomColor(), // 隨機顏色
             data: null, // 存放 GeoJSON 資料
             summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料

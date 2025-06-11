@@ -298,8 +298,11 @@
 
                   // 根據幾何類型調整樣式
                   const geometryType = feature.geometry.type;
+                  // 🎨 獲取當前圖層的顏色
+                  const layerColor = layerConfig.color || '#3498db';
+
                   const baseStyle = {
-                    fillColor: '#3498db', // 固定藍色
+                    fillColor: layerColor, // 使用圖層指定的顏色
                     weight: props.selectedBorderWeight,
                     opacity: 1,
                     color: props.selectedBorderColor,
@@ -437,10 +440,23 @@
               leafletLayers.value[layerId] = newLeafletLayer;
             }
           } else {
-            // 如果地圖上存在該圖層，移除它
+            // 如果地圖上存在該圖層，安全地移除它
             if (existingLayer) {
-              map.value.removeLayer(existingLayer);
-              delete leafletLayers.value[layerId];
+              try {
+                // 🛑 停止任何正在進行的動畫，避免_latLngToNewLayerPoint錯誤
+                if (map.value.stop) {
+                  map.value.stop();
+                }
+
+                if (map.value.hasLayer(existingLayer)) {
+                  map.value.removeLayer(existingLayer);
+                }
+                delete leafletLayers.value[layerId];
+              } catch (removeError) {
+                console.warn(`移除圖層 ${layerId} 時發生警告:`, removeError);
+                // 即使移除失敗，也要清理引用
+                delete leafletLayers.value[layerId];
+              }
             }
           }
         });
@@ -654,16 +670,34 @@
         console.log('🔄 MapView: Force updating layers after tab switch');
         if (!map.value || !mapInitialized.value) return;
 
-        // 先清除所有現有圖層
-        Object.values(leafletLayers.value).forEach((layer) => {
-          if (layer && map.value.hasLayer(layer)) {
-            map.value.removeLayer(layer);
-          }
-        });
-        leafletLayers.value = {};
+        try {
+          // 🛑 停止所有正在進行的地圖動畫，避免_latLngToNewLayerPoint錯誤
+          map.value.stop();
 
-        // 重新載入所有應該可見的圖層
-        updateMapLayers();
+          // 先清除所有現有圖層
+          Object.values(leafletLayers.value).forEach((layer) => {
+            if (layer && layer.remove) {
+              // 安全地移除圖層，避免動畫衝突
+              try {
+                if (map.value.hasLayer(layer)) {
+                  map.value.removeLayer(layer);
+                }
+              } catch (removeError) {
+                console.warn('移除圖層時發生警告:', removeError);
+              }
+            }
+          });
+          leafletLayers.value = {};
+
+          // 🔄 延遲一小段時間再重新載入圖層，確保清理完成
+          setTimeout(() => {
+            if (map.value && mapInitialized.value) {
+              updateMapLayers();
+            }
+          }, 50);
+        } catch (error) {
+          console.error('強制更新圖層時發生錯誤:', error);
+        }
       };
 
       // 👀 監聽器設定 (Watchers Setup)
@@ -688,8 +722,12 @@
               if (layer.feature) {
                 const feature = layer.feature;
                 const count = feature.properties[dataStore.getCurrentLayer()?.countField] || 0;
+                // 🎨 獲取當前圖層的顏色
+                const currentLayer = dataStore.getCurrentLayer();
+                const layerColor = currentLayer?.color || '#3498db';
+
                 const newStyle = {
-                  fillColor: '#3498db', // 固定藍色
+                  fillColor: layerColor, // 使用圖層指定的顏色
                   weight: props.selectedBorderWeight,
                   opacity: 1,
                   color: props.selectedBorderColor,
