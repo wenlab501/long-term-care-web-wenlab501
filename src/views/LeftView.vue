@@ -62,52 +62,41 @@
 </script>
 
 <template>
-  <!-- 🎛️ 左側控制面板組件 (Left Control Panel Component) -->
-  <!-- 提供圖層管理、資料載入控制等功能的側邊面板 -->
   <div class="bg-light border-end h-100 d-flex flex-column overflow-hidden">
-    <!-- 📋 面板標題區域 (Panel Header Section) -->
-    <div class="p-3" style="min-width: 0">
-      <h1
-        class="my-font-size-xl"
-        style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis"
-      >
-        <div class="d-flex flex-column align-items-center justify-content-center m-3">
-          <div class="rounded-circle my-bg-color-gray-300 p-4"></div>
-          <div class="my-font-size-lg my-letter-spacing-lg mt-3">臺北市長照資訊</div>
-        </div>
+    <!-- 面板標題區域 -->
+    <div class="p-3">
+      <h1>
+        <div class="my-font-size-lg my-letter-spacing-lg text-center m-4">臺北市長照資訊</div>
       </h1>
     </div>
 
-    <!-- 🎛️ 主控制區域 (Main Control Area) -->
-    <div class="flex-grow-1 overflow-auto p-3">
-      <!-- 🗺️ 圖層控制卡片 (Layer Control Card) -->
-      <!-- 動態顯示所有可用圖層群組，並提供開關控制 -->
+    <!-- 主控制區域 -->
+    <div class="flex-grow-1 overflow-auto">
       <div class="mb-3">
-        <!-- 🔄 圖層群組列表迴圈 (Layer Group List Loop) -->
-        <!-- 遍歷 Pinia store 中的所有圖層群組 -->
-        <div v-for="group in layers" :key="group.groupName" class="mb-3">
-          <!-- 📋 群組標題 (Group Title) -->
-          <h6 class="text-muted mb-2">{{ group.groupName }}</h6>
+        <!-- 群組迴圈 -->
+        <div
+          v-for="group in layers"
+          :key="group.groupName"
+          class="rounded-4 shadow-sm bg-white p-3 m-3"
+        >
+          <div class="text-center mb-3">{{ group.groupName }}</div>
 
-          <!-- 🗂️ 群組內圖層列表 (Group Layers List) -->
           <div class="vstack gap-2 ps-2">
-            <!-- 🔄 群組內圖層迴圈 (Group Layers Loop) -->
+            <!-- 群組內圖 -->
             <div
               v-for="layer in group.groupLayers"
               :key="layer.id"
               class="d-flex justify-content-between align-items-center py-2"
             >
-              <!-- 📝 圖層名稱和顏色指示器 (Layer Name and Color Indicator) -->
               <div class="d-flex align-items-center">
-                <!-- 🎨 圖層顏色指示器 (Layer Color Indicator) -->
                 <div
                   class="layer-color-indicator me-2"
                   :style="{ backgroundColor: layer.color }"
                 ></div>
-                <label class="form-label mb-0 small">{{ layer.name }}</label>
+                {{ layer.name }}
               </div>
 
-              <!-- 🔘 CSS開關樣式 (CSS Toggle Switch) -->
+              <!-- 開關 -->
               <div class="form-check form-switch">
                 <input
                   class="form-check-input"
@@ -117,15 +106,6 @@
                   :disabled="layer.isLoading"
                   @change="toggleLayer(layer.id)"
                 />
-                <label class="form-check-label" :for="'switch-' + layer.id">
-                  <!-- ⏳ 載入動畫指示器 (Loading Animation Indicator) -->
-                  <span
-                    v-if="layer.isLoading"
-                    class="spinner-border spinner-border-sm ms-2"
-                    role="status"
-                    aria-hidden="true"
-                  ></span>
-                </label>
               </div>
             </div>
           </div>
@@ -136,49 +116,21 @@
 </template>
 
 <style scoped>
-  /* 🎨 圖層顏色指示器樣式 (Layer Color Indicator Styles) */
+  /*  圖層顏色指示器 */
   .layer-color-indicator {
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    border: 1px solid #ccc;
-    flex-shrink: 0;
   }
 
-  /* 🔘 開關樣式優化 (Toggle Switch Optimization) */
+  /* 開關樣式優化 */
   .form-check-input:checked {
-    background-color: #198754;
-    border-color: #198754;
+    background-color: var(--my-color-success-500);
+    border-color: var(--my-color-success-500);
   }
 
   .form-check-input:focus {
-    border-color: #198754;
+    border-color: var(--my-color-success-500);
     outline: 0;
-    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
-  }
-
-  /* 📝 標籤樣式調整 (Label Style Adjustments) */
-  .form-label {
-    cursor: pointer;
-    user-select: none;
-  }
-
-  /* 🎛️ 面板標題樣式 (Panel Title Styles) */
-  .my-font-size-xl {
-    font-size: 1.5rem;
-    font-weight: 600;
-  }
-
-  .my-font-size-lg {
-    font-size: 1.25rem;
-    font-weight: 500;
-  }
-
-  .my-letter-spacing-lg {
-    letter-spacing: 0.1em;
-  }
-
-  .my-bg-color-gray-300 {
-    background-color: #dee2e6;
   }
 </style>

@@ -225,7 +225,7 @@
                 if (mapView.value) {
                   mapView.value.invalidateSize();
                   // 強制重新載入圖層，解決分頁切換後圖層消失的問題
-                  mapView.value.forceUpdateLayers();
+                  mapView.value.invalidateSize();
                   console.log(
                     '🗺️ UpperView: Map size invalidated and layers force updated after tab switch'
                   );

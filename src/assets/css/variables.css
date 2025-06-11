@@ -325,9 +325,6 @@
 .my-text-secondary {
   color: var(--my-text-secondary);
 }
-.my-text-muted {
-  color: var(--my-text-muted);
-}
 .my-text-disabled {
   color: var(--my-text-disabled);
 }

@@ -197,7 +197,7 @@
                       JSON.stringify(currentLayerSummary, null, 2)
                     }}</pre>
                   </div>
-                  <div v-else class="text-center text-muted py-5">
+                  <div v-else class="text-center py-5">
                     <h5>沒有摘要資料</h5>
                     <p>此圖層沒有可用的摘要資訊</p>
                   </div>

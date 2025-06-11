@@ -1,8 +1,6 @@
-// 🔧 Vue 和 Pinia 核心模組引入
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 
-// 📊 資料處理工具引入
 import {
   loadGeoJson as loadGeoJsonUtil,
   loadElderlyWelfareInstitutionData,
@@ -10,10 +8,7 @@ import {
   loadHospitalClinicData,
 } from '../utils/dataProcessor.js';
 
-/**
- * 🎨 生成隨機RGB顏色 (Generate Random RGB Color)
- * @returns {string} 隨機RGB顏色字串
- */
+// 生成隨機RGB顏色 (Generate Random RGB Color)
 const generateRandomColor = () => {
   const r = Math.floor(Math.random() * 156 + 100); // 100-255 確保顏色不會太暗
   const g = Math.floor(Math.random() * 156 + 100);
@@ -21,10 +16,7 @@ const generateRandomColor = () => {
   return `rgb(${r}, ${g}, ${b})`;
 };
 
-/**
- * 📊 主要數據存儲定義 (Main Data Store Definition)
- * 使用 Pinia Composition API 語法創建中央化狀態管理
- */
+// 主要數據存儲定義 (Main Data Store Definition)
 export const useDataStore = defineStore(
   'data',
   () => {
@@ -43,6 +35,7 @@ export const useDataStore = defineStore(
             data: null, // 存放 GeoJSON 資料
             summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
+            tooltipData: null, // 存放地圖tooltip資料
             loader: loadElderlyWelfareInstitutionData, // 資料載入函數
             fileName: '臺北市老人福利機構名冊1140201_coord.csv',
           },
@@ -62,6 +55,7 @@ export const useDataStore = defineStore(
             data: null, // 存放 GeoJSON 資料
             summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
+            tooltipData: null, // 存放地圖tooltip資料
             loader: loadHospitalClinicData, // 資料載入函數
             fileName: '112年12月醫療院所分布圖_全國_醫院_coord.csv',
           },
@@ -76,6 +70,7 @@ export const useDataStore = defineStore(
             data: null, // 存放 GeoJSON 資料
             summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
+            tooltipData: null, // 存放地圖tooltip資料
             loader: loadHospitalClinicData, // 資料載入函數
             fileName: '112年12月醫療院所分布圖_全國_診所_coord.csv',
           },
@@ -90,6 +85,7 @@ export const useDataStore = defineStore(
             data: null, // 存放 GeoJSON 資料
             summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
+            tooltipData: null, // 存放地圖tooltip資料
             loader: loadHealthcareFacilityPharmacyData, // 資料載入函數
             fileName: '健保特約醫事機構-藥局_coord.csv',
           },
@@ -109,6 +105,7 @@ export const useDataStore = defineStore(
             data: null, // 存放 GeoJSON 資料
             summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
+            tooltipData: null, // 存放地圖tooltip資料
             loader: loadGeoJsonUtil, // 資料載入函數
             fileName: '113年12月行政區三段年齡組性別人口統計_村里_WGS84_臺北市.geojson',
           },
@@ -123,6 +120,7 @@ export const useDataStore = defineStore(
             data: null, // 存放 GeoJSON 資料
             summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
+            tooltipData: null, // 存放地圖tooltip資料
             loader: loadGeoJsonUtil, // 資料載入函數
             fileName: '113年12月行政區五歲年齡組性別人口統計_村里_WGS84_臺北市.geojson',
           },
@@ -137,6 +135,7 @@ export const useDataStore = defineStore(
             data: null, // 存放 GeoJSON 資料
             summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
+            tooltipData: null, // 存放地圖tooltip資料
             loader: loadGeoJsonUtil, // 資料載入函數
             fileName: '113年12月行政區十歲年齡組性別人口統計_村里_WGS84_臺北市.geojson',
           },
@@ -151,6 +150,7 @@ export const useDataStore = defineStore(
             data: null, // 存放 GeoJSON 資料
             summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
+            tooltipData: null, // 存放地圖tooltip資料
             loader: loadGeoJsonUtil, // 資料載入函數
             fileName: '臺北市_村里_綜稅綜合所得總額.geojson',
           },

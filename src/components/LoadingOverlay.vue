@@ -39,7 +39,7 @@
 
       <!-- 📝 輔助說明文字 (Secondary Text) -->
       <!-- 提供載入操作的詳細說明或提示資訊 -->
-      <div v-if="subText" class="text-muted mt-2">
+      <div v-if="subText" class="mt-2">
         <small>{{ subText }}</small>
       </div>
     </div>
@@ -110,7 +110,7 @@
 <style scoped>
   /**
  * 🎨 載入覆蓋層樣式 (Loading Overlay Styles)
- * 
+ *
  * 使用自定義 CSS 變數系統，與 common.css 中的定義保持一致
  * 提供響應式設計和無障礙支援
  */

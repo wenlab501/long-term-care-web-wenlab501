@@ -25,7 +25,7 @@
     </div>
 
     <!-- 🔍 未選中物件時的提示訊息 (No Object Selected Message) -->
-    <div v-else class="text-muted text-center p-3">請點擊地圖上的物件以查看其屬性</div>
+    <div v-else class="text-center p-3">請點擊地圖上的物件以查看其屬性</div>
   </div>
 </template>
 

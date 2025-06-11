@@ -83,7 +83,7 @@
           mapInstance = L.map(mapContainer.value, {
             center: [25.033, 121.5654],
             zoom: props.zoomLevel,
-            zoomControl: true,
+            zoomControl: false,
             attributionControl: false,
             preferCanvas: true,
           });
@@ -162,7 +162,7 @@
               .map(
                 ([key, value]) =>
                   `<div class="d-flex justify-content-between align-items-center mb-1">
-                <span class="text-muted small text-capitalize">${key}</span>
+                <span class="small text-capitalize">${key}</span>
                 <span class="fw-medium text-truncate" style="max-width: 150px;" title="${value}">${value ?? 'N/A'}</span>
               </div>`
               )
