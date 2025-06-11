@@ -117,11 +117,9 @@
       /** 🗺️ 台南圖層顯示狀態（從 store 計算） */
       const showTainanLayer = computed(() => dataStore.findLayerById('tainan')?.visible || false);
       /** 🔍 選定的資料篩選器 */
-      const selectedFilter = ref('');
-      /** 🎨 選定的色票方案 */
-      const selectedColorScheme = ref('viridis');
+      const selectedFilter = ref(null);
       /** 🖌️ 選定的邊框顏色 */
-      const selectedBorderColor = ref('#666666');
+      const selectedBorderColor = ref('#ffffff');
       /** 📏 選定的邊框粗細 */
       const selectedBorderWeight = ref(1);
       /** 🔍 地圖縮放等級 */
@@ -373,7 +371,6 @@
         // 🗺️ 圖層狀態
         showTainanLayer, // 台南圖層顯示狀態
         selectedFilter, // 選定篩選器
-        selectedColorScheme, // 選定色票方案
         selectedBorderColor, // 選定邊框顏色
         selectedBorderWeight, // 選定邊框粗細
 
@@ -474,7 +471,6 @@
             :mainPanelWidth="mainPanelWidth"
             :showTainanLayer="showTainanLayer"
             :selectedFilter="selectedFilter"
-            :selectedColorScheme="selectedColorScheme"
             :selectedBorderColor="selectedBorderColor"
             :selectedBorderWeight="selectedBorderWeight"
             :zoomLevel="zoomLevel"
@@ -487,7 +483,6 @@
             @update:zoomLevel="zoomLevel = $event"
             @update:currentCoords="currentCoords = $event"
             @update:activeMarkers="activeMarkers = $event"
-            @update:selectedColorScheme="selectedColorScheme = $event"
             @update:selectedBorderColor="selectedBorderColor = $event"
             @update:selectedBorderWeight="selectedBorderWeight = $event"
             @reset-view="resetView"

@@ -1,3 +1,78 @@
+<script>
+  import { ref, watch, nextTick } from 'vue';
+  import DataTableTab from '../tabs/DataTableTab.vue';
+
+  export default {
+    name: 'BottomView',
+
+    /**
+     * 🧩 組件註冊 (Component Registration)
+     * 註冊底部面板內使用的子組件
+     */
+    components: {
+      DataTableTab, // 資料表格分頁組件
+    },
+
+    /**
+     * 🔧 組件屬性定義 (Component Props)
+     * 接收來自父組件的配置和狀態數據
+     */
+    props: {
+      activeBottomTab: { type: String, default: 'table' },
+      bottomViewHeight: { type: Number, default: 300 },
+      selectedBorderColor: { type: String, default: '#666666' },
+      selectedBorderWeight: { type: Number, default: 1 },
+      isPanelDragging: { type: Boolean, default: false },
+    },
+
+    /**
+     * 📡 組件事件定義 (Component Events)
+     * 定義向父組件發送的事件類型
+     */
+    emits: [
+      'update:activeBottomTab', // 更新作用中底部分頁
+      'highlight-on-map', // 在地圖上高亮顯示
+      'update:selectedBorderColor', // 更新選定邊框顏色
+      'update:selectedBorderWeight', // 更新選定邊框粗細
+      'reset-view', // 重設視圖
+    ],
+
+    /**
+     * 🔧 組件設定函數 (Component Setup)
+     * 使用 Composition API 設定組件邏輯
+     */
+    setup(props) {
+      /**
+       * 📚 底部分頁內容容器引用 (Bottom Tab Content Container Reference)
+       * 用於控制拖曳時的滑鼠事件處理
+       */
+      const bottomTabContentRef = ref(null);
+
+      /**
+       * 👀 監聽拖曳狀態變化 (Watch Dragging State Changes)
+       * 當面板正在拖曳時，禁用底部內容的滑鼠事件，防止衝突
+       */
+      watch(
+        () => props.isPanelDragging,
+        (dragging) => {
+          nextTick(() => {
+            if (bottomTabContentRef.value) {
+              // 拖曳時禁用滑鼠事件，拖曳結束時恢復
+              bottomTabContentRef.value.style.pointerEvents = dragging ? 'none' : 'auto';
+            }
+          });
+        },
+        { immediate: true }
+      ); // immediate: true 表示立即執行一次
+
+      // 📤 返回響應式數據和函數給模板使用
+      return {
+        bottomTabContentRef, // 內容容器引用
+      };
+    },
+  };
+</script>
+
 <template>
   <!-- 📋 底部面板組件 (Bottom Panel Component) -->
   <!-- 提供資料表格顯示和地圖樣式控制功能 -->
@@ -39,28 +114,11 @@
       </div>
 
       <!-- 🎨 地圖樣式設定分頁內容 (Map Style Configuration Tab Content) -->
-      <!-- 提供色票方案、邊框顏色、邊框粗細等樣式控制選項 -->
+      <!-- 提供邊框顏色、邊框粗細等樣式控制選項 -->
       <div v-show="activeBottomTab === 'style'" class="container-fluid2">
         <div class="row p-3">
-          <!-- 🎨 色票方案選擇器 (Color Scheme Selector) -->
-          <div class="col-md-4 mb-3">
-            <label for="bottomColorSchemeSelect" class="form-label small fw-medium"
-              >色票方案:</label
-            >
-            <select
-              id="bottomColorSchemeSelect"
-              class="form-select form-select-sm"
-              :value="selectedColorScheme"
-              @change="$emit('update:selectedColorScheme', $event.target.value)"
-            >
-              <option v-for="(scheme, key) in appColorSchemes" :key="key" :value="key">
-                {{ scheme.name }}
-              </option>
-            </select>
-          </div>
-
           <!-- 🖌️ 邊框顏色選擇器 (Border Color Selector) -->
-          <div class="col-md-4 mb-3">
+          <div class="col-md-6 mb-3">
             <label for="bottomBorderColorSelect" class="form-label small fw-medium"
               >框線顏色:</label
             >
@@ -82,7 +140,7 @@
           </div>
 
           <!-- 📏 邊框粗細選擇器 (Border Weight Selector) -->
-          <div class="col-md-4 mb-3">
+          <div class="col-md-6 mb-3">
             <label for="bottomBorderWeightSelect" class="form-label small fw-medium"
               >框線粗細 (px):</label
             >
@@ -105,116 +163,6 @@
     </div>
   </div>
 </template>
-
-<script>
-  /**
-   * 📋 BottomView.vue - 底部面板組件
-   *
-   * 功能說明：
-   * 1. 📊 提供資料表格的顯示和互動功能
-   * 2. 🎨 提供地圖樣式的配置控制界面
-   * 3. 🔗 管理底部面板的分頁切換
-   * 4. 📡 處理高亮顯示事件的轉發
-   * 5. 🛠️ 響應拖曳狀態，調整滑鼠事件處理
-   *
-   * 架構說明：
-   * - 分頁導航：資料表格、地圖樣式兩個分頁
-   * - 內容區域：根據作用中分頁顯示對應組件
-   * - 控制選項：色票方案、邊框樣式等設定
-   *
-   * 設計理念：
-   * - 使用傳統 Options API 結構
-   * - 響應式分頁系統
-   * - 統一的樣式控制界面
-   * - 防止拖曳時的事件衝突
-   */
-
-  // 🔧 Vue Composition API 引入
-  import { computed, ref, watch, nextTick } from 'vue';
-  // 🧩 子組件引入
-  import DataTableTab from '../tabs/DataTableTab.vue';
-  // 📦 色票方案配置引入
-  import { COLOR_SCHEMES } from '../utils/dataProcessor.js';
-
-  export default {
-    name: 'BottomView',
-
-    /**
-     * 🧩 組件註冊 (Component Registration)
-     * 註冊底部面板內使用的子組件
-     */
-    components: {
-      DataTableTab, // 資料表格分頁組件
-    },
-
-    /**
-     * 🔧 組件屬性定義 (Component Props)
-     * 接收來自父組件的配置和狀態數據
-     */
-    props: {
-      activeBottomTab: { type: String, default: 'table' },
-      bottomViewHeight: { type: Number, default: 300 },
-      selectedColorScheme: { type: String, default: 'viridis' },
-      selectedBorderColor: { type: String, default: '#666666' },
-      selectedBorderWeight: { type: Number, default: 1 },
-      isPanelDragging: { type: Boolean, default: false },
-    },
-
-    /**
-     * 📡 組件事件定義 (Component Events)
-     * 定義向父組件發送的事件類型
-     */
-    emits: [
-      'update:activeBottomTab', // 更新作用中底部分頁
-      'highlight-on-map', // 在地圖上高亮顯示
-      'update:selectedColorScheme', // 更新選定色票方案
-      'update:selectedBorderColor', // 更新選定邊框顏色
-      'update:selectedBorderWeight', // 更新選定邊框粗細
-      'reset-view', // 重設視圖
-    ],
-
-    /**
-     * 🔧 組件設定函數 (Component Setup)
-     * 使用 Composition API 設定組件邏輯
-     */
-    setup(props) {
-      /**
-       * 🎨 應用程式色票方案計算屬性 (App Color Schemes Computed Property)
-       * 從工具模組載入所有可用的色票方案配置
-       */
-      const appColorSchemes = computed(() => COLOR_SCHEMES);
-
-      /**
-       * 📚 底部分頁內容容器引用 (Bottom Tab Content Container Reference)
-       * 用於控制拖曳時的滑鼠事件處理
-       */
-      const bottomTabContentRef = ref(null);
-
-      /**
-       * 👀 監聽拖曳狀態變化 (Watch Dragging State Changes)
-       * 當面板正在拖曳時，禁用底部內容的滑鼠事件，防止衝突
-       */
-      watch(
-        () => props.isPanelDragging,
-        (dragging) => {
-          nextTick(() => {
-            if (bottomTabContentRef.value) {
-              // 拖曳時禁用滑鼠事件，拖曳結束時恢復
-              bottomTabContentRef.value.style.pointerEvents = dragging ? 'none' : 'auto';
-            }
-          });
-        },
-        { immediate: true }
-      ); // immediate: true 表示立即執行一次
-
-      // 📤 返回響應式數據和函數給模板使用
-      return {
-        appColorSchemes, // 色票方案配置
-        bottomTabContentRef, // 內容容器引用
-      };
-    },
-  };
-</script>
 
 <style scoped>
   /**

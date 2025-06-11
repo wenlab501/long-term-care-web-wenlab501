@@ -77,8 +77,6 @@
   // 🗺️ Leaflet 地圖庫引入
   import L from 'leaflet';
   import 'leaflet/dist/leaflet.css';
-  // 🛠️ 工具函數引入
-  import { getColorByCount } from '../utils/dataProcessor.js';
   // 📦 Pinia 狀態管理引入
   import { useDataStore } from '@/stores/dataStore.js';
 
@@ -103,10 +101,10 @@
      */
     props: {
       zoomLevel: { type: Number, default: 10 },
-      selectedColorScheme: { type: String, default: 'default' },
-      maxCount: { type: Number, default: 100 },
-      selectedBorderColor: { type: String, default: '#007bff' },
-      selectedBorderWeight: { type: Number, default: 2 },
+      showTainanLayer: { type: Boolean, default: false },
+      selectedFilter: { type: String, default: 'all' },
+      selectedBorderColor: { type: String, default: '#ffffff' },
+      selectedBorderWeight: { type: Number, default: 1 },
     },
 
     /**
@@ -301,11 +299,11 @@
                   // 根據幾何類型調整樣式
                   const geometryType = feature.geometry.type;
                   const baseStyle = {
-                    fillColor: getColorByCount(count, props.maxCount, props.selectedColorScheme),
+                    fillColor: '#3498db', // 固定藍色
                     weight: props.selectedBorderWeight,
                     opacity: 1,
                     color: props.selectedBorderColor,
-                    fillOpacity: 0.8,
+                    fillOpacity: count > 0 ? 0.7 : 0.3, // 有數據的區域較不透明
                   };
 
                   // 針對不同幾何類型的特殊處理
@@ -682,47 +680,26 @@
        * 當色彩方案、邊框等樣式改變時重新套用到所有圖層
        */
       watch(
-        [
-          () => props.selectedColorScheme,
-          () => props.maxCount,
-          () => props.selectedBorderColor,
-          () => props.selectedBorderWeight,
-        ],
+        () => [props.selectedBorderColor, props.selectedBorderWeight],
         () => {
-          // 🎨 重新套用樣式到所有可見圖層
-          Object.values(leafletLayers.value).forEach((layer) => {
-            if (layer && layer.setStyle) {
-              layer.setStyle((feature) => {
-                // 📊 智能識別數值屬性
-                const count =
-                  feature.properties.value ||
-                  feature.properties.count ||
-                  feature.properties['中位數'] ||
-                  feature.properties.population ||
-                  feature.properties.density ||
-                  1;
-
-                // 🎨 根據幾何類型調整樣式
-                const geometryType = feature.geometry.type;
-                const baseStyle = {
-                  fillColor: getColorByCount(count, props.maxCount, props.selectedColorScheme),
+          if (map.value && currentTileLayer.value) {
+            // 更新所有要素的樣式
+            currentTileLayer.value.eachLayer((layer) => {
+              if (layer.feature) {
+                const feature = layer.feature;
+                const count = feature.properties[dataStore.getCurrentLayer()?.countField] || 0;
+                const newStyle = {
+                  fillColor: '#3498db', // 固定藍色
                   weight: props.selectedBorderWeight,
                   opacity: 1,
                   color: props.selectedBorderColor,
-                  fillOpacity: geometryType === 'Point' ? 0.8 : 0.7,
+                  dashArray: '',
+                  fillOpacity: count > 0 ? 0.7 : 0.3, // 有數據的區域較不透明
                 };
-
-                // 🎯 針對不同幾何類型的特殊處理
-                if (geometryType === 'Point') {
-                  baseStyle.radius = 8;
-                } else if (geometryType === 'MultiPolygon' || geometryType === 'Polygon') {
-                  baseStyle.fillOpacity = 0.6;
-                }
-
-                return baseStyle;
-              });
-            }
-          });
+                layer.setStyle(newStyle);
+              }
+            });
+          }
         },
         { deep: true }
       );

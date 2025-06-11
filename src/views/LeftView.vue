@@ -1,27 +1,5 @@
 <script>
-  /**
-   * 🎛️ LeftView.vue - 左側控制面板組件
-   *
-   * 功能說明：
-   * 1. 🗺️ 提供圖層顯示控制功能，資料來源為 Pinia store
-   * 2. 📋 顯示應用程式標題和標誌
-   * 3. ⏳ 處理圖層載入狀態顯示
-   * 4. 🔘 提供圖層開關的視覺回饋
-   *
-   * 架構說明：
-   * - 標題區域：顯示應用名稱和圓形標誌
-   * - 控制區域：動態顯示所有圖層的開關按鈕
-   * - 狀態管理：透過 Pinia store 管理圖層狀態
-   *
-   * 設計理念：
-   * - 簡化版本，減少卡片使用，節省空間
-   * - 使用緊湊樣式提高空間利用率
-   * - 響應式設計，適應不同面板寬度
-   */
-
-  // 🔧 Vue Composition API 引入
   import { computed } from 'vue';
-  // 📦 Pinia 數據存儲引入
   import { useDataStore } from '../stores/dataStore';
 
   export default {

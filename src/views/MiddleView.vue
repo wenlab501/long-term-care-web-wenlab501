@@ -20,28 +20,22 @@
    * 包含面板尺寸、分頁狀態、地圖設定、資料等
    */
   const props = defineProps({
-    mainContent: { type: Object, default: null },
-    bottomView: { type: Object, default: null },
+    // 🎛️ 分頁和面板設定 (Tab and Panel Settings)
     activeTab: { type: String, default: 'map' },
     activeBottomTab: { type: String, default: 'table' },
-    mainPanelWidth: { type: Number, default: 800 },
-    dynamicMainAreaHeight: { type: Number, required: true, validator: (value) => value >= 0 },
+    mainPanelWidth: { type: Number, default: 60 },
+    dynamicMainAreaHeight: { type: Number, default: 600 },
+
+    // 🗺️ 圖層和地圖設定 (Layer and Map Settings)
     showTainanLayer: { type: Boolean, default: false },
-    selectedFilter: { type: String, default: 'all' },
-    selectedColorScheme: { type: String, default: 'default' },
-    selectedBorderColor: { type: String, default: '#000000' },
+    selectedFilter: { type: String, default: null },
+    selectedBorderColor: { type: String, default: '#ffffff' },
     selectedBorderWeight: { type: Number, default: 1 },
+
+    // 🔧 其他設定 (Other Settings)
     zoomLevel: { type: Number, default: 10 },
-    currentCoords: { type: Object, default: () => ({ lat: 0, lng: 0 }) },
+    currentCoords: { type: Object, default: () => ({ lat: 25.033, lng: 121.5654 }) },
     activeMarkers: { type: Number, default: 0 },
-    isLoadingData: { type: Boolean, default: false },
-    tableSearchQuery: { type: String, default: '' },
-    sortField: { type: String, default: '' },
-    sortDirection: {
-      type: String,
-      default: 'asc',
-      validator: (value) => ['asc', 'desc'].includes(value),
-    },
     isSidePanelDragging: { type: Boolean, default: false },
   });
 
@@ -51,25 +45,23 @@
    * 採用事件轉發模式，確保資料流向清晰
    */
   defineEmits([
-    // 📑 分頁相關事件
+    // 📊 分頁更新事件 (Tab Update Events)
     'update:activeTab', // 更新主要分頁
     'update:activeBottomTab', // 更新底部分頁
 
-    // 🗺️ 地圖相關事件
-    'update:zoomLevel', // 更新地圖縮放等級
-    'update:currentCoords', // 更新地圖中心座標
-    'update:activeMarkers', // 更新標記數量
-    'feature-selected', // 地圖要素被選中
+    // 🗺️ 地圖狀態更新事件 (Map State Update Events)
+    'update:zoomLevel', // 更新縮放等級
+    'update:currentCoords', // 更新目前座標
+    'update:activeMarkers', // 更新作用中標記數
+
+    // 🎨 樣式更新事件 (Style Update Events)
+    'update:selectedBorderColor', // 更新邊框顏色
+    'update:selectedBorderWeight', // 更新邊框粗細
 
     // 📊 表格相關事件
     'update:tableSearchQuery', // 更新搜尋查詢
     'sort-table', // 表格排序
     'highlight-on-map', // 在地圖上高亮顯示
-
-    // 🎨 樣式相關事件
-    'update:selectedColorScheme', // 更新色彩方案
-    'update:selectedBorderColor', // 更新邊框顏色
-    'update:selectedBorderWeight', // 更新邊框粗細
 
     // 🔄 操作相關事件
     'reset-view', // 重設視圖
@@ -306,7 +298,6 @@
         :contentHeight="contentHeight"
         :showTainanLayer="showTainanLayer"
         :selectedFilter="selectedFilter"
-        :selectedColorScheme="selectedColorScheme"
         :selectedBorderColor="selectedBorderColor"
         :selectedBorderWeight="selectedBorderWeight"
         :zoomLevel="zoomLevel"
@@ -345,13 +336,11 @@
       <BottomView
         :activeBottomTab="activeBottomTab"
         :bottomViewHeight="actualBottomViewPixelHeight"
-        :selectedColorScheme="selectedColorScheme"
         :selectedBorderColor="selectedBorderColor"
         :selectedBorderWeight="selectedBorderWeight"
         :isPanelDragging="isOverallDragging"
         @update:activeBottomTab="$emit('update:activeBottomTab', $event)"
         @highlight-on-map="$emit('highlight-on-map', $event)"
-        @update:selectedColorScheme="$emit('update:selectedColorScheme', $event)"
         @update:selectedBorderColor="$emit('update:selectedBorderColor', $event)"
         @update:selectedBorderWeight="$emit('update:selectedBorderWeight', $event)"
         @reset-view="$emit('reset-view')"

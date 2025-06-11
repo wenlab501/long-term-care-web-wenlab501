@@ -61,7 +61,7 @@ export const useDataStore = defineStore(
             summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
             loader: loadGeoJsonUtil, // 資料載入函數
-            fileName: '113年12月行政區三段年齡組性別人口統計_村里_臺北市_WGS84.geojson',
+            fileName: '113年12月行政區三段年齡組性別人口統計_村里_WGS84_臺北市.geojson',
           },
           {
             id: '5_year',
@@ -74,7 +74,7 @@ export const useDataStore = defineStore(
             summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
             loader: loadGeoJsonUtil, // 資料載入函數
-            fileName: '113年12月行政區五歲年齡組性別人口統計_村里_臺北市_WGS84.geojson',
+            fileName: '113年12月行政區五歲年齡組性別人口統計_村里_WGS84_臺北市.geojson',
           },
           {
             id: '10_year',
@@ -87,7 +87,7 @@ export const useDataStore = defineStore(
             summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
             loader: loadGeoJsonUtil, // 資料載入函數
-            fileName: '113年12月行政區十歲年齡組性別人口統計_村里_臺北市_WGS84.geojson',
+            fileName: '113年12月行政區十歲年齡組性別人口統計_村里_WGS84_臺北市.geojson',
           },
           {
             id: 'taipei',

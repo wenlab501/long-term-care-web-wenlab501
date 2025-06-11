@@ -40,7 +40,6 @@
           ref="mapView"
           :showTainanLayer="showTainanLayer"
           :selectedFilter="selectedFilter"
-          :selectedColorScheme="selectedColorScheme"
           :selectedBorderColor="selectedBorderColor"
           :selectedBorderWeight="selectedBorderWeight"
           :zoomLevel="zoomLevel"
@@ -142,11 +141,10 @@
       activeTab: { type: String, default: 'map', required: true },
       isPanelDragging: { type: Boolean, default: false },
       mainPanelWidth: { type: Number, default: 60, required: true },
-      contentHeight: { type: Number, default: 500, required: true },
+      contentHeight: { type: Number, default: 600, required: true },
       showTainanLayer: { type: Boolean, default: false, required: true },
-      selectedFilter: { type: String, default: '', required: true },
-      selectedColorScheme: { type: String, default: 'viridis', required: true },
-      selectedBorderColor: { type: String, default: '#666666', required: true },
+      selectedFilter: { type: String, default: 'all', required: true },
+      selectedBorderColor: { type: String, default: '#ffffff', required: true },
       selectedBorderWeight: { type: Number, default: 1, required: true },
       zoomLevel: { type: Number, default: 10, required: true },
       activeMarkers: { type: Number, default: 0 },
