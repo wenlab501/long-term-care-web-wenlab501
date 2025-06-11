@@ -1,47 +1,13 @@
 <script>
-  /**
-   * 📊 RightView.vue - 右側面板組件
-   *
-   * 功能說明：
-   * 1. 📋 提供物件屬性查看功能
-   * 2. 📈 提供分析清單管理功能
-   * 3. 🔗 管理右側面板的分頁切換
-   * 4. 📦 整合 Pinia store 的選中物件狀態
-   * 5. 📡 處理高亮顯示事件的轉發
-   *
-   * 架構說明：
-   * - 分頁導航：物件屬性、分析清單兩個分頁
-   * - 內容區域：根據作用中分頁顯示對應組件
-   * - 狀態管理：從 Pinia store 獲取選中物件
-   *
-   * 設計理念：
-   * - 使用傳統 Options API 結構
-   * - 響應式分頁系統
-   * - 自定義滾動條提升使用體驗
-   */
-
-  // 🧩 組件引入
   import ObjectPropertiesTab from '../tabs/ObjectPropertiesTab.vue';
-  // 📦 Pinia 數據存儲引入
   import { useDataStore } from '../stores/dataStore';
-  // 🔧 Vue Composition API 引入
   import { computed, watch } from 'vue';
 
   export default {
     name: 'RightView',
-
-    /**f
-     * 🧩 組件註冊 (Component Registration)
-     * 註冊右側面板內使用的子組件
-     */
     components: {
       ObjectPropertiesTab, // 物件屬性分頁組件
     },
-
-    /**
-     * 🔧 組件屬性定義 (Component Props)
-     * 接收來自父組件的配置和狀態數據
-     */
     props: {
       /** 🔗 當前作用中的右側分頁標籤 */
       activeRightTab: {

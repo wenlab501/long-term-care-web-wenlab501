@@ -106,13 +106,15 @@ export async function loadGeoJson(fileName) {
 
     const geoJsonText = await response.json();
 
+    geoJsonText.features.forEach((feature, index) => {
+      feature.properties.id = index + 1;
+      feature.properties.name = feature.properties.FULL;
+      feature.properties.value = feature.properties['中位數'];
+    });
+
     // 包含為表格量身打造的數據陣列
-    const tableData = geoJsonText.features.map((feature, index) => ({
-      id: index + 1,
-      name: feature.properties.FULL,
-      value: feature.properties['中位數'],
+    const tableData = geoJsonText.features.map((feature) => ({
       ...feature.properties,
-      geometry: feature.geometry,
     }));
 
     // 包含摘要資訊

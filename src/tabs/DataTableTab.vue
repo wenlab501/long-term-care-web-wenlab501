@@ -6,7 +6,6 @@
 
   const dataStore = useDataStore();
 
-  // 📊 響應式資料狀態 (Reactive Data State)
   /** 🔍 全域搜尋查詢字串 */
   const globalSearchQuery = ref('');
   /** 📑 當前作用中的圖層分頁 */
@@ -196,7 +195,7 @@
 <template>
   <!-- 📊 多圖層資料表格分頁組件 (Multi-Layer Data Table Tab Component) -->
   <!-- 為每個開啟的圖層提供獨立的表格分頁 -->
-  <div class="my-data-table-tab-component h-100 d-flex flex-column">
+  <div class="h-100 d-flex flex-column">
     <!-- 🔍 全域搜尋工具列 (Global Search Toolbar) -->
     <!-- 提供跨圖層的即時搜尋功能 -->
     <div class="my-search-toolbar-container p-2 bg-light border-bottom">
@@ -355,15 +354,6 @@
 </template>
 
 <style scoped>
-  /**
-   * 🎨 多圖層資料表格樣式 (Multi-Layer Data Table Styles)
-   */
-
-  /* 📊 組件基礎樣式 */
-  .my-data-table-tab-component {
-    font-size: 0.875rem;
-  }
-
   /* 🔍 搜尋工具列樣式 */
   .my-search-toolbar-container input.form-control {
     background-color: white;

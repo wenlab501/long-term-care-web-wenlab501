@@ -3,7 +3,7 @@
   <!-- 顯示地圖上選中物件的詳細屬性資訊 -->
   <div class="my-object-properties-tab">
     <!-- 📊 有選中物件時的屬性顯示區域 (Properties Display Area When Object Selected) -->
-    <div v-if="selectedFeature" class="my-properties-content">
+    <div v-if="selectedFeature">
       <div class="mb-3">
         <!-- 📝 屬性標題 (Properties Title) -->
         <h6 class="text-primary mb-2">物件屬性</h6>
@@ -152,7 +152,7 @@
 <style scoped>
   /**
  * 🎨 物件屬性分頁樣式 (Object Properties Tab Styles)
- * 
+ *
  * 定義物件屬性分頁的視覺樣式和佈局
  */
 
@@ -160,11 +160,6 @@
   .my-object-properties-tab {
     height: 100%; /* 佔滿容器高度 */
     overflow-y: auto; /* 內容溢出時可垂直滾動 */
-  }
-
-  /* 📊 屬性內容區域樣式 (Properties Content Area Styles) */
-  .my-properties-content {
-    padding: 1rem; /* 內邊距，提供適當的留白 */
   }
 
   /* 📝 屬性標題樣式 (Properties Title Styles) */
