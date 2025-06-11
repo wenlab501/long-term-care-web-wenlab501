@@ -3,7 +3,12 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 
 // 📊 資料處理工具引入
-import { loadGeoJson as loadGeoJsonUtil, loadHospitalClinicData } from '../utils/dataProcessor.js';
+import {
+  loadGeoJson as loadGeoJsonUtil,
+  loadElderlyWelfareInstitutionData,
+  loadHealthcareFacilityPharmacyData,
+  loadHospitalClinicData,
+} from '../utils/dataProcessor.js';
 
 /**
  * 📊 主要數據存儲定義 (Main Data Store Definition)
@@ -14,10 +19,28 @@ export const useDataStore = defineStore(
   () => {
     const layers = ref([
       {
+        groupName: '長照機構',
+        groupLayers: [
+          {
+            id: '老人福利機構',
+            name: '老人福利機構',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            type: 'point',
+            data: null, // 存放 GeoJSON 資料
+            summaryData: null, // 存放資料摘要
+            tableData: null, // 存放表格資料
+            loader: loadElderlyWelfareInstitutionData, // 資料載入函數
+            fileName: '臺北市老人福利機構名冊1140201_coord.csv',
+          },
+        ],
+      },
+      {
         groupName: '醫療設施',
         groupLayers: [
           {
-            id: 'hospital',
+            id: '醫院',
             name: '醫院',
             visible: false,
             isLoading: false,
@@ -30,7 +53,7 @@ export const useDataStore = defineStore(
             fileName: '112年12月醫療院所分布圖_全國_醫院_coord.csv',
           },
           {
-            id: 'clinic',
+            id: '診所',
             name: '診所',
             visible: false,
             isLoading: false,
@@ -42,13 +65,26 @@ export const useDataStore = defineStore(
             loader: loadHospitalClinicData, // 資料載入函數
             fileName: '112年12月醫療院所分布圖_全國_診所_coord.csv',
           },
+          {
+            id: '健保特約藥局',
+            name: '健保特約藥局',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            type: 'point',
+            data: null, // 存放 GeoJSON 資料
+            summaryData: null, // 存放資料摘要
+            tableData: null, // 存放表格資料
+            loader: loadHealthcareFacilityPharmacyData, // 資料載入函數
+            fileName: '健保特約醫事機構-藥局_coord.csv',
+          },
         ],
       },
       {
         groupName: '基礎地理資料',
         groupLayers: [
           {
-            id: '3_section_age',
+            id: '三段年齡組性別人口統計',
             name: '三段年齡組性別人口統計',
             visible: false,
             isLoading: false,
@@ -61,7 +97,7 @@ export const useDataStore = defineStore(
             fileName: '113年12月行政區三段年齡組性別人口統計_村里_WGS84_臺北市.geojson',
           },
           {
-            id: '5_year',
+            id: '五歲年齡組性別人口統計',
             name: '五歲年齡組性別人口統計',
             visible: false,
             isLoading: false,
@@ -74,7 +110,7 @@ export const useDataStore = defineStore(
             fileName: '113年12月行政區五歲年齡組性別人口統計_村里_WGS84_臺北市.geojson',
           },
           {
-            id: '10_year',
+            id: '十歲年齡組性別人口統計',
             name: '十歲年齡組性別人口統計',
             visible: false,
             isLoading: false,
@@ -87,7 +123,7 @@ export const useDataStore = defineStore(
             fileName: '113年12月行政區十歲年齡組性別人口統計_村里_WGS84_臺北市.geojson',
           },
           {
-            id: 'taipei',
+            id: '綜稅綜合所得總額',
             name: '綜稅綜合所得總額',
             visible: false,
             isLoading: false,
