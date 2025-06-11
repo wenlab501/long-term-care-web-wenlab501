@@ -1,3 +1,415 @@
+<script>
+  import { ref, onMounted, onUnmounted, watch, nextTick, computed } from 'vue';
+  import L from 'leaflet';
+  import 'leaflet/dist/leaflet.css';
+  import { useDataStore } from '@/stores/dataStore.js';
+
+  // 修復 Leaflet 預設圖標問題
+  import icon from 'leaflet/dist/images/marker-icon.png';
+  import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+  import iconRetina from 'leaflet/dist/images/marker-icon-2x.png';
+
+  delete L.Icon.Default.prototype._getIconUrl;
+  L.Icon.Default.mergeOptions({
+    iconRetinaUrl: iconRetina,
+    iconUrl: icon,
+    shadowUrl: iconShadow,
+  });
+
+  export default {
+    name: 'MapView',
+    props: {
+      zoomLevel: { type: Number, default: 10 },
+      showTainanLayer: { type: Boolean, default: false },
+      selectedFilter: { type: String, default: 'all' },
+      selectedBorderColor: { type: String, default: '#ffffff' },
+      selectedBorderWeight: { type: Number, default: 1 },
+    },
+    emits: ['update:zoomLevel', 'update:currentCoords', 'update:activeMarkers', 'feature-selected'],
+
+    setup(props, { emit }) {
+      const dataStore = useDataStore();
+      const mapContainer = ref(null);
+      let mapInstance = null; // 使用普通變數而非 ref
+      let currentTileLayer = null;
+      let layerGroups = {}; // 存放圖層群組
+
+      const selectedBasemap = ref('osm');
+      const isMapReady = ref(false);
+
+      // 底圖配置
+      const basemaps = {
+        osm: { url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' },
+        esri_street: {
+          url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+        },
+        esri_topo: {
+          url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+        },
+        esri_imagery: {
+          url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        },
+        google_road: { url: 'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}' },
+        google_satellite: { url: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}' },
+        nlsc_emap: {
+          url: 'https://wmts.nlsc.gov.tw/wmts/EMAP/default/GoogleMapsCompatible/{z}/{y}/{x}',
+        },
+        nlsc_photo: {
+          url: 'https://wmts.nlsc.gov.tw/wmts/PHOTO2/default/GoogleMapsCompatible/{z}/{y}/{x}',
+        },
+        terrain: { url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png' },
+        aerial: {
+          url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        },
+        blank: { url: '' },
+      };
+
+      const isAnyLayerVisible = computed(() =>
+        dataStore.getAllLayers().some((l) => l.visible && l.data)
+      );
+
+      // 創建地圖實例
+      const createMap = () => {
+        if (!mapContainer.value) return false;
+
+        // 檢查容器尺寸
+        const rect = mapContainer.value.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) {
+          console.warn('[MapView] 容器尺寸為零，延遲初始化');
+          return false;
+        }
+
+        try {
+          mapInstance = L.map(mapContainer.value, {
+            center: [25.033, 121.5654],
+            zoom: props.zoomLevel,
+            zoomControl: true,
+            attributionControl: false,
+            preferCanvas: true,
+          });
+
+          // 綁定事件 - 使用簡單的事件處理
+          mapInstance.on('zoomend', handleZoomEnd);
+          mapInstance.on('moveend', handleMoveEnd);
+
+          isMapReady.value = true;
+          console.log('[MapView] 地圖創建成功');
+          return true;
+        } catch (error) {
+          console.error('[MapView] 地圖創建失敗:', error);
+          return false;
+        }
+      };
+
+      // 事件處理函數
+      const handleZoomEnd = () => {
+        if (mapInstance) {
+          emit('update:zoomLevel', mapInstance.getZoom());
+        }
+      };
+
+      const handleMoveEnd = () => {
+        if (mapInstance) {
+          emit('update:currentCoords', mapInstance.getCenter());
+        }
+      };
+
+      // 設定底圖
+      const setBasemap = () => {
+        if (!mapInstance || !isMapReady.value) return;
+
+        // 移除舊的底圖
+        if (currentTileLayer) {
+          mapInstance.removeLayer(currentTileLayer);
+          currentTileLayer = null;
+        }
+
+        // 添加新的底圖
+        const config = basemaps[selectedBasemap.value];
+        if (config && config.url) {
+          currentTileLayer = L.tileLayer(config.url, { attribution: '' });
+          currentTileLayer.addTo(mapInstance);
+        }
+      };
+
+      // 創建 GeoJSON 圖層
+      const createFeatureLayer = (layerConfig) => {
+        const { data, color = '#3498db' } = layerConfig;
+
+        const geoJsonLayer = L.geoJSON(data, {
+          style: () => ({
+            fillColor: color,
+            weight: props.selectedBorderWeight,
+            opacity: 1,
+            color: props.selectedBorderColor,
+            fillOpacity: 0.6,
+          }),
+          pointToLayer: (feature, latlng) => {
+            return L.circleMarker(latlng, {
+              radius: 8,
+              fillColor: color,
+              color: props.selectedBorderColor,
+              weight: props.selectedBorderWeight,
+              opacity: 1,
+              fillOpacity: 0.8,
+            });
+          },
+          onEachFeature: (feature, layer) => {
+            const name = feature.properties.name || '未命名要素';
+
+            // 創建彈窗內容
+            const properties = Object.entries(feature.properties)
+              .map(
+                ([key, value]) =>
+                  `<div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="text-muted small text-capitalize">${key}</span>
+                <span class="fw-medium text-truncate" style="max-width: 150px;" title="${value}">${value ?? 'N/A'}</span>
+              </div>`
+              )
+              .join('');
+
+            const popupContent = `
+            <div class="map-popup">
+              <h6 class="text-primary mb-2">${name}</h6>
+              <div class="popup-details">${properties}</div>
+            </div>
+          `;
+
+            layer.bindPopup(popupContent, { maxWidth: 250, className: 'custom-popup' });
+            layer.bindTooltip(name, { direction: 'top', offset: [0, -10] });
+
+            // 滑鼠事件
+            layer.on('mouseover', function () {
+              this.setStyle({ weight: 3, color: '#333', fillOpacity: 0.8 });
+              if (mapInstance) this.bringToFront();
+            });
+
+            layer.on('mouseout', function () {
+              geoJsonLayer.resetStyle(this);
+            });
+
+            layer.on('click', function () {
+              emit('feature-selected', feature);
+
+              if (mapInstance) {
+                const bounds = this.getBounds
+                  ? this.getBounds()
+                  : L.latLngBounds([this.getLatLng()]);
+                if (bounds && bounds.isValid()) {
+                  mapInstance.panTo(bounds.getCenter());
+                  setTimeout(() => this.openPopup(), 300);
+                } else {
+                  this.openPopup();
+                }
+              }
+            });
+          },
+        });
+
+        return geoJsonLayer;
+      };
+
+      // 同步圖層
+      const syncLayers = () => {
+        if (!mapInstance || !isMapReady.value) return;
+
+        const storeLayers = dataStore.getAllLayers();
+        const currentLayerIds = Object.keys(layerGroups);
+        const newLayerIds = storeLayers.filter((l) => l.visible && l.data).map((l) => l.id);
+
+        // 移除不需要的圖層
+        currentLayerIds.forEach((id) => {
+          if (!newLayerIds.includes(id)) {
+            if (layerGroups[id]) {
+              mapInstance.removeLayer(layerGroups[id]);
+              delete layerGroups[id];
+            }
+          }
+        });
+
+        // 添加新圖層
+        storeLayers.forEach((layerConfig) => {
+          const { id, visible, data } = layerConfig;
+
+          if (visible && data && !layerGroups[id]) {
+            const newLayer = createFeatureLayer(layerConfig);
+            newLayer.addTo(mapInstance);
+            layerGroups[id] = newLayer;
+          }
+        });
+
+        // 更新標記數量
+        const totalMarkers = Object.values(layerGroups).reduce(
+          (acc, layer) => acc + (layer.getLayers ? layer.getLayers().length : 0),
+          0
+        );
+        emit('update:activeMarkers', totalMarkers);
+      };
+
+      // 顯示全部要素
+      const showAllFeatures = () => {
+        if (!mapInstance || !isMapReady.value || !isAnyLayerVisible.value) return;
+
+        const bounds = new L.LatLngBounds();
+        let hasValidBounds = false;
+
+        Object.values(layerGroups).forEach((layer) => {
+          if (layer && layer.getBounds) {
+            const layerBounds = layer.getBounds();
+            if (layerBounds.isValid()) {
+              bounds.extend(layerBounds);
+              hasValidBounds = true;
+            }
+          }
+        });
+
+        if (hasValidBounds) {
+          mapInstance.fitBounds(bounds, { padding: [50, 50] });
+        }
+      };
+
+      // 高亮要素
+      const highlightFeature = (id) => {
+        if (!mapInstance || !isMapReady.value) return;
+
+        // 重設所有圖層樣式
+        Object.values(layerGroups).forEach((layerGroup) => {
+          if (layerGroup.resetStyle) {
+            layerGroup.resetStyle();
+          }
+        });
+
+        // 尋找目標要素
+        let targetLayer = null;
+        for (const layerGroup of Object.values(layerGroups)) {
+          layerGroup.eachLayer((layer) => {
+            if (layer.feature?.properties?.id === id) {
+              targetLayer = layer;
+            }
+          });
+          if (targetLayer) break;
+        }
+
+        if (targetLayer) {
+          // 高亮樣式
+          targetLayer.setStyle({
+            weight: 5,
+            color: '#E74C3C',
+            dashArray: '5, 5',
+            fillOpacity: 1,
+          });
+
+          if (mapInstance) targetLayer.bringToFront();
+
+          // 定位到要素
+          const bounds = targetLayer.getBounds
+            ? targetLayer.getBounds()
+            : L.latLngBounds([targetLayer.getLatLng()]);
+
+          if (bounds.isValid()) {
+            mapInstance.fitBounds(bounds, { maxZoom: 16, padding: [70, 70] });
+            setTimeout(() => targetLayer.openPopup(), 300);
+          }
+        }
+      };
+
+      // 重設視圖
+      const resetView = () => {
+        if (mapInstance && isMapReady.value) {
+          mapInstance.setView([22.9908, 120.2133], 10);
+        }
+      };
+
+      // 刷新地圖尺寸
+      const invalidateSize = () => {
+        if (mapInstance && isMapReady.value) {
+          nextTick(() => {
+            mapInstance.invalidateSize();
+          });
+        }
+      };
+
+      // 切換底圖
+      const changeBasemap = () => {
+        setBasemap();
+      };
+
+      // 初始化地圖
+      const initMap = () => {
+        let attempts = 0;
+        const maxAttempts = 20;
+
+        const tryInit = () => {
+          if (attempts >= maxAttempts) {
+            console.error('[MapView] 地圖初始化超時');
+            return;
+          }
+
+          attempts++;
+
+          if (createMap()) {
+            setBasemap();
+            syncLayers();
+          } else {
+            setTimeout(tryInit, 100);
+          }
+        };
+
+        tryInit();
+      };
+
+      // 生命週期
+      onMounted(() => {
+        nextTick(() => {
+          setTimeout(initMap, 100);
+        });
+      });
+
+      onUnmounted(() => {
+        // 清理事件
+        if (mapInstance) {
+          mapInstance.off('zoomend', handleZoomEnd);
+          mapInstance.off('moveend', handleMoveEnd);
+          mapInstance.remove();
+          mapInstance = null;
+        }
+
+        // 清理圖層
+        layerGroups = {};
+        currentTileLayer = null;
+        isMapReady.value = false;
+      });
+
+      // 監聽器
+      watch(() => dataStore.layers, syncLayers, { deep: true });
+
+      watch(
+        () => [props.selectedBorderColor, props.selectedBorderWeight],
+        () => {
+          if (isMapReady.value) {
+            Object.values(layerGroups).forEach((layerGroup) => {
+              if (layerGroup.resetStyle) {
+                layerGroup.resetStyle();
+              }
+            });
+          }
+        }
+      );
+
+      return {
+        mapContainer,
+        selectedBasemap,
+        changeBasemap,
+        showAllFeatures,
+        isAnyLayerVisible,
+        highlightFeature,
+        resetView,
+        invalidateSize,
+      };
+    },
+  };
+</script>
+
 <template>
   <!-- 🗺️ MapView.vue - 地圖視圖組件 (Map View Component) -->
   <!-- 提供基於 Leaflet 的互動式地圖功能，包含多種底圖選擇和地理資料視覺化 -->
@@ -46,918 +458,6 @@
     </div>
   </div>
 </template>
-
-<script>
-  /**
-   * 🗺️ MapView.vue - 地圖視圖組件
-   *
-   * 功能說明：
-   * 1. 🗺️ 整合 Leaflet 地圖引擎，提供互動式地圖功能
-   * 2. 🎨 支援多種底圖來源（OSM、Esri、Google Maps、國土測繪中心等）
-   * 3. 📊 視覺化地理資料，支援 GeoJSON 格式
-   * 4. 🎯 處理地圖互動事件（點擊、縮放、移動等）
-   * 5. 🎨 整合色彩方案系統，動態渲染資料視覺化
-   * 6. 📡 與 Pinia store 整合，管理圖層狀態和資料
-   * 7. 🔧 提供高亮顯示、特徵選擇等進階功能
-   *
-   * 技術架構：
-   * - 使用 Leaflet.js 作為地圖引擎
-   * - Vue 3 Composition API 管理組件狀態
-   * - Canvas 渲染模式提升效能
-   * - 響應式設計，支援多種裝置
-   *
-   * 設計理念：
-   * - 效能優先：使用 Canvas 渲染和事件防抖
-   * - 用戶體驗：平滑動畫和直觀的控制介面
-   * - 可擴展性：支援多種底圖和資料格式
-   */
-
-  // 🔧 Vue Composition API 引入
-  import { ref, onMounted, onUnmounted, watch, nextTick, computed } from 'vue';
-  // 🗺️ Leaflet 地圖庫引入
-  import L from 'leaflet';
-  import 'leaflet/dist/leaflet.css';
-  // 📦 Pinia 狀態管理引入
-  import { useDataStore } from '@/stores/dataStore.js';
-
-  // 🔧 修復 Leaflet 預設圖標問題 (Fix Leaflet Default Icon Issue)
-  // 解決 Webpack 打包後圖標路徑錯誤的問題
-  import icon from 'leaflet/dist/images/marker-icon.png';
-  import iconShadow from 'leaflet/dist/images/marker-shadow.png';
-  import iconRetina from 'leaflet/dist/images/marker-icon-2x.png';
-
-  delete L.Icon.Default.prototype._getIconUrl;
-  L.Icon.Default.mergeOptions({
-    iconRetinaUrl: iconRetina,
-    iconUrl: icon,
-    shadowUrl: iconShadow,
-  });
-
-  export default {
-    name: 'MapView',
-
-    /**
-     * 📥 組件屬性定義 (Component Props)
-     */
-    props: {
-      zoomLevel: { type: Number, default: 10 },
-      showTainanLayer: { type: Boolean, default: false },
-      selectedFilter: { type: String, default: 'all' },
-      selectedBorderColor: { type: String, default: '#ffffff' },
-      selectedBorderWeight: { type: Number, default: 1 },
-    },
-
-    /**
-     * 📤 組件事件定義 (Component Events)
-     */
-    emits: ['update:zoomLevel', 'update:currentCoords', 'update:activeMarkers', 'feature-selected'],
-
-    /**
-     * 🔧 組件設定函數 (Component Setup)
-     */
-    setup(props, { emit }) {
-      // 📦 取得 Pinia 數據存儲實例
-      const dataStore = useDataStore();
-
-      // 📚 組件引用和狀態 (Component References and States)
-      /** 🗺️ Leaflet 地圖實例 */
-      const map = ref(null);
-      /** 🗺️ 地圖 DOM 容器引用 */
-      const mapContainer = ref(null);
-      /** ✅ 地圖是否已初始化 */
-      const mapInitialized = ref(false);
-      /** 🗺️ 當前底圖圖層實例 */
-      const currentTileLayer = ref(null);
-      /** 🗺️ 選定的底圖類型 */
-      const selectedBasemap = ref('osm');
-
-      /** 📊 Leaflet 圖層實例儲存 (按圖層 ID 分類) */
-      const leafletLayers = ref({});
-
-      /** 📊 是否有任何圖層可見 */
-      const isAnyLayerVisible = computed(() =>
-        dataStore.getAllLayers().some((l) => l.visible && l.data)
-      );
-
-      // 🗺️ 底圖配置物件 (Basemap Configuration)
-      /**
-       * 🗺️ 支援的底圖服務配置
-       * 包含各種國內外地圖服務提供商
-       */
-      const basemaps = {
-        osm: {
-          url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-          attribution: '',
-        },
-        esri_street: {
-          url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
-          attribution: '',
-        },
-        esri_topo: {
-          url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
-          attribution: '',
-        },
-        esri_imagery: {
-          url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-          attribution: '',
-        },
-        google_road: {
-          url: 'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
-          attribution: '',
-        },
-        google_satellite: {
-          url: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
-          attribution: '',
-        },
-        nlsc_emap: {
-          url: 'https://wmts.nlsc.gov.tw/wmts/EMAP/default/GoogleMapsCompatible/{z}/{y}/{x}',
-          attribution: '',
-        },
-        nlsc_photo: {
-          url: 'https://wmts.nlsc.gov.tw/wmts/PHOTO2/default/GoogleMapsCompatible/{z}/{y}/{x}',
-          attribution: '',
-        },
-        terrain: {
-          url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-          attribution: '',
-        },
-        aerial: {
-          url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-          attribution: '',
-        },
-        blank: {
-          url: '',
-          attribution: '',
-        },
-      };
-
-      /**
-       * 🚀 初始化地圖 (Initialize Map)
-       * 建立 Leaflet 地圖實例和基本設定
-       */
-      const initMap = () => {
-        if (map.value) return;
-
-        try {
-          // 🔍 檢查容器是否存在且有尺寸
-          if (!mapContainer.value) {
-            console.error('❌ 地圖容器不存在，延遲初始化');
-            setTimeout(initMap, 100);
-            return;
-          }
-
-          // 確保容器有尺寸
-          const containerRect = mapContainer.value.getBoundingClientRect();
-          if (containerRect.width === 0 || containerRect.height === 0) {
-            console.warn('⚠️ 地圖容器尺寸為零，延遲初始化');
-            setTimeout(initMap, 100);
-            return;
-          }
-
-          console.log(
-            '🗺️ 開始初始化地圖，容器尺寸:',
-            containerRect.width,
-            'x',
-            containerRect.height
-          );
-
-          // 建立地圖實例
-          map.value = L.map(mapContainer.value, {
-            center: [25.033, 121.5654], // 台灣台北市中心座標
-            zoom: props.zoomLevel,
-            zoomControl: false, // 停用預設縮放控制項
-            attributionControl: false, // 停用版權資訊
-            preferCanvas: true, // 使用 Canvas 渲染提高效能
-            zoomAnimation: true, // 啟用縮放動畫
-            fadeAnimation: true, // 啟用淡入淡出動畫
-            markerZoomAnimation: true, // 啟用標記縮放動畫
-          });
-
-          // 立即刷新尺寸，確保地圖知道容器大小
-          map.value.invalidateSize();
-
-          // 載入預設底圖
-          loadBasemap();
-
-          // 📡 安全地綁定地圖事件，避免在動畫過程中觸發錯誤
-          map.value.on('zoomend', () => {
-            try {
-              if (map.value && map.value.getZoom) {
-                emit('update:zoomLevel', map.value.getZoom());
-              }
-            } catch (error) {
-              console.warn('Error updating zoom level:', error);
-            }
-          });
-
-          map.value.on('moveend', () => {
-            try {
-              if (map.value && map.value.getCenter) {
-                emit('update:currentCoords', map.value.getCenter());
-              }
-            } catch (error) {
-              console.warn('Error updating coordinates:', error);
-            }
-          });
-
-          // ⏰ 延遲設定初始化完成狀態，確保地圖完全載入
-          setTimeout(() => {
-            if (map.value) {
-              mapInitialized.value = true;
-              console.log('✅ 地圖初始化完成');
-              // 再次確保尺寸正確
-              map.value.invalidateSize();
-            }
-          }, 200);
-        } catch (error) {
-          console.error('❌ 地圖初始化失敗:', error);
-          mapInitialized.value = false;
-        }
-      };
-
-      /**
-       * 🗺️ 載入底圖 (Load Basemap)
-       * 根據選定的底圖類型載入對應的圖磚服務
-       */
-      const loadBasemap = () => {
-        // 移除現有底圖圖層
-        if (currentTileLayer.value) map.value.removeLayer(currentTileLayer.value);
-
-        const config = basemaps[selectedBasemap.value];
-        if (!config || !config.url) return;
-
-        // 建立新的圖磚圖層
-        currentTileLayer.value = L.tileLayer(config.url, {
-          attribution: config.attribution,
-          maxZoom: 18,
-        }).addTo(map.value);
-      };
-
-      /**
-       * 🗺️ 變更底圖 (Change Basemap)
-       * 當使用者選擇不同底圖時觸發
-       */
-      const changeBasemap = () => {
-        if (map.value) loadBasemap();
-      };
-
-      /**
-       * 📊 更新地圖圖層 (Update Map Layers)
-       * 根據 Pinia store 中的圖層狀態更新地圖顯示
-       */
-      const updateMapLayers = () => {
-        if (!map.value || !mapInitialized.value) return;
-
-        dataStore.getAllLayers().forEach((layerConfig) => {
-          const layerId = layerConfig.id;
-          const existingLayer = leafletLayers.value[layerId];
-
-          if (layerConfig.visible && layerConfig.data) {
-            if (!existingLayer) {
-              // 如果地圖上不存在該圖層，創建並添加
-              const newLeafletLayer = L.geoJSON(layerConfig.data, {
-                pointToLayer: (feature, latlng) => {
-                  const geometryType = feature.geometry.type;
-                  const radius = 8;
-
-                  return L.circleMarker(latlng, {
-                    radius: radius,
-                    className: `feature-${geometryType.toLowerCase()}`,
-                  });
-                },
-                style: (feature) => {
-                  const count = feature.properties.value;
-
-                  // 根據幾何類型調整樣式
-                  const geometryType = feature.geometry.type;
-                  // 🎨 獲取當前圖層的顏色
-                  const layerColor = layerConfig.color || '#3498db';
-
-                  const baseStyle = {
-                    fillColor: layerColor, // 使用圖層指定的顏色
-                    weight: props.selectedBorderWeight,
-                    opacity: 1,
-                    color: props.selectedBorderColor,
-                    fillOpacity: count > 0 ? 0.7 : 0.3, // 有數據的區域較不透明
-                  };
-
-                  // 針對不同幾何類型的特殊處理
-                  if (geometryType === 'point') {
-                    baseStyle.radius = 8;
-                  } else if (geometryType === 'polygon') {
-                    baseStyle.fillOpacity = 0.6;
-                  }
-
-                  return baseStyle;
-                },
-                onEachFeature: (feature, leafletLayer) => {
-                  const name = feature.properties.name;
-
-                  const propertiesHtml = Object.entries(feature.properties)
-                    .map(([key, value]) => {
-                      // 為了讓顯示更穩定，先處理 value 的格式
-                      let displayValue = value;
-                      if (value === null || value === undefined) {
-                        displayValue = 'N/A'; // 如果值是空的，顯示 N/A
-                      } else if (typeof value === 'object') {
-                        // 如果值是物件，轉成文字顯示，避免出現 [object Object]
-                        displayValue = JSON.stringify(value);
-                      }
-
-                      // 返回一個符合您指定結構的 HTML 字串
-                      return `
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <span class="text-muted small text-capitalize">${key}</span>
-                          <span class="fw-medium text-truncate" style="max-width: 150px;" title="${displayValue}">${displayValue}</span>
-                        </div>
-                      `;
-                    })
-                    .join(''); // 3. 將所有產生的 HTML 組合起來
-
-                  const popupContent = `
-                    <div class="map-popup">
-                      <h6 class="text-primary mb-2">
-                        ${name}
-                      </h6>
-                      <div class="popup-details" style="max-height: 200px; overflow-y: auto;">
-                        ${propertiesHtml}
-                      </div>
-                    </div>
-                  `;
-
-                  // 🎨 綁定彈出視窗和工具提示
-                  leafletLayer.bindPopup(popupContent, {
-                    maxWidth: 250,
-                    className: 'custom-popup',
-                  });
-                  leafletLayer.bindTooltip(`${name}`, {
-                    direction: 'top',
-                    offset: [0, -10],
-                  });
-
-                  // 📡 綁定滑鼠和點擊事件
-                  leafletLayer.on({
-                    /**
-                     * 🖱️ 滑鼠懸停事件 (Mouse Over Event)
-                     */
-                    mouseover: () => {
-                      leafletLayer
-                        .setStyle({ weight: 3, color: '#333', fillOpacity: 0.8 })
-                        .bringToFront();
-                    },
-                    /**
-                     * 🖱️ 滑鼠離開事件 (Mouse Out Event)
-                     */
-                    mouseout: () => {
-                      newLeafletLayer.resetStyle(leafletLayer);
-                    },
-                    /**
-                     * 🖱️ 點擊事件 (Click Event)
-                     * 處理特徵點擊，包含地圖定位和事件發送
-                     */
-                    click: () => {
-                      // 檢查地圖是否已初始化
-                      if (!map.value || !mapInitialized.value) {
-                        console.warn('地圖尚未初始化，無法執行操作');
-                        return;
-                      }
-
-                      try {
-                        // 🛑 停止所有正在進行的動畫，避免_latLngToNewLayerPoint錯誤
-                        if (map.value.stop) {
-                          map.value.stop();
-                        }
-
-                        const geometryType = feature.geometry.type;
-
-                        // ⏰ 等待一小段時間，確保動畫完全停止
-                        setTimeout(() => {
-                          if (!map.value || !mapInitialized.value) return;
-
-                          try {
-                            // 🎯 根據幾何類型定位地圖
-                            if (geometryType === 'Point') {
-                              // 點要素：移動到點位置
-                              if (typeof leafletLayer.getLatLng === 'function') {
-                                const latlng = leafletLayer.getLatLng();
-                                if (latlng && latlng.lat && latlng.lng) {
-                                  map.value.panTo(latlng, {
-                                    animate: true,
-                                    duration: 0.3,
-                                  });
-                                }
-                              }
-                            } else {
-                              // 面/線要素：移動到中心點
-                              if (typeof leafletLayer.getBounds === 'function') {
-                                const bounds = leafletLayer.getBounds();
-                                if (bounds && bounds.isValid()) {
-                                  const center = bounds.getCenter();
-                                  if (center && center.lat && center.lng) {
-                                    map.value.panTo(center, {
-                                      animate: true,
-                                      duration: 0.3,
-                                    });
-                                  }
-                                }
-                              }
-                            }
-
-                            // ⏰ 延遲顯示 popup，等待地圖移動完成
-                            setTimeout(() => {
-                              if (leafletLayer && leafletLayer.openPopup && map.value) {
-                                leafletLayer.openPopup();
-                              }
-                            }, 350);
-
-                            // 📡 發送選中事件到父組件
-                            emit('feature-selected', leafletLayer.feature);
-
-                            console.log(`✅ 成功處理 ${geometryType} 類型要素點擊: ${name}`);
-                          } catch (innerError) {
-                            console.error('處理地圖移動時發生錯誤:', innerError);
-                          }
-                        }, 50);
-                      } catch (error) {
-                        console.error('點擊要素時發生錯誤:', error);
-                      }
-                    },
-                  });
-                },
-              });
-
-              newLeafletLayer.addTo(map.value);
-              leafletLayers.value[layerId] = newLeafletLayer;
-            }
-          } else {
-            // 如果地圖上存在該圖層，安全地移除它
-            if (existingLayer) {
-              try {
-                // 🛑 停止任何正在進行的動畫，避免_latLngToNewLayerPoint錯誤
-                if (map.value.stop) {
-                  map.value.stop();
-                }
-
-                if (map.value.hasLayer(existingLayer)) {
-                  map.value.removeLayer(existingLayer);
-                }
-                delete leafletLayers.value[layerId];
-              } catch (removeError) {
-                console.warn(`移除圖層 ${layerId} 時發生警告:`, removeError);
-                // 即使移除失敗，也要清理引用
-                delete leafletLayers.value[layerId];
-              }
-            }
-          }
-        });
-
-        // 📊 更新作用中標記總數
-        const totalMarkers = Object.values(leafletLayers.value).reduce(
-          (acc, layer) => acc + (layer.getLayers ? layer.getLayers().length : 0),
-          0
-        );
-        emit('update:activeMarkers', totalMarkers);
-      };
-
-      /**
-       * 🔍 顯示所有要素 (Show All Features)
-       * 調整地圖視圖以包含所有可見圖層的範圍
-       */
-      const showAllFeatures = () => {
-        if (!map.value || !mapInitialized.value || !isAnyLayerVisible.value) return;
-        try {
-          // 🛑 停止所有正在進行的動畫
-          if (map.value.stop) {
-            map.value.stop();
-          }
-
-          const allBounds = new L.LatLngBounds();
-          Object.values(leafletLayers.value).forEach((layer) => {
-            if (layer && layer.getBounds) {
-              try {
-                const layerBounds = layer.getBounds();
-                if (layerBounds && layerBounds.isValid()) {
-                  allBounds.extend(layerBounds);
-                }
-              } catch (boundsError) {
-                console.warn('獲取圖層邊界時發生警告:', boundsError);
-              }
-            }
-          });
-
-          if (allBounds.isValid()) {
-            // ⏰ 延遲執行，確保動畫停止完成
-            setTimeout(() => {
-              if (map.value && mapInitialized.value) {
-                try {
-                  // 移動到所有要素的中心點，不進行縮放
-                  const center = allBounds.getCenter();
-                  if (center && center.lat && center.lng) {
-                    map.value.panTo(center, { animate: true, duration: 0.5 });
-                  }
-                } catch (panError) {
-                  console.error('移動地圖時發生錯誤:', panError);
-                }
-              }
-            }, 50);
-          }
-        } catch (error) {
-          console.error('顯示所有要素時發生錯誤:', error);
-        }
-      };
-
-      /**
-       * 🎯 高亮顯示特徵 (Highlight Feature)
-       * 根據名稱在地圖上高亮顯示指定的地理特徵
-       * @param {string} id - 要高亮顯示的特徵名稱
-       * @param {Object} layerInfo - 圖層資訊（可選）
-       */
-      const highlightFeature = (id, layerInfo = null) => {
-        if (!map.value || !mapInitialized.value) return;
-        try {
-          console.log(`🔍 開始高亮顯示要素: ${id}`, layerInfo);
-          let found = false;
-
-          // 🔍 如果有指定圖層資訊，優先在該圖層中尋找
-          if (layerInfo && layerInfo.layerId) {
-            const targetLayerName = layerInfo.layerId;
-            const targetLayer = leafletLayers.value[targetLayerName];
-
-            if (targetLayer) {
-              console.log(`🎯 在指定圖層 "${targetLayerName}" 中尋找要素 "${id}"`);
-              targetLayer.eachLayer((leafletLayer) => {
-                if (!leafletLayer || !leafletLayer.feature) return;
-
-                // 🏷️ 智能識別名稱屬性
-                if (leafletLayer.feature.properties.id === id) {
-                  found = true;
-                  performHighlight(leafletLayer, targetLayer, id, layerInfo);
-                }
-              });
-            }
-          }
-
-          // 🔍 如果在指定圖層中沒找到，或沒有指定圖層，則遍歷所有圖層
-          if (!found) {
-            Object.values(leafletLayers.value).forEach((layer) => {
-              if (!layer) return;
-              layer.eachLayer((leafletLayer) => {
-                if (!leafletLayer || !leafletLayer.feature) return;
-
-                // 🏷️ 智能識別名稱屬性
-                if (leafletLayer.feature.properties.id === id) {
-                  found = true;
-                  performHighlight(leafletLayer, layer, id, layerInfo);
-                } else {
-                  // 重設其他特徵的樣式
-                  layer.resetStyle(leafletLayer);
-                }
-              });
-            });
-          }
-
-          if (!found) {
-            console.warn(`⚠️ 未找到ID為 "${id}" 的要素`);
-          }
-        } catch (error) {
-          console.error('高亮顯示特徵時發生錯誤:', error);
-        }
-      };
-
-      /**
-       * 🎨 執行高亮顯示 (Perform Highlight)
-       * 將高亮邏輯抽取為獨立函數，提高程式碼複用性
-       */
-      const performHighlight = (leafletLayer, layer, id, layerInfo) => {
-        if (!map.value || !mapInitialized.value) return;
-
-        try {
-          // 🛑 停止所有正在進行的動畫
-          if (map.value.stop) {
-            map.value.stop();
-          }
-
-          layer.resetStyle(leafletLayer); // 先重設樣式
-
-          // 🎨 根據幾何類型設定高亮樣式
-          const geometryType = leafletLayer.feature.geometry.type;
-          const highlightStyle = {
-            weight: 4,
-            color: '#ff0000',
-            dashArray: '5,5',
-            fillOpacity: 1.0,
-          };
-
-          if (geometryType === 'Point') {
-            highlightStyle.radius = 12; // 放大點的半徑
-          }
-
-          leafletLayer.setStyle(highlightStyle);
-
-          // ⏰ 延遲執行地圖移動，確保動畫停止完成
-          setTimeout(() => {
-            if (!map.value || !mapInitialized.value) return;
-
-            try {
-              // 🎯 根據幾何類型移動地圖到特徵位置並zoom in
-              if (geometryType === 'Point') {
-                // 點要素：移動到點位置並zoom in
-                if (typeof leafletLayer.getLatLng === 'function') {
-                  const latlng = leafletLayer.getLatLng();
-                  if (latlng && latlng.lat && latlng.lng) {
-                    map.value.setView(latlng, Math.max(map.value.getZoom(), 15), {
-                      animate: true,
-                      duration: 0.8,
-                    });
-                  }
-                }
-              } else {
-                // 面/線要素：fit到邊界並適當zoom in
-                if (typeof leafletLayer.getBounds === 'function') {
-                  const bounds = leafletLayer.getBounds();
-                  if (bounds && bounds.isValid()) {
-                    map.value.fitBounds(bounds, {
-                      animate: true,
-                      duration: 0.8,
-                      padding: [20, 20],
-                      maxZoom: 16,
-                    });
-                  }
-                }
-              }
-
-              // ⏰ 延遲顯示 tooltip，等待地圖移動完成
-              setTimeout(() => {
-                if (leafletLayer && map.value) {
-                  if (leafletLayer.openTooltip) {
-                    leafletLayer.openTooltip();
-                  }
-                  if (leafletLayer.openPopup) {
-                    leafletLayer.openPopup();
-                  }
-                }
-              }, 900);
-            } catch (moveError) {
-              console.error('移動地圖到高亮位置時發生錯誤:', moveError);
-            }
-          }, 50);
-
-          const layerName = layerInfo ? layerInfo.layerName : '未知圖層';
-          console.log(`✅ 成功在圖層 "${layerName}" 中高亮顯示 ${geometryType} 類型要素: ${id}`);
-        } catch (error) {
-          console.error('執行高亮顯示時發生錯誤:', error);
-        }
-      };
-
-      /**
-       * 🔄 重置地圖視圖 (Reset Map View)
-       * 將地圖恢復到預設的台灣中心位置
-       */
-      const resetView = () => {
-        if (!map.value || !mapInitialized.value) return;
-        try {
-          // 🛑 停止所有正在進行的動畫
-          if (map.value.stop) {
-            map.value.stop();
-          }
-
-          // ⏰ 延遲執行，確保動畫停止完成
-          setTimeout(() => {
-            if (map.value && mapInitialized.value) {
-              try {
-                // 移動到台灣中南部中心位置，不改變縮放等級
-                map.value.panTo([22.9908, 120.2133], { animate: true, duration: 0.5 });
-              } catch (panError) {
-                console.error('移動地圖時發生錯誤:', panError);
-              }
-            }
-          }, 50);
-        } catch (error) {
-          console.error('重置視圖時發生錯誤:', error);
-        }
-      };
-
-      /**
-       * 🗺️ 適應台南邊界 (Fit to Tainan Bounds)
-       * 將地圖視圖調整到台南市的地理範圍
-       */
-      const fitToTainanBounds = () => {
-        if (!map.value || !mapInitialized.value || !leafletLayers.value['tainan']) return;
-        try {
-          // 🛑 停止所有正在進行的動畫
-          if (map.value.stop) {
-            map.value.stop();
-          }
-
-          const tainanBounds = leafletLayers.value['tainan'].getBounds();
-          if (tainanBounds && tainanBounds.isValid()) {
-            // ⏰ 延遲執行，確保動畫停止完成
-            setTimeout(() => {
-              if (map.value && mapInitialized.value) {
-                try {
-                  // 移動到台南邊界的中心點
-                  const center = tainanBounds.getCenter();
-                  if (center && center.lat && center.lng) {
-                    map.value.panTo(center, { animate: true, duration: 0.5 });
-                  }
-                } catch (panError) {
-                  console.error('移動地圖時發生錯誤:', panError);
-                }
-              }
-            }, 50);
-          }
-        } catch (error) {
-          console.error('適應台南邊界時發生錯誤:', error);
-        }
-      };
-
-      /**
-       * 🔄 刷新地圖大小 (Invalidate Map Size)
-       * 當容器大小改變時更新地圖顯示
-       */
-      const invalidateSize = () => {
-        if (!map.value) return;
-        try {
-          nextTick(() => {
-            if (map.value) {
-              map.value.invalidateSize();
-            }
-          });
-        } catch (error) {
-          console.error('刷新地圖大小時發生錯誤:', error);
-        }
-      };
-
-      /**
-       * 🔄 強制更新圖層 (Force Update Layers)
-       * 強制重新渲染所有圖層，解決分頁切換後圖層消失的問題
-       */
-      const forceUpdateLayers = () => {
-        console.log('🔄 MapView: Force updating layers after tab switch');
-        if (!map.value || !mapInitialized.value) return;
-
-        try {
-          // 🛑 停止所有正在進行的地圖動畫，避免_latLngToNewLayerPoint錯誤
-          map.value.stop();
-
-          // 先清除所有現有圖層
-          Object.values(leafletLayers.value).forEach((layer) => {
-            if (layer && layer.remove) {
-              // 安全地移除圖層，避免動畫衝突
-              try {
-                if (map.value.hasLayer(layer)) {
-                  map.value.removeLayer(layer);
-                }
-              } catch (removeError) {
-                console.warn('移除圖層時發生警告:', removeError);
-              }
-            }
-          });
-          leafletLayers.value = {};
-
-          // 🔄 延遲一小段時間再重新載入圖層，確保清理完成
-          setTimeout(() => {
-            if (map.value && mapInitialized.value) {
-              updateMapLayers();
-            }
-          }, 50);
-        } catch (error) {
-          console.error('強制更新圖層時發生錯誤:', error);
-        }
-      };
-
-      // 👀 監聽器設定 (Watchers Setup)
-
-      /**
-       * 👀 監聽 Pinia store 圖層變化 (Watch Pinia Store Layers Changes)
-       * 當圖層狀態改變時自動更新地圖顯示
-       * 注意：由於新的分組結構，我們仍然監聽 dataStore.layers，因為它包含完整的分組結構
-       */
-      watch(() => dataStore.layers, updateMapLayers, { deep: true });
-
-      /**
-       * 👀 監聽樣式屬性變化 (Watch Style Properties Changes)
-       * 當色彩方案、邊框等樣式改變時重新套用到所有圖層
-       */
-      watch(
-        () => [props.selectedBorderColor, props.selectedBorderWeight],
-        () => {
-          if (map.value && currentTileLayer.value) {
-            // 更新所有要素的樣式
-            currentTileLayer.value.eachLayer((layer) => {
-              if (layer.feature) {
-                const feature = layer.feature;
-                const count = feature.properties[dataStore.getCurrentLayer()?.countField] || 0;
-                // 🎨 獲取當前圖層的顏色
-                const currentLayer = dataStore.getCurrentLayer();
-                const layerColor = currentLayer?.color || '#3498db';
-
-                const newStyle = {
-                  fillColor: layerColor, // 使用圖層指定的顏色
-                  weight: props.selectedBorderWeight,
-                  opacity: 1,
-                  color: props.selectedBorderColor,
-                  dashArray: '',
-                  fillOpacity: count > 0 ? 0.7 : 0.3, // 有數據的區域較不透明
-                };
-                layer.setStyle(newStyle);
-              }
-            });
-          }
-        },
-        { deep: true }
-      );
-
-      // 🚀 生命週期事件處理 (Lifecycle Event Handlers)
-
-      /**
-       * 🚀 組件掛載事件 (Component Mounted Event)
-       * 初始化地圖實例
-       */
-      onMounted(() => {
-        console.log('🚀 MapView 組件已掛載，開始初始化地圖');
-        // 確保 DOM 已完全渲染
-        nextTick(() => {
-          initMap();
-        });
-      });
-
-      /**
-       * 🗑️ 組件卸載事件 (Component Unmounted Event)
-       * 清理地圖實例和釋放記憶體
-       */
-      onUnmounted(() => {
-        console.log('🗑️ MapView 組件即將卸載，開始清理地圖資源');
-        try {
-          // 🛑 停止所有動畫
-          if (map.value && map.value.stop) {
-            map.value.stop();
-          }
-
-          // 🔄 清理所有圖層
-          Object.values(leafletLayers.value).forEach((layer) => {
-            if (layer) {
-              try {
-                if (map.value && map.value.hasLayer(layer)) {
-                  map.value.removeLayer(layer);
-                }
-              } catch (removeError) {
-                console.warn('移除圖層時發生警告:', removeError);
-              }
-            }
-          });
-          leafletLayers.value = {};
-
-          // 🗺️ 移除底圖圖層
-          if (currentTileLayer.value && map.value) {
-            try {
-              map.value.removeLayer(currentTileLayer.value);
-            } catch (removeError) {
-              console.warn('移除底圖時發生警告:', removeError);
-            }
-          }
-          currentTileLayer.value = null;
-
-          // 🗑️ 移除地圖實例
-          if (map.value) {
-            try {
-              map.value.off(); // 移除所有事件監聽器
-              map.value.remove(); // 完全移除地圖
-              map.value = null;
-              mapInitialized.value = false;
-              console.log('✅ 地圖資源清理完成');
-            } catch (removeError) {
-              console.error('清理地圖實例時發生錯誤:', removeError);
-            }
-          }
-        } catch (error) {
-          console.error('組件卸載清理時發生錯誤:', error);
-        }
-      });
-
-      // 📤 返回給模板和父組件使用的方法和數據 (Return Methods and Data for Template and Parent)
-      return {
-        // 📚 模板引用
-        mapContainer, // 地圖容器 DOM 引用
-
-        // 🗺️ 底圖控制
-        selectedBasemap, // 選定的底圖類型
-        changeBasemap, // 變更底圖方法
-
-        // 🔍 地圖操作
-        showAllFeatures, // 顯示所有要素方法
-        isAnyLayerVisible, // 是否有圖層可見狀態
-
-        // 🎯 供父組件呼叫的方法 (Methods for parent to call)
-        highlightFeature, // 高亮顯示特徵方法
-        resetView, // 重置視圖方法
-        fitToTainanBounds, // 適應台南邊界方法
-        invalidateSize, // 刷新地圖大小方法
-        forceUpdateLayers, // 強制更新圖層方法
-      };
-    },
-  };
-</script>
 
 <style scoped>
   /**
