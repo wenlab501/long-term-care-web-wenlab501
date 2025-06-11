@@ -74,14 +74,14 @@ export async function loadHospitalClinicData(fileName) {
     })); // .map() 方法結束
 
     // 包含摘要資訊
-    const summary = {
+    const summaryData = {
       totalCount: geoJsonText.features.length,
     };
 
     return {
       geoJsonText, // 包含原始且完整的 GeoJSON 數據
       tableData, // 包含為表格量身打造的數據陣列
-      summary, // 包含摘要資訊
+      summaryData, // 包含摘要資訊
     };
   } catch (error) {
     console.error('❌ 數據載入失敗:', error);
@@ -120,14 +120,14 @@ export async function loadGeoJson(fileName) {
     }));
 
     // 包含摘要資訊
-    const summary = {
+    const summaryData = {
       totalCount: geoJsonText.features.length,
     };
 
     return {
       geoJsonText, // 包含原始且完整的 GeoJSON 數據
       tableData, // 包含為表格量身打造的數據陣列
-      summary, // 包含摘要資訊
+      summaryData, // 包含摘要資訊
     };
   } catch (error) {
     console.error('❌ GeoJSON 數據載入或處理失敗:', error);

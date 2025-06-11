@@ -214,11 +214,26 @@
        */
       watch(
         () => props.activeTab,
-        (newTab) => {
+        (newTab, oldTab) => {
+          console.log('🔄 UpperView: Tab changed from', oldTab, 'to', newTab);
+
           nextTick(() => {
             if (newTab === 'map' && mapView.value) {
+              console.log('🗺️ UpperView: Updating map after tab switch');
               // 🗺️ 刷新地圖大小，解決容器變化導致的顯示問題
               mapView.value.invalidateSize();
+
+              // 如果是從其他分頁切換到地圖，延遲一點再刷新確保DOM完全渲染
+              setTimeout(() => {
+                if (mapView.value) {
+                  mapView.value.invalidateSize();
+                  // 強制重新載入圖層，解決分頁切換後圖層消失的問題
+                  mapView.value.forceUpdateLayers();
+                  console.log(
+                    '🗺️ UpperView: Map size invalidated and layers force updated after tab switch'
+                  );
+                }
+              }, 100);
             }
             // Dashboard現在是純文字統計，不需要刷新圖表
           });

@@ -159,22 +159,6 @@
         }
       };
 
-      /**
-       * 📊 切換到儀表板 (Switch to Dashboard)
-       * 將主要分頁切換到儀表板視圖
-       */
-      const switchToDashboard = () => {
-        activeTab.value = 'dashboard';
-      };
-
-      /**
-       * 🕐 取得當前時間 (Get Current Time)
-       * 返回格式化的當前時間字串
-       */
-      const getCurrentTime = () => {
-        return new Date().toLocaleString('zh-TW');
-      };
-
       // 🔧 拖拽調整功能 (Drag Resize Functions)
 
       /**
@@ -317,14 +301,6 @@
       // 📍 座標和標記更新函數 (Coordinate and Marker Update Functions)
 
       /**
-       * 📍 更新當前座標 (Update Current Coordinates)
-       * @param {Object} coords - 座標對象 {lat, lng}
-       */
-      const updateCurrentCoords = (coords) => {
-        currentCoords.value = coords;
-      };
-
-      /**
        * 📍 更新作用中標記數量 (Update Active Markers Count)
        * @param {number} count - 標記數量
        */
@@ -424,7 +400,6 @@
         // 📥 數據管理功能
         fitMapToData, // 適應地圖到資料
         resetView, // 重設視圖
-        switchToDashboard, // 切換到儀表板
 
         // 🔧 拖拽調整功能
         startResize, // 開始調整大小
@@ -432,13 +407,11 @@
         validatePanelSizes, // 驗證面板尺寸
 
         // 🛠️ 工具函數
-        getCurrentTime, // 取得當前時間
         appFooterRef, // 頁腳引用
         calculatedMiddleViewHeight, // 計算的中間面板高度
         handleHighlight, // 處理高亮顯示
 
         // 🎯 互動函數
-        updateCurrentCoords, // 更新當前座標
         updateActiveMarkers, // 更新作用中標記
         handleFeatureSelected, // 處理特徵選中
       };
@@ -545,18 +518,11 @@
             <RightView
               :activeRightTab="activeRightTab"
               :activeMarkers="activeMarkers"
-              :tainanDataSummary="storeTainanDataSummary"
-              :maxCount="maxCount"
-              :averageCount="averageCount"
-              :dataRegionsCount="dataRegionsCount"
-              :showTainanLayer="showTainanLayer"
               :rightViewWidth="rightViewWidth"
               @update:activeRightTab="activeRightTab = $event"
               @fit-map-to-data="fitMapToData"
-              @switch-to-dashboard="switchToDashboard"
               @highlight-feature="handleHighlight"
               :current-coords="currentCoords"
-              @update:current-coords="updateCurrentCoords"
             />
           </div>
         </div>

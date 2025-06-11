@@ -27,9 +27,6 @@ export const useMapStore = defineStore('map', () => {
     bufferLayer: null,
   });
 
-  // ==================== 座標轉換狀態 ====================
-  const transformedData = ref(null);
-
   // ==================== Bootstrap RWD 斷點 ====================
   const breakpoints = {
     xs: 0,
@@ -57,11 +54,9 @@ export const useMapStore = defineStore('map', () => {
     bottomViewHeight,
     windowWidth,
     windowHeight,
-    timeRange,
     zoomLevel,
     currentCoords,
     mapLayers,
-    transformedData,
 
     // 計算屬性
     mainPanelWidth,

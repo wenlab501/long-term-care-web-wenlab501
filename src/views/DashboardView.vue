@@ -26,7 +26,7 @@
   const currentLayerSummary = computed(() => {
     if (!activeLayerTab.value) return null;
     const layer = visibleLayers.value.find((l) => l.id === activeLayerTab.value);
-    return layer ? layer.summary || null : null;
+    return layer ? layer.summaryData || null : null;
   });
 
   /**

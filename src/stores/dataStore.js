@@ -27,7 +27,7 @@ export const useDataStore = defineStore(
             isLoaded: false,
             type: 'point',
             data: null, // 存放 GeoJSON 資料
-            summary: null, // 存放資料摘要
+            summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
             loader: loadHospitalClinicData, // 資料載入函數
             fileName: '112年12月醫療院所分布圖_全國_醫院_coord.csv',
@@ -40,7 +40,7 @@ export const useDataStore = defineStore(
             isLoaded: false,
             type: 'point',
             data: null, // 存放 GeoJSON 資料
-            summary: null, // 存放資料摘要
+            summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
             loader: loadHospitalClinicData, // 資料載入函數
             fileName: '112年12月醫療院所分布圖_全國_診所_coord.csv',
@@ -58,7 +58,7 @@ export const useDataStore = defineStore(
             isLoaded: false,
             type: 'polygon',
             data: null, // 存放 GeoJSON 資料
-            summary: null, // 存放資料摘要
+            summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
             loader: loadGeoJsonUtil, // 資料載入函數
             fileName: '113年12月行政區三段年齡組性別人口統計_村里_臺北市_WGS84.geojson',
@@ -71,7 +71,7 @@ export const useDataStore = defineStore(
             isLoaded: false,
             type: 'polygon',
             data: null, // 存放 GeoJSON 資料
-            summary: null, // 存放資料摘要
+            summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
             loader: loadGeoJsonUtil, // 資料載入函數
             fileName: '113年12月行政區五歲年齡組性別人口統計_村里_臺北市_WGS84.geojson',
@@ -84,7 +84,7 @@ export const useDataStore = defineStore(
             isLoaded: false,
             type: 'polygon',
             data: null, // 存放 GeoJSON 資料
-            summary: null, // 存放資料摘要
+            summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
             loader: loadGeoJsonUtil, // 資料載入函數
             fileName: '113年12月行政區十歲年齡組性別人口統計_村里_臺北市_WGS84.geojson',
@@ -97,7 +97,7 @@ export const useDataStore = defineStore(
             isLoaded: false,
             type: 'polygon',
             data: null, // 存放 GeoJSON 資料
-            summary: null, // 存放資料摘要
+            summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
             loader: loadGeoJsonUtil, // 資料載入函數
             fileName: '臺北市_村里_綜稅綜合所得總額.geojson',
@@ -175,7 +175,7 @@ export const useDataStore = defineStore(
           // 將載入的資料直接存儲在圖層物件中
           layer.data = result.geoJsonText;
           layer.tableData = result.tableData;
-          layer.summary = result.summary;
+          layer.summaryData = result.summaryData;
           layer.isLoaded = true;
 
           // --- 🔄 與舊版結構的相容性處理 (Compatibility with Legacy Structure) ---

@@ -648,6 +648,26 @@
         }
       };
 
+      /**
+       * 🔄 強制更新圖層 (Force Update Layers)
+       * 強制重新渲染所有圖層，解決分頁切換後圖層消失的問題
+       */
+      const forceUpdateLayers = () => {
+        console.log('🔄 MapView: Force updating layers after tab switch');
+        if (!map.value || !mapInitialized.value) return;
+
+        // 先清除所有現有圖層
+        Object.values(leafletLayers.value).forEach((layer) => {
+          if (layer && map.value.hasLayer(layer)) {
+            map.value.removeLayer(layer);
+          }
+        });
+        leafletLayers.value = {};
+
+        // 重新載入所有應該可見的圖層
+        updateMapLayers();
+      };
+
       // 👀 監聽器設定 (Watchers Setup)
 
       /**
@@ -746,6 +766,7 @@
         resetView, // 重置視圖方法
         fitToTainanBounds, // 適應台南邊界方法
         invalidateSize, // 刷新地圖大小方法
+        forceUpdateLayers, // 強制更新圖層方法
       };
     },
   };
