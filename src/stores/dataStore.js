@@ -1,9 +1,6 @@
 // 🔧 Vue 和 Pinia 核心模組引入
 import { defineStore } from 'pinia';
-import { ref, computed, reactive } from 'vue';
-
-// 🎨 色票和視覺化工具引入
-import { defaultColorConfig, ColorSchemeUtils } from '@/utils/pythonColorSchemes.js';
+import { ref, computed } from 'vue';
 
 // 📊 資料處理工具引入
 import { loadGeoJson as loadGeoJsonUtil, loadHospitalClinicData } from '../utils/dataProcessor.js';
@@ -236,96 +233,6 @@ export const useDataStore = defineStore(
      */
     const selectedFeature = ref(null);
 
-    // ==================== 🎨 視覺化設定 (Visualization Settings) ====================
-
-    /**
-     * 🎨 視覺化配置物件 (Visualization Configuration Object)
-     * 管理所有視覺化相關的設定，包含色票、圖表、地圖樣式等
-     */
-    const visualizationSettings = reactive({
-      // 🎨 色彩配置 (Color Configuration)
-      colors: {
-        levels: defaultColorConfig.levels,
-        pythonSchemes: {
-          default: defaultColorConfig.default,
-          spatial: defaultColorConfig.spatial,
-          heatmap: defaultColorConfig.heatmap,
-          categorical: defaultColorConfig.categorical,
-        },
-        currentScheme: {
-          name: 'viridis',
-          library: 'matplotlib',
-          colors: defaultColorConfig.default,
-          type: 'sequential',
-        },
-        // Bootstrap 色彩等級
-        100: '#dbeafe',
-        200: '#93c5fd',
-        400: '#3b82f6',
-        800: '#1e40af',
-      },
-
-      // 📊 圖表配置 (Chart Configuration)
-      charts: {
-        defaultType: 'bar',
-        animationEnabled: true,
-        showLegend: true,
-        colorScheme: {
-          name: 'tab10',
-          library: 'matplotlib',
-          colors: ColorSchemeUtils.getColorScheme('tab10', 'matplotlib'),
-        },
-      },
-
-      // 🗺️ 地圖配置 (Map Configuration)
-      maps: {
-        defaultStyle: 'openstreetmap',
-        showControls: true,
-        enableClustering: false,
-        colorMapping: {
-          scheme: 'spectral',
-          library: 'matplotlib',
-          colors: ColorSchemeUtils.getColorScheme('spectral', 'matplotlib'),
-          interpolation: 'linear',
-        },
-      },
-
-      // 🎭 主題配置 (Theme Configuration)
-      themes: {
-        current: 'default',
-        available: {
-          default: {
-            name: '預設主題',
-            description: '使用 Viridis 色票的科學視覺化主題',
-            colors: ColorSchemeUtils.generateFourLevelColors(
-              ColorSchemeUtils.getColorScheme('viridis', 'matplotlib')
-            ),
-          },
-          scientific: {
-            name: '科學期刊',
-            description: '適合科學期刊發表的專業色票',
-            colors: ColorSchemeUtils.generateFourLevelColors(
-              ColorSchemeUtils.getColorScheme('plasma', 'matplotlib')
-            ),
-          },
-          colorblind: {
-            name: '色盲友好',
-            description: '適合色盲使用者的友好色票',
-            colors: ColorSchemeUtils.generateFourLevelColors(
-              ColorSchemeUtils.getColorScheme('colorblind', 'seaborn')
-            ),
-          },
-          presentation: {
-            name: '簡報展示',
-            description: '適合簡報和展示的高對比色票',
-            colors: ColorSchemeUtils.generateFourLevelColors(
-              ColorSchemeUtils.getColorScheme('bright', 'seaborn')
-            ),
-          },
-        },
-      },
-    });
-
     // ==================== ⚙️ 分析參數 (Analysis Parameters) ====================
 
     /**
@@ -433,35 +340,8 @@ export const useDataStore = defineStore(
       }
     };
 
-    const updateVisualizationSettings = (settingType, newSettings) => {
-      Object.assign(visualizationSettings[settingType], newSettings);
-    };
-
     const updateAnalysisParameters = (paramType, newParams) => {
       Object.assign(analysisParameters.value[paramType], newParams);
-    };
-
-    const exportDataAsJSON = () => {
-      const exportData = {
-        layers: layers.value,
-        visualizationSettings: visualizationSettings,
-        analysisParameters: analysisParameters.value,
-      };
-      return JSON.stringify(exportData, null, 2);
-    };
-
-    const importDataFromJSON = (jsonData) => {
-      try {
-        const data = JSON.parse(jsonData);
-        if (data.layers) layers.value = data.layers;
-        if (data.visualizationSettings)
-          Object.assign(visualizationSettings, data.visualizationSettings);
-        if (data.analysisParameters) analysisParameters.value = data.analysisParameters;
-        return true;
-      } catch (error) {
-        console.error('Failed to import data:', error);
-        return false;
-      }
     };
 
     const getData = (dataType, processed = false) => {
@@ -476,60 +356,6 @@ export const useDataStore = defineStore(
         return !!processedData.value[dataType];
       }
       return !!rawData.value[dataType];
-    };
-
-    const updateColorScheme = (scheme, library = 'matplotlib', type = 'sequential') => {
-      const colors = ColorSchemeUtils.getColorScheme(scheme, library);
-      visualizationSettings.colors.currentScheme = {
-        name: scheme,
-        library: library,
-        colors: colors,
-        type: type,
-      };
-      return colors;
-    };
-
-    const getRecommendedColorSchemes = (dataType) => {
-      const recommendations = {
-        spatial: ['viridis', 'plasma', 'magma'],
-        categorical: ['tab10', 'Set3', 'Paired'],
-        sequential: ['viridis', 'plasma', 'inferno'],
-        diverging: ['RdBu', 'Spectral', 'coolwarm'],
-      };
-      return recommendations[dataType] || recommendations.sequential;
-    };
-
-    const applyTheme = (themeName) => {
-      const theme = visualizationSettings.themes.available[themeName];
-      if (theme) {
-        visualizationSettings.themes.current = themeName;
-        visualizationSettings.colors.levels = theme.colors;
-        return true;
-      }
-      return false;
-    };
-
-    const triggerVisualizationUpdate = () => {
-      // This function can be used to trigger a re-render of visualizations
-      // For now, we'll just emit a console log
-      console.log('Visualization update triggered');
-    };
-
-    const getAllAvailableColorSchemes = () => {
-      return {
-        matplotlib: ColorSchemeUtils.getAvailableSchemes('matplotlib'),
-        seaborn: ColorSchemeUtils.getAvailableSchemes('seaborn'),
-      };
-    };
-
-    const mapValueToColor = (value, min, max, scheme = null, library = null) => {
-      const currentScheme = scheme
-        ? ColorSchemeUtils.getColorScheme(scheme, library)
-        : visualizationSettings.colors.currentScheme.colors;
-
-      const normalizedValue = (value - min) / (max - min);
-      const colorIndex = Math.floor(normalizedValue * (currentScheme.length - 1));
-      return currentScheme[colorIndex];
     };
 
     /**
@@ -566,7 +392,6 @@ export const useDataStore = defineStore(
       rawData,
       processedData,
       selectedFeature,
-      visualizationSettings,
       analysisParameters,
       dataSummary,
       // isDataLoaded,
@@ -577,23 +402,14 @@ export const useDataStore = defineStore(
       // Actions
       setRawData,
       setProcessedData,
-      updateVisualizationSettings,
       updateAnalysisParameters,
       clearData,
       setSelectedFeature,
       clearSelectedFeature,
 
       // Other functions
-      exportDataAsJSON,
-      importDataFromJSON,
       getData,
       hasData,
-      updateColorScheme,
-      getRecommendedColorSchemes,
-      applyTheme,
-      triggerVisualizationUpdate,
-      getAllAvailableColorSchemes,
-      mapValueToColor,
       fetchLatestData,
 
       // 📊 Computed properties for visibility (使用 computed 確保其他組件可以使用)
