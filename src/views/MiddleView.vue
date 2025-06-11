@@ -44,169 +44,37 @@
    * 包含面板尺寸、分頁狀態、地圖設定、資料等
    */
   const props = defineProps({
-    /** 📚 主內容引用 (從 HomeView 傳遞的 ref) */
-    mainContent: {
-      type: Object,
-      default: null,
-    },
-
-    /** 📚 底部面板引用 (從 HomeView 傳遞的 ref) */
-    bottomView: {
-      type: Object,
-      default: null,
-    },
-
-    /** 📑 當前作用分頁標籤 (控制 UpperView 顯示的內容) */
-    activeTab: {
-      type: String,
-      default: 'map',
-    },
-
-    /** 📑 底部面板作用分頁標籤 (控制 BottomView 顯示的內容) */
-    activeBottomTab: {
-      type: String,
-      default: 'table',
-    },
-
-    /** 📏 主面板寬度 (整個中間欄的寬度，像素值) */
-    mainPanelWidth: {
-      type: Number,
-      default: 800,
-    },
-
-    /** 📏 動態主區域高度 (從 HomeView 計算的可用高度) */
-    dynamicMainAreaHeight: {
-      type: Number,
-      required: true,
-      validator: (value) => value >= 0,
-    },
-
-    /** 🗺️ 是否顯示台南圖層 (地圖圖層控制) */
-    showTainanLayer: {
-      type: Boolean,
-      default: false,
-    },
-
-    /** 🔍 選定的過濾器 (資料過濾條件) */
-    selectedFilter: {
-      type: String,
-      default: 'all',
-    },
-
-    /** 🎨 選定的色彩方案 (地圖和圖表的色彩主題) */
-    selectedColorScheme: {
-      type: String,
-      default: 'default',
-    },
-
-    /** 🖌️ 選定的邊框顏色 (地圖要素邊框顏色) */
-    selectedBorderColor: {
-      type: String,
-      default: '#000000',
-    },
-
-    /** 📏 選定的邊框粗細 (地圖要素邊框寬度) */
-    selectedBorderWeight: {
-      type: Number,
-      default: 1,
-    },
-
-    /** 🔍 地圖縮放等級 (Leaflet 地圖縮放級別) */
-    zoomLevel: {
-      type: Number,
-      default: 10,
-    },
-
-    /** 📍 當前座標 (地圖中心點座標) */
-    currentCoords: {
-      type: Object,
-      default: () => ({ lat: 0, lng: 0 }),
-    },
-
-    /** 🗺️ 台南 GeoJSON 資料 (地理邊界資料) */
-    tainanGeoJSONData: {
-      type: Object,
-      default: null,
-    },
-
-    /** 📊 最大計數值 (資料統計中的最大值，用於正規化) */
-    maxCount: {
-      type: Number,
-      default: 0,
-    },
-
-    /** 📋 合併的表格資料 (處理後的完整資料集) */
-    mergedTableData: {
-      type: Array,
-      default: () => [],
-    },
-
-    /** 📋 排序和過濾後的表格資料 (經過使用者操作處理的資料) */
-    sortedAndFilteredTableData: {
-      type: Array,
-      default: () => [],
-    },
-
-    /** 📊 平均計數值 (資料統計的平均值) */
-    averageCount: {
-      type: Number,
-      default: 0,
-    },
-
-    /** 📊 資料區域計數 (有資料的區域數量) */
-    dataRegionsCount: {
-      type: Number,
-      default: 0,
-    },
-
-    /** 📍 作用中的標記數量 (地圖上顯示的標記點數量) */
-    activeMarkers: {
-      type: Number,
-      default: 0,
-    },
-
-    /** ⏳ 是否正在載入資料 (資料載入狀態指示) */
-    isLoadingData: {
-      type: Boolean,
-      default: false,
-    },
-
-    /** 🔍 表格搜尋查詢 (使用者輸入的搜尋關鍵字) */
-    tableSearchQuery: {
-      type: String,
-      default: '',
-    },
-
-    /** 📊 排序欄位 (表格排序的欄位名稱) */
-    sortField: {
-      type: String,
-      default: '',
-    },
-
-    /** 📊 排序方向 (升序或降序) */
+    mainContent: { type: Object, default: null },
+    bottomView: { type: Object, default: null },
+    activeTab: { type: String, default: 'map' },
+    activeBottomTab: { type: String, default: 'table' },
+    mainPanelWidth: { type: Number, default: 800 },
+    dynamicMainAreaHeight: { type: Number, required: true, validator: (value) => value >= 0 },
+    showTainanLayer: { type: Boolean, default: false },
+    selectedFilter: { type: String, default: 'all' },
+    selectedColorScheme: { type: String, default: 'default' },
+    selectedBorderColor: { type: String, default: '#000000' },
+    selectedBorderWeight: { type: Number, default: 1 },
+    zoomLevel: { type: Number, default: 10 },
+    currentCoords: { type: Object, default: () => ({ lat: 0, lng: 0 }) },
+    tainanGeoJSONData: { type: Object, default: null },
+    maxCount: { type: Number, default: 0 },
+    mergedTableData: { type: Array, default: () => [] },
+    sortedAndFilteredTableData: { type: Array, default: () => [] },
+    averageCount: { type: Number, default: 0 },
+    dataRegionsCount: { type: Number, default: 0 },
+    activeMarkers: { type: Number, default: 0 },
+    isLoadingData: { type: Boolean, default: false },
+    tableSearchQuery: { type: String, default: '' },
+    sortField: { type: String, default: '' },
     sortDirection: {
       type: String,
       default: 'asc',
       validator: (value) => ['asc', 'desc'].includes(value),
     },
-
-    /** 📊 總計數值 (用於儀表板顯示的總計) */
-    totalCount: {
-      type: Number,
-      default: 0,
-    },
-
-    /** 📊 台南資料摘要 (用於儀表板的統計資訊) */
-    tainanDataSummary: {
-      type: Object,
-      default: null,
-    },
-
-    /** 🖱️ 側邊面板拖曳狀態 (從 HomeView 傳遞的拖曳狀態) */
-    isSidePanelDragging: {
-      type: Boolean,
-      default: false,
-    },
+    totalCount: { type: Number, default: 0 },
+    tainanDataSummary: { type: Object, default: null },
+    isSidePanelDragging: { type: Boolean, default: false },
   });
 
   // --- 📤 組件事件定義 (Component Events) ---

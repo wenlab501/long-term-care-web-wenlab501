@@ -152,36 +152,12 @@
      * 接收來自父組件的配置和狀態數據
      */
     props: {
-      /** 🔗 當前作用中的底部分頁標籤 */
-      activeBottomTab: {
-        type: String,
-        default: 'table',
-      },
-      /** 📏 底部面板高度 (像素) */
-      bottomViewHeight: {
-        type: Number,
-        default: 300,
-      },
-      /** 🎨 選定的色票方案 ID */
-      selectedColorScheme: {
-        type: String,
-        default: 'viridis',
-      },
-      /** 🖌️ 選定的邊框顏色 (十六進位色碼) */
-      selectedBorderColor: {
-        type: String,
-        default: '#666666',
-      },
-      /** 📏 選定的邊框粗細 (像素) */
-      selectedBorderWeight: {
-        type: Number,
-        default: 1,
-      },
-      /** 🛠️ 是否正在拖曳面板 (影響滑鼠事件處理) */
-      isPanelDragging: {
-        type: Boolean,
-        default: false,
-      },
+      activeBottomTab: { type: String, default: 'table' },
+      bottomViewHeight: { type: Number, default: 300 },
+      selectedColorScheme: { type: String, default: 'viridis' },
+      selectedBorderColor: { type: String, default: '#666666' },
+      selectedBorderWeight: { type: Number, default: 1 },
+      isPanelDragging: { type: Boolean, default: false },
     },
 
     /**

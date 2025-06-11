@@ -102,31 +102,11 @@
      * 📥 組件屬性定義 (Component Props)
      */
     props: {
-      /** 🔍 地圖縮放等級 */
-      zoomLevel: {
-        type: Number,
-        default: 10,
-      },
-      /** 🎨 選定的色彩方案 */
-      selectedColorScheme: {
-        type: String,
-        default: 'default',
-      },
-      /** 📊 最大數值（用於色彩計算） */
-      maxCount: {
-        type: Number,
-        default: 100,
-      },
-      /** 🖌️ 選定的邊框顏色 */
-      selectedBorderColor: {
-        type: String,
-        default: '#007bff',
-      },
-      /** 📏 選定的邊框粗細 */
-      selectedBorderWeight: {
-        type: Number,
-        default: 2,
-      },
+      zoomLevel: { type: Number, default: 10 },
+      selectedColorScheme: { type: String, default: 'default' },
+      maxCount: { type: Number, default: 100 },
+      selectedBorderColor: { type: String, default: '#007bff' },
+      selectedBorderWeight: { type: Number, default: 2 },
     },
 
     /**
@@ -231,9 +211,6 @@
             fadeAnimation: true, // 啟用淡入淡出動畫
             markerZoomAnimation: true, // 啟用標記縮放動畫
           });
-
-          // 添加縮放控制項到右下角
-          L.control.zoom({ position: 'bottomright' }).addTo(map.value);
           // 載入預設底圖
           loadBasemap();
 
@@ -538,34 +515,44 @@
 
                 leafletLayer.setStyle(highlightStyle);
 
-                // 🎯 根據幾何類型移動地圖到特徵位置
-                if (geometryType === 'point') {
-                  // 點要素：移動到點位置
+                // 🎯 根據幾何類型移動地圖到特徵位置並zoom in
+                if (geometryType === 'Point') {
+                  // 點要素：移動到點位置並zoom in
                   if (typeof leafletLayer.getLatLng === 'function') {
                     const latlng = leafletLayer.getLatLng();
                     if (latlng) {
-                      map.value.panTo(latlng, { animate: true, duration: 0.8 });
+                      map.value.setView(latlng, Math.max(map.value.getZoom(), 15), {
+                        animate: true,
+                        duration: 1.0,
+                      });
                     }
                   }
                 } else {
-                  // 面/線要素：移動到中心點
+                  // 面/線要素：fit到邊界並適當zoom in
                   if (typeof leafletLayer.getBounds === 'function') {
                     const bounds = leafletLayer.getBounds();
                     if (bounds && bounds.isValid()) {
-                      const center = bounds.getCenter();
-                      map.value.panTo(center, { animate: true, duration: 0.8 });
+                      map.value.fitBounds(bounds, {
+                        animate: true,
+                        duration: 1.0,
+                        padding: [20, 20],
+                        maxZoom: 16,
+                      });
                     }
                   }
                 }
 
-                // ⏰ 延遲顯示 popup，等待地圖移動完成
+                // ⏰ 延遲顯示 tooltip，等待地圖移動完成
                 setTimeout(() => {
+                  if (leafletLayer.openTooltip) {
+                    leafletLayer.openTooltip();
+                  }
                   if (leafletLayer.openPopup) {
                     leafletLayer.openPopup();
                   }
-                }, 400);
+                }, 600);
 
-                console.log(`✅ 成功高亮顯示 ${geometryType} 類型要素: ${name}`);
+                console.log(`✅ 成功高亮顯示 ${geometryType} 類型要素: ${id}`);
               } else {
                 // 重設其他特徵的樣式
                 layer.resetStyle(leafletLayer);
@@ -574,7 +561,7 @@
           });
 
           if (!found) {
-            console.warn(`⚠️ 未找到名稱為 "${name}" 的要素`);
+            console.warn(`⚠️ 未找到ID為 "${id}" 的要素`);
           }
         } catch (error) {
           console.error('高亮顯示特徵時發生錯誤:', error);

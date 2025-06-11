@@ -146,112 +146,24 @@
      * 接收來自父組件的配置和狀態數據
      */
     props: {
-      /** 📑 當前作用中的分頁標籤 */
-      activeTab: {
-        type: String,
-        default: 'map',
-        required: true,
-      },
-      /** 🛠️ 是否正在拖曳面板 (影響滑鼠事件處理) */
-      isPanelDragging: {
-        type: Boolean,
-        default: false,
-      },
-
-      /** 📏 主面板寬度百分比 */
-      mainPanelWidth: {
-        type: Number,
-        default: 60,
-        required: true,
-      },
-      /** 📏 內容區域高度 (像素) */
-      contentHeight: {
-        type: Number,
-        default: 500,
-        required: true,
-      },
-
-      /** 🗺️ 台南圖層顯示狀態 */
-      showTainanLayer: {
-        type: Boolean,
-        default: false,
-        required: true,
-      },
-      /** 🔍 選定的資料篩選條件 */
-      selectedFilter: {
-        type: String,
-        default: '',
-        required: true,
-      },
-      /** 🎨 選定的色票方案 (如 viridis, plasma 等) */
-      selectedColorScheme: {
-        type: String,
-        default: 'viridis',
-        required: true,
-      },
-      /** 🎨 選定的邊框顏色 (十六進位色碼) */
-      selectedBorderColor: {
-        type: String,
-        default: '#666666',
-        required: true,
-      },
-      /** 🎨 選定的邊框寬度 (像素) */
-      selectedBorderWeight: {
-        type: Number,
-        default: 1,
-        required: true,
-      },
-      /** 🔍 地圖縮放等級 (1-20) */
-      zoomLevel: {
-        type: Number,
-        default: 10,
-        required: true,
-      },
-
-      /** 📊 台南地區的 GeoJSON 地理資料 */
-      tainanGeoJSONData: {
-        type: Object,
-        default: null,
-      },
-      /** 📊 資料集中的最大計數值 */
-      maxCount: {
-        type: Number,
-        default: 0,
-        required: true,
-      },
-      /** 📋 處理後的合併表格資料 */
-      mergedTableData: {
-        type: Array,
-        default: () => [],
-        required: true,
-      },
-      /** 📊 資料的平均計數值 */
-      averageCount: {
-        type: Number,
-        default: 0,
-        required: true,
-      },
-      /** 📊 包含有效資料的區域數量 */
-      dataRegionsCount: {
-        type: Number,
-        default: 0,
-        required: true,
-      },
-      /** 📍 地圖上作用中的標記數量 */
-      activeMarkers: {
-        type: Number,
-        default: 0,
-      },
-      /** 📊 資料總計數值 */
-      totalCount: {
-        type: Number,
-        default: 0,
-      },
-      /** 📊 台南資料的統計摘要 */
-      tainanDataSummary: {
-        type: Object,
-        default: null,
-      },
+      activeTab: { type: String, default: 'map', required: true },
+      isPanelDragging: { type: Boolean, default: false },
+      mainPanelWidth: { type: Number, default: 60, required: true },
+      contentHeight: { type: Number, default: 500, required: true },
+      showTainanLayer: { type: Boolean, default: false, required: true },
+      selectedFilter: { type: String, default: '', required: true },
+      selectedColorScheme: { type: String, default: 'viridis', required: true },
+      selectedBorderColor: { type: String, default: '#666666', required: true },
+      selectedBorderWeight: { type: Number, default: 1, required: true },
+      zoomLevel: { type: Number, default: 10, required: true },
+      tainanGeoJSONData: { type: Object, default: null },
+      maxCount: { type: Number, default: 0, required: true },
+      mergedTableData: { type: Array, default: () => [], required: true },
+      averageCount: { type: Number, default: 0, required: true },
+      dataRegionsCount: { type: Number, default: 0, required: true },
+      activeMarkers: { type: Number, default: 0 },
+      totalCount: { type: Number, default: 0 },
+      tainanDataSummary: { type: Object, default: null },
     },
 
     /**
@@ -320,10 +232,8 @@
             if (newTab === 'map' && mapView.value) {
               // 🗺️ 刷新地圖大小，解決容器變化導致的顯示問題
               mapView.value.invalidateSize();
-            } else if (newTab === 'dashboard' && dashboardView.value) {
-              // 📊 刷新圖表，重新計算圖表尺寸和佈局
-              dashboardView.value.refreshCharts();
             }
+            // Dashboard現在是純文字統計，不需要刷新圖表
           });
         }
       );
@@ -337,10 +247,8 @@
           if (props.activeTab === 'map' && mapView.value) {
             // 🗺️ 重新計算地圖大小，適應新的容器尺寸
             mapView.value.invalidateSize();
-          } else if (props.activeTab === 'dashboard' && dashboardView.value) {
-            // 📊 重新計算圖表大小，適應新的容器尺寸
-            dashboardView.value.refreshCharts();
           }
+          // Dashboard現在是純文字統計，不需要重新計算圖表大小
         });
       });
 
