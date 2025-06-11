@@ -6,15 +6,10 @@
 
   const dataStore = useDataStore();
 
-  /** 📑 當前作用中的圖層分頁 */
-  const activeLayerTab = ref(null);
-  /** 📊 每個圖層的排序狀態 */
-  const layerSortStates = ref({});
+  const activeLayerTab = ref(null); /** 📑 當前作用中的圖層分頁 */
+  const layerSortStates = ref({}); /** 📊 每個圖層的排序狀態 */
 
-  /**
-   * 🗺️ 可見圖層計算屬性 (Visible Layers Computed Property)
-   * 獲取所有開啟且有資料的圖層
-   */
+  // 獲取所有開啟且有資料的圖層
   const visibleLayers = computed(() => {
     const allLayers = dataStore.getAllLayers();
     return allLayers.filter((layer) => layer.visible);
@@ -26,6 +21,32 @@
    */
   const setActiveLayerTab = (layerId) => {
     activeLayerTab.value = layerId;
+  };
+
+  /**
+   * 根據圖層的第一筆資料，動態獲取所有適合顯示在表格中的欄位名稱
+   * @param {object} layer - 圖層物件
+   * @returns {string[]} - 一個包含所有欄位名稱的字串陣列
+   */
+  const getLayerColumns = (layer) => {
+    // 獲取排序後的資料陣列
+    const data = getSortedData(layer);
+
+    // 如果沒有資料或資料為空，返回一個空陣列
+    if (!data || data.length === 0) {
+      return [];
+    }
+
+    // 取第一筆資料作為樣本
+    const sampleItem = data[0];
+
+    // 使用 Object.keys 獲取所有屬性名稱 (key)
+    // 並過濾掉不適合直接顯示在表格中的複雜物件 (例如 geometry)
+    return Object.keys(sampleItem).filter((key) => {
+      const value = sampleItem[key];
+      // 只保留值不是物件，或值雖是物件但為 null 的鍵
+      return typeof value !== 'object' || value === null;
+    });
   };
 
   /**
@@ -119,18 +140,6 @@
     emit('highlight-on-map', item.name);
   };
 
-  /**
-   * 🎨 格式化數值 (Format Value)
-   * @param {any} value - 原始值
-   * @returns {string} 格式化後的值
-   */
-  const formatValue = (value) => {
-    if (typeof value === 'number') {
-      return value.toLocaleString();
-    }
-    return value || '-';
-  };
-
   // 記錄上一次的圖層列表用於比較
   const previousLayers = ref([]);
 
@@ -219,72 +228,45 @@
         v-show="activeLayerTab === layer.id"
         class="h-100"
       >
-        <!-- 🔄 載入中狀態 -->
-        <div v-if="layer.isLoading" class="h-100 d-flex align-items-center justify-content-center">
-          <div class="text-center">
-            <div class="spinner-border text-primary mb-3" role="status">
-              <span class="visually-hidden">載入中...</span>
-            </div>
-            <p class="text-muted">正在載入 {{ layer.name }} 的資料...</p>
-          </div>
-        </div>
+        <div
+          v-if="layer.isLoading"
+          class="h-100 d-flex align-items-center justify-content-center"
+        ></div>
 
-        <!-- 📋 表格內容 -->
         <div
           v-else-if="layer.isLoaded && getSortedData(layer).length > 0"
           class="h-100 d-flex flex-column"
         >
-          <!-- 📊 圖層統計資訊 -->
-          <div class="bg-light px-3 py-2 border-bottom">
-            <div class="d-flex align-items-center justify-content-between">
-              <div>
-                <strong>{{ layer.name }}</strong>
-                <span class="text-muted ms-2">總計: {{ getLayerDataCount(layer) }} 筆</span>
-              </div>
-            </div>
-          </div>
+          <div class="bg-light px-3 py-2 border-bottom"></div>
 
-          <!-- 📋 Bootstrap 表格 -->
           <div class="flex-grow-1 overflow-auto">
             <table class="table table-sm table-hover table-striped mb-0">
               <thead class="table-light sticky-top">
-                <tr class="text-center">
+                <tr class="text-center text-nowrap">
                   <th
-                    @click="handleSort(layer.id, 'id')"
-                    class="user-select-none"
+                    v-for="column in getLayerColumns(layer)"
+                    :key="column"
+                    @click="handleSort(layer.id, column)"
+                    class="user-select-none text-capitalize"
                     style="cursor: pointer"
                   >
-                    ID
-                    <i :class="getSortIcon(layer.id, 'id')" class="ms-1"></i>
+                    {{ column }}
+                    <i :class="getSortIcon(layer.id, column)" class="ms-1"></i>
                   </th>
-                  <th
-                    @click="handleSort(layer.id, 'name')"
-                    class="user-select-none"
-                    style="cursor: pointer"
-                  >
-                    名稱
-                    <i :class="getSortIcon(layer.id, 'name')" class="ms-1"></i>
-                  </th>
-                  <th
-                    @click="handleSort(layer.id, 'count')"
-                    class="user-select-none"
-                    style="cursor: pointer"
-                  >
-                    數量
-                    <i :class="getSortIcon(layer.id, 'count')" class="ms-1"></i>
-                  </th>
+
                   <th>操作</th>
                 </tr>
               </thead>
               <tbody>
                 <tr
-                  v-for="(item, index) in getSortedData(layer)"
-                  :key="item.id || item.name || index"
+                  v-for="item in getSortedData(layer)"
+                  :key="item.id"
                   class="text-center align-middle"
                 >
-                  <td>{{ item.id }}</td>
-                  <td>{{ item.name }}</td>
-                  <td>{{ formatValue(item.count) }}</td>
+                  <td v-for="column in getLayerColumns(layer)" :key="column">
+                    {{ item[column] }}
+                  </td>
+
                   <td>
                     <button
                       class="btn btn-primary btn-sm"
@@ -300,24 +282,15 @@
           </div>
         </div>
 
-        <!-- 📭 空狀態顯示 -->
-        <div v-else class="h-100 d-flex align-items-center justify-content-center bg-light">
-          <div class="text-center text-muted">
-            <i class="fas fa-table fa-3x mb-3"></i>
-            <h5>{{ layer.name }}</h5>
-            <p v-if="!layer.isLoaded">此圖層尚未載入資料。</p>
-            <p v-else>此圖層沒有可顯示的資料。</p>
-          </div>
-        </div>
+        <div v-else class="h-100 d-flex align-items-center justify-content-center bg-light"></div>
       </div>
     </div>
 
     <!-- 📭 無開啟圖層的空狀態 -->
     <div v-else class="flex-grow-1 d-flex align-items-center justify-content-center bg-light">
       <div class="text-center text-muted">
-        <i class="fas fa-layer-group fa-3x mb-3"></i>
         <h5>沒有開啟的圖層</h5>
-        <p>請在左側面板開啟圖層以查看資料表格。</p>
+        <p>請在左側面板開啟圖層以查看資料表格</p>
       </div>
     </div>
   </div>
