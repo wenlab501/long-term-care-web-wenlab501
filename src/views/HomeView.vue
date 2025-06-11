@@ -394,9 +394,9 @@
       /**
        * 🎯 處理高亮顯示事件 (Handle Highlight Event)
        * 在地圖上高亮顯示指定名稱的特徵
-       * @param {string} name - 要高亮顯示的特徵名稱
+       * @param {string} id - 要高亮顯示的特徵名稱
        */
-      const handleHighlight = (name) => {
+      const handleHighlight = (id) => {
         // 如果當前不在地圖視圖，先切換到地圖
         if (activeTab.value !== 'map') {
           activeTab.value = 'map';
@@ -405,7 +405,7 @@
         // 使用 nextTick 確保地圖組件已渲染完成
         nextTick(() => {
           if (middlePanelRef.value) {
-            middlePanelRef.value.highlightFeature(name);
+            middlePanelRef.value.highlightFeature(id);
           } else {
             console.error('Cannot highlight: middlePanelRef is not available.');
           }

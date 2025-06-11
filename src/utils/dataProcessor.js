@@ -109,12 +109,14 @@ export async function loadGeoJson(fileName) {
     geoJsonText.features.forEach((feature, index) => {
       feature.properties.id = index + 1;
       feature.properties.name = feature.properties.FULL;
-      feature.properties.value = feature.properties['中位數'];
     });
 
     // 包含為表格量身打造的數據陣列
-    const tableData = geoJsonText.features.map((feature) => ({
-      ...feature.properties,
+    const tableData = geoJsonText.features.map((feature, index) => ({
+      id: index + 1,
+      名稱: feature.properties.name,
+      中位數: feature.properties['中位數'],
+      平均值: feature.properties['平均數'],
     }));
 
     // 包含摘要資訊

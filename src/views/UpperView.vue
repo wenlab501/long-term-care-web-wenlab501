@@ -348,20 +348,20 @@
        * 🎯 高亮顯示指定地圖特徵 (Highlight Feature on Map)
        * 如果當前不在地圖分頁，會自動切換到地圖分頁再執行高亮
        *
-       * @param {string} name - 要高亮顯示的區域名稱
+       * @param {string} id - 要高亮顯示的區域名稱
        */
-      const highlightFeature = (name) => {
+      const highlightFeature = (id) => {
         // 如果當前不在地圖分頁，先切換到地圖分頁
         if (props.activeTab !== 'map') {
           emit('update:activeTab', 'map');
 
           // 等待分頁切換完成後再執行高亮
           nextTick(() => {
-            mapView.value?.highlightFeature(name);
+            mapView.value?.highlightFeature(id);
           });
         } else {
           // 如果已經在地圖分頁，直接執行高亮
-          mapView.value?.highlightFeature(name);
+          mapView.value?.highlightFeature(id);
         }
       };
 

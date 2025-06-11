@@ -131,13 +131,13 @@
   const handleHighlight = (item, layer) => {
     console.log('準備高亮顯示:', { item, layer: layer.name });
 
-    if (!item || !item.name) {
+    if (!item || !item.id) {
       console.warn('無法高亮顯示：資料為空或缺少名稱');
       return;
     }
 
-    console.log('發送高亮事件:', item.name);
-    emit('highlight-on-map', item.name);
+    console.log('發送高亮事件:', item.id);
+    emit('highlight-on-map', item.id);
   };
 
   // 記錄上一次的圖層列表用於比較

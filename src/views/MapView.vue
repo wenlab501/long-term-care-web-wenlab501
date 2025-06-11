@@ -504,12 +504,12 @@
       /**
        * 🎯 高亮顯示特徵 (Highlight Feature)
        * 根據名稱在地圖上高亮顯示指定的地理特徵
-       * @param {string} name - 要高亮顯示的特徵名稱
+       * @param {string} id - 要高亮顯示的特徵名稱
        */
-      const highlightFeature = (name) => {
+      const highlightFeature = (id) => {
         if (!map.value || !mapInitialized.value) return;
         try {
-          console.log(`🔍 開始高亮顯示要素: ${name}`);
+          console.log(`🔍 開始高亮顯示要素: ${id}`);
           let found = false;
 
           // 🔍 遍歷所有圖層尋找匹配的特徵
@@ -519,15 +519,7 @@
               if (!leafletLayer || !leafletLayer.feature) return;
 
               // 🏷️ 智能識別名稱屬性
-              const featureName =
-                leafletLayer.feature.properties.name ||
-                leafletLayer.feature.properties.PTVNAME ||
-                leafletLayer.feature.properties.title ||
-                leafletLayer.feature.properties.label ||
-                leafletLayer.feature.properties.機構名稱 ||
-                '';
-
-              if (featureName === name) {
+              if (leafletLayer.feature.properties.id === id) {
                 found = true;
                 layer.resetStyle(leafletLayer); // 先重設樣式
 
@@ -537,7 +529,7 @@
                   weight: 4,
                   color: '#ff0000',
                   dashArray: '5,5',
-                  fillOpacity: geometryType === 'Point' ? 1.0 : 0.9,
+                  fillOpacity: 1.0,
                 };
 
                 if (geometryType === 'Point') {
@@ -547,7 +539,7 @@
                 leafletLayer.setStyle(highlightStyle);
 
                 // 🎯 根據幾何類型移動地圖到特徵位置
-                if (geometryType === 'Point' || geometryType === 'MultiPoint') {
+                if (geometryType === 'point') {
                   // 點要素：移動到點位置
                   if (typeof leafletLayer.getLatLng === 'function') {
                     const latlng = leafletLayer.getLatLng();
