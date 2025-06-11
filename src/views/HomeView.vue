@@ -128,8 +128,6 @@
       const zoomLevel = ref(10);
       /** 📍 當前地圖座標 */
       const currentCoords = ref({ lat: 25.033, lng: 121.5654 });
-      /** 📊 選中數據計數 */
-      const selectedCount = ref(0);
       /** 📍 作用中的地圖標記數量 */
       const activeMarkers = ref(0);
 
@@ -384,7 +382,6 @@
         currentCoords, // 當前地圖座標
 
         // 📊 統計數據
-        selectedCount, // 選中數據計數
         activeMarkers, // 作用中標記數量
 
         // 📏 面板尺寸（百分比系統）

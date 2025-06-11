@@ -149,7 +149,6 @@
       selectedBorderColor: { type: String, default: '#666666', required: true },
       selectedBorderWeight: { type: Number, default: 1, required: true },
       zoomLevel: { type: Number, default: 10, required: true },
-      dataRegionsCount: { type: Number, default: 0, required: true },
       activeMarkers: { type: Number, default: 0 },
     },
 

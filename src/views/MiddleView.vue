@@ -1,28 +1,4 @@
 <script setup>
-  /**
-   * 🎛️ MiddleView.vue - 中間面板組件 (Middle Panel Component)
-   *
-   * 功能說明：
-   * 1. 📊 管理上下兩個面板的佈局與垂直空間分配
-   * 2. 🔧 提供垂直拖曳調整功能，允許使用者動態調整面板高度比例
-   * 3. 📡 轉發事件到父組件 (HomeView)，作為中介層處理組件間通訊
-   * 4. 🎨 管理面板高度比例計算，響應式調整內容區域大小
-   * 5. 🖱️ 處理拖曳狀態和滑鼠互動，提供流暢的使用者體驗
-   * 6. 📚 提供組件引用管理，讓父組件可以直接調用子組件方法
-   *
-   * 架構說明：
-   * - 上半部：UpperView (地圖、儀表板等主要內容)
-   * - 拖曳器：可調整上下面板高度比例的分隔線
-   * - 下半部：BottomView (資料表格、控制項等輔助內容)
-   *
-   * 設計理念：
-   * - 使用 Vue 3 Composition API 的 <script setup> 語法
-   * - 響應式佈局設計，支援動態高度調整
-   * - 完整的事件轉發機制，保持資料流清晰
-   * - 模組化組件設計，易於維護和擴展
-   */
-
-  // 🔧 Vue Composition API 引入
   import {
     ref,
     computed,
@@ -57,8 +33,6 @@
     selectedBorderWeight: { type: Number, default: 1 },
     zoomLevel: { type: Number, default: 10 },
     currentCoords: { type: Object, default: () => ({ lat: 0, lng: 0 }) },
-    sortedAndFilteredTableData: { type: Array, default: () => [] },
-    dataRegionsCount: { type: Number, default: 0 },
     activeMarkers: { type: Number, default: 0 },
     isLoadingData: { type: Boolean, default: false },
     tableSearchQuery: { type: String, default: '' },
@@ -336,8 +310,6 @@
         :selectedBorderColor="selectedBorderColor"
         :selectedBorderWeight="selectedBorderWeight"
         :zoomLevel="zoomLevel"
-        :sortedAndFilteredTableData="sortedAndFilteredTableData"
-        :dataRegionsCount="dataRegionsCount"
         :isPanelDragging="isOverallDragging"
         :activeMarkers="activeMarkers"
         @update:activeTab="$emit('update:activeTab', $event)"
