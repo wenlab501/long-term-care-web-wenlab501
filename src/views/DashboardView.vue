@@ -160,7 +160,6 @@
               :class="{ active: activeLayerTab === layer.id }"
               @click="setActiveLayerTab(layer.id)"
             >
-              <i class="fas fa-layer-group"></i>
               <span>{{ layer.name }}</span>
               <span class="badge bg-primary ms-1">
                 {{ getLayerStats(layer).total }}
@@ -179,7 +178,6 @@
             <div class="card">
               <div class="card-header bg-primary text-white">
                 <h5 class="mb-0">
-                  <i class="fas fa-layer-group"></i>
                   {{ currentLayerName }}
                 </h5>
               </div>
@@ -191,7 +189,7 @@
             <div class="col-12">
               <div class="card h-100">
                 <div class="card-header">
-                  <h6 class="mb-0"><i class="fas fa-info-circle"></i> 圖層摘要資料</h6>
+                  <h6 class="mb-0">圖層摘要資料</h6>
                 </div>
                 <div class="card-body">
                   <div v-if="currentLayerSummary" class="summary-content">
@@ -200,7 +198,6 @@
                     }}</pre>
                   </div>
                   <div v-else class="text-center text-muted py-5">
-                    <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
                     <h5>沒有摘要資料</h5>
                     <p>此圖層沒有可用的摘要資訊</p>
                   </div>
@@ -215,7 +212,6 @@
           v-else
           class="d-flex flex-column justify-content-center align-items-center h-100 text-muted"
         >
-          <i class="fas fa-layer-group fa-4x mb-4 opacity-50"></i>
           <h4>沒有開啟的圖層</h4>
           <p class="text-center">請開啟至少一個圖層以查看儀表板統計資訊</p>
         </div>
