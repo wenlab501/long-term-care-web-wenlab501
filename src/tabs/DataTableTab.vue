@@ -132,12 +132,20 @@
     console.log('準備高亮顯示:', { item, layer: layer.name });
 
     if (!item || !item.id) {
-      console.warn('無法高亮顯示：資料為空或缺少名稱');
+      console.warn('無法高亮顯示：資料為空或缺少ID');
       return;
     }
 
-    console.log('發送高亮事件:', item.id);
-    emit('highlight-on-map', item.id);
+    // 傳遞包含圖層資訊和項目ID的物件
+    const highlightData = {
+      id: item.id,
+      layerId: layer.id,
+      layerName: layer.name,
+      item: item,
+    };
+
+    console.log('發送高亮事件:', highlightData);
+    emit('highlight-on-map', highlightData);
   };
 
   // 記錄上一次的圖層列表用於比較

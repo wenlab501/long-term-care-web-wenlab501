@@ -257,19 +257,22 @@
        * 如果當前不在地圖分頁，會自動切換到地圖分頁再執行高亮
        *
        * @param {string} id - 要高亮顯示的區域名稱
+       * @param {Object} layerInfo - 圖層資訊（可選）
        */
-      const highlightFeature = (id) => {
+      const highlightFeature = (id, layerInfo = null) => {
+        console.log('🎯 UpperView: highlightFeature called with id:', id, 'layerInfo:', layerInfo);
+
         // 如果當前不在地圖分頁，先切換到地圖分頁
         if (props.activeTab !== 'map') {
           emit('update:activeTab', 'map');
 
           // 等待分頁切換完成後再執行高亮
           nextTick(() => {
-            mapView.value?.highlightFeature(id);
+            mapView.value?.highlightFeature(id, layerInfo);
           });
         } else {
           // 如果已經在地圖分頁，直接執行高亮
-          mapView.value?.highlightFeature(id);
+          mapView.value?.highlightFeature(id, layerInfo);
         }
       };
 

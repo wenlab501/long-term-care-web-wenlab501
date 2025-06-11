@@ -265,14 +265,15 @@
    * 用於從表格或其他來源觸發地圖上的要素高亮
    *
    * @param {string} name - 要高亮顯示的特徵名稱或識別碼
+   * @param {Object} layerInfo - 圖層資訊（可選）
    */
-  const highlightFeature = (name) => {
+  const highlightFeature = (name, layerInfo = null) => {
     if (!mainContentRef.value) {
       console.warn('⚠️ 無法高亮顯示：mainContentRef 未定義');
       return;
     }
-    console.log(`🎯 MiddleView: 呼叫 highlightFeature with name: ${name}`);
-    mainContentRef.value.highlightFeature(name);
+    console.log(`🎯 MiddleView: 呼叫 highlightFeature with name: ${name}`, layerInfo);
+    mainContentRef.value.highlightFeature(name, layerInfo);
   };
 
   /**

@@ -394,9 +394,15 @@
       /**
        * 🎯 處理高亮顯示事件 (Handle Highlight Event)
        * 在地圖上高亮顯示指定名稱的特徵
-       * @param {string} id - 要高亮顯示的特徵名稱
+       * @param {string|Object} highlightData - 要高亮顯示的特徵資料，可以是ID字串或包含圖層資訊的物件
        */
-      const handleHighlight = (id) => {
+      const handleHighlight = (highlightData) => {
+        // 處理向後相容：如果傳入的是字串，就是舊格式的ID
+        const targetId = typeof highlightData === 'string' ? highlightData : highlightData.id;
+        const layerInfo = typeof highlightData === 'object' ? highlightData : null;
+
+        console.log('處理高亮顯示:', { targetId, layerInfo });
+
         // 如果當前不在地圖視圖，先切換到地圖
         if (activeTab.value !== 'map') {
           activeTab.value = 'map';
@@ -405,7 +411,7 @@
         // 使用 nextTick 確保地圖組件已渲染完成
         nextTick(() => {
           if (middlePanelRef.value) {
-            middlePanelRef.value.highlightFeature(id);
+            middlePanelRef.value.highlightFeature(targetId, layerInfo);
           } else {
             console.error('Cannot highlight: middlePanelRef is not available.');
           }

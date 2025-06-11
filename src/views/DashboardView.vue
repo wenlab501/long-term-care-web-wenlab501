@@ -1,6 +1,6 @@
 <script setup>
   import { ref, computed, watch, onMounted } from 'vue';
-  import { formatNumber } from '../utils/utils.js';
+  // import { formatNumber } from '../utils/utils.js'; // 暫時移除未使用的import
   import { useDataStore } from '@/stores/dataStore.js';
 
   const dataStore = useDataStore();
@@ -21,13 +21,22 @@
     activeLayerTab.value = layerId;
   };
 
+  // /**
+  //  * 📊 當前圖層資料 (Current Layer Data)
+  //  */
+  // const currentLayerData = computed(() => {
+  //   if (!activeLayerTab.value) return [];
+  //   const layer = visibleLayers.value.find((l) => l.id === activeLayerTab.value);
+  //   return layer ? layer.tableData || [] : [];
+  // });
+
   /**
-   * 📊 取得當前選中圖層資料 (Get Current Selected Layer Data)
+   * 📊 當前圖層摘要 (Current Layer Summary)
    */
-  const currentLayerData = computed(() => {
-    if (!activeLayerTab.value) return [];
+  const currentLayerSummary = computed(() => {
+    if (!activeLayerTab.value) return null;
     const layer = visibleLayers.value.find((l) => l.id === activeLayerTab.value);
-    return layer ? layer.tableData || [] : [];
+    return layer ? layer.summary || null : null;
   });
 
   /**
@@ -83,14 +92,14 @@
     };
   };
 
-  /**
-   * 📊 當前圖層統計數據 (Current Layer Statistics)
-   */
-  const currentLayerStats = computed(() => {
-    if (!activeLayerTab.value) return { total: 0, max: 0, average: 0, hasDataCount: 0 };
-    const layer = visibleLayers.value.find((l) => l.id === activeLayerTab.value);
-    return layer ? getLayerStats(layer) : { total: 0, max: 0, average: 0, hasDataCount: 0 };
-  });
+  // /**
+  //  * 📊 當前圖層統計數據 (Current Layer Statistics)
+  //  */
+  // const currentLayerStats = computed(() => {
+  //   if (!activeLayerTab.value) return { total: 0, max: 0, average: 0, hasDataCount: 0 };
+  //   const layer = visibleLayers.value.find((l) => l.id === activeLayerTab.value);
+  //   return layer ? getLayerStats(layer) : { total: 0, max: 0, average: 0, hasDataCount: 0 };
+  // });
 
   // 記錄上一次的圖層列表用於比較
   const previousLayers = ref([]);
@@ -187,84 +196,23 @@
             </div>
           </div>
 
-          <!-- 📊 統計卡片行 -->
-          <div class="row mb-4">
-            <!-- 📊 總數據點統計卡片 -->
-            <div class="col-md-3 mb-3">
-              <div class="card stats-card bg-primary text-white">
-                <div class="card-body text-center">
-                  <div class="stats-value">{{ formatNumber(currentLayerStats.total) }}</div>
-                  <div class="stats-label">總數據點</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- 📈 最高值統計卡片 -->
-            <div class="col-md-3 mb-3">
-              <div class="card stats-card bg-success text-white">
-                <div class="card-body text-center">
-                  <div class="stats-value">{{ formatNumber(currentLayerStats.max) }}</div>
-                  <div class="stats-label">最高值</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- 📊 平均值統計卡片 -->
-            <div class="col-md-3 mb-3">
-              <div class="card stats-card bg-warning text-dark">
-                <div class="card-body text-center">
-                  <div class="stats-value">{{ currentLayerStats.average.toFixed(1) }}</div>
-                  <div class="stats-label">平均值</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- 📍 有數據區域統計卡片 -->
-            <div class="col-md-3 mb-3">
-              <div class="card stats-card bg-info text-white">
-                <div class="card-body text-center">
-                  <div class="stats-value">{{ formatNumber(currentLayerStats.hasDataCount) }}</div>
-                  <div class="stats-label">有數據區域</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 📋 詳細統計資訊 -->
+          <!-- 📊 圖層摘要資料 -->
           <div class="row flex-grow-1">
             <div class="col-12">
               <div class="card h-100">
                 <div class="card-header">
-                  <h6 class="mb-0"><i class="fas fa-info-circle"></i> 圖層詳細資訊</h6>
+                  <h6 class="mb-0"><i class="fas fa-info-circle"></i> 圖層摘要資料</h6>
                 </div>
                 <div class="card-body">
-                  <div class="row">
-                    <div class="col-md-6">
-                      <div class="text-center p-3 bg-light rounded mb-3">
-                        <h4 class="text-primary">{{ formatNumber(currentLayerData.length) }}</h4>
-                        <p class="mb-0">總記錄數</p>
-                      </div>
-                    </div>
-                    <div class="col-md-6">
-                      <div class="text-center p-3 bg-light rounded mb-3">
-                        <h4 class="text-success">
-                          {{
-                            currentLayerStats.total > 0
-                              ? (
-                                  (currentLayerStats.hasDataCount / currentLayerStats.total) *
-                                  100
-                                ).toFixed(1)
-                              : 0
-                          }}%
-                        </h4>
-                        <p class="mb-0">數據覆蓋率</p>
-                      </div>
-                    </div>
+                  <div v-if="currentLayerSummary" class="summary-content">
+                    <pre class="json-display bg-light p-3 rounded">{{
+                      JSON.stringify(currentLayerSummary, null, 2)
+                    }}</pre>
                   </div>
-                  <div v-if="currentLayerStats.total === 0" class="text-center text-muted py-5">
+                  <div v-else class="text-center text-muted py-5">
                     <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
-                    <h5>目前沒有數據</h5>
-                    <p>請檢查資料來源或重新載入數據</p>
+                    <h5>沒有摘要資料</h5>
+                    <p>此圖層沒有可用的摘要資訊</p>
                   </div>
                 </div>
               </div>
@@ -333,5 +281,20 @@
   .stats-label {
     font-size: 0.9rem;
     opacity: 0.9;
+  }
+
+  .json-display {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+  }
+
+  .summary-content {
+    height: 100%;
+    overflow: hidden;
   }
 </style>

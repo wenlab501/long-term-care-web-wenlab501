@@ -482,83 +482,51 @@
        * 🎯 高亮顯示特徵 (Highlight Feature)
        * 根據名稱在地圖上高亮顯示指定的地理特徵
        * @param {string} id - 要高亮顯示的特徵名稱
+       * @param {Object} layerInfo - 圖層資訊（可選）
        */
-      const highlightFeature = (id) => {
+      const highlightFeature = (id, layerInfo = null) => {
         if (!map.value || !mapInitialized.value) return;
         try {
-          console.log(`🔍 開始高亮顯示要素: ${id}`);
+          console.log(`🔍 開始高亮顯示要素: ${id}`, layerInfo);
           let found = false;
 
-          // 🔍 遍歷所有圖層尋找匹配的特徵
-          Object.values(leafletLayers.value).forEach((layer) => {
-            if (!layer) return;
-            layer.eachLayer((leafletLayer) => {
-              if (!leafletLayer || !leafletLayer.feature) return;
+          // 🔍 如果有指定圖層資訊，優先在該圖層中尋找
+          if (layerInfo && layerInfo.layerId) {
+            const targetLayerName = layerInfo.layerId;
+            const targetLayer = leafletLayers.value[targetLayerName];
 
-              // 🏷️ 智能識別名稱屬性
-              if (leafletLayer.feature.properties.id === id) {
-                found = true;
-                layer.resetStyle(leafletLayer); // 先重設樣式
+            if (targetLayer) {
+              console.log(`🎯 在指定圖層 "${targetLayerName}" 中尋找要素 "${id}"`);
+              targetLayer.eachLayer((leafletLayer) => {
+                if (!leafletLayer || !leafletLayer.feature) return;
 
-                // 🎨 根據幾何類型設定高亮樣式
-                const geometryType = leafletLayer.feature.geometry.type;
-                const highlightStyle = {
-                  weight: 4,
-                  color: '#ff0000',
-                  dashArray: '5,5',
-                  fillOpacity: 1.0,
-                };
-
-                if (geometryType === 'Point') {
-                  highlightStyle.radius = 12; // 放大點的半徑
+                // 🏷️ 智能識別名稱屬性
+                if (leafletLayer.feature.properties.id === id) {
+                  found = true;
+                  performHighlight(leafletLayer, targetLayer, id, layerInfo);
                 }
+              });
+            }
+          }
 
-                leafletLayer.setStyle(highlightStyle);
+          // 🔍 如果在指定圖層中沒找到，或沒有指定圖層，則遍歷所有圖層
+          if (!found) {
+            Object.values(leafletLayers.value).forEach((layer) => {
+              if (!layer) return;
+              layer.eachLayer((leafletLayer) => {
+                if (!leafletLayer || !leafletLayer.feature) return;
 
-                // 🎯 根據幾何類型移動地圖到特徵位置並zoom in
-                if (geometryType === 'Point') {
-                  // 點要素：移動到點位置並zoom in
-                  if (typeof leafletLayer.getLatLng === 'function') {
-                    const latlng = leafletLayer.getLatLng();
-                    if (latlng) {
-                      map.value.setView(latlng, Math.max(map.value.getZoom(), 15), {
-                        animate: true,
-                        duration: 1.0,
-                      });
-                    }
-                  }
+                // 🏷️ 智能識別名稱屬性
+                if (leafletLayer.feature.properties.id === id) {
+                  found = true;
+                  performHighlight(leafletLayer, layer, id, layerInfo);
                 } else {
-                  // 面/線要素：fit到邊界並適當zoom in
-                  if (typeof leafletLayer.getBounds === 'function') {
-                    const bounds = leafletLayer.getBounds();
-                    if (bounds && bounds.isValid()) {
-                      map.value.fitBounds(bounds, {
-                        animate: true,
-                        duration: 1.0,
-                        padding: [20, 20],
-                        maxZoom: 16,
-                      });
-                    }
-                  }
+                  // 重設其他特徵的樣式
+                  layer.resetStyle(leafletLayer);
                 }
-
-                // ⏰ 延遲顯示 tooltip，等待地圖移動完成
-                setTimeout(() => {
-                  if (leafletLayer.openTooltip) {
-                    leafletLayer.openTooltip();
-                  }
-                  if (leafletLayer.openPopup) {
-                    leafletLayer.openPopup();
-                  }
-                }, 600);
-
-                console.log(`✅ 成功高亮顯示 ${geometryType} 類型要素: ${id}`);
-              } else {
-                // 重設其他特徵的樣式
-                layer.resetStyle(leafletLayer);
-              }
+              });
             });
-          });
+          }
 
           if (!found) {
             console.warn(`⚠️ 未找到ID為 "${id}" 的要素`);
@@ -566,6 +534,69 @@
         } catch (error) {
           console.error('高亮顯示特徵時發生錯誤:', error);
         }
+      };
+
+      /**
+       * 🎨 執行高亮顯示 (Perform Highlight)
+       * 將高亮邏輯抽取為獨立函數，提高程式碼複用性
+       */
+      const performHighlight = (leafletLayer, layer, id, layerInfo) => {
+        layer.resetStyle(leafletLayer); // 先重設樣式
+
+        // 🎨 根據幾何類型設定高亮樣式
+        const geometryType = leafletLayer.feature.geometry.type;
+        const highlightStyle = {
+          weight: 4,
+          color: '#ff0000',
+          dashArray: '5,5',
+          fillOpacity: 1.0,
+        };
+
+        if (geometryType === 'Point') {
+          highlightStyle.radius = 12; // 放大點的半徑
+        }
+
+        leafletLayer.setStyle(highlightStyle);
+
+        // 🎯 根據幾何類型移動地圖到特徵位置並zoom in
+        if (geometryType === 'Point') {
+          // 點要素：移動到點位置並zoom in
+          if (typeof leafletLayer.getLatLng === 'function') {
+            const latlng = leafletLayer.getLatLng();
+            if (latlng) {
+              map.value.setView(latlng, Math.max(map.value.getZoom(), 15), {
+                animate: true,
+                duration: 1.0,
+              });
+            }
+          }
+        } else {
+          // 面/線要素：fit到邊界並適當zoom in
+          if (typeof leafletLayer.getBounds === 'function') {
+            const bounds = leafletLayer.getBounds();
+            if (bounds && bounds.isValid()) {
+              map.value.fitBounds(bounds, {
+                animate: true,
+                duration: 1.0,
+                padding: [20, 20],
+                maxZoom: 16,
+              });
+            }
+          }
+        }
+
+        // ⏰ 延遲顯示 tooltip，等待地圖移動完成
+        setTimeout(() => {
+          if (leafletLayer.openTooltip) {
+            leafletLayer.openTooltip();
+          }
+          if (leafletLayer.openPopup) {
+            leafletLayer.openPopup();
+          }
+        }, 600);
+
+        const layerName = layerInfo ? layerInfo.layerName : '未知圖層';
+        console.log(`✅ 成功在圖層 "${layerName}" 中高亮顯示 ${geometryType} 類型要素: ${id}`);
       };
 
       /**
