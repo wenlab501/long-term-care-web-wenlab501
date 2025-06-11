@@ -1,3 +1,4 @@
+// 老人福利機
 export async function loadElderlyWelfareInstitutionData(fileName) {
   try {
     const filePath = `/long-term-care-web/data/csv/${fileName}`;
@@ -102,6 +103,7 @@ export async function loadElderlyWelfareInstitutionData(fileName) {
   }
 }
 
+// 醫院
 export async function loadHospitalClinicData(fileName) {
   try {
     const filePath = `/long-term-care-web/data/csv/${fileName}`;
@@ -193,6 +195,7 @@ export async function loadHospitalClinicData(fileName) {
   }
 }
 
+// 診所
 export async function loadHealthcareFacilityPharmacyData(fileName) {
   try {
     const filePath = `/long-term-care-web/data/csv/${fileName}`;
@@ -303,6 +306,7 @@ export async function loadHealthcareFacilityPharmacyData(fileName) {
   }
 }
 
+// 健保特約藥局
 export async function loadGeoJson(fileName) {
   try {
     const filePath = `/long-term-care-web/data/geojson/${fileName}`;
@@ -347,25 +351,4 @@ export async function loadGeoJson(fileName) {
     console.error('❌ GeoJSON 數據載入或處理失敗:', error);
     throw error;
   }
-}
-
-/**
- * 計算統計摘要
- * @param {Array} features - 地理特徵數組
- * @param {number} totalCount - 總數
- * @param {number} maxCount - 最大值
- * @param {number} minCount - 最小值
- * @param {number} nonZeroCount - 非零數量
- * @returns {Object} 包含摘要資訊的對象
- */
-export function calculateSummaryData(features, totalCount, maxCount, minCount, nonZeroCount) {
-  return {
-    totalRegions: features.length,
-    totalCount: totalCount,
-    averageCount: features.length > 0 ? Math.round(totalCount / features.length) : 0,
-    maxCount: maxCount,
-    minCount: minCount,
-    nonZeroRegions: nonZeroCount,
-    zeroRegions: features.length - nonZeroCount,
-  };
 }
