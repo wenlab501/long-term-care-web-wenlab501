@@ -24,16 +24,14 @@
     activeTab: { type: String, default: 'map' },
     activeBottomTab: { type: String, default: 'table' },
     mainPanelWidth: { type: Number, default: 60 },
-    dynamicMainAreaHeight: { type: Number, default: 600 },
+    dynamicMainAreaHeight: { type: Number, default: 500 },
 
     // 🗺️ 圖層和地圖設定 (Layer and Map Settings)
     showTainanLayer: { type: Boolean, default: false },
-    selectedFilter: { type: String, default: null },
-    selectedBorderColor: { type: String, default: '#333333' },
-    selectedBorderWeight: { type: Number, default: 1 },
+    selectedFilter: { type: String, default: '' },
 
     // 🔧 其他設定 (Other Settings)
-    zoomLevel: { type: Number, default: 10 },
+    zoomLevel: { type: Number, default: 11 },
     currentCoords: { type: Object, default: () => ({ lat: 25.033, lng: 121.5654 }) },
     activeMarkers: { type: Number, default: 0 },
     isSidePanelDragging: { type: Boolean, default: false },
@@ -53,10 +51,6 @@
     'update:zoomLevel', // 更新縮放等級
     'update:currentCoords', // 更新目前座標
     'update:activeMarkers', // 更新作用中標記數
-
-    // 🎨 樣式更新事件 (Style Update Events)
-    'update:selectedBorderColor', // 更新邊框顏色
-    'update:selectedBorderWeight', // 更新邊框粗細
 
     // 📊 表格相關事件
     'update:tableSearchQuery', // 更新搜尋查詢
@@ -298,8 +292,6 @@
         :contentHeight="contentHeight"
         :showTainanLayer="showTainanLayer"
         :selectedFilter="selectedFilter"
-        :selectedBorderColor="selectedBorderColor"
-        :selectedBorderWeight="selectedBorderWeight"
         :zoomLevel="zoomLevel"
         :isPanelDragging="isOverallDragging"
         :activeMarkers="activeMarkers"
@@ -336,13 +328,9 @@
       <BottomView
         :activeBottomTab="activeBottomTab"
         :bottomViewHeight="actualBottomViewPixelHeight"
-        :selectedBorderColor="selectedBorderColor"
-        :selectedBorderWeight="selectedBorderWeight"
         :isPanelDragging="isOverallDragging"
         @update:activeBottomTab="$emit('update:activeBottomTab', $event)"
         @highlight-on-map="$emit('highlight-on-map', $event)"
-        @update:selectedBorderColor="$emit('update:selectedBorderColor', $event)"
-        @update:selectedBorderWeight="$emit('update:selectedBorderWeight', $event)"
         @reset-view="$emit('reset-view')"
       />
     </div>

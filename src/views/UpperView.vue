@@ -40,8 +40,6 @@
           ref="mapView"
           :showTainanLayer="showTainanLayer"
           :selectedFilter="selectedFilter"
-          :selectedBorderColor="selectedBorderColor"
-          :selectedBorderWeight="selectedBorderWeight"
           :zoomLevel="zoomLevel"
           :maxCount="maxCount"
           @update:zoomLevel="$emit('update:zoomLevel', $event)"
@@ -129,8 +127,8 @@
      * 註冊上半部面板內使用的子組件
      */
     components: {
-      MapView, // 地圖視圖組件
-      DashboardView, // 儀表板視圖組件
+      MapView,
+      DashboardView,
     },
 
     /**
@@ -138,15 +136,13 @@
      * 接收來自父組件的配置和狀態數據
      */
     props: {
-      activeTab: { type: String, default: 'map', required: true },
+      activeTab: { type: String, default: 'map' },
+      mainPanelWidth: { type: Number, default: 60 },
+      contentHeight: { type: Number, default: 500 },
+      showTainanLayer: { type: Boolean, default: false },
+      selectedFilter: { type: String, default: '' },
+      zoomLevel: { type: Number, default: 11 },
       isPanelDragging: { type: Boolean, default: false },
-      mainPanelWidth: { type: Number, default: 60, required: true },
-      contentHeight: { type: Number, default: 600, required: true },
-      showTainanLayer: { type: Boolean, default: false, required: true },
-      selectedFilter: { type: String, default: 'all', required: true },
-      selectedBorderColor: { type: String, default: '#ffffff', required: true },
-      selectedBorderWeight: { type: Number, default: 1, required: true },
-      zoomLevel: { type: Number, default: 10, required: true },
       activeMarkers: { type: Number, default: 0 },
     },
 

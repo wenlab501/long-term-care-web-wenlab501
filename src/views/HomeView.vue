@@ -118,12 +118,8 @@
       const showTainanLayer = computed(() => dataStore.findLayerById('tainan')?.visible || false);
       /** 🔍 選定的資料篩選器 */
       const selectedFilter = ref(null);
-      /** 🖌️ 選定的邊框顏色 */
-      const selectedBorderColor = ref('#333333');
-      /** 📏 選定的邊框粗細 */
-      const selectedBorderWeight = ref(1);
       /** 🔍 地圖縮放等級 */
-      const zoomLevel = ref(10);
+      const zoomLevel = ref(11);
       /** 📍 當前地圖座標 */
       const currentCoords = ref({ lat: 25.033, lng: 121.5654 });
       /** 📍 作用中的地圖標記數量 */
@@ -371,8 +367,6 @@
         // 🗺️ 圖層狀態
         showTainanLayer, // 台南圖層顯示狀態
         selectedFilter, // 選定篩選器
-        selectedBorderColor, // 選定邊框顏色
-        selectedBorderWeight, // 選定邊框粗細
 
         // 🗺️ 地圖狀態
         zoomLevel, // 地圖縮放等級
@@ -471,8 +465,6 @@
             :mainPanelWidth="mainPanelWidth"
             :showTainanLayer="showTainanLayer"
             :selectedFilter="selectedFilter"
-            :selectedBorderColor="selectedBorderColor"
-            :selectedBorderWeight="selectedBorderWeight"
             :zoomLevel="zoomLevel"
             :currentCoords="currentCoords"
             :activeMarkers="activeMarkers"
@@ -483,8 +475,6 @@
             @update:zoomLevel="zoomLevel = $event"
             @update:currentCoords="currentCoords = $event"
             @update:activeMarkers="activeMarkers = $event"
-            @update:selectedBorderColor="selectedBorderColor = $event"
-            @update:selectedBorderWeight="selectedBorderWeight = $event"
             @reset-view="resetView"
             @highlight-on-map="handleHighlight"
             @highlight-feature="handleHighlight"

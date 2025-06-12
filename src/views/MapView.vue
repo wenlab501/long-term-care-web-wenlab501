@@ -20,11 +20,11 @@
   export default {
     name: 'MapView',
     props: {
-      zoomLevel: { type: Number, default: 10 },
+      zoomLevel: { type: Number, default: 11 },
       showTainanLayer: { type: Boolean, default: false },
-      selectedFilter: { type: String, default: 'all' },
-      selectedBorderColor: { type: String, default: '#333333' },
-      selectedBorderWeight: { type: Number, default: 2 },
+      selectedFilter: { type: String, default: '' },
+      maxCount: { type: Number, default: 5000 },
+      isPanelDragging: { type: Boolean, default: false },
     },
     emits: ['update:zoomLevel', 'update:currentCoords', 'update:activeMarkers', 'feature-selected'],
 
@@ -152,9 +152,9 @@
         const geoJsonLayer = L.geoJSON(data, {
           style: () => ({
             fillColor: color,
-            weight: props.selectedBorderWeight,
+            weight: 2,
             opacity: 1,
-            color: props.selectedBorderColor,
+            color: '#333333',
             fillOpacity: 0.6,
           }),
           pointToLayer: (feature, latlng) => {
@@ -532,75 +532,6 @@
 
       // 監聽器
       watch(() => dataStore.layers, syncLayers, { deep: true });
-
-      // 更新圖層樣式
-      const updateLayerStyles = () => {
-        if (!isMapReady.value) return;
-
-        Object.values(layerGroups).forEach((layerGroup) => {
-          if (layerGroup && layerGroup.eachLayer) {
-            layerGroup.eachLayer((layer) => {
-              // 獲取圖層的原始顏色
-              const layerConfig = dataStore
-                .getAllLayers()
-                .find((l) => layerGroup === layerGroups[l.id]);
-              const fillColor = layerConfig?.color || '#3498db';
-
-              // 根據幾何類型應用不同樣式
-              if (layer.feature?.geometry?.type === 'Point') {
-                // 點要素樣式 - 更新 divIcon 的樣式
-                if (layer.options && layer.options.icon && layer.options.icon.options) {
-                  const layerIconInfo = getLayerIcon(layerConfig.name);
-                  const newIcon = L.divIcon({
-                    html: `<div style="
-                      background-color: ${fillColor};
-                      border: none;
-                      border-radius: 50%;
-                      width: 32px;
-                      height: 32px;
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-                    ">
-                      <i class="${layerIconInfo.icon}" style="
-                        color: white;
-                        font-size: 14px;
-                        text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-                      "></i>
-                    </div>`,
-                    className: 'custom-marker-icon',
-                    iconSize: [32, 32],
-                    iconAnchor: [16, 16],
-                    popupAnchor: [0, -16],
-                  });
-                  layer.setIcon(newIcon);
-                }
-              } else {
-                // 面要素樣式
-                layer.setStyle({
-                  fillColor: fillColor,
-                  weight: props.selectedBorderWeight,
-                  opacity: 1,
-                  color: props.selectedBorderColor,
-                  fillOpacity: 0.6,
-                });
-              }
-            });
-          }
-        });
-
-        console.log(
-          `🎨 已更新圖層樣式 - 邊框顏色: ${props.selectedBorderColor}, 邊框粗細: ${props.selectedBorderWeight}`
-        );
-      };
-
-      watch(
-        () => [props.selectedBorderColor, props.selectedBorderWeight],
-        () => {
-          updateLayerStyles();
-        }
-      );
 
       return {
         mapContainer,

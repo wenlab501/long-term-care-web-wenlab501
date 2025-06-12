@@ -495,113 +495,6 @@ export const useDataStore = defineStore(
       selectedFeature.value = null;
     };
 
-    // ==================== 🔄 圖層重排序功能 (Layer Reordering Functions) ====================
-
-    /**
-     * 🔄 重新排序圖層 (Reorder Layers)
-     * 重新排列圖層順序，可跨群組移動
-     *
-     * @param {number} fromIndex - 源索引（在 allLayers 中）
-     * @param {number} toIndex - 目標索引（在 allLayers 中）
-     */
-    const reorderLayers = (fromIndex, toIndex) => {
-      if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0) return;
-
-      const allLayersArray = [...getAllLayers()];
-      if (fromIndex >= allLayersArray.length || toIndex >= allLayersArray.length) return;
-
-      // 移動圖層
-      const [movedLayer] = allLayersArray.splice(fromIndex, 1);
-      allLayersArray.splice(toIndex, 0, movedLayer);
-
-      // 重建 layers 結構
-      const newLayers = [];
-      const groupMap = new Map();
-
-      // 收集所有群組名稱
-      layers.value.forEach((group) => {
-        groupMap.set(group.groupName, { groupName: group.groupName, groupLayers: [] });
-      });
-
-      // 重新分配圖層到各群組
-      allLayersArray.forEach((layer) => {
-        // 找到該圖層原本屬於哪個群組
-        let targetGroupName = null;
-        for (const group of layers.value) {
-          if (group.groupLayers.some((gl) => gl.id === layer.id)) {
-            targetGroupName = group.groupName;
-            break;
-          }
-        }
-
-        if (targetGroupName && groupMap.has(targetGroupName)) {
-          groupMap.get(targetGroupName).groupLayers.push(layer);
-        }
-      });
-
-      // 重建 layers 陣列，保持群組順序，但圖層順序已改變
-      layers.value.forEach((originalGroup) => {
-        const newGroup = groupMap.get(originalGroup.groupName);
-        if (newGroup && newGroup.groupLayers.length > 0) {
-          newLayers.push(newGroup);
-        }
-      });
-
-      layers.value = newLayers;
-    };
-
-    /**
-     * 🔄 跨群組移動圖層 (Move Layer Between Groups)
-     * 將圖層從一個群組移動到另一個群組
-     *
-     * @param {string} layerId - 圖層 ID
-     * @param {string} targetGroupName - 目標群組名稱
-     * @param {number} targetIndex - 在目標群組中的索引位置
-     */
-    const moveLayerBetweenGroups = (layerId, targetGroupName, targetIndex = -1) => {
-      let sourceGroup = null;
-      let sourceIndex = -1;
-      let layerToMove = null;
-
-      // 找到源圖層和群組
-      for (const group of layers.value) {
-        const layerIndex = group.groupLayers.findIndex((layer) => layer.id === layerId);
-        if (layerIndex !== -1) {
-          sourceGroup = group;
-          sourceIndex = layerIndex;
-          layerToMove = group.groupLayers[layerIndex];
-          break;
-        }
-      }
-
-      if (!layerToMove || !sourceGroup) return;
-
-      // 找到目標群組
-      const targetGroup = layers.value.find((group) => group.groupName === targetGroupName);
-      if (!targetGroup) return;
-
-      // 從源群組移除
-      sourceGroup.groupLayers.splice(sourceIndex, 1);
-
-      // 加入到目標群組
-      if (targetIndex === -1 || targetIndex >= targetGroup.groupLayers.length) {
-        targetGroup.groupLayers.push(layerToMove);
-      } else {
-        targetGroup.groupLayers.splice(targetIndex, 0, layerToMove);
-      }
-    };
-
-    /**
-     * 📊 獲取圖層在全域中的索引 (Get Layer Global Index)
-     * 獲取圖層在 allLayers 中的索引位置
-     *
-     * @param {string} layerId - 圖層 ID
-     * @returns {number} 索引位置，未找到返回 -1
-     */
-    const getLayerGlobalIndex = (layerId) => {
-      return getAllLayers().findIndex((layer) => layer.id === layerId);
-    };
-
     // ==================== EXPORTS ====================
     return {
       // Centralized Layer Management
@@ -641,11 +534,6 @@ export const useDataStore = defineStore(
       // 🛠️ 新增的輔助函數 (New Helper Functions)
       findLayerById, // 根據 ID 尋找圖層
       getAllLayers, // 獲取所有圖層的扁平陣列
-
-      // 🔄 圖層重排序功能 (Layer Reordering Functions)
-      reorderLayers, // 重新排序圖層
-      moveLayerBetweenGroups, // 跨群組移動圖層
-      getLayerGlobalIndex, // 獲取圖層全域索引
     };
   },
   {

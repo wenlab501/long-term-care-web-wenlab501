@@ -20,8 +20,6 @@
     props: {
       activeBottomTab: { type: String, default: 'table' },
       bottomViewHeight: { type: Number, default: 300 },
-      selectedBorderColor: { type: String, default: '#666666' },
-      selectedBorderWeight: { type: Number, default: 1 },
       isPanelDragging: { type: Boolean, default: false },
     },
 
@@ -32,8 +30,6 @@
     emits: [
       'update:activeBottomTab', // 更新作用中底部分頁
       'highlight-on-map', // 在地圖上高亮顯示
-      'update:selectedBorderColor', // 更新選定邊框顏色
-      'update:selectedBorderWeight', // 更新選定邊框粗細
       'reset-view', // 重設視圖
     ],
 
@@ -42,32 +38,27 @@
      * 使用 Composition API 設定組件邏輯
      */
     setup(props) {
-      /**
-       * 📚 底部分頁內容容器引用 (Bottom Tab Content Container Reference)
-       * 用於控制拖曳時的滑鼠事件處理
-       */
+      // 建立一個 ref 來引用模板中的底部分頁內容 DOM 元素
       const bottomTabContentRef = ref(null);
 
       /**
-       * 👀 監聽拖曳狀態變化 (Watch Dragging State Changes)
-       * 當面板正在拖曳時，禁用底部內容的滑鼠事件，防止衝突
+       * 👀 監聽作用中底部分頁的變化
+       * 當分頁切換時，確保 DOM 更新完成
        */
       watch(
-        () => props.isPanelDragging,
-        (dragging) => {
+        () => props.activeBottomTab,
+        () => {
+          // 使用 nextTick 確保 DOM 更新完成後再進行任何後續操作
           nextTick(() => {
-            if (bottomTabContentRef.value) {
-              // 拖曳時禁用滑鼠事件，拖曳結束時恢復
-              bottomTabContentRef.value.style.pointerEvents = dragging ? 'none' : 'auto';
-            }
+            // 這裡可以添加分頁切換後的特殊處理邏輯
+            console.log(`✅ 底部分頁已切換至: ${props.activeBottomTab}`);
           });
-        },
-        { immediate: true }
-      ); // immediate: true 表示立即執行一次
+        }
+      );
 
-      // 📤 返回響應式數據和函數給模板使用
+      // 📤 將需要暴露給 <template> 使用的數據和方法返回
       return {
-        bottomTabContentRef, // 內容容器引用
+        bottomTabContentRef,
       };
     },
   };
@@ -75,91 +66,15 @@
 
 <template>
   <!-- 📋 底部面板組件 (Bottom Panel Component) -->
-  <!-- 提供資料表格顯示和地圖樣式控制功能 -->
+  <!-- 提供資料表格顯示功能 -->
   <div class="bg-white text-dark border-top" :style="{ height: bottomViewHeight + 'px' }">
-    <!-- 🔗 底部分頁導航 (Bottom Tab Navigation) -->
-    <!-- 提供資料表格和地圖樣式兩個分頁的切換功能 -->
-    <div class="bg-light">
-      <ul class="nav nav-tabs nav-fill small">
-        <!-- 📊 資料表格分頁標籤 (Data Table Tab) -->
-        <li class="nav-item">
-          <button
-            class="nav-link text-dark border-0"
-            :class="{ 'active bg-white text-primary': activeBottomTab === 'table' }"
-            @click="$emit('update:activeBottomTab', 'table')"
-          >
-            資料表格
-          </button>
-        </li>
-        <!-- 🎨 地圖樣式分頁標籤 (Map Style Tab) -->
-        <li class="nav-item">
-          <button
-            class="nav-link text-dark border-0"
-            :class="{ 'active bg-white text-primary': activeBottomTab === 'style' }"
-            @click="$emit('update:activeBottomTab', 'style')"
-          >
-            地圖樣式
-          </button>
-        </li>
-      </ul>
-    </div>
-
     <!-- 📄 底部分頁內容區域 (Bottom Tab Content Area) -->
-    <!-- 根據選中的分頁顯示對應的內容組件 -->
+    <!-- 顯示資料表格內容組件 -->
     <div ref="bottomTabContentRef" class="tab-content h-100 overflow-auto">
       <!-- 📊 資料表格分頁內容 (Data Table Tab Content) -->
       <!-- 顯示載入的地理資料，支援搜尋、排序、高亮等功能 -->
-      <div v-show="activeBottomTab === 'table'" class="h-100">
+      <div class="h-100">
         <DataTableTab @highlight-on-map="$emit('highlight-on-map', $event)" />
-      </div>
-
-      <!-- 🎨 地圖樣式設定分頁內容 (Map Style Configuration Tab Content) -->
-      <!-- 提供邊框顏色、邊框粗細等樣式控制選項 -->
-      <div v-show="activeBottomTab === 'style'" class="container-fluid2">
-        <div class="row p-3">
-          <!-- 🖌️ 邊框顏色選擇器 (Border Color Selector) -->
-          <div class="col-md-6 mb-3">
-            <label for="bottomBorderColorSelect" class="form-label small fw-medium"
-              >框線顏色:</label
-            >
-            <select
-              id="bottomBorderColorSelect"
-              class="form-select form-select-sm"
-              :value="selectedBorderColor"
-              @change="$emit('update:selectedBorderColor', $event.target.value)"
-            >
-              <option value="#000000">黑色</option>
-              <option value="#333333" selected>深灰色 (預設)</option>
-              <option value="#666666">中灰色</option>
-              <option value="#CCCCCC">淺灰色</option>
-              <option value="#FFFFFF">白色</option>
-              <option value="#FF0000">紅色</option>
-              <option value="#0000FF">藍色</option>
-              <option value="#008000">綠色</option>
-              <option value="transparent">無框線 (Transparent)</option>
-            </select>
-          </div>
-
-          <!-- 📏 邊框粗細選擇器 (Border Weight Selector) -->
-          <div class="col-md-6 mb-3">
-            <label for="bottomBorderWeightSelect" class="form-label small fw-medium"
-              >框線粗細 (px):</label
-            >
-            <select
-              id="bottomBorderWeightSelect"
-              class="form-select form-select-sm"
-              :value="selectedBorderWeight"
-              @change="$emit('update:selectedBorderWeight', parseInt($event.target.value))"
-            >
-              <option value="0">0 (無)</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-            </select>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -167,9 +82,9 @@
 
 <style scoped>
   /**
- * 🎨 底部面板樣式 (Bottom Panel Styles)
+ * 🎨 底部面板組件樣式 (Bottom Panel Component Styles)
  *
- * 定義底部面板的視覺樣式，包含分頁導航、內容區域、表單控制項等
+ * 定義底部面板的視覺樣式，包含內容區域等
  */
 
   /* 📋 面板基礎樣式 (Panel Base Styles) */
@@ -179,29 +94,6 @@
 
   .border-top {
     border-top: 1px solid #dee2e6 !important; /* 上邊框分隔線 */
-  }
-
-  /* 🔗 分頁導航樣式 (Tab Navigation Styles) */
-  .nav-tabs {
-    border-bottom: 1px solid #dee2e6; /* 分頁底部邊框 */
-    margin-bottom: 0; /* 移除預設下邊距 */
-  }
-
-  .nav-link {
-    transition: all 0.2s ease; /* 平滑的狀態轉換 */
-    padding: 0.5rem 1rem; /* 適中的內邊距 */
-    border: none; /* 移除預設邊框 */
-  }
-
-  .nav-link:hover {
-    background-color: #f8f9fa; /* 懸停時的背景色 */
-    color: #495057; /* 懸停時的文字顏色 */
-  }
-
-  .nav-link.active {
-    background-color: #ffffff; /* 作用中分頁的背景色 */
-    border-bottom: 2px solid #007bff; /* 作用中分頁的底部邊框 */
-    font-weight: 600; /* 作用中分頁的文字粗細 */
   }
 
   /* 📄 分頁內容區域樣式 (Tab Content Area Styles) */
@@ -228,87 +120,5 @@
   .tab-content.overflow-auto::-webkit-scrollbar-thumb {
     background-color: #c1c1c1; /* 滾動條滑塊顏色 */
     border-radius: 4px; /* 圓角滑塊 */
-  }
-
-  .tab-content.overflow-auto::-webkit-scrollbar-thumb:hover {
-    background-color: #a1a1a1; /* 懸停時的滑塊顏色 */
-  }
-
-  /* 🎨 表單控制項樣式 (Form Controls Styles) */
-  .form-label {
-    font-weight: 500; /* 中等字重 */
-    color: #374151; /* 深灰色文字 */
-    margin-bottom: 0.5rem; /* 標籤下邊距 */
-  }
-
-  .form-select {
-    transition: all 0.2s ease; /* 平滑的狀態轉換 */
-    border: 1px solid #d1d5db; /* 邊框顏色 */
-  }
-
-  .form-select:focus {
-    border-color: #007bff; /* 聚焦時的邊框顏色 */
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* 聚焦時的陰影 */
-  }
-
-  .form-select:hover {
-    border-color: #6b7280; /* 懸停時的邊框顏色 */
-  }
-
-  /* 🎨 色票方案預覽樣式 (Color Scheme Preview Styles) */
-  .color-scheme-option {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .color-swatch {
-    width: 20px;
-    height: 20px;
-    border-radius: 4px;
-    border: 1px solid #dee2e6;
-    display: inline-block;
-  }
-
-  /* 📱 響應式設計調整 (Responsive Design Adjustments) */
-  @media (max-width: 768px) {
-    .nav-tabs {
-      font-size: 0.875rem; /* 在小螢幕上縮小字體 */
-    }
-
-    .nav-link {
-      padding: 0.375rem 0.75rem; /* 在小螢幕上減少內邊距 */
-    }
-
-    .col-md-4 {
-      margin-bottom: 1rem; /* 在小螢幕上增加下邊距 */
-    }
-
-    .form-select {
-      font-size: 0.875rem; /* 在小螢幕上縮小表單字體 */
-    }
-
-    .tab-content.overflow-auto::-webkit-scrollbar {
-      width: 12px; /* 在觸控設備上增加滾動條寬度 */
-      height: 12px;
-    }
-  }
-
-  /* 🎨 容器調整 (Container Adjustments) */
-  .container-fluid2 {
-    padding: 0; /* 移除預設內邊距 */
-  }
-
-  .row {
-    margin: 0; /* 移除預設外邊距 */
-  }
-
-  /* 🔧 工具提示樣式 (Tooltip Styles) */
-  .form-label.small {
-    font-size: 0.875rem; /* 小號標籤字體 */
-  }
-
-  .fw-medium {
-    font-weight: 500 !important; /* 中等字重 */
   }
 </style>
