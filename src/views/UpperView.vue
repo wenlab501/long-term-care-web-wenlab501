@@ -28,7 +28,7 @@
             }"
             @click="$emit('update:activeTab', 'dashboard')"
           >
-            數據儀表板
+            資料儀表板
           </button>
         </div>
       </div>

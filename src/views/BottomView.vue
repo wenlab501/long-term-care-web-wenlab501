@@ -88,7 +88,7 @@
             :class="{ 'active bg-white text-primary': activeBottomTab === 'table' }"
             @click="$emit('update:activeBottomTab', 'table')"
           >
-            數據表格
+            資料表格
           </button>
         </li>
         <!-- 🎨 地圖樣式分頁標籤 (Map Style Tab) -->

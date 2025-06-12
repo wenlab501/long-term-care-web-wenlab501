@@ -148,7 +148,7 @@
 </script>
 
 <template>
-  <!-- 📊 多圖層數據儀表板視圖組件 -->
+  <!-- 📊 多圖層資料儀表板視圖組件 -->
   <div class="h-100 dashboard-container bg-light">
     <div class="d-flex flex-column h-100">
       <!-- 📑 圖層分頁導航 -->
@@ -156,7 +156,7 @@
         <ul class="nav nav-tabs nav-tabs-custom mb-0">
           <li v-for="layer in visibleLayers" :key="layer.id" class="nav-item">
             <button
-              class="nav-link d-flex align-items-center gap-2"
+              class="nav-link d-flex align-items-center gap-2 position-relative"
               :class="{ active: activeLayerTab === layer.id }"
               @click="setActiveLayerTab(layer.id)"
             >
@@ -164,6 +164,11 @@
               <span class="badge bg-primary ms-1">
                 {{ getLayerStats(layer).total }}
               </span>
+              <!-- 圖層顏色底部指示器 -->
+              <div
+                class="layer-color-indicator-bottom"
+                :style="{ backgroundColor: layer.color }"
+              ></div>
             </button>
           </li>
         </ul>
@@ -282,5 +287,19 @@
   .summary-content {
     height: 100%;
     overflow: hidden;
+  }
+
+  /* 圖層顏色指示器樣式 */
+  .layer-color-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    border-radius: 0 2px 2px 0;
+  }
+
+  .nav-link {
+    padding-left: 12px !important; /* 為顏色指示器留出空間 */
   }
 </style>

@@ -215,26 +215,32 @@
 
         const storeLayers = dataStore.getAllLayers();
         const currentLayerIds = Object.keys(layerGroups);
-        const newLayerIds = storeLayers.filter((l) => l.visible && l.data).map((l) => l.id);
+        const visibleLayers = storeLayers.filter((l) => l.visible && l.data);
 
-        // 移除不需要的圖層
+        // 🎨 完全重新繪製所有圖層以確保正確的 Z-index 順序
+        // 先移除所有現有圖層
         currentLayerIds.forEach((id) => {
-          if (!newLayerIds.includes(id)) {
-            if (layerGroups[id]) {
-              mapInstance.removeLayer(layerGroups[id]);
-              delete layerGroups[id];
-            }
+          if (layerGroups[id]) {
+            mapInstance.removeLayer(layerGroups[id]);
+            delete layerGroups[id];
           }
         });
 
-        // 添加新圖層
-        storeLayers.forEach((layerConfig) => {
-          const { id, visible, data } = layerConfig;
+        // 🔄 按照 dataStore 中的相反順序重新添加圖層
+        // 注意：dataStore 中越前面的圖層要越晚添加到地圖（因此會在頂層）
+        visibleLayers.reverse().forEach((layerConfig) => {
+          const { id } = layerConfig;
 
-          if (visible && data && !layerGroups[id]) {
+          try {
             const newLayer = createFeatureLayer(layerConfig);
             newLayer.addTo(mapInstance);
             layerGroups[id] = newLayer;
+
+            console.log(
+              `🗺️ 圖層 "${layerConfig.name}" 已添加到地圖 (順序: ${visibleLayers.indexOf(layerConfig)})`
+            );
+          } catch (error) {
+            console.error(`添加圖層 "${layerConfig.name}" 時發生錯誤:`, error);
           }
         });
 
@@ -244,6 +250,8 @@
           0
         );
         emit('update:activeMarkers', totalMarkers);
+
+        console.log(`🗺️ 圖層同步完成，共 ${visibleLayers.length} 個可見圖層`);
       };
 
       // 顯示全部要素
@@ -383,16 +391,53 @@
       // 監聽器
       watch(() => dataStore.layers, syncLayers, { deep: true });
 
-      watch(
-        () => [props.selectedBorderColor, props.selectedBorderWeight],
-        () => {
-          if (isMapReady.value) {
-            Object.values(layerGroups).forEach((layerGroup) => {
-              if (layerGroup.resetStyle) {
-                layerGroup.resetStyle();
+      // 更新圖層樣式
+      const updateLayerStyles = () => {
+        if (!isMapReady.value) return;
+
+        Object.values(layerGroups).forEach((layerGroup) => {
+          if (layerGroup && layerGroup.eachLayer) {
+            layerGroup.eachLayer((layer) => {
+              // 獲取圖層的原始顏色
+              const layerConfig = dataStore
+                .getAllLayers()
+                .find((l) => layerGroup === layerGroups[l.id]);
+              const fillColor = layerConfig?.color || '#3498db';
+
+              // 根據幾何類型應用不同樣式
+              if (layer.feature?.geometry?.type === 'Point') {
+                // 點要素樣式
+                layer.setStyle({
+                  radius: 8,
+                  fillColor: fillColor,
+                  color: props.selectedBorderColor,
+                  weight: props.selectedBorderWeight,
+                  opacity: 1,
+                  fillOpacity: 0.8,
+                });
+              } else {
+                // 面要素樣式
+                layer.setStyle({
+                  fillColor: fillColor,
+                  weight: props.selectedBorderWeight,
+                  opacity: 1,
+                  color: props.selectedBorderColor,
+                  fillOpacity: 0.6,
+                });
               }
             });
           }
+        });
+
+        console.log(
+          `🎨 已更新圖層樣式 - 邊框顏色: ${props.selectedBorderColor}, 邊框粗細: ${props.selectedBorderWeight}`
+        );
+      };
+
+      watch(
+        () => [props.selectedBorderColor, props.selectedBorderWeight],
+        () => {
+          updateLayerStyles();
         }
       );
 

@@ -212,7 +212,7 @@
       <ul class="nav nav-tabs nav-fill">
         <li v-for="layer in visibleLayers" :key="layer.id" class="nav-item">
           <button
-            class="nav-link"
+            class="nav-link position-relative"
             :class="{
               active: activeLayerTab === layer.id,
             }"
@@ -223,6 +223,11 @@
             <span class="badge bg-secondary ms-2" v-if="getLayerDataCount(layer)">
               {{ getLayerDataCount(layer) }}
             </span>
+            <!-- 圖層顏色底部指示器 -->
+            <div
+              class="layer-color-indicator-bottom"
+              :style="{ backgroundColor: layer.color }"
+            ></div>
           </button>
         </li>
       </ul>
@@ -306,4 +311,14 @@
 
 <style scoped>
   /* 最小化自定義樣式，主要使用 Bootstrap */
+
+  /* 圖層顏色底部指示器樣式 */
+  .layer-color-indicator-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    border-radius: 0 0 4px 4px;
+  }
 </style>
