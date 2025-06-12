@@ -86,6 +86,12 @@ body {
   font-weight: var(--my-font-weight-medium);
 }
 
+.my-title-sm {
+  font-size: var(--my-font-size-sm);
+  color: var(--my-color-gray-600);
+  font-weight: var(--my-font-weight-medium);
+}
+
 .my-content-sm {
   font-size: var(--my-font-size-sm);
   color: var(--my-color-gray-700);
@@ -93,7 +99,7 @@ body {
 
 .my-content-xs {
   font-size: var(--my-font-size-xs);
-  color: var(--my-color-gray-700);
+  color: var(--my-color-gray-500);
 }
 
 /* 背景顏色 */

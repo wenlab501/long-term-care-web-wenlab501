@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 
 import {
-  loadGeoJson as loadGeoJsonUtil,
+  loadIncomeGeoJson,
   loadElderlyWelfareInstitutionData,
   loadHealthcareFacilityPharmacyData,
   loadHospitalClinicData,
@@ -51,28 +51,28 @@ export const useDataStore = defineStore(
         id: '三段年齡組性別人口統計',
         name: '三段年齡組性別人口統計',
         type: 'polygon',
-        loader: loadGeoJsonUtil,
+        loader: loadIncomeGeoJson,
         fileName: '113年12月行政區三段年齡組性別人口統計_村里_WGS84_臺北市.geojson',
       },
       {
         id: '五歲年齡組性別人口統計',
         name: '五歲年齡組性別人口統計',
         type: 'polygon',
-        loader: loadGeoJsonUtil,
+        loader: loadIncomeGeoJson,
         fileName: '113年12月行政區五歲年齡組性別人口統計_村里_WGS84_臺北市.geojson',
       },
       {
         id: '十歲年齡組性別人口統計',
         name: '十歲年齡組性別人口統計',
         type: 'polygon',
-        loader: loadGeoJsonUtil,
+        loader: loadIncomeGeoJson,
         fileName: '113年12月行政區十歲年齡組性別人口統計_村里_WGS84_臺北市.geojson',
       },
       {
         id: '綜稅綜合所得總額',
         name: '綜稅綜合所得總額',
         type: 'polygon',
-        loader: loadGeoJsonUtil,
+        loader: loadIncomeGeoJson,
         fileName: '臺北市_村里_綜稅綜合所得總額.geojson',
       },
     ];
@@ -95,9 +95,9 @@ export const useDataStore = defineStore(
             data: null, // 存放 GeoJSON 資料
             summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
-            tooltipData: null, // 存放地圖tooltip資料
             loader: loadElderlyWelfareInstitutionData, // 資料載入函數
             fileName: '臺北市老人福利機構名冊1140201_coord.csv',
+            fieldName: null,
           },
         ],
       },
@@ -115,9 +115,9 @@ export const useDataStore = defineStore(
             data: null, // 存放 GeoJSON 資料
             summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
-            tooltipData: null, // 存放地圖tooltip資料
             loader: loadHospitalClinicData, // 資料載入函數
             fileName: '112年12月醫療院所分布圖_全國_醫院_coord.csv',
+            fieldName: null,
           },
           {
             id: '診所',
@@ -130,9 +130,9 @@ export const useDataStore = defineStore(
             data: null, // 存放 GeoJSON 資料
             summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
-            tooltipData: null, // 存放地圖tooltip資料
             loader: loadHospitalClinicData, // 資料載入函數
             fileName: '112年12月醫療院所分布圖_全國_診所_coord.csv',
+            fieldName: null,
           },
           {
             id: '健保特約藥局',
@@ -145,15 +145,16 @@ export const useDataStore = defineStore(
             data: null, // 存放 GeoJSON 資料
             summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
-            tooltipData: null, // 存放地圖tooltip資料
             loader: loadHealthcareFacilityPharmacyData, // 資料載入函數
             fileName: '健保特約醫事機構-藥局_coord.csv',
+            fieldName: null,
           },
         ],
       },
       {
         groupName: '基礎地理資料',
         groupLayers: [
+          /*
           {
             id: '三段年齡組性別人口統計',
             name: '三段年齡組性別人口統計',
@@ -165,9 +166,9 @@ export const useDataStore = defineStore(
             data: null, // 存放 GeoJSON 資料
             summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
-            tooltipData: null, // 存放地圖tooltip資料
-            loader: loadGeoJsonUtil, // 資料載入函數
+            loader: loadIncomeGeoJson, // 資料載入函數
             fileName: '113年12月行政區三段年齡組性別人口統計_村里_WGS84_臺北市.geojson',
+
           },
           {
             id: '五歲年齡組性別人口統計',
@@ -180,9 +181,9 @@ export const useDataStore = defineStore(
             data: null, // 存放 GeoJSON 資料
             summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
-            tooltipData: null, // 存放地圖tooltip資料
-            loader: loadGeoJsonUtil, // 資料載入函數
+            loader: loadIncomeGeoJson, // 資料載入函數
             fileName: '113年12月行政區五歲年齡組性別人口統計_村里_WGS84_臺北市.geojson',
+
           },
           {
             id: '十歲年齡組性別人口統計',
@@ -195,13 +196,14 @@ export const useDataStore = defineStore(
             data: null, // 存放 GeoJSON 資料
             summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
-            tooltipData: null, // 存放地圖tooltip資料
-            loader: loadGeoJsonUtil, // 資料載入函數
+            loader: loadIncomeGeoJson, // 資料載入函數
             fileName: '113年12月行政區十歲年齡組性別人口統計_村里_WGS84_臺北市.geojson',
+
           },
+          */
           {
-            id: '綜稅綜合所得總額',
-            name: '綜稅綜合所得總額',
+            id: '綜稅綜合所得總額-中位數',
+            name: '綜稅綜合所得總額-中位數',
             visible: false,
             isLoading: false,
             isLoaded: false,
@@ -210,9 +212,24 @@ export const useDataStore = defineStore(
             data: null, // 存放 GeoJSON 資料
             summaryData: null, // 存放資料摘要
             tableData: null, // 存放表格資料
-            tooltipData: null, // 存放地圖tooltip資料
-            loader: loadGeoJsonUtil, // 資料載入函數
+            loader: loadIncomeGeoJson, // 資料載入函數
             fileName: '臺北市_村里_綜稅綜合所得總額.geojson',
+            fieldName: '中位數',
+          },
+          {
+            id: '綜稅綜合所得總額-平均數',
+            name: '綜稅綜合所得總額-平均數',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            type: 'polygon',
+            color: layerColors[7], // 智能分配的顏色
+            data: null, // 存放 GeoJSON 資料
+            summaryData: null, // 存放資料摘要
+            tableData: null, // 存放表格資料
+            loader: loadIncomeGeoJson, // 資料載入函數
+            fileName: '臺北市_村里_綜稅綜合所得總額.geojson',
+            fieldName: '平均數',
           },
         ],
       },
@@ -282,7 +299,7 @@ export const useDataStore = defineStore(
       if (layer.visible && !layer.isLoaded && !layer.isLoading) {
         try {
           layer.isLoading = true;
-          const result = await layer.loader(layer.fileName);
+          const result = await layer.loader(layer.fileName, layer.fieldName);
 
           // 將載入的資料直接存儲在圖層物件中
           layer.data = result.geoJsonText;

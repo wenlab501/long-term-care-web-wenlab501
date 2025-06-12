@@ -6,13 +6,13 @@
     <div v-if="selectedFeature">
       <div class="mb-3">
         <!-- 📝 屬性標題 (Properties Title) -->
-        <h6 class="text-primary mb-2">物件屬性</h6>
+        <h6 class="mb-2">物件屬性</h6>
 
         <!-- 📋 屬性列表顯示 (Properties List Display) -->
         <!-- 當物件有屬性資料時，遍歷顯示所有屬性 -->
         <template v-if="hasProperties">
           <DetailItem
-            v-for="(value, key) in selectedFeature.properties"
+            v-for="(value, key) in selectedFeature.properties.propertyData"
             :key="key"
             :label="formatLabel(key)"
             :value="formatValue(value)"

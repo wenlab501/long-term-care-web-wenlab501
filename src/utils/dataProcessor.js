@@ -48,13 +48,37 @@ export async function loadElderlyWelfareInstitutionData(fileName) {
           const lat = parseFloat(row[headerIndices.lat]);
           const lon = parseFloat(row[headerIndices.lon]);
 
+          const id = index + 2;
+
           if (isNaN(lat) || isNaN(lon)) {
-            console.warn(`第 ${index + 2} 行 ${row[headerIndices.address]} 的座標無效:`, {
+            console.warn(`第 ${id} 行 ${row[headerIndices.address]} 的座標無效:`, {
               lat: row[headerIndices.lat],
               lon: row[headerIndices.lon],
             });
             return null;
           }
+
+          const propertyData = {
+            id: id,
+            編號: row[headerIndices.編號],
+            屬性: row[headerIndices.屬性],
+            機構名稱: row[headerIndices.機構名稱],
+            區域別: row[headerIndices.區域別],
+            地址: row[headerIndices.地址],
+            電話: row[headerIndices.電話],
+            收容對象: row[headerIndices.收容對象],
+            核定床數_核定總床位數: row[headerIndices.核定床數_核定總床位數],
+            核定床數_長照床數: row[headerIndices.核定床數_長照床數],
+            核定床數_養護床數: row[headerIndices.核定床數_養護床數],
+            核定床數_失智床數: row[headerIndices.核定床數_失智床數],
+            核定床數_安養床數: row[headerIndices.核定床數_安養床數],
+          };
+
+          const tooltipData = {
+            id: id,
+            機構名稱: row[headerIndices.機構名稱],
+            地址: row[headerIndices.地址],
+          };
 
           return {
             type: 'Feature',
@@ -63,18 +87,9 @@ export async function loadElderlyWelfareInstitutionData(fileName) {
               coordinates: [lon, lat],
             },
             properties: {
-              編號: row[headerIndices.編號],
-              屬性: row[headerIndices.屬性],
-              name: row[headerIndices.機構名稱],
-              district: row[headerIndices.區域別],
-              address: row[headerIndices.地址],
-              phone: row[headerIndices.電話],
-              收容對象: row[headerIndices.收容對象],
-              核定床數_核定總床位數: row[headerIndices.核定床數_核定總床位數],
-              核定床數_長照床數: row[headerIndices.核定床數_長照床數],
-              核定床數_養護床數: row[headerIndices.核定床數_養護床數],
-              核定床數_失智床數: row[headerIndices.核定床數_失智床數],
-              核定床數_安養床數: row[headerIndices.核定床數_安養床數],
+              id: id,
+              propertyData: propertyData,
+              tooltipData: tooltipData,
             },
           };
         })
@@ -103,7 +118,7 @@ export async function loadElderlyWelfareInstitutionData(fileName) {
   }
 }
 
-// 醫院
+// 醫院/診所
 export async function loadHospitalClinicData(fileName) {
   try {
     const filePath = `/long-term-care-web/data/csv/${fileName}`;
@@ -146,13 +161,30 @@ export async function loadHospitalClinicData(fileName) {
           const lat = parseFloat(row[headerIndices.lat]);
           const lon = parseFloat(row[headerIndices.lon]);
 
+          const id = index + 1;
+
           if (isNaN(lat) || isNaN(lon)) {
-            console.warn(`第 ${index + 2} 行 ${row[headerIndices.address]} 的座標無效:`, {
+            console.warn(`第 ${id} 行 ${row[headerIndices.address]} 的座標無效:`, {
               lat: row[headerIndices.lat],
               lon: row[headerIndices.lon],
             });
             return null;
           }
+
+          const propertyData = {
+            id: id,
+            醫療院所: row[headerIndices.醫療院所],
+            縣市: row[headerIndices.縣市],
+            鄉鎮市區: row[headerIndices.鄉鎮市區],
+            地址: row[headerIndices.地址],
+            電話: row[headerIndices.電話],
+          };
+
+          const tooltipData = {
+            id: index + 2,
+            醫療院所: row[headerIndices.醫療院所],
+            地址: row[headerIndices.地址],
+          };
 
           return {
             type: 'Feature',
@@ -161,11 +193,9 @@ export async function loadHospitalClinicData(fileName) {
               coordinates: [lon, lat],
             },
             properties: {
-              name: row[headerIndices.醫療院所],
-              city: row[headerIndices.縣市],
-              district: row[headerIndices.鄉鎮市區],
-              address: row[headerIndices.地址],
-              phone: row[headerIndices.電話],
+              id: id,
+              propertyData: propertyData,
+              tooltipData: tooltipData,
             },
           };
         })
@@ -195,7 +225,7 @@ export async function loadHospitalClinicData(fileName) {
   }
 }
 
-// 診所
+// 健保特約藥局
 export async function loadHealthcareFacilityPharmacyData(fileName) {
   try {
     const filePath = `/long-term-care-web/data/csv/${fileName}`;
@@ -247,13 +277,39 @@ export async function loadHealthcareFacilityPharmacyData(fileName) {
           const lat = parseFloat(row[headerIndices.lat]);
           const lon = parseFloat(row[headerIndices.lon]);
 
+          const id = index + 1;
+
           if (isNaN(lat) || isNaN(lon)) {
-            console.warn(`第 ${index + 2} 行 ${row[headerIndices.address]} 的座標無效:`, {
+            console.warn(`第 ${id} 行 ${row[headerIndices.address]} 的座標無效:`, {
               lat: row[headerIndices.lat],
               lon: row[headerIndices.lon],
             });
             return null;
           }
+
+          const propertyData = {
+            id: id,
+            醫事機構代碼: row[headerIndices.醫事機構代碼],
+            醫事機構名稱: row[headerIndices.醫事機構名稱],
+            醫事機構種類: row[headerIndices.醫事機構種類],
+            電話: row[headerIndices.電話],
+            地址: row[headerIndices.地址],
+            分區業務組: row[headerIndices.分區業務組],
+            特約類別: row[headerIndices.特約類別],
+            服務項目: row[headerIndices.服務項目],
+            診療科別: row[headerIndices.診療科別],
+            終止合約或歇業日期: row[headerIndices.終止合約或歇業日期],
+            固定看診時段: row[headerIndices.固定看診時段],
+            備註: row[headerIndices.備註],
+            縣市別代碼: row[headerIndices.縣市別代碼],
+            合約起日: row[headerIndices.合約起日],
+          };
+
+          const tooltipData = {
+            id: id,
+            醫事機構名稱: row[headerIndices.醫事機構名稱],
+            地址: row[headerIndices.地址],
+          };
 
           return {
             type: 'Feature',
@@ -262,22 +318,10 @@ export async function loadHealthcareFacilityPharmacyData(fileName) {
               coordinates: [lon, lat],
             },
             properties: {
-              醫事機構代碼: row[headerIndices.醫事機構代碼],
-              醫事機構名稱: row[headerIndices.醫事機構名稱],
-              醫事機構種類: row[headerIndices.醫事機構種類],
-              電話: row[headerIndices.電話],
-              地址: row[headerIndices.地址],
-              分區業務組: row[headerIndices.分區業務組],
-              特約類別: row[headerIndices.特約類別],
-              服務項目: row[headerIndices.服務項目],
-              診療科別: row[headerIndices.診療科別],
-              終止合約或歇業日期: row[headerIndices.終止合約或歇業日期],
-              固定看診時段: row[headerIndices.固定看診時段],
-              備註: row[headerIndices.備註],
-              縣市別代碼: row[headerIndices.縣市別代碼],
-              合約起日: row[headerIndices.合約起日],
               lat: row[headerIndices.lat],
               lon: row[headerIndices.lon],
+              propertyData: propertyData,
+              tooltipData: tooltipData,
             },
           };
         })
@@ -306,10 +350,12 @@ export async function loadHealthcareFacilityPharmacyData(fileName) {
   }
 }
 
-// 健保特約藥局
-export async function loadGeoJson(fileName) {
+// 綜稅綜合所得總額
+export async function loadIncomeGeoJson(fileName, fieldName) {
   try {
     const filePath = `/long-term-care-web/data/geojson/${fileName}`;
+    const a = fieldName || null;
+    console.log(a);
 
     const response = await fetch(filePath);
 
@@ -327,14 +373,28 @@ export async function loadGeoJson(fileName) {
     geoJsonText.features.forEach((feature, index) => {
       feature.properties.id = index + 1;
       feature.properties.name = feature.properties.FULL;
+
+      const propertyData = {
+        id: index + 2,
+        名稱: feature.properties.name,
+        ...feature.properties,
+      };
+
+      const tooltipData = {
+        id: feature.properties.id,
+        名稱: feature.properties.name,
+        [fieldName]: feature.properties[fieldName],
+      };
+
+      feature.properties.propertyData = propertyData;
+      feature.properties.tooltipData = tooltipData;
     });
 
     // 包含為表格量身打造的數據陣列
     const tableData = geoJsonText.features.map((feature, index) => ({
       id: index + 1,
       名稱: feature.properties.name,
-      中位數: feature.properties['中位數'],
-      平均值: feature.properties['平均數'],
+      [fieldName]: feature.properties[fieldName],
     }));
 
     // 包含摘要資訊

@@ -48,7 +48,7 @@
       <div class="mb-3">
         <div v-for="group in layers" :key="group.groupName" class="p-3">
           <div class="d-flex align-items-center pb-2">
-            <div class="my-title-xs">{{ group.groupName }}</div>
+            <div class="my-title-sm">{{ group.groupName }}</div>
           </div>
 
           <div v-for="layer in group.groupLayers" :key="layer.id" class="mb-1">
@@ -72,8 +72,13 @@
                   ></i>
                 </div>
                 <!-- 圖層名稱 -->
-                <div class="my-content-sm text-start w-100">
-                  {{ layer.name }}
+                <div class="d-flex align-items-center text-start w-100">
+                  <span class="my-content-sm">
+                    {{ layer.name }}
+                  </span>
+                  <span class="my-content-xs ms-2">
+                    {{ layer.summaryData?.totalCount }}
+                  </span>
                 </div>
               </div>
               <!-- 切換圖層可見性 -->

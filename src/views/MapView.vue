@@ -192,7 +192,7 @@
             const name = feature.properties.name || '未命名要素';
 
             // 創建彈窗內容
-            const properties = Object.entries(feature.properties)
+            const properties = Object.entries(feature.properties.tooltipData)
               .map(
                 ([key, value]) =>
                   `<div class="d-flex justify-content-between align-items-center mb-1">
@@ -203,11 +203,11 @@
               .join('');
 
             const popupContent = `
-            <div class="map-popup">
-              <h6 class="text-primary mb-2">${name}</h6>
-              <div class="popup-details">${properties}</div>
-            </div>
-          `;
+              <div class="map-popup">
+                <h6 class="text-primary mb-2">${name}</h6>
+                <div class="popup-details">${properties}</div>
+              </div>
+            `;
 
             layer.bindPopup(popupContent, { maxWidth: 250, className: 'custom-popup' });
             layer.bindTooltip(name, { direction: 'top', offset: [0, -10] });
