@@ -29,7 +29,7 @@
     // 🗺️ 圖層和地圖設定 (Layer and Map Settings)
     showTainanLayer: { type: Boolean, default: false },
     selectedFilter: { type: String, default: null },
-    selectedBorderColor: { type: String, default: '#ffffff' },
+    selectedBorderColor: { type: String, default: '#333333' },
     selectedBorderWeight: { type: Number, default: 1 },
 
     // 🔧 其他設定 (Other Settings)

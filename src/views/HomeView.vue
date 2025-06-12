@@ -119,7 +119,7 @@
       /** 🔍 選定的資料篩選器 */
       const selectedFilter = ref(null);
       /** 🖌️ 選定的邊框顏色 */
-      const selectedBorderColor = ref('#ffffff');
+      const selectedBorderColor = ref('#333333');
       /** 📏 選定的邊框粗細 */
       const selectedBorderWeight = ref(1);
       /** 🔍 地圖縮放等級 */

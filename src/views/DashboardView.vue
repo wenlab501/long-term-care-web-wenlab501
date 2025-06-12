@@ -213,10 +213,7 @@
         </div>
 
         <!-- 沒有開啟圖層時的空狀態 -->
-        <div
-          v-else
-          class="d-flex flex-column justify-content-center align-items-center h-100 text-muted"
-        >
+        <div v-else class="d-flex flex-column justify-content-center align-items-center h-100">
           <h4>沒有開啟的圖層</h4>
           <p class="text-center">請開啟至少一個圖層以查看儀表板統計資訊</p>
         </div>
@@ -245,12 +242,12 @@
 
   .nav-tabs-custom .nav-link:hover {
     background-color: #f8f9fa;
-    border-bottom-color: #007bff;
+    border-bottom-color: transparent;
   }
 
   .nav-tabs-custom .nav-link.active {
     color: #007bff;
-    border-bottom-color: #007bff;
+    border-bottom-color: transparent;
     background-color: #fff;
     font-weight: 600;
   }

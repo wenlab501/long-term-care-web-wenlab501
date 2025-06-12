@@ -6,7 +6,7 @@
   <div class="d-flex justify-content-between align-items-center py-1">
     <!-- 📝 資訊標籤 (Information Label) -->
     <!-- 顯示屬性或欄位的名稱描述 -->
-    <span class="text-muted">{{ label }}:</span>
+    <span class="">{{ label }}:</span>
 
     <!-- 📊 資訊數值 (Information Value) -->
     <!-- 顯示實際的數值或內容，支援多種數據類型 -->

@@ -3,6 +3,7 @@
   import L from 'leaflet';
   import 'leaflet/dist/leaflet.css';
   import { useDataStore } from '@/stores/dataStore.js';
+  import { getLayerIcon } from '@/utils/utils.js';
 
   // 修復 Leaflet 預設圖標問題
   import icon from 'leaflet/dist/images/marker-icon.png';
@@ -22,8 +23,8 @@
       zoomLevel: { type: Number, default: 10 },
       showTainanLayer: { type: Boolean, default: false },
       selectedFilter: { type: String, default: 'all' },
-      selectedBorderColor: { type: String, default: '#ffffff' },
-      selectedBorderWeight: { type: Number, default: 1 },
+      selectedBorderColor: { type: String, default: '#333333' },
+      selectedBorderWeight: { type: Number, default: 2 },
     },
     emits: ['update:zoomLevel', 'update:currentCoords', 'update:activeMarkers', 'feature-selected'],
 
@@ -61,6 +62,19 @@
         aerial: {
           url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
         },
+        carto_light: { url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png' },
+        carto_dark: { url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png' },
+        carto_voyager: {
+          url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+        },
+        carto_positron: { url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png' },
+        carto_dark_matter: { url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png' },
+        carto_light_nolabels: {
+          url: 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
+        },
+        carto_dark_nolabels: {
+          url: 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',
+        },
         blank: { url: '' },
       };
 
@@ -85,7 +99,6 @@
             zoom: props.zoomLevel,
             zoomControl: false,
             attributionControl: false,
-            preferCanvas: true,
           });
 
           // 綁定事件 - 使用簡單的事件處理
@@ -145,14 +158,35 @@
             fillOpacity: 0.6,
           }),
           pointToLayer: (feature, latlng) => {
-            return L.circleMarker(latlng, {
-              radius: 8,
-              fillColor: color,
-              color: props.selectedBorderColor,
-              weight: props.selectedBorderWeight,
-              opacity: 1,
-              fillOpacity: 0.8,
+            // 獲取圖層對應的圖標
+            const layerIconInfo = getLayerIcon(layerConfig.name);
+
+            // 創建自定義 FontAwesome 圖標
+            const customIcon = L.divIcon({
+              html: `<div style="
+                background-color: ${color};
+                border: none;
+                border-radius: 50%;
+                width: 32px;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+              ">
+                <i class="${layerIconInfo.icon}" style="
+                  color: white;
+                  font-size: 14px;
+                  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+                "></i>
+              </div>`,
+              className: 'custom-marker-icon',
+              iconSize: [32, 32],
+              iconAnchor: [16, 16],
+              popupAnchor: [0, -16],
             });
+
+            return L.marker(latlng, { icon: customIcon });
           },
           onEachFeature: (feature, layer) => {
             const name = feature.properties.name || '未命名要素';
@@ -180,12 +214,21 @@
 
             // 滑鼠事件
             layer.on('mouseover', function () {
-              this.setStyle({ weight: 3, color: '#333', fillOpacity: 0.8 });
-              if (mapInstance) this.bringToFront();
+              // 只對有 setStyle 方法的圖層（面要素）應用樣式
+              if (this.setStyle && typeof this.setStyle === 'function') {
+                this.setStyle({ weight: 3, color: '#333', fillOpacity: 0.8 });
+              }
+              // 只對有 bringToFront 方法的圖層調用
+              if (this.bringToFront && typeof this.bringToFront === 'function') {
+                this.bringToFront();
+              }
             });
 
             layer.on('mouseout', function () {
-              geoJsonLayer.resetStyle(this);
+              // 只對有 resetStyle 方法的圖層重設樣式
+              if (geoJsonLayer.resetStyle && typeof geoJsonLayer.resetStyle === 'function') {
+                geoJsonLayer.resetStyle(this);
+              }
             });
 
             layer.on('click', function () {
@@ -226,9 +269,12 @@
           }
         });
 
-        // 🔄 按照 dataStore 中的相反順序重新添加圖層
-        // 注意：dataStore 中越前面的圖層要越晚添加到地圖（因此會在頂層）
-        visibleLayers.reverse().forEach((layerConfig) => {
+        // 🔄 按照 dataStore 中的順序重新添加圖層
+        // 注意：要讓 LeftPanel 頂部的圖層顯示在地圖頂部，需要反轉順序
+        // 因為 Leaflet 中後添加的圖層會顯示在上層
+        const reversedLayers = [...visibleLayers].reverse();
+
+        reversedLayers.forEach((layerConfig, index) => {
           const { id } = layerConfig;
 
           try {
@@ -237,7 +283,7 @@
             layerGroups[id] = newLayer;
 
             console.log(
-              `🗺️ 圖層 "${layerConfig.name}" 已添加到地圖 (順序: ${visibleLayers.indexOf(layerConfig)})`
+              `🗺️ 圖層 "${layerConfig.name}" 已添加到地圖 (LeftPanel順序: ${visibleLayers.indexOf(layerConfig)}, 地圖層級: ${index})`
             );
           } catch (error) {
             console.error(`添加圖層 "${layerConfig.name}" 時發生錯誤:`, error);
@@ -251,7 +297,9 @@
         );
         emit('update:activeMarkers', totalMarkers);
 
-        console.log(`🗺️ 圖層同步完成，共 ${visibleLayers.length} 個可見圖層`);
+        console.log(
+          `🗺️ 圖層同步完成，共 ${visibleLayers.length} 個可見圖層，順序已反轉以匹配 LeftPanel`
+        );
       };
 
       // 顯示全部要素
@@ -277,8 +325,20 @@
       };
 
       // 高亮要素
-      const highlightFeature = (id) => {
+      const highlightFeature = (highlightData) => {
         if (!mapInstance || !isMapReady.value) return;
+
+        // 支援舊的 API (直接傳入 id) 和新的 API (傳入物件)
+        let targetLayerId, targetFeatureId;
+        if (typeof highlightData === 'object' && highlightData !== null) {
+          targetLayerId = highlightData.layerId;
+          targetFeatureId = highlightData.id;
+          console.log(`🎯 尋找圖層 "${targetLayerId}" 中的要素 "${targetFeatureId}"`);
+        } else {
+          // 向後兼容：如果傳入的是字串或數字，當作要素 ID 處理
+          targetFeatureId = highlightData;
+          console.log(`🎯 在所有圖層中尋找要素 "${targetFeatureId}"`);
+        }
 
         // 重設所有圖層樣式
         Object.values(layerGroups).forEach((layerGroup) => {
@@ -289,25 +349,103 @@
 
         // 尋找目標要素
         let targetLayer = null;
-        for (const layerGroup of Object.values(layerGroups)) {
-          layerGroup.eachLayer((layer) => {
-            if (layer.feature?.properties?.id === id) {
-              targetLayer = layer;
-            }
-          });
-          if (targetLayer) break;
+
+        if (targetLayerId) {
+          // 如果指定了圖層 ID，只在該圖層中尋找
+          const specificLayerGroup = layerGroups[targetLayerId];
+          if (specificLayerGroup) {
+            specificLayerGroup.eachLayer((layer) => {
+              // 嘗試多種可能的 ID 屬性
+              const featureId =
+                layer.feature?.properties?.id ||
+                layer.feature?.properties?.ID ||
+                layer.feature?.id ||
+                layer.feature?.properties?.objectid ||
+                layer.feature?.properties?.OBJECTID;
+
+              if (featureId == targetFeatureId) {
+                // 使用 == 而非 === 以處理字串/數字轉換
+                targetLayer = layer;
+                console.log(
+                  `✅ 在圖層 "${targetLayerId}" 中找到要素 "${targetFeatureId}" (使用屬性: ${featureId})`
+                );
+              }
+            });
+          } else {
+            console.warn(`⚠️ 找不到圖層 "${targetLayerId}"`);
+          }
+        } else {
+          // 如果沒有指定圖層 ID，在所有圖層中尋找
+          for (const [layerId, layerGroup] of Object.entries(layerGroups)) {
+            layerGroup.eachLayer((layer) => {
+              // 嘗試多種可能的 ID 屬性
+              const featureId =
+                layer.feature?.properties?.id ||
+                layer.feature?.properties?.ID ||
+                layer.feature?.id ||
+                layer.feature?.properties?.objectid ||
+                layer.feature?.properties?.OBJECTID;
+
+              if (featureId == targetFeatureId) {
+                // 使用 == 而非 === 以處理字串/數字轉換
+                targetLayer = layer;
+                console.log(
+                  `✅ 在圖層 "${layerId}" 中找到要素 "${targetFeatureId}" (使用屬性: ${featureId})`
+                );
+              }
+            });
+            if (targetLayer) break;
+          }
         }
 
         if (targetLayer) {
-          // 高亮樣式
-          targetLayer.setStyle({
-            weight: 5,
-            color: '#E74C3C',
-            dashArray: '5, 5',
-            fillOpacity: 1,
-          });
+          // 根據要素類型應用不同的高亮樣式
+          if (targetLayer.feature?.geometry?.type === 'Point') {
+            // 點要素：創建高亮的圖標
+            if (targetLayer.options && targetLayer.options.icon) {
+              const layerConfig = dataStore.getAllLayers().find((l) => l.id === targetLayerId);
+              const layerIconInfo = getLayerIcon(layerConfig?.name || '');
+              const highlightIcon = L.divIcon({
+                html: `<div style="
+                   background-color: #E74C3C;
+                   border: none;
+                   border-radius: 50%;
+                   width: 40px;
+                   height: 40px;
+                   display: flex;
+                   align-items: center;
+                   justify-content: center;
+                   box-shadow: 0 4px 12px rgba(231, 76, 60, 0.6);
+                   animation: pulse 1.5s infinite;
+                 ">
+                   <i class="${layerIconInfo.icon}" style="
+                     color: white;
+                     font-size: 16px;
+                     text-shadow: 0 1px 2px rgba(0,0,0,0.7);
+                   "></i>
+                 </div>`,
+                className: 'custom-marker-icon highlight-marker',
+                iconSize: [40, 40],
+                iconAnchor: [20, 20],
+                popupAnchor: [0, -20],
+              });
+              targetLayer.setIcon(highlightIcon);
+            }
+          } else {
+            // 面要素：設定高亮樣式
+            targetLayer.setStyle({
+              weight: 5,
+              color: '#E74C3C',
+              dashArray: '5, 5',
+              fillOpacity: 0.8,
+              fillColor: '#E74C3C',
+            });
+          }
 
-          if (mapInstance) targetLayer.bringToFront();
+          // 只對有 bringToFront 方法的圖層調用
+          if (targetLayer.bringToFront && typeof targetLayer.bringToFront === 'function') {
+            targetLayer.bringToFront();
+          }
 
           // 定位到要素
           const bounds = targetLayer.getBounds
@@ -318,6 +456,10 @@
             mapInstance.fitBounds(bounds, { maxZoom: 16, padding: [70, 70] });
             setTimeout(() => targetLayer.openPopup(), 300);
           }
+        } else {
+          console.warn(
+            `❌ 找不到要素 "${targetFeatureId}"${targetLayerId ? ` 在圖層 "${targetLayerId}" 中` : ''}`
+          );
         }
       };
 
@@ -406,15 +548,34 @@
 
               // 根據幾何類型應用不同樣式
               if (layer.feature?.geometry?.type === 'Point') {
-                // 點要素樣式
-                layer.setStyle({
-                  radius: 8,
-                  fillColor: fillColor,
-                  color: props.selectedBorderColor,
-                  weight: props.selectedBorderWeight,
-                  opacity: 1,
-                  fillOpacity: 0.8,
-                });
+                // 點要素樣式 - 更新 divIcon 的樣式
+                if (layer.options && layer.options.icon && layer.options.icon.options) {
+                  const layerIconInfo = getLayerIcon(layerConfig.name);
+                  const newIcon = L.divIcon({
+                    html: `<div style="
+                      background-color: ${fillColor};
+                      border: none;
+                      border-radius: 50%;
+                      width: 32px;
+                      height: 32px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+                    ">
+                      <i class="${layerIconInfo.icon}" style="
+                        color: white;
+                        font-size: 14px;
+                        text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+                      "></i>
+                    </div>`,
+                    className: 'custom-marker-icon',
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 16],
+                    popupAnchor: [0, -16],
+                  });
+                  layer.setIcon(newIcon);
+                }
               } else {
                 // 面要素樣式
                 layer.setStyle({
@@ -474,7 +635,7 @@
           class="form-select form-select-sm"
           v-model="selectedBasemap"
           @change="changeBasemap"
-          style="width: auto; min-width: 120px"
+          style="width: auto; min-width: 150px"
         >
           <option value="osm">OpenStreetMap</option>
           <option value="esri_street">Esri Street</option>
@@ -486,6 +647,13 @@
           <option value="nlsc_photo">國土規劃中心正射影像</option>
           <option value="terrain">地形圖</option>
           <option value="aerial">空照圖 (Esri)</option>
+          <option value="carto_light">Carto Light</option>
+          <option value="carto_dark">Carto Dark</option>
+          <option value="carto_voyager">Carto Voyager</option>
+          <option value="carto_positron">Carto Positron</option>
+          <option value="carto_dark_matter">Carto Dark Matter</option>
+          <option value="carto_light_nolabels">Carto Light (無標籤)</option>
+          <option value="carto_dark_nolabels">Carto Dark (無標籤)</option>
           <option value="blank">空白無地圖</option>
         </select>
       </div>
@@ -622,6 +790,41 @@
 
   .feature-multipolygon {
     transition: all 0.2s ease; /* 複合多邊形過渡效果 */
+  }
+
+  /* 🎯 自定義圖標樣式 (Custom Icon Styles) */
+  .custom-marker-icon {
+    background: transparent !important;
+    border: none !important;
+  }
+
+  .custom-marker-icon div {
+    transition: all 0.3s ease;
+  }
+
+  .custom-marker-icon:hover div {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+  }
+
+  /* 🎯 高亮標記動畫 (Highlight Marker Animation) */
+  .highlight-marker div {
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+      box-shadow: 0 4px 12px rgba(231, 76, 60, 0.6);
+    }
+    50% {
+      transform: scale(1.1);
+      box-shadow: 0 6px 16px rgba(231, 76, 60, 0.8);
+    }
+    100% {
+      transform: scale(1);
+      box-shadow: 0 4px 12px rgba(231, 76, 60, 0.6);
+    }
   }
 
   /* ✨ 高亮狀態的動畫效果 (Highlight State Animation Effects) */

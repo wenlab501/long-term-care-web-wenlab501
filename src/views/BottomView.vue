@@ -129,7 +129,8 @@
               @change="$emit('update:selectedBorderColor', $event.target.value)"
             >
               <option value="#000000">黑色</option>
-              <option value="#666666">深灰色</option>
+              <option value="#333333" selected>深灰色 (預設)</option>
+              <option value="#666666">中灰色</option>
               <option value="#CCCCCC">淺灰色</option>
               <option value="#FFFFFF">白色</option>
               <option value="#FF0000">紅色</option>

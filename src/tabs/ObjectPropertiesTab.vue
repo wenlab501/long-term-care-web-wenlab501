@@ -20,7 +20,7 @@
         </template>
 
         <!-- 🚫 無屬性資料時的提示 (No Properties Data Message) -->
-        <div v-else class="text-muted">此物件沒有屬性資料</div>
+        <div v-else class="">此物件沒有屬性資料</div>
       </div>
     </div>
 

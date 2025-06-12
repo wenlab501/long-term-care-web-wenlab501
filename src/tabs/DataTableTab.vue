@@ -301,7 +301,7 @@
 
     <!-- 📭 無開啟圖層的空狀態 -->
     <div v-else class="flex-grow-1 d-flex align-items-center justify-content-center bg-light">
-      <div class="text-center text-muted">
+      <div class="text-center">
         <h5>沒有開啟的圖層</h5>
         <p>請在左側面板開啟圖層以查看資料表格</p>
       </div>

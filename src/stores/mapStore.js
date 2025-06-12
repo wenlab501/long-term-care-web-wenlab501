@@ -27,16 +27,6 @@ export const useMapStore = defineStore('map', () => {
     bufferLayer: null,
   });
 
-  // ==================== Bootstrap RWD 斷點 ====================
-  const breakpoints = {
-    xs: 0,
-    sm: 576,
-    md: 768,
-    lg: 992,
-    xl: 1200,
-    xxl: 1400,
-  };
-
   // ==================== 計算屬性 ====================
 
   // 主要面板寬度（考慮Bootstrap col-12）
