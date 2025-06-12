@@ -93,6 +93,10 @@ body {
 
 /* 背景顏色 */
 
+.my-bg-white {
+  background-color: var(--my-color-white);
+}
+
 .my-bg-color-gray-50 {
   background-color: var(--my-color-gray-50);
 }
