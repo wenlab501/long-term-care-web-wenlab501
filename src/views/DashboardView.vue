@@ -108,8 +108,8 @@
       }
 
       // 找出新增的圖層（比較新舊圖層列表）
-      const previousLayerIds = previousLayers.value.map((layer) => layer.id);
-      const newLayerIds = newLayers.map((layer) => layer.id);
+      const previousLayerIds = previousLayers.value.map((layer) => layer.layerId);
+      const newLayerIds = newLayers.map((layer) => layer.layerId);
       const addedLayerIds = newLayerIds.filter((id) => !previousLayerIds.includes(id));
 
       // 如果有新增的圖層，自動切換到最新新增的圖層
@@ -117,13 +117,13 @@
         const newestAddedLayerId = addedLayerIds[addedLayerIds.length - 1];
         activeLayerTab.value = newestAddedLayerId;
         console.log(
-          `🔄 自動切換到新開啟的圖層: ${newLayers.find((layer) => layer.id === newestAddedLayerId)?.name}`
+          `🔄 自動切換到新開啟的圖層: ${newLayers.find((layer) => layer.layerId === newestAddedLayerId)?.name}`
         );
       }
       // 如果當前沒有選中分頁，或選中的分頁不在可見列表中，選中第一個
       else if (
         !activeLayerTab.value ||
-        !newLayers.find((layer) => layer.id === activeLayerTab.value)
+        !newLayers.find((layer) => layer.layerId === activeLayerTab.value)
       ) {
         activeLayerTab.value = newLayers[0].id;
       }
@@ -154,11 +154,11 @@
       <!-- 📑 圖層分頁導航 -->
       <div v-if="visibleLayers.length > 0" class="border-bottom bg-white">
         <ul class="nav nav-tabs nav-tabs-custom mb-0">
-          <li v-for="layer in visibleLayers" :key="layer.id" class="nav-item">
+          <li v-for="layer in visibleLayers" :key="layer.layerId" class="nav-item">
             <button
               class="nav-link d-flex align-items-center gap-2 position-relative"
-              :class="{ active: activeLayerTab === layer.id }"
-              @click="setActiveLayerTab(layer.id)"
+              :class="{ active: activeLayerTab === layer.layerId }"
+              @click="setActiveLayerTab(layer.layerId)"
             >
               <span>{{ layer.name }}</span>
               <span class="badge bg-primary ms-1">

@@ -94,7 +94,7 @@ body {
 
 .my-content-sm {
   font-size: var(--my-font-size-sm);
-  color: var(--my-color-gray-700);
+  color: var(--my-color-gray-900);
 }
 
 .my-content-xs {

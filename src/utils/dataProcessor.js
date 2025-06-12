@@ -1,5 +1,5 @@
 // 老人福利機
-export async function loadElderlyWelfareInstitutionData(fileName) {
+export async function loadElderlyWelfareInstitutionData(layerId, fileName) {
   try {
     const filePath = `/long-term-care-web/data/csv/${fileName}`;
 
@@ -88,6 +88,7 @@ export async function loadElderlyWelfareInstitutionData(fileName) {
             },
             properties: {
               id: id,
+              layerId: layerId,
               propertyData: propertyData,
               tooltipData: tooltipData,
             },
@@ -100,7 +101,7 @@ export async function loadElderlyWelfareInstitutionData(fileName) {
     const tableData = geoJsonText.features.map((feature, index) => ({
       id: index + 1,
       name: feature.properties.name,
-    })); // .map() 方法結束
+    }));
 
     // 包含摘要資訊
     const summaryData = {
@@ -119,7 +120,7 @@ export async function loadElderlyWelfareInstitutionData(fileName) {
 }
 
 // 醫院/診所
-export async function loadHospitalClinicData(fileName) {
+export async function loadHospitalClinicData(layerId, fileName) {
   try {
     const filePath = `/long-term-care-web/data/csv/${fileName}`;
 
@@ -194,6 +195,7 @@ export async function loadHospitalClinicData(fileName) {
             },
             properties: {
               id: id,
+              layerId: layerId,
               propertyData: propertyData,
               tooltipData: tooltipData,
             },
@@ -226,7 +228,7 @@ export async function loadHospitalClinicData(fileName) {
 }
 
 // 健保特約藥局
-export async function loadHealthcareFacilityPharmacyData(fileName) {
+export async function loadHealthcareFacilityPharmacyData(layerId, fileName) {
   try {
     const filePath = `/long-term-care-web/data/csv/${fileName}`;
 
@@ -318,8 +320,8 @@ export async function loadHealthcareFacilityPharmacyData(fileName) {
               coordinates: [lon, lat],
             },
             properties: {
-              lat: row[headerIndices.lat],
-              lon: row[headerIndices.lon],
+              id: id,
+              layerId: layerId,
               propertyData: propertyData,
               tooltipData: tooltipData,
             },
@@ -351,7 +353,7 @@ export async function loadHealthcareFacilityPharmacyData(fileName) {
 }
 
 // 綜稅綜合所得總額
-export async function loadIncomeGeoJson(fileName, fieldName) {
+export async function loadIncomeGeoJson(layerId, fileName, fieldName) {
   try {
     const filePath = `/long-term-care-web/data/geojson/${fileName}`;
     const a = fieldName || null;
@@ -372,6 +374,7 @@ export async function loadIncomeGeoJson(fileName, fieldName) {
 
     geoJsonText.features.forEach((feature, index) => {
       feature.properties.id = index + 1;
+      feature.properties.layerId = layerId;
       feature.properties.name = feature.properties.FULL;
 
       const propertyData = {

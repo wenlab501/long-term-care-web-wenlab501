@@ -18,7 +18,7 @@ export const useDataStore = defineStore(
     const allLayerConfigs = [
       // 長照機構
       {
-        id: '老人福利機構',
+        layerId: '老人福利機構',
         name: '老人福利機構',
         type: 'point',
         loader: loadElderlyWelfareInstitutionData,
@@ -26,21 +26,21 @@ export const useDataStore = defineStore(
       },
       // 醫療設施
       {
-        id: '醫院',
+        layerId: '醫院',
         name: '醫院',
         type: 'point',
         loader: loadHospitalClinicData,
         fileName: '112年12月醫療院所分布圖_全國_醫院_coord.csv',
       },
       {
-        id: '診所',
+        layerId: '診所',
         name: '診所',
         type: 'point',
         loader: loadHospitalClinicData,
         fileName: '112年12月醫療院所分布圖_全國_診所_coord.csv',
       },
       {
-        id: '健保特約藥局',
+        layerId: '健保特約藥局',
         name: '健保特約藥局',
         type: 'point',
         loader: loadHealthcareFacilityPharmacyData,
@@ -48,28 +48,28 @@ export const useDataStore = defineStore(
       },
       // 基礎地理資料
       {
-        id: '三段年齡組性別人口統計',
+        layerId: '三段年齡組性別人口統計',
         name: '三段年齡組性別人口統計',
         type: 'polygon',
         loader: loadIncomeGeoJson,
         fileName: '113年12月行政區三段年齡組性別人口統計_村里_WGS84_臺北市.geojson',
       },
       {
-        id: '五歲年齡組性別人口統計',
+        layerId: '五歲年齡組性別人口統計',
         name: '五歲年齡組性別人口統計',
         type: 'polygon',
         loader: loadIncomeGeoJson,
         fileName: '113年12月行政區五歲年齡組性別人口統計_村里_WGS84_臺北市.geojson',
       },
       {
-        id: '十歲年齡組性別人口統計',
+        layerId: '十歲年齡組性別人口統計',
         name: '十歲年齡組性別人口統計',
         type: 'polygon',
         loader: loadIncomeGeoJson,
         fileName: '113年12月行政區十歲年齡組性別人口統計_村里_WGS84_臺北市.geojson',
       },
       {
-        id: '綜稅綜合所得總額',
+        layerId: '綜稅綜合所得總額',
         name: '綜稅綜合所得總額',
         type: 'polygon',
         loader: loadIncomeGeoJson,
@@ -85,7 +85,7 @@ export const useDataStore = defineStore(
         groupName: '長照機構',
         groupLayers: [
           {
-            id: '老人福利機構',
+            layerId: '老人福利機構',
             name: '老人福利機構',
             visible: false,
             isLoading: false,
@@ -105,7 +105,7 @@ export const useDataStore = defineStore(
         groupName: '醫療設施',
         groupLayers: [
           {
-            id: '醫院',
+            layerId: '醫院',
             name: '醫院',
             visible: false,
             isLoading: false,
@@ -120,7 +120,7 @@ export const useDataStore = defineStore(
             fieldName: null,
           },
           {
-            id: '診所',
+            layerId: '診所',
             name: '診所',
             visible: false,
             isLoading: false,
@@ -135,7 +135,7 @@ export const useDataStore = defineStore(
             fieldName: null,
           },
           {
-            id: '健保特約藥局',
+            layerId: '健保特約藥局',
             name: '健保特約藥局',
             visible: false,
             isLoading: false,
@@ -156,7 +156,7 @@ export const useDataStore = defineStore(
         groupLayers: [
           /*
           {
-            id: '三段年齡組性別人口統計',
+            layerId: '三段年齡組性別人口統計',
             name: '三段年齡組性別人口統計',
             visible: false,
             isLoading: false,
@@ -171,7 +171,7 @@ export const useDataStore = defineStore(
 
           },
           {
-            id: '五歲年齡組性別人口統計',
+            layerId: '五歲年齡組性別人口統計',
             name: '五歲年齡組性別人口統計',
             visible: false,
             isLoading: false,
@@ -186,7 +186,7 @@ export const useDataStore = defineStore(
 
           },
           {
-            id: '十歲年齡組性別人口統計',
+            layerId: '十歲年齡組性別人口統計',
             name: '十歲年齡組性別人口統計',
             visible: false,
             isLoading: false,
@@ -202,7 +202,7 @@ export const useDataStore = defineStore(
           },
           */
           {
-            id: '綜稅綜合所得總額-中位數',
+            layerId: '綜稅綜合所得總額-中位數',
             name: '綜稅綜合所得總額-中位數',
             visible: false,
             isLoading: false,
@@ -217,7 +217,7 @@ export const useDataStore = defineStore(
             fieldName: '中位數',
           },
           {
-            id: '綜稅綜合所得總額-平均數',
+            layerId: '綜稅綜合所得總額-平均數',
             name: '綜稅綜合所得總額-平均數',
             visible: false,
             isLoading: false,
@@ -251,7 +251,7 @@ export const useDataStore = defineStore(
     const findLayerById = (layerId) => {
       for (const group of layers.value) {
         for (const layer of group.groupLayers) {
-          if (layer.id === layerId) {
+          if (layer.layerId === layerId) {
             return layer;
           }
         }
@@ -299,23 +299,13 @@ export const useDataStore = defineStore(
       if (layer.visible && !layer.isLoaded && !layer.isLoading) {
         try {
           layer.isLoading = true;
-          const result = await layer.loader(layer.fileName, layer.fieldName);
+          const result = await layer.loader(layer.layerId, layer.fileName, layer.fieldName);
 
           // 將載入的資料直接存儲在圖層物件中
           layer.data = result.geoJsonText;
           layer.tableData = result.tableData;
           layer.summaryData = result.summaryData;
           layer.isLoaded = true;
-
-          // --- 🔄 與舊版結構的相容性處理 (Compatibility with Legacy Structure) ---
-          // 為了避免破壞仍依賴舊資料結構的組件，在此更新舊結構
-          // 這部分應該隨著時間逐步淘汰
-          if (layer.id === 'tainan') {
-            storeLoadedData(result);
-          } else if (layer.id === 'medical') {
-            storeMedicalData(result);
-          }
-          // --- 相容性處理結束 ---
         } catch (error) {
           console.error(`Failed to load data for layer "${layer.name}":`, error);
           layer.visible = false; // 載入失敗時恢復可見性狀態
@@ -418,22 +408,6 @@ export const useDataStore = defineStore(
 
     // ==================== 🛠️ 資料操作方法 (Data Manipulation Methods) ====================
 
-    // Legacy function for compatibility
-    const storeLoadedData = (data) => {
-      if (data) {
-        processedData.value.loadedAndMergedGeoJSON = data.loadedAndMergedGeoJSON;
-        console.log('✅ (Legacy) Tainan data stored in Pinia.');
-      }
-    };
-
-    // Legacy function for compatibility
-    const storeMedicalData = (data) => {
-      if (data) {
-        processedData.value.medicalData = { ...data };
-        console.log('✅ (Legacy) Medical data stored in Pinia.');
-      }
-    };
-
     // Keep this for components that haven't been updated yet.
     // This is the crucial fix: make the legacy property reactive to the new system.
 
@@ -526,10 +500,6 @@ export const useDataStore = defineStore(
       selectedFeature,
       analysisParameters,
       dataSummary,
-      // isDataLoaded,
-      // isMedicalDataLoaded,
-      storeLoadedData,
-      storeMedicalData,
 
       // Actions
       setRawData,

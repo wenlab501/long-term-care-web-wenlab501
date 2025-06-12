@@ -48,13 +48,13 @@
       <div class="mb-3">
         <div v-for="group in layers" :key="group.groupName" class="p-3">
           <div class="d-flex align-items-center pb-2">
-            <div class="my-title-sm">{{ group.groupName }}</div>
+            <div class="my-title-xs">{{ group.groupName }}</div>
           </div>
 
-          <div v-for="layer in group.groupLayers" :key="layer.id" class="mb-1">
+          <div v-for="layer in group.groupLayers" :key="layer.layerId" class="mb-1">
             <button
               class="btn rounded-0 border-0 d-flex align-items-center justify-content-between shadow-sm my-bg-white-hover w-100 p-3"
-              @click="toggleLayer(layer.id)"
+              @click="toggleLayer(layer.layerId)"
             >
               <div class="d-flex align-items-center">
                 <!-- 圖層圖示 -->
@@ -90,11 +90,11 @@
               >
                 <input
                   type="checkbox"
-                  :id="'switch-' + layer.id"
-                  :for="'switch-' + layer.id"
+                  :id="'switch-' + layer.layerId"
+                  :for="'switch-' + layer.layerId"
                   :checked="layer.visible"
                   :disabled="layer.isLoading"
-                  @change="toggleLayer(layer.id)"
+                  @change="toggleLayer(layer.layerId)"
                 />
                 <label for="switch"></label>
               </div>

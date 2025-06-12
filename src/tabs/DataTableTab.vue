@@ -66,7 +66,7 @@
   const getSortedData = (layer) => {
     if (!layer.tableData) return [];
 
-    const sortState = layerSortStates.value[layer.id];
+    const sortState = layerSortStates.value[layer.layerId];
     if (!sortState || !sortState.key) {
       return layer.tableData;
     }
@@ -139,7 +139,7 @@
     // 傳遞包含圖層資訊和項目ID的物件
     const highlightData = {
       id: item.id,
-      layerId: layer.id,
+      layerId: layer.layerId,
       layerName: layer.name,
       item: item,
     };
@@ -165,8 +165,8 @@
       }
 
       // 找出新增的圖層（比較新舊圖層列表）
-      const previousLayerIds = previousLayers.value.map((layer) => layer.id);
-      const newLayerIds = newLayers.map((layer) => layer.id);
+      const previousLayerIds = previousLayers.value.map((layer) => layer.layerId);
+      const newLayerIds = newLayers.map((layer) => layer.layerId);
       const addedLayerIds = newLayerIds.filter((id) => !previousLayerIds.includes(id));
 
       // 如果有新增的圖層，自動切換到最新新增的圖層
@@ -174,13 +174,13 @@
         const newestAddedLayerId = addedLayerIds[addedLayerIds.length - 1];
         activeLayerTab.value = newestAddedLayerId;
         console.log(
-          `🔄 自動切換到新開啟的圖層: ${newLayers.find((layer) => layer.id === newestAddedLayerId)?.name}`
+          `🔄 自動切換到新開啟的圖層: ${newLayers.find((layer) => layer.layerId === newestAddedLayerId)?.name}`
         );
       }
       // 如果當前沒有選中分頁，或選中的分頁不在可見列表中，選中第一個
       else if (
         !activeLayerTab.value ||
-        !newLayers.find((layer) => layer.id === activeLayerTab.value)
+        !newLayers.find((layer) => layer.layerId === activeLayerTab.value)
       ) {
         activeLayerTab.value = newLayers[0].id;
       }
@@ -210,13 +210,13 @@
     <!-- 📑 圖層分頁導航 -->
     <div v-if="visibleLayers.length > 0" class="bg-white border-bottom">
       <ul class="nav nav-tabs nav-fill">
-        <li v-for="layer in visibleLayers" :key="layer.id" class="nav-item">
+        <li v-for="layer in visibleLayers" :key="layer.layerId" class="nav-item">
           <button
             class="nav-link position-relative"
             :class="{
-              active: activeLayerTab === layer.id,
+              active: activeLayerTab === layer.layerId,
             }"
-            @click="setActiveLayerTab(layer.id)"
+            @click="setActiveLayerTab(layer.layerId)"
             :title="`顯示 ${layer.name} 的表格資料`"
           >
             {{ layer.name }}
@@ -237,8 +237,8 @@
     <div v-if="visibleLayers.length > 0" class="flex-grow-1 overflow-hidden">
       <div
         v-for="layer in visibleLayers"
-        :key="layer.id"
-        v-show="activeLayerTab === layer.id"
+        :key="layer.layerId"
+        v-show="activeLayerTab === layer.layerId"
         class="h-100"
       >
         <div
@@ -259,12 +259,12 @@
                   <th
                     v-for="column in getLayerColumns(layer)"
                     :key="column"
-                    @click="handleSort(layer.id, column)"
+                    @click="handleSort(layer.layerId, column)"
                     class="user-select-none text-capitalize"
                     style="cursor: pointer"
                   >
                     {{ column }}
-                    <i :class="getSortIcon(layer.id, column)" class="ms-1"></i>
+                    <i :class="getSortIcon(layer.layerId, column)" class="ms-1"></i>
                   </th>
 
                   <th>操作</th>

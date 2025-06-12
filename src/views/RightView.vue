@@ -108,7 +108,7 @@
   >
     <!-- 📄 右側分頁內容區域 (Right Panel Tab Content Area) -->
     <!-- 根據選中的分頁顯示對應的內容組件 -->
-    <div class="tab-content flex-grow-1 overflow-auto p-3" style="min-width: 0">
+    <div class="tab-content flex-grow-1 overflow-auto" style="min-width: 0">
       <!-- 📋 物件屬性分頁內容 (Object Properties Tab Content) -->
       <!-- 顯示選中地圖物件的詳細屬性資訊 -->
       <div v-show="activeRightTab === 'properties'" class="h-100">
