@@ -25,21 +25,12 @@
         dataStore.toggleLayerVisibility(layerId);
       };
 
-      /**
-       * ℹ️ 獲取通用圖標資訊
-       * 根據提供的鍵名 (key)，從圖標常數中獲取對應的圖標物件
-       * @param {string} iconKey - 圖標的鍵名 (例如 'drag', 'loading')
-       */
-      const getIconInfo = (iconKey) => {
-        return getIcon(iconKey);
-      };
-
       // 📤 將需要暴露給 <template> 使用的數據和方法返回
       return {
         layers,
         toggleLayer,
         layerListRef,
-        getIconInfo,
+        getIcon,
         getLayerIcon,
         ICONS,
       };
@@ -53,30 +44,26 @@
       <h1 class="my-font-size-lg my-letter-spacing-lg text-center m-3">臺北市長照資訊</h1>
     </div>
 
-    <div class="overflow-auto" ref="layerListRef">
+    <div class="overflow-auto layer-list-container" ref="layerListRef">
       <div class="mb-3">
         <div v-for="group in layers" :key="group.groupName" class="p-3">
           <div class="d-flex align-items-center pb-2">
             <div class="my-title-xs">{{ group.groupName }}</div>
           </div>
 
-          <div>
-            <div
-              v-for="layer in group.groupLayers"
-              :key="layer.id"
-              class="d-flex align-items-center justify-content-between shadow-sm mb-1"
+          <div v-for="layer in group.groupLayers" :key="layer.id" class="mb-1">
+            <button
+              class="btn rounded-0 border-0 d-flex align-items-center justify-content-between shadow-sm my-bg-white-hover w-100 p-3"
+              @click="toggleLayer(layer.id)"
             >
-              <div
-                class="d-flex align-items-center flex-grow-1"
-                @click="toggleLayer(layer.id)"
-                style="cursor: pointer"
-              >
+              <div class="d-flex align-items-center">
+                <!-- 圖層圖示 -->
                 <div
-                  class="d-flex align-items-center justify-content-center my-color-white my-font-size-md"
+                  class="d-none d-lg-flex align-items-center justify-content-center rounded-circle my-color-white my-font-size-xs p-2 me-3"
                   :style="{
                     backgroundColor: layer.color,
-                    minHeight: '40px',
-                    minWidth: '40px',
+                    minHeight: '28px',
+                    minWidth: '28px',
                   }"
                 >
                   <i
@@ -84,37 +71,29 @@
                     :title="getLayerIcon(layer.name).zh"
                   ></i>
                 </div>
-                <div class="d-flex align-items-center my-bg-white px-3 flex-grow-1">
-                  <div class="my-content-sm text-truncate">
-                    {{ layer.name }}
-                  </div>
-
-                  <div v-if="layer.isLoading" class="ms-auto">
-                    <i
-                      :class="getIconInfo('loading').icon"
-                      class="text-primary"
-                      style="font-size: 12px"
-                    ></i>
-                  </div>
+                <!-- 圖層名稱 -->
+                <div class="my-content-sm text-start w-100">
+                  {{ layer.name }}
                 </div>
               </div>
-
-              <div class="px-2">
-                <div class="form-check form-switch">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    :id="'switch-' + layer.id"
-                    :checked="layer.visible"
-                    :disabled="layer.isLoading"
-                    @change="toggleLayer(layer.id)"
-                  />
-                  <label class="form-check-label visually-hidden" :for="'switch-' + layer.id">
-                    {{ layer.visible ? getIconInfo('visible').zh : getIconInfo('hidden').zh }}
-                  </label>
-                </div>
+              <!-- 切換圖層可見性 -->
+              <div
+                class="d-none d-lg-flex align-items-center justify-content-center ms-3"
+                :style="{
+                  'min-width': '32px',
+                }"
+              >
+                <input
+                  type="checkbox"
+                  :id="'switch-' + layer.id"
+                  :for="'switch-' + layer.id"
+                  :checked="layer.visible"
+                  :disabled="layer.isLoading"
+                  @change="toggleLayer(layer.id)"
+                />
+                <label for="switch"></label>
               </div>
-            </div>
+            </button>
           </div>
         </div>
       </div>
@@ -123,16 +102,46 @@
 </template>
 
 <style scoped>
-  /* 載入中圖標的旋轉動畫 */
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
+  /* https://www.tpisoftware.com/tpu/articleDetails/2744 */
+
+  input[type='checkbox'] {
+    height: 0;
+    width: 0;
+    visibility: hidden;
   }
-  .fa-spinner {
-    animation: spin 1s linear infinite;
+
+  label {
+    cursor: pointer;
+    width: 28px;
+    height: 16px;
+    background: var(--my-color-gray-300);
+    display: block;
+    border-radius: 16px;
+    position: relative;
+  }
+
+  label:after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 12px;
+    height: 12px;
+    background: #fff;
+    border-radius: 12px;
+    transition: 0.2s;
+  }
+
+  input:checked + label {
+    background: var(--my-color-success-500);
+  }
+
+  label:active:after {
+    width: 28px;
+  }
+
+  input:checked + label:after {
+    left: calc(100% - 2px);
+    transform: translateX(-100%);
   }
 </style>
