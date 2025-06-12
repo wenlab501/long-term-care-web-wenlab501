@@ -72,8 +72,23 @@ body {
 
 /* 文字顏色 */
 
-.my-font-color-white {
+.my-color-white {
   color: var(--my-color-white);
+}
+
+.my-color-gray-500 {
+  color: var(--my-color-gray-500);
+}
+
+.my-title-xs {
+  font-size: var(--my-font-size-xs);
+  color: var(--my-color-gray-600);
+  font-weight: var(--my-font-weight-medium);
+}
+
+.my-content-sm {
+  font-size: var(--my-font-size-sm);
+  color: var(--my-color-gray-700);
 }
 
 /* 背景顏色 */

@@ -66,7 +66,7 @@
     <!-- 面板標題區域 -->
     <div class="p-3">
       <h1>
-        <div class="my-font-size-lg my-letter-spacing-lg text-center m-4">臺北市長照資訊</div>
+        <div class="my-font-size-lg my-letter-spacing-lg text-center m-3">臺北市長照資訊</div>
       </h1>
     </div>
 
@@ -74,27 +74,26 @@
     <div class="flex-grow-1 overflow-auto">
       <div class="mb-3">
         <!-- 群組迴圈 -->
-        <div
-          v-for="group in layers"
-          :key="group.groupName"
-          class="rounded-4 shadow-sm bg-white p-3 m-3"
-        >
-          <div class="text-center mb-3">{{ group.groupName }}</div>
+        <div v-for="group in layers" :key="group.groupName" class="p-3">
+          <div class="my-title-xs pb-2">{{ group.groupName }}</div>
 
-          <div class="vstack gap-2 ps-2">
+          <div class="">
             <!-- 群組內圖 -->
             <div
               v-for="layer in group.groupLayers"
               :key="layer.id"
-              class="d-flex justify-content-between align-items-center py-2"
+              class="d-flex align-items-center justify-content-between shadow-sm bg-white mb-1"
             >
-              <div class="d-flex align-items-center">
-                <div
-                  class="layer-color-indicator me-2"
-                  :style="{ backgroundColor: layer.color }"
-                ></div>
-                {{ layer.name }}
-              </div>
+              <!-- 圖層顏色-->
+              <div
+                :style="{
+                  backgroundColor: layer.color,
+                  minWidth: '6px',
+                  minHeight: '40px',
+                }"
+              ></div>
+              <!-- 圖層名稱 -->
+              <div class="my-content-sm text-center text-truncate p-2">{{ layer.name }}</div>
 
               <!-- 開關 -->
               <div class="form-check form-switch">
@@ -116,14 +115,11 @@
 </template>
 
 <style scoped>
-  /*  圖層顏色指示器 */
-  .layer-color-indicator {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
+  /* 開關樣式優化 */
+  .form-check-input {
+    cursor: pointer;
   }
 
-  /* 開關樣式優化 */
   .form-check-input:checked {
     background-color: var(--my-color-success-500);
     border-color: var(--my-color-success-500);
@@ -132,5 +128,6 @@
   .form-check-input:focus {
     border-color: var(--my-color-success-500);
     outline: 0;
+    box-shadow: none;
   }
 </style>
