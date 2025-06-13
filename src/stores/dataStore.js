@@ -8,77 +8,23 @@ import {
   loadHospitalClinicData,
 } from '../utils/dataProcessor.js';
 
-import { generateLayerColors } from '../utils/utils.js';
-
 // 主要數據存儲定義 (Main Data Store Definition)
 export const useDataStore = defineStore(
   'data',
   () => {
-    // 🎨 計算所有圖層總數並預生成顏色
-    const allLayerConfigs = [
-      // 長照機構
-      {
-        layerId: '老人福利機構',
-        name: '老人福利機構',
-        type: 'point',
-        loader: loadElderlyWelfareInstitutionData,
-        fileName: '臺北市老人福利機構名冊1140201_coord.csv',
-      },
-      // 醫療設施
-      {
-        layerId: '醫院',
-        name: '醫院',
-        type: 'point',
-        loader: loadHospitalClinicData,
-        fileName: '112年12月醫療院所分布圖_全國_醫院_coord.csv',
-      },
-      {
-        layerId: '診所',
-        name: '診所',
-        type: 'point',
-        loader: loadHospitalClinicData,
-        fileName: '112年12月醫療院所分布圖_全國_診所_coord.csv',
-      },
-      {
-        layerId: '健保特約藥局',
-        name: '健保特約藥局',
-        type: 'point',
-        loader: loadHealthcareFacilityPharmacyData,
-        fileName: '健保特約醫事機構-藥局_coord.csv',
-      },
-      // 基礎地理資料
-      {
-        layerId: '三段年齡組性別人口統計',
-        name: '三段年齡組性別人口統計',
-        type: 'polygon',
-        loader: loadIncomeGeoJson,
-        fileName: '113年12月行政區三段年齡組性別人口統計_村里_WGS84_臺北市.geojson',
-      },
-      {
-        layerId: '五歲年齡組性別人口統計',
-        name: '五歲年齡組性別人口統計',
-        type: 'polygon',
-        loader: loadIncomeGeoJson,
-        fileName: '113年12月行政區五歲年齡組性別人口統計_村里_WGS84_臺北市.geojson',
-      },
-      {
-        layerId: '十歲年齡組性別人口統計',
-        name: '十歲年齡組性別人口統計',
-        type: 'polygon',
-        loader: loadIncomeGeoJson,
-        fileName: '113年12月行政區十歲年齡組性別人口統計_村里_WGS84_臺北市.geojson',
-      },
-      {
-        layerId: '綜稅綜合所得總額',
-        name: '綜稅綜合所得總額',
-        type: 'polygon',
-        loader: loadIncomeGeoJson,
-        fileName: '臺北市_村里_綜稅綜合所得總額.geojson',
-      },
+    // 🎨 預定義圖層顏色
+    const LAYER_COLORS = [
+      '#FF6B6B', // 紅色
+      '#4ECDC4', // 青色
+      '#45B7D1', // 藍色
+      '#96CEB4', // 綠色
+      '#FFEAA7', // 黃色
+      '#DDA0DD', // 紫色
+      '#98D8C8', // 薄荷綠
+      '#F7DC6F', // 金黃色
+      '#BB8FCE', // 淡紫色
+      '#85C1E9', // 天藍色
     ];
-
-    // 🎨 預生成所有圖層的顏色，確保顏色分布均勻
-    const layerColors = generateLayerColors(allLayerConfigs.length);
 
     const layers = ref([
       {
@@ -91,11 +37,11 @@ export const useDataStore = defineStore(
             isLoading: false,
             isLoaded: false,
             type: 'point',
-            color: layerColors[0], // 智能分配的顏色
-            data: null, // 存放 GeoJSON 資料
-            summaryData: null, // 存放資料摘要
-            tableData: null, // 存放表格資料
-            loader: loadElderlyWelfareInstitutionData, // 資料載入函數
+            color: LAYER_COLORS[0],
+            data: null,
+            summaryData: null,
+            tableData: null,
+            loader: loadElderlyWelfareInstitutionData,
             fileName: '臺北市老人福利機構名冊1140201_coord.csv',
             fieldName: null,
           },
@@ -111,11 +57,11 @@ export const useDataStore = defineStore(
             isLoading: false,
             isLoaded: false,
             type: 'point',
-            color: layerColors[1], // 智能分配的顏色
-            data: null, // 存放 GeoJSON 資料
-            summaryData: null, // 存放資料摘要
-            tableData: null, // 存放表格資料
-            loader: loadHospitalClinicData, // 資料載入函數
+            color: LAYER_COLORS[1],
+            data: null,
+            summaryData: null,
+            tableData: null,
+            loader: loadHospitalClinicData,
             fileName: '112年12月醫療院所分布圖_全國_醫院_coord.csv',
             fieldName: null,
           },
@@ -126,11 +72,11 @@ export const useDataStore = defineStore(
             isLoading: false,
             isLoaded: false,
             type: 'point',
-            color: layerColors[2], // 智能分配的顏色
-            data: null, // 存放 GeoJSON 資料
-            summaryData: null, // 存放資料摘要
-            tableData: null, // 存放表格資料
-            loader: loadHospitalClinicData, // 資料載入函數
+            color: LAYER_COLORS[2],
+            data: null,
+            summaryData: null,
+            tableData: null,
+            loader: loadHospitalClinicData,
             fileName: '112年12月醫療院所分布圖_全國_診所_coord.csv',
             fieldName: null,
           },
@@ -141,11 +87,11 @@ export const useDataStore = defineStore(
             isLoading: false,
             isLoaded: false,
             type: 'point',
-            color: layerColors[3], // 智能分配的顏色
-            data: null, // 存放 GeoJSON 資料
-            summaryData: null, // 存放資料摘要
-            tableData: null, // 存放表格資料
-            loader: loadHealthcareFacilityPharmacyData, // 資料載入函數
+            color: LAYER_COLORS[3],
+            data: null,
+            summaryData: null,
+            tableData: null,
+            loader: loadHealthcareFacilityPharmacyData,
             fileName: '健保特約醫事機構-藥局_coord.csv',
             fieldName: null,
           },
@@ -154,65 +100,18 @@ export const useDataStore = defineStore(
       {
         groupName: '基礎地理資料',
         groupLayers: [
-          /*
-          {
-            layerId: '三段年齡組性別人口統計',
-            name: '三段年齡組性別人口統計',
-            visible: false,
-            isLoading: false,
-            isLoaded: false,
-            type: 'polygon',
-            color: layerColors[4], // 智能分配的顏色
-            data: null, // 存放 GeoJSON 資料
-            summaryData: null, // 存放資料摘要
-            tableData: null, // 存放表格資料
-            loader: loadIncomeGeoJson, // 資料載入函數
-            fileName: '113年12月行政區三段年齡組性別人口統計_村里_WGS84_臺北市.geojson',
-
-          },
-          {
-            layerId: '五歲年齡組性別人口統計',
-            name: '五歲年齡組性別人口統計',
-            visible: false,
-            isLoading: false,
-            isLoaded: false,
-            type: 'polygon',
-            color: layerColors[5], // 智能分配的顏色
-            data: null, // 存放 GeoJSON 資料
-            summaryData: null, // 存放資料摘要
-            tableData: null, // 存放表格資料
-            loader: loadIncomeGeoJson, // 資料載入函數
-            fileName: '113年12月行政區五歲年齡組性別人口統計_村里_WGS84_臺北市.geojson',
-
-          },
-          {
-            layerId: '十歲年齡組性別人口統計',
-            name: '十歲年齡組性別人口統計',
-            visible: false,
-            isLoading: false,
-            isLoaded: false,
-            type: 'polygon',
-            color: layerColors[6], // 智能分配的顏色
-            data: null, // 存放 GeoJSON 資料
-            summaryData: null, // 存放資料摘要
-            tableData: null, // 存放表格資料
-            loader: loadIncomeGeoJson, // 資料載入函數
-            fileName: '113年12月行政區十歲年齡組性別人口統計_村里_WGS84_臺北市.geojson',
-
-          },
-          */
           {
             layerId: '綜稅綜合所得總額-中位數',
             name: '綜稅綜合所得總額-中位數',
             visible: false,
             isLoading: false,
             isLoaded: false,
-            type: 'polygon',
-            color: layerColors[7], // 智能分配的顏色
-            data: null, // 存放 GeoJSON 資料
-            summaryData: null, // 存放資料摘要
-            tableData: null, // 存放表格資料
-            loader: loadIncomeGeoJson, // 資料載入函數
+            type: 'area',
+            color: LAYER_COLORS[4],
+            data: null,
+            summaryData: null,
+            tableData: null,
+            loader: loadIncomeGeoJson,
             fileName: '臺北市_村里_綜稅綜合所得總額.geojson',
             fieldName: '中位數',
           },
@@ -222,12 +121,12 @@ export const useDataStore = defineStore(
             visible: false,
             isLoading: false,
             isLoaded: false,
-            type: 'polygon',
-            color: layerColors[7], // 智能分配的顏色
-            data: null, // 存放 GeoJSON 資料
-            summaryData: null, // 存放資料摘要
-            tableData: null, // 存放表格資料
-            loader: loadIncomeGeoJson, // 資料載入函數
+            type: 'area',
+            color: LAYER_COLORS[5],
+            data: null,
+            summaryData: null,
+            tableData: null,
+            loader: loadIncomeGeoJson,
             fileName: '臺北市_村里_綜稅綜合所得總額.geojson',
             fieldName: '平均數',
           },

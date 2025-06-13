@@ -377,8 +377,13 @@ export async function loadIncomeGeoJson(layerId, fileName, fieldName) {
       feature.properties.layerId = layerId;
       feature.properties.name = feature.properties.FULL;
 
+      // 設置 value 屬性為指定的 fieldName 值
+      if (fieldName && feature.properties[fieldName] !== undefined) {
+        feature.properties.value = parseFloat(feature.properties[fieldName]) || 0;
+      }
+
       const propertyData = {
-        id: index + 2,
+        id: index + 1,
         名稱: feature.properties.name,
         ...feature.properties,
       };
