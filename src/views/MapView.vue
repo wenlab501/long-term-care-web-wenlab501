@@ -35,7 +35,7 @@
       let currentTileLayer = null;
       let layerGroups = {}; // 存放圖層群組
 
-      const selectedBasemap = ref('osm');
+      const selectedBasemap = ref('carto_light_labels');
       const isMapReady = ref(false);
 
       // 底圖配置
@@ -62,8 +62,12 @@
         aerial: {
           url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
         },
-        carto_light: { url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png' },
-        carto_dark: { url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png' },
+        carto_light: { url: 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png' },
+        carto_light_labels: {
+          url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+        },
+        carto_dark: { url: 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png' },
+        carto_dark_labels: { url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png' },
         carto_voyager: {
           url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
         },
@@ -275,12 +279,12 @@
         const reversedLayers = [...visibleLayers].reverse();
 
         reversedLayers.forEach((layerConfig, index) => {
-          const { id } = layerConfig;
+          const { layerId } = layerConfig;
 
           try {
             const newLayer = createFeatureLayer(layerConfig);
             newLayer.addTo(mapInstance);
-            layerGroups[id] = newLayer;
+            layerGroups[layerId] = newLayer;
 
             console.log(
               `🗺️ 圖層 "${layerConfig.name}" 已添加到地圖 (LeftPanel順序: ${visibleLayers.indexOf(layerConfig)}, 地圖層級: ${index})`
@@ -399,11 +403,17 @@
         }
 
         if (targetLayer) {
+          // 🎯 設置選中的特徵到 store，這樣右邊的屬性面板會顯示
+          if (targetLayer.feature) {
+            dataStore.setSelectedFeature(targetLayer.feature);
+            console.log('🎯 設置選中特徵到 store:', targetLayer.feature);
+          }
+
           // 根據要素類型應用不同的高亮樣式
           if (targetLayer.feature?.geometry?.type === 'Point') {
             // 點要素：創建高亮的圖標
             if (targetLayer.options && targetLayer.options.icon) {
-              const layerConfig = dataStore.getAllLayers().find((l) => l.id === targetLayerId);
+              const layerConfig = dataStore.getAllLayers().find((l) => l.layerId === targetLayerId);
               const layerIconInfo = getLayerIcon(layerConfig?.name || '');
               const highlightIcon = L.divIcon({
                 html: `<div style="
@@ -578,8 +588,10 @@
           <option value="nlsc_photo">國土規劃中心正射影像</option>
           <option value="terrain">地形圖</option>
           <option value="aerial">空照圖 (Esri)</option>
-          <option value="carto_light">Carto Light</option>
-          <option value="carto_dark">Carto Dark</option>
+          <option value="carto_light">Carto Light (無標籤)</option>
+          <option value="carto_light_labels">Carto Light (有標籤)</option>
+          <option value="carto_dark">Carto Dark (無標籤)</option>
+          <option value="carto_dark_labels">Carto Dark (有標籤)</option>
           <option value="carto_voyager">Carto Voyager</option>
           <option value="carto_positron">Carto Positron</option>
           <option value="carto_dark_matter">Carto Dark Matter</option>

@@ -306,6 +306,12 @@ export const useDataStore = defineStore(
           layer.tableData = result.tableData;
           layer.summaryData = result.summaryData;
           layer.isLoaded = true;
+
+          // 🔄 強制觸發響應式更新
+          console.log(
+            `✅ 圖層 "${layer.name}" 載入完成 (${result.geoJsonText?.features?.length || 0} 筆資料)`
+          );
+          console.log(`📊 圖層摘要資料:`, layer.summaryData);
         } catch (error) {
           console.error(`Failed to load data for layer "${layer.name}":`, error);
           layer.visible = false; // 載入失敗時恢復可見性狀態

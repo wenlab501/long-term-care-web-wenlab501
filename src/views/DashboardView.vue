@@ -25,7 +25,7 @@
    */
   const currentLayerSummary = computed(() => {
     if (!activeLayerTab.value) return null;
-    const layer = visibleLayers.value.find((l) => l.id === activeLayerTab.value);
+    const layer = visibleLayers.value.find((l) => l.layerId === activeLayerTab.value);
     return layer ? layer.summaryData || null : null;
   });
 
@@ -34,7 +34,7 @@
    */
   const currentLayerName = computed(() => {
     if (!activeLayerTab.value) return '無開啟圖層';
-    const layer = visibleLayers.value.find((l) => l.id === activeLayerTab.value);
+    const layer = visibleLayers.value.find((l) => l.layerId === activeLayerTab.value);
     return layer ? layer.name || '未知圖層' : '無開啟圖層';
   });
 
@@ -125,7 +125,7 @@
         !activeLayerTab.value ||
         !newLayers.find((layer) => layer.layerId === activeLayerTab.value)
       ) {
-        activeLayerTab.value = newLayers[0].id;
+        activeLayerTab.value = newLayers[0].layerId;
       }
 
       // 更新記錄的圖層列表
@@ -142,7 +142,7 @@
 
     // 初始化第一個可見圖層為作用中分頁
     if (visibleLayers.value.length > 0 && !activeLayerTab.value) {
-      activeLayerTab.value = visibleLayers.value[0].id;
+      activeLayerTab.value = visibleLayers.value[0].layerId;
     }
   });
 </script>

@@ -182,7 +182,7 @@
         !activeLayerTab.value ||
         !newLayers.find((layer) => layer.layerId === activeLayerTab.value)
       ) {
-        activeLayerTab.value = newLayers[0].id;
+        activeLayerTab.value = newLayers[0].layerId;
       }
 
       // 更新記錄的圖層列表
@@ -199,7 +199,7 @@
 
     // 初始化第一個可見圖層為作用中分頁
     if (visibleLayers.value.length > 0 && !activeLayerTab.value) {
-      activeLayerTab.value = visibleLayers.value[0].id;
+      activeLayerTab.value = visibleLayers.value[0].layerId;
     }
   });
 </script>
