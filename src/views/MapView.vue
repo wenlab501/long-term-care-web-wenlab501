@@ -196,7 +196,7 @@
             const name = feature.properties.name || '未命名要素';
 
             // 創建彈窗內容
-            const properties = Object.entries(feature.properties.tooltipData)
+            const properties = Object.entries(feature.properties.popupData)
               .map(
                 ([key, value]) =>
                   `<div class="d-flex justify-content-between align-items-center mb-1">
@@ -558,15 +558,10 @@
 </script>
 
 <template>
-  <!-- 🗺️ MapView.vue - 地圖視圖組件 (Map View Component) -->
-  <!-- 提供基於 Leaflet 的互動式地圖功能，包含多種底圖選擇和地理資料視覺化 -->
   <div id="map-container" class="h-100 w-100 position-relative">
-    <!-- 🗺️ Leaflet 地圖容器 (Leaflet Map Container) -->
-    <!-- 實際的地圖渲染區域，使用 Bootstrap 滿版尺寸 -->
     <div id="leaflet-map" ref="mapContainer" class="h-100 w-100"></div>
 
     <!-- ✨ 地圖底部控制項區域 (Bottom Map Controls Area) -->
-    <!-- 包含底圖選擇器和地圖操作按鈕 -->
     <div class="map-bottom-controls">
       <!-- 🗺️ 底圖選擇器群組 (Basemap Selector Group) -->
       <div class="basemap-select-group">

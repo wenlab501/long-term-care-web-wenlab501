@@ -74,7 +74,7 @@ export async function loadElderlyWelfareInstitutionData(layerId, fileName) {
             核定床數_安養床數: row[headerIndices.核定床數_安養床數],
           };
 
-          const tooltipData = {
+          const popupData = {
             id: id,
             機構名稱: row[headerIndices.機構名稱],
             地址: row[headerIndices.地址],
@@ -90,7 +90,7 @@ export async function loadElderlyWelfareInstitutionData(layerId, fileName) {
               id: id,
               layerId: layerId,
               propertyData: propertyData,
-              tooltipData: tooltipData,
+              popupData: popupData,
             },
           };
         })
@@ -181,7 +181,7 @@ export async function loadHospitalClinicData(layerId, fileName) {
             電話: row[headerIndices.電話],
           };
 
-          const tooltipData = {
+          const popupData = {
             id: index + 2,
             醫療院所: row[headerIndices.醫療院所],
             地址: row[headerIndices.地址],
@@ -197,7 +197,7 @@ export async function loadHospitalClinicData(layerId, fileName) {
               id: id,
               layerId: layerId,
               propertyData: propertyData,
-              tooltipData: tooltipData,
+              popupData: popupData,
             },
           };
         })
@@ -307,7 +307,7 @@ export async function loadHealthcareFacilityPharmacyData(layerId, fileName) {
             合約起日: row[headerIndices.合約起日],
           };
 
-          const tooltipData = {
+          const popupData = {
             id: id,
             醫事機構名稱: row[headerIndices.醫事機構名稱],
             地址: row[headerIndices.地址],
@@ -323,7 +323,7 @@ export async function loadHealthcareFacilityPharmacyData(layerId, fileName) {
               id: id,
               layerId: layerId,
               propertyData: propertyData,
-              tooltipData: tooltipData,
+              popupData: popupData,
             },
           };
         })
@@ -383,14 +383,14 @@ export async function loadIncomeGeoJson(layerId, fileName, fieldName) {
         ...feature.properties,
       };
 
-      const tooltipData = {
+      const popupData = {
         id: feature.properties.id,
         名稱: feature.properties.name,
         [fieldName]: feature.properties[fieldName],
       };
 
       feature.properties.propertyData = propertyData;
-      feature.properties.tooltipData = tooltipData;
+      feature.properties.popupData = popupData;
     });
 
     // 包含為表格量身打造的數據陣列
