@@ -152,24 +152,27 @@
   <div class="h-100 dashboard-container">
     <div class="d-flex flex-column h-100">
       <!-- 📑 圖層分頁導航 -->
-      <div v-if="visibleLayers.length > 0" class="border-bottom bg-white">
-        <ul class="nav nav-tabs nav-tabs-custom mb-0">
-          <li v-for="layer in visibleLayers" :key="layer.layerId" class="nav-item">
-            <button
-              class="nav-link d-flex align-items-center gap-2 position-relative"
-              :class="{ active: activeLayerTab === layer.layerId }"
+      <div v-if="visibleLayers.length > 0" class="">
+        <ul class="nav nav-tabs nav-fill">
+          <li
+            v-for="layer in visibleLayers"
+            :key="layer.layerId"
+            class="nav-item d-flex flex-column align-items-center"
+          >
+            <!-- tab按鈕 -->
+            <div
+              class="btn nav-link rounded-0 border-0 position-relative d-flex align-items-center justify-content-center my-bg-color-gray-200"
+              :class="{
+                active: activeLayerTab === layer.layerId,
+              }"
               @click="setActiveLayerTab(layer.layerId)"
             >
-              <span>{{ layer.name }}</span>
-              <span class="badge bg-primary ms-1">
+              <div class="my-title-sm">{{ layer.name }}</div>
+              <div class="my-content-xs ms-2" v-if="getLayerStats(layer).total">
                 {{ getLayerStats(layer).total }}
-              </span>
-              <!-- 圖層顏色底部指示器 -->
-              <div
-                class="layer-color-indicator-bottom"
-                :style="{ backgroundColor: layer.color }"
-              ></div>
-            </button>
+              </div>
+            </div>
+            <div class="w-100" style="height: 4px" :style="{ backgroundColor: layer.color }"></div>
           </li>
         </ul>
       </div>
@@ -228,31 +231,6 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
 
-  .nav-tabs-custom {
-    border-bottom: 1px solid #dee2e6;
-  }
-
-  .nav-tabs-custom .nav-link {
-    color: #495057;
-    border: none;
-    border-bottom: 2px solid transparent;
-    background: none;
-    padding: 0.75rem 1rem;
-    transition: all 0.2s ease;
-  }
-
-  .nav-tabs-custom .nav-link:hover {
-    background-color: #f8f9fa;
-    border-bottom-color: transparent;
-  }
-
-  .nav-tabs-custom .nav-link.active {
-    color: #007bff;
-    border-bottom-color: transparent;
-    background-color: #fff;
-    font-weight: 600;
-  }
-
   .stats-card {
     transition: transform 0.2s ease;
   }
@@ -285,19 +263,5 @@
   .summary-content {
     height: 100%;
     overflow: hidden;
-  }
-
-  /* 圖層顏色指示器樣式 */
-  .layer-color-indicator {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    border-radius: 0 2px 2px 0;
-  }
-
-  .nav-link {
-    padding-left: 12px !important; /* 為顏色指示器留出空間 */
   }
 </style>

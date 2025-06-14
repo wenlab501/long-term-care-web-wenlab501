@@ -26,4 +26,11 @@
   .lead {
     word-wrap: break-word; /* Ensure long values wrap */
   }
+
+  .my-resizer-middle {
+    background-color: white;
+    position: relative;
+    border-top: 1px solid var(--my-color-gray-200); /* 上邊框分隔線 */
+    border-bottom: 1px solid var(--my-color-gray-200); /* 下邊框分隔線 */
+  }
 </style>
