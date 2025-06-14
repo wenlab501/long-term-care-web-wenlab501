@@ -325,7 +325,7 @@
        * 在地圖上高亮顯示指定名稱的特徵
        * @param {string|Object} highlightData - 要高亮顯示的特徵資料，可以是ID字串或包含圖層資訊的物件
        */
-      const handleHighlight = (highlightData) => {
+      const handleHighlight = (layerId, id) => {
         // 處理向後相容：如果傳入的是字串，就是舊格式的ID
         const targetId = typeof highlightData === 'string' ? highlightData : highlightData.id;
         const layerInfo = typeof highlightData === 'object' ? highlightData : null;
@@ -433,7 +433,7 @@
       <!-- 🏠 首頁內容區域 (Home Page Content Area) -->
       <!-- 空間分析平台的主要功能界面，使用響應式三面板佈局 -->
       <div v-if="$route.path === '/'" class="h-100 d-flex flex-column overflow-hidden">
-        <div class="d-flex flex-row flex-grow-1 overflow-hidden">
+        <div class="d-flex flex-row overflow-hidden">
           <!-- 🎛️ 左側控制面板容器 (Left Control Panel Container) -->
           <!-- 包含圖層控制、資料載入等功能，支援動態寬度調整 -->
           <div
@@ -457,7 +457,7 @@
           <!-- 包含地圖、儀表板、資料表格等核心功能組件 -->
           <MiddleView
             ref="middlePanelRef"
-            class="d-flex flex-column flex-grow-1 overflow-hidden h-100"
+            class="d-flex flex-column overflow-hidden h-100"
             :style="{ width: mainPanelWidthPx, 'min-width': '0px' }"
             :dynamicMainAreaHeight="calculatedMiddleViewHeight"
             :activeTab="activeTab"

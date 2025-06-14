@@ -1,3 +1,5 @@
+import * as d3 from 'd3';
+
 // 老人福利機
 export async function loadElderlyWelfareInstitutionData(layerId, fileName) {
   try {
@@ -89,6 +91,7 @@ export async function loadElderlyWelfareInstitutionData(layerId, fileName) {
             properties: {
               id: id,
               layerId: layerId,
+              name: row[headerIndices.機構名稱],
               propertyData: propertyData,
               popupData: popupData,
             },
@@ -196,6 +199,7 @@ export async function loadHospitalClinicData(layerId, fileName) {
             properties: {
               id: id,
               layerId: layerId,
+              name: row[headerIndices.醫療院所],
               propertyData: propertyData,
               popupData: popupData,
             },
@@ -322,6 +326,7 @@ export async function loadHealthcareFacilityPharmacyData(layerId, fileName) {
             properties: {
               id: id,
               layerId: layerId,
+              name: row[headerIndices.醫事機構名稱],
               propertyData: propertyData,
               popupData: popupData,
             },
@@ -372,15 +377,39 @@ export async function loadIncomeGeoJson(layerId, fileName, fieldName) {
 
     const geoJsonText = await response.json();
 
+    // ----------------------------
+
+    let minValue = 0;
+    let maxValue = 0;
+
+    const values = geoJsonText.features
+      .map((f) => parseFloat(f.properties[fieldName]))
+      .filter((v) => !isNaN(v));
+
+    minValue = d3.min(values);
+    maxValue = d3.max(values);
+
+    // 建立一個使用內建「紅白藍」色帶的發散型比例尺
+    const redBlueScale = d3
+      .scaleSequential()
+      .domain([minValue, maxValue]) // 輸入範圍：[最小值, 最大值]
+      .interpolator(d3.interpolateYlGnBu); // [關鍵] 直接使用 D3 內建的顏色產生器
+
+    // ----------------------------
+
     geoJsonText.features.forEach((feature, index) => {
       feature.properties.id = index + 1;
       feature.properties.layerId = layerId;
       feature.properties.name = feature.properties.FULL;
+      feature.properties.value = parseFloat(feature.properties[fieldName]);
+      feature.properties.fillColor = redBlueScale(feature.properties.value);
 
-      // 設置 value 屬性為指定的 fieldName 值
-      if (fieldName && feature.properties[fieldName] !== undefined) {
-        feature.properties.value = parseFloat(feature.properties[fieldName]) || 0;
-      }
+      console.log(
+        'feature.properties.value',
+        minValue,
+        feature.properties.value,
+        feature.properties.color
+      );
 
       const propertyData = {
         id: index + 1,

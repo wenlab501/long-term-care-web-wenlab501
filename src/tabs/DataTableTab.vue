@@ -1,6 +1,7 @@
 <script setup>
   import { ref, computed, defineEmits, onMounted, watch } from 'vue';
   import { useDataStore } from '@/stores/dataStore.js';
+  import { getIcon } from '../utils/utils.js';
 
   const emit = defineEmits(['highlight-on-map']);
 
@@ -208,85 +209,69 @@
   <!-- 📊 多圖層資料表格分頁組件 -->
   <div class="h-100 d-flex flex-column">
     <!-- 📑 圖層分頁導航 -->
-    <div v-if="visibleLayers.length > 0" class="bg-white border-bottom">
+    <div v-if="visibleLayers.length > 0" class="">
       <ul class="nav nav-tabs nav-fill">
-        <li v-for="layer in visibleLayers" :key="layer.layerId" class="nav-item">
-          <button
-            class="nav-link position-relative"
+        <li
+          v-for="layer in visibleLayers"
+          :key="layer.layerId"
+          class="nav-item d-flex flex-column align-items-center"
+        >
+          <!-- tab按鈕 -->
+          <div
+            class="btn nav-link rounded-0 border-0 position-relative d-flex align-items-center justify-content-center my-bg-color-gray-200"
             :class="{
               active: activeLayerTab === layer.layerId,
             }"
             @click="setActiveLayerTab(layer.layerId)"
-            :title="`顯示 ${layer.name} 的表格資料`"
           >
-            {{ layer.name }}
-            <span class="badge bg-secondary ms-2" v-if="getLayerDataCount(layer)">
+            <div class="my-title-sm">{{ layer.name }}</div>
+            <div class="my-content-xs ms-2" v-if="getLayerDataCount(layer)">
               {{ getLayerDataCount(layer) }}
-            </span>
-            <!-- 圖層顏色底部指示器 -->
-            <div
-              class="layer-color-indicator-bottom"
-              :style="{ backgroundColor: layer.color }"
-            ></div>
-          </button>
+            </div>
+          </div>
+          <div class="w-100" style="height: 4px" :style="{ backgroundColor: layer.color }"></div>
         </li>
       </ul>
     </div>
 
     <!-- 📋 圖層表格內容區域 -->
-    <div v-if="visibleLayers.length > 0" class="flex-grow-1 overflow-hidden">
+    <div v-if="visibleLayers.length > 0" class="overflow-hidden">
       <div
         v-for="layer in visibleLayers"
         :key="layer.layerId"
         v-show="activeLayerTab === layer.layerId"
         class="h-100"
       >
-        <div
-          v-if="layer.isLoading"
-          class="h-100 d-flex align-items-center justify-content-center"
-        ></div>
-
-        <div
-          v-else-if="layer.isLoaded && getSortedData(layer).length > 0"
-          class="h-100 d-flex flex-column"
-        >
-          <div class="bg-light px-3 py-2 border-bottom"></div>
-
-          <div class="flex-grow-1 overflow-auto">
-            <table class="table table-sm table-hover table-striped mb-0">
-              <thead class="table-light sticky-top">
+        <div class="h-100 d-flex flex-column">
+          <div class="overflow-auto">
+            <table class="table mb-0">
+              <thead class="sticky-top">
                 <tr class="text-center text-nowrap">
                   <th
                     v-for="column in getLayerColumns(layer)"
                     :key="column"
                     @click="handleSort(layer.layerId, column)"
-                    class="user-select-none text-capitalize"
+                    class="my-title-xs"
                     style="cursor: pointer"
                   >
                     {{ column }}
                     <i :class="getSortIcon(layer.layerId, column)" class="ms-1"></i>
                   </th>
-
-                  <th>操作</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
-                <tr
-                  v-for="item in getSortedData(layer)"
-                  :key="item.id"
-                  class="text-center align-middle"
-                >
-                  <td v-for="column in getLayerColumns(layer)" :key="column">
+                <tr v-for="item in getSortedData(layer)" :key="item.id" class="text-center">
+                  <td v-for="column in getLayerColumns(layer)" :key="column" class="my-content-sm">
                     {{ item[column] }}
                   </td>
-
-                  <td>
+                  <td class="d-flex align-items-center justify-content-end">
                     <button
-                      class="btn btn-primary btn-sm"
-                      @click="handleHighlight(item, layer)"
-                      title="在地圖上高亮顯示"
+                      class="btn rounded-circle w-100 my-content-xs p-0"
+                      style="width: 24px; height: 24px"
+                      @click="handleHighlight(layer.layerId, item.id)"
                     >
-                      顯示位置
+                      <i :class="getIcon('location').icon"></i>
                     </button>
                   </td>
                 </tr>
@@ -294,31 +279,16 @@
             </table>
           </div>
         </div>
-
-        <div v-else class="h-100 d-flex align-items-center justify-content-center bg-light"></div>
       </div>
     </div>
 
     <!-- 📭 無開啟圖層的空狀態 -->
     <div v-else class="flex-grow-1 d-flex align-items-center justify-content-center bg-light">
       <div class="text-center">
-        <h5>沒有開啟的圖層</h5>
-        <p>請在左側面板開啟圖層以查看資料表格</p>
+        <div class="my-title-xl my-2">沒有開啟的圖層</div>
       </div>
     </div>
   </div>
 </template>
 
-<style scoped>
-  /* 最小化自定義樣式，主要使用 Bootstrap */
-
-  /* 圖層顏色底部指示器樣式 */
-  .layer-color-indicator-bottom {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    border-radius: 0 0 4px 4px;
-  }
-</style>
+<style scoped></style>

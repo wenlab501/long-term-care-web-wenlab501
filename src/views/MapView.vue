@@ -150,133 +150,111 @@
       };
 
       // 創建要素圖層
-      const createFeatureLayer = (layerConfig) => {
-        if (!layerConfig.data) return null;
+      const createFeatureLayer = (layer) => {
+        if (!layer.data) return null;
 
-        const { name, color, type, fieldName } = layerConfig;
+        const { name, color, type } = layer;
 
-        // 為 area 類型圖層計算漸層顏色
-        let colorScale = null;
-        if (type === 'area' && fieldName) {
-          const values = layerConfig.data.features
-            .map((f) => parseFloat(f.properties[fieldName]))
-            .filter((v) => !isNaN(v));
-
-          if (values.length > 0) {
-            const minValue = Math.min(...values);
-            const maxValue = Math.max(...values);
-
-            // 創建顏色漸層函數
-            colorScale = (value) => {
-              const normalizedValue = (value - minValue) / (maxValue - minValue);
-              const opacity = 0.3 + normalizedValue * 0.5; // 0.3 到 0.8 的透明度
-              return {
-                fillColor: color,
-                fillOpacity: opacity,
-                color: color,
-                weight: 1,
-                opacity: 0.8,
-              };
-            };
-          }
-        }
-
-        const geoJsonLayer = L.geoJSON(layerConfig.data, {
+        const geoJsonLayer = L.geoJSON(layer.data, {
           pointToLayer: (feature, latlng) => {
             if (type === 'point') {
               const layerIconInfo = getLayerIcon(name);
               const icon = L.divIcon({
-                html: `<div style="
+                html: `<div
+                class="d-flex align-items-center justify-content-center rounded-circle my-color-white my-font-size-xs p-2"
+                style="
                    background-color: ${color};
-                   border: 2px solid white;
-                   border-radius: 50%;
-                   width: 24px;
-                   height: 24px;
-                   display: flex;
-                   align-items: center;
-                   justify-content: center;
+                   width: 28px;
+                   height: 28px;
                    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
                  ">
-                   <i class="${layerIconInfo.icon}" style="
-                     color: white;
-                     font-size: 12px;
-                     text-shadow: 0 1px 2px rgba(0,0,0,0.7);
-                   "></i>
+                   <i class="${layerIconInfo.icon}"></i>
                  </div>`,
                 className: 'custom-marker-icon',
-                iconSize: [24, 24],
-                iconAnchor: [12, 12],
-                popupAnchor: [0, -12],
+                iconSize: [28, 28],
+                iconAnchor: [14, 14],
+                popupAnchor: [0, -14],
               });
               return L.marker(latlng, { icon });
             }
             return null;
           },
           style: (feature) => {
-            if (type === 'area' && colorScale && fieldName) {
-              const value = parseFloat(feature.properties[fieldName]);
-              if (!isNaN(value)) {
-                // 設置 feature.properties.value 供其他功能使用
-                feature.properties.value = value;
-                return colorScale(value);
-              }
-            }
-
             // 默認樣式
             return {
-              fillColor: color,
-              weight: 2,
+              fillColor: feature.properties.fillColor,
+              weight: 1,
               opacity: 1,
-              color: color,
-              fillOpacity: 0.5,
+              color: 'white',
+              fillOpacity: 0.6,
             };
           },
           onEachFeature: (feature, layer) => {
             // 創建彈窗內容
-            const properties = Object.entries(feature.properties.popupData || feature.properties)
+            const properties = Object.entries(feature.properties.popupData)
               .map(
                 ([key, value]) =>
-                  `<div class="d-flex justify-content-between">
-                     <span class="fw-medium">${key}:</span>
-                     <span class="ms-2">${value}</span>
+                  `<div class="pb-2">
+                     <div class="my-title-xs pb-1">${key}</div>
+                     <div class="my-content-sm pb-1">${value}</div>
                    </div>`
               )
               .join('');
 
             const popupContent = `
-              <div class="map-popup">
-                <h6 class="text-primary mb-2">${name}</h6>
-                <div class="popup-details">
+              <div>
+                <div class="my-title-sm pt-2">${name}</div>
+                <hr class="">
+                <div>
                   ${properties}
                 </div>
               </div>
             `;
 
             layer.bindPopup(popupContent, {
-              className: 'custom-popup',
-              maxWidth: 300,
               closeButton: true,
             });
 
-            // 懸停效果
             layer.on({
               mouseover: function () {
-                if (type === 'area') {
+                if (type === 'point') {
+                  const element = this.getElement();
+                  if (element) {
+                    // 找到我們自訂的圖標內部那個帶有樣式的 div
+                    const innerIconDiv = element.querySelector('.custom-marker-icon > div');
+                    if (innerIconDiv) {
+                      innerIconDiv.style.transition = 'transform 0.05s ease-in-out';
+                      innerIconDiv.style.transform = 'scale(1.2)';
+                    }
+                    // zIndex 仍然作用在最外層，確保整個圖標在最上層
+                    element.style.zIndex = 1000;
+                  }
+                } else if (type === 'polygon') {
                   this.setStyle({
-                    weight: 3,
-                    color: '#666',
-                    fillOpacity: 0.7,
+                    weight: 4,
+                    color: 'coral',
+                    fillOpacity: 0.8,
                   });
                   this.bringToFront();
                 }
               },
               mouseout: function () {
-                if (type === 'area') {
+                if (type === 'point') {
+                  const element = this.getElement();
+                  if (element) {
+                    // 同樣只重設內部 div 的樣式
+                    const innerIconDiv = element.querySelector('.custom-marker-icon > div');
+                    if (innerIconDiv) {
+                      innerIconDiv.style.transform = ''; // 清除 transform 讓它恢復原狀
+                    }
+                    // 清除 zIndex
+                    element.style.zIndex = '';
+                  }
+                } else if (type === 'polygon') {
                   geoJsonLayer.resetStyle(this);
                 }
               },
               click: function () {
-                // 點擊時設置選中的特徵
                 dataStore.setSelectedFeature(feature);
                 emit('feature-selected', feature);
               },
@@ -306,18 +284,19 @@
         // 按照順序重新添加圖層
         const reversedLayers = [...visibleLayers].reverse();
 
-        reversedLayers.forEach((layerConfig) => {
-          const { layerId } = layerConfig;
+        reversedLayers.forEach((layer) => {
+          const { layerId } = layer;
 
           try {
-            const newLayer = createFeatureLayer(layerConfig);
+            const newLayer = createFeatureLayer(layer);
             if (newLayer) {
               newLayer.addTo(mapInstance);
               layerGroups[layerId] = newLayer;
-              console.log(`🗺️ 圖層 "${layerConfig.name}" 已添加到地圖`);
+              console.log(layer);
+              console.log(`🗺️ 圖層 "${layer.name}" 已添加到地圖`);
             }
           } catch (error) {
-            console.error(`添加圖層 "${layerConfig.name}" 時發生錯誤:`, error);
+            console.error(`添加圖層 "${layer.name}" 時發生錯誤:`, error);
           }
         });
 
@@ -372,6 +351,7 @@
         }
 
         console.log(`🔍 尋找要素: layerId="${targetLayerId}", featureId="${targetFeatureId}"`);
+        console.log('🔍 可用的圖層群組:', Object.keys(layerGroups));
 
         // 重置所有圖層樣式
         Object.values(layerGroups).forEach((layerGroup) => {
@@ -385,18 +365,16 @@
         let targetFeature = null;
 
         if (targetLayerId && layerGroups[targetLayerId]) {
-          // 在指定圖層中尋找
+          console.log(`🔍 在指定圖層 "${targetLayerId}" 中尋找要素`);
           const specificLayerGroup = layerGroups[targetLayerId];
+
           specificLayerGroup.eachLayer((layer) => {
             const feature = layer.feature;
             if (feature && feature.properties) {
               // 嘗試多種可能的 ID 屬性
-              const featureId =
-                feature.properties.id ||
-                feature.properties.ID ||
-                feature.properties.objectid ||
-                feature.properties.OBJECTID ||
-                feature.id;
+              const featureId = feature.properties.id;
+
+              console.log(`🔍 檢查要素 ID: ${featureId} (目標: ${targetFeatureId})`);
 
               if (String(featureId) === String(targetFeatureId)) {
                 targetLayer = layer;
@@ -407,17 +385,16 @@
             }
           });
         } else {
+          console.log('🔍 在所有圖層中尋找要素');
           // 在所有圖層中尋找
           for (const [layerId, layerGroup] of Object.entries(layerGroups)) {
+            console.log(`🔍 檢查圖層: ${layerId}`);
             layerGroup.eachLayer((layer) => {
               const feature = layer.feature;
               if (feature && feature.properties) {
-                const featureId =
-                  feature.properties.id ||
-                  feature.properties.ID ||
-                  feature.properties.objectid ||
-                  feature.properties.OBJECTID ||
-                  feature.id;
+                const featureId = feature.properties.id;
+
+                console.log(`🔍 檢查要素 ID: ${featureId} (目標: ${targetFeatureId})`);
 
                 if (String(featureId) === String(targetFeatureId)) {
                   targetLayer = layer;
@@ -441,14 +418,13 @@
           const layerConfig = dataStore.getAllLayers().find((l) => l.layerId === targetLayerId);
 
           // 根據要素類型應用高亮樣式
-          if (targetFeature.geometry.type === 'Point') {
+          if (targetFeature.geometry.type === 'point') {
             // 點要素高亮
             if (layerConfig) {
               const layerIconInfo = getLayerIcon(layerConfig.name);
               const highlightIcon = L.divIcon({
                 html: `<div style="
                    background-color: #E74C3C;
-                   border: 3px solid white;
                    border-radius: 50%;
                    width: 40px;
                    height: 40px;
@@ -680,7 +656,7 @@
     left: 50%; /* 水平置中 */
     transform: translateX(-50%); /* 完美水平置中 */
     z-index: 1000; /* 確保在地圖上方 */
-    background: rgba(255, 255, 255, 0.8); /* 半透明白色背景 */
+    background: rgba(255, 255, 255, 0.6); /* 半透明白色背景 */
     padding: 8px; /* 內邊距 */
     border-radius: 8px; /* 圓角邊框 */
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); /* 陰影效果 */
@@ -695,68 +671,6 @@
     display: flex; /* 使用 Flexbox 佈局 */
     align-items: center; /* 垂直對齊 */
   }
-</style>
-
-<style>
-  /**
- * 🎨 MapView 全域樣式覆寫 (MapView Global Style Overrides)
- * 影響 Leaflet 插件和全域元素的樣式
- */
-
-  /* 🎨 自訂彈出視窗樣式覆寫 (Custom Popup Style Override) */
-  .custom-popup .leaflet-popup-content-wrapper {
-    border-radius: 12px; /* 圓角邊框 */
-    padding: 0; /* 移除預設內邊距 */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* 陰影效果 */
-    border: 1px solid #e0e0e0; /* 邊框顏色 */
-  }
-
-  .custom-popup .leaflet-popup-content {
-    margin: 0; /* 移除外邊距 */
-    padding: 12px; /* 設定內邊距 */
-    font-size: 0.9rem; /* 字體大小 */
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  }
-
-  .custom-popup .leaflet-popup-tip {
-    background: white; /* 箭頭背景色 */
-    border: 1px solid #e0e0e0; /* 箭頭邊框 */
-  }
-
-  /* 🎨 地圖彈出視窗內容樣式 (Map Popup Content Styles) */
-  .map-popup {
-    min-width: 200px; /* 最小寬度 */
-  }
-
-  .map-popup h6 {
-    margin: 0 0 8px 0; /* 外邊距設定 */
-    font-size: 1rem; /* 標題字體大小 */
-    border-bottom: 1px solid #e9ecef; /* 底部邊框 */
-    padding-bottom: 4px; /* 底部內邊距 */
-  }
-
-  .popup-details {
-    margin: 8px 0; /* 詳細資訊外邊距 */
-  }
-
-  .popup-details .d-flex {
-    padding: 2px 0; /* 每列的內邊距 */
-  }
-
-  /* 🏷️ 工具提示樣式 (Tooltip Styling) */
-  .leaflet-tooltip {
-    background: rgba(0, 0, 0, 0.8) !important; /* 深色半透明背景 */
-    border: none !important; /* 移除邊框 */
-    border-radius: 6px !important; /* 圓角 */
-    color: white !important; /* 白色文字 */
-    font-size: 0.85rem !important; /* 字體大小 */
-    padding: 6px 10px !important; /* 內邊距 */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important; /* 陰影 */
-  }
-
-  .leaflet-tooltip-top:before {
-    border-top-color: rgba(0, 0, 0, 0.8) !important; /* 箭頭顏色 */
-  }
 
   /* 🎯 不同幾何類型的特殊樣式 (Special Styles for Different Geometry Types) */
   .feature-point {
@@ -769,10 +683,6 @@
 
   .feature-polygon {
     transition: all 0.2s ease; /* 多邊形過渡效果 */
-  }
-
-  .feature-multipolygon {
-    transition: all 0.2s ease; /* 複合多邊形過渡效果 */
   }
 
   /* 🎯 自定義圖標樣式 (Custom Icon Styles) */

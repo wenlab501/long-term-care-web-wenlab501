@@ -64,8 +64,7 @@
   <!-- 提供應用程式整體框架，使用 Bootstrap 實現滿版無空隙佈局 -->
   <div id="app" class="d-flex flex-column vh-100">
     <!-- 📱 主要內容區域 (Main Content Area) -->
-    <!-- 使用 Bootstrap flex-grow-1 佔滿剩餘空間，實現滿版佈局 -->
-    <div class="flex-grow-1 d-flex flex-column overflow-hidden">
+    <div class="d-flex flex-column overflow-hidden">
       <router-view />
     </div>
   </div>
@@ -74,7 +73,7 @@
 <style>
   /**
  * 🎨 應用程式全域樣式 (Application Global Styles)
- * 
+ *
  * 引入共用 CSS 並定義應用程式層級的樣式
  * 注意：大部分樣式已移至 common.css 中統一管理
  */

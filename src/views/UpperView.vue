@@ -336,11 +336,6 @@
     margin-right: 0; /* 最後一個按鈕不需要右邊距 */
   }
 
-  /* 📱 內容區域基礎樣式 (Content Area Base Styles) */
-  .flex-grow-1 {
-    overflow: hidden; /* 防止內容溢出 */
-  }
-
   /* 📊 儀表板區域樣式 (Dashboard Area Styles) */
   .overflow-auto {
     scrollbar-width: thin; /* Firefox 細滾動條 */

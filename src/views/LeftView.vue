@@ -52,7 +52,8 @@
           </div>
 
           <div v-for="layer in group.groupLayers" :key="layer.layerId" class="mb-1">
-            <button
+            <!-- 圖層卡片 -->
+            <div
               class="btn rounded-0 border-0 d-flex align-items-center justify-content-between shadow-sm my-bg-white-hover w-100 p-3"
               @click="toggleLayer(layer.layerId)"
             >
@@ -98,7 +99,7 @@
                 />
                 <label for="switch"></label>
               </div>
-            </button>
+            </div>
           </div>
         </div>
       </div>
@@ -142,7 +143,7 @@
   }
 
   label:active:after {
-    width: 28px;
+    width: 24px;
   }
 
   input:checked + label:after {

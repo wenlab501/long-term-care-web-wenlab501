@@ -106,7 +106,7 @@ export const useDataStore = defineStore(
             visible: false,
             isLoading: false,
             isLoaded: false,
-            type: 'area',
+            type: 'polygon',
             color: LAYER_COLORS[4],
             data: null,
             summaryData: null,
@@ -121,7 +121,7 @@ export const useDataStore = defineStore(
             visible: false,
             isLoading: false,
             isLoaded: false,
-            type: 'area',
+            type: 'polygon',
             color: LAYER_COLORS[5],
             data: null,
             summaryData: null,
@@ -233,11 +233,6 @@ export const useDataStore = defineStore(
       csvData: [], // CSV 表格資料
       excelData: [], // Excel 表格資料
       spatialData: [], // 空間資料
-      metadata: {
-        // 資料元資訊
-        tainan: { timestamp: null, source: null, description: null },
-        medical: { timestamp: null, source: null, description: null },
-      },
     });
 
     // ==================== 🔄 處理後資料狀態 (Processed Data State - Legacy) ====================

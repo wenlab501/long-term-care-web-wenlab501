@@ -272,7 +272,7 @@
   <!-- 🎛️ 中間面板組件 (Middle Panel Component) -->
   <!-- 負責管理上下兩個面板的佈局和垂直拖曳調整功能 -->
   <!-- 這是一個佈局容器，使用 flexbox 垂直排列，填滿可用空間 -->
-  <div class="d-flex flex-column flex-grow-1 overflow-hidden h-100">
+  <div class="d-flex flex-column overflow-hidden h-100">
     <!-- 📊 上半部內容區域 (Upper Content Area) -->
     <!-- 包含地圖、儀表板等主要顯示內容 -->
     <!-- 動態高度根據 contentHeight 計算，拖曳時禁用指標事件避免干擾 -->
@@ -337,53 +337,4 @@
   </div>
 </template>
 
-<style scoped>
-  /**
- * 🎨 中間面板樣式 (Middle Panel Styles)
- *
- * 中間面板專用樣式定義
- * 由於大部分通用樣式已移至 common.css，這裡僅保留必要的組件特定樣式
- *
- * 設計原則：
- * - 避免重複定義，依賴全域樣式
- * - 僅定義組件特有的樣式需求
- * - 保持樣式檔案精簡，提升維護性
- */
-
-  /* 📱 中間面板專用樣式 (Middle Panel Specific Styles) */
-  /*
- * 註：大部分樣式已整合至 common.css 中，避免重複定義
- * 包含 .my-resizer、.my-resizer-horizontal、.my-no-select 等通用樣式
- * 如需新增中間面板特有樣式，請在此處定義
- */
-
-  /* 🔧 組件容器樣式微調 (Component Container Style Adjustments) */
-  /* 確保 flexbox 佈局正常運作，避免內容溢出 */
-  .d-flex.flex-column.flex-grow-1 {
-    /* 使用 Bootstrap 的 flexbox 類別，無需額外樣式 */
-  }
-
-  /* 📏 高度計算容器樣式 (Height Calculation Container Styles) */
-  /* 確保動態高度計算的容器正確顯示 */
-  div[style*='height:'] {
-    /* 透過內聯樣式控制高度，無需額外 CSS */
-  }
-
-  /* 🖱️ 拖曳狀態樣式 (Dragging State Styles) */
-  /* 拖曳調整器的互動狀態已在 common.css 中定義 */
-
-  /* 📱 響應式設計微調 (Responsive Design Fine-tuning) */
-  @media (max-width: 768px) {
-    /* 中小型螢幕的特殊調整，如有需要可在此新增 */
-  }
-
-  @media (max-width: 576px) {
-    /* 小型螢幕的特殊調整，如有需要可在此新增 */
-  }
-
-  /* 🎯 效能優化樣式 (Performance Optimization Styles) */
-  /* 啟用硬體加速，提升拖曳操作的流暢度 */
-  .my-resizer {
-    /* 拖曳調整器樣式已在 common.css 中定義 */
-  }
-</style>
+<style scoped></style>

@@ -67,10 +67,10 @@
 <template>
   <!-- 📋 底部面板組件 (Bottom Panel Component) -->
   <!-- 提供資料表格顯示功能 -->
-  <div class="bg-white text-dark border-top" :style="{ height: bottomViewHeight + 'px' }">
+  <div class="" :style="{ height: bottomViewHeight + 'px' }">
     <!-- 📄 底部分頁內容區域 (Bottom Tab Content Area) -->
     <!-- 顯示資料表格內容組件 -->
-    <div ref="bottomTabContentRef" class="tab-content h-100 overflow-auto">
+    <div ref="bottomTabContentRef" class="h-100 overflow-auto">
       <!-- 📊 資料表格分頁內容 (Data Table Tab Content) -->
       <!-- 顯示載入的地理資料，支援搜尋、排序、高亮等功能 -->
       <div class="h-100">
@@ -80,45 +80,4 @@
   </div>
 </template>
 
-<style scoped>
-  /**
- * 🎨 底部面板組件樣式 (Bottom Panel Component Styles)
- *
- * 定義底部面板的視覺樣式，包含內容區域等
- */
-
-  /* 📋 面板基礎樣式 (Panel Base Styles) */
-  .bg-white {
-    background-color: #ffffff !important; /* 白色背景 */
-  }
-
-  .border-top {
-    border-top: 1px solid #dee2e6 !important; /* 上邊框分隔線 */
-  }
-
-  /* 📄 分頁內容區域樣式 (Tab Content Area Styles) */
-  .tab-content {
-    background-color: #ffffff; /* 內容區域背景色 */
-    min-height: 0; /* 確保內容區域可以正確縮放 */
-  }
-
-  .tab-content.overflow-auto {
-    scrollbar-width: thin; /* Firefox 細滾動條 */
-    scrollbar-color: #c1c1c1 transparent; /* Firefox 滾動條顏色 */
-  }
-
-  /* WebKit 瀏覽器 (Chrome, Safari, Edge) 滾動條樣式 */
-  .tab-content.overflow-auto::-webkit-scrollbar {
-    width: 8px; /* 垂直滾動條寬度 */
-    height: 8px; /* 水平滾動條高度 */
-  }
-
-  .tab-content.overflow-auto::-webkit-scrollbar-track {
-    background: transparent; /* 透明軌道背景 */
-  }
-
-  .tab-content.overflow-auto::-webkit-scrollbar-thumb {
-    background-color: #c1c1c1; /* 滾動條滑塊顏色 */
-    border-radius: 4px; /* 圓角滑塊 */
-  }
-</style>
+<style scoped></style>

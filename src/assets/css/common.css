@@ -80,30 +80,32 @@ body {
   color: var(--my-color-gray-500);
 }
 
-.my-title-xs {
-  font-size: var(--my-font-size-xs);
-  color: var(--my-color-gray-600);
-  font-weight: var(--my-font-weight-medium);
-  letter-spacing: var(--my-letter-spacing-base);
+.my-title-xl {
+  font-size: var(--my-font-size-xl);
+  color: var(--my-color-gray-500);
+  font-weight: var(--my-font-weight-normal);
 }
 
 .my-title-sm {
   font-size: var(--my-font-size-sm);
-  color: var(--my-color-gray-600);
+  color: var(--my-color-gray-700);
   font-weight: var(--my-font-weight-medium);
-  letter-spacing: var(--my-letter-spacing-base);
+}
+
+.my-title-xs {
+  font-size: var(--my-font-size-xs);
+  color: var(--my-color-gray-500);
+  font-weight: var(--my-font-weight-medium);
 }
 
 .my-content-sm {
   font-size: var(--my-font-size-sm);
   color: var(--my-color-gray-900);
-  letter-spacing: var(--my-letter-spacing-base);
 }
 
 .my-content-xs {
   font-size: var(--my-font-size-xs);
   color: var(--my-color-gray-500);
-  letter-spacing: var(--my-letter-spacing-base);
 }
 
 /* 背景顏色 */
@@ -139,6 +141,16 @@ body {
 }
 .my-bg-color-gray-600 {
   background-color: var(--my-color-gray-600);
+}
+
+/* tab */
+
+.my-tab-sm {
+  font-size: var(--my-font-size-sm);
+}
+
+.my-tab-sm:hover {
+  background-color: var(--my-color-gray-100);
 }
 
 /* =============================================================================
