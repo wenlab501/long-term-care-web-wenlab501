@@ -281,7 +281,7 @@ body {
 
 /* 🌟 左側面板陰影偽元素 (Left Panel Shadow Pseudo Element) */
 .my-left-panel::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   right: -8px; /* 陰影延伸到右側 */

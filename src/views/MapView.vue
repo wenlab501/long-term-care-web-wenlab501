@@ -3,7 +3,6 @@
   import L from 'leaflet';
   import 'leaflet/dist/leaflet.css';
   import { useDataStore } from '@/stores/dataStore.js';
-  import { getLayerIcon } from '@/utils/utils.js';
 
   // 修復 Leaflet 預設圖標問題
   import icon from 'leaflet/dist/images/marker-icon.png';
@@ -158,22 +157,20 @@
         const geoJsonLayer = L.geoJSON(layer.data, {
           pointToLayer: (feature, latlng) => {
             if (type === 'point') {
-              const layerIconInfo = getLayerIcon(name);
               const icon = L.divIcon({
                 html: `<div
-                class="d-flex align-items-center justify-content-center rounded-circle my-color-white my-font-size-xs p-2"
+                class="rounded-circle"
                 style="
                    background-color: ${color};
-                   width: 28px;
-                   height: 28px;
+                   width: 8x;
+                   height: 8px;
                    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
                  ">
-                   <i class="${layerIconInfo.icon}"></i>
                  </div>`,
                 className: 'custom-marker-icon',
-                iconSize: [28, 28],
-                iconAnchor: [14, 14],
-                popupAnchor: [0, -14],
+                iconSize: [8, 8],
+                iconAnchor: [4, 4],
+                popupAnchor: [0, -4],
               });
               return L.marker(latlng, { icon });
             }
@@ -223,8 +220,8 @@
                     // 找到我們自訂的圖標內部那個帶有樣式的 div
                     const innerIconDiv = element.querySelector('.custom-marker-icon > div');
                     if (innerIconDiv) {
-                      innerIconDiv.style.transition = 'transform 0.05s ease-in-out';
-                      innerIconDiv.style.transform = 'scale(1.2)';
+                      innerIconDiv.style.transition = 'transform 0.04s ease-in-out';
+                      innerIconDiv.style.transform = 'scale(1.6)';
                     }
                     // zIndex 仍然作用在最外層，確保整個圖標在最上層
                     element.style.zIndex = 1000;
@@ -232,7 +229,7 @@
                 } else if (type === 'polygon') {
                   this.setStyle({
                     weight: 4,
-                    color: 'coral',
+                    color: 'white',
                     fillOpacity: 0.8,
                   });
                   this.bringToFront();
@@ -433,7 +430,6 @@
             if (targetFeature.geometry.type === 'Point') {
               // 點要素高亮
               if (layerConfig) {
-                const layerIconInfo = getLayerIcon(layerConfig.name);
                 const highlightIcon = L.divIcon({
                   html: `<div style="
                      background-color: #E74C3C;
@@ -446,11 +442,6 @@
                      box-shadow: 0 4px 12px rgba(231, 76, 60, 0.6);
                      animation: pulse 1.5s infinite;
                    ">
-                     <i class="${layerIconInfo.icon}" style="
-                       color: white;
-                       font-size: 16px;
-                       text-shadow: 0 1px 2px rgba(0,0,0,0.7);
-                     "></i>
                    </div>`,
                   className: 'custom-marker-icon highlight-marker',
                   iconSize: [40, 40],
@@ -918,15 +909,6 @@
 
   .feature-polygon {
     transition: all 0.2s ease; /* 多邊形過渡效果 */
-  }
-
-  /* 🎯 自定義圖標樣式 (Custom Icon Styles) */
-  .custom-marker-icon {
-    transition: all 0.3s ease;
-  }
-
-  .custom-marker-icon:hover {
-    transform: scale(1.1);
   }
 
   /* 🎯 高亮動畫效果 (Highlight Animation) */
