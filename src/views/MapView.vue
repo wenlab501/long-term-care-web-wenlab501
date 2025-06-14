@@ -563,8 +563,38 @@
       };
 
       // 切換底圖
-      const changeBasemap = () => {
+      const changeBasemap = (basemapValue) => {
+        if (basemapValue) {
+          selectedBasemap.value = basemapValue;
+        }
         setBasemap();
+      };
+
+      // 獲取底圖標籤
+      const getBasemapLabel = (value) => {
+        const basemapLabels = {
+          osm: 'OpenStreetMap',
+          esri_street: 'Esri Street',
+          esri_topo: 'Esri Topo',
+          esri_imagery: 'Esri World Imagery',
+          google_road: 'Google Maps 街道',
+          google_satellite: 'Google Maps 衛星',
+          nlsc_emap: '國土規劃中心電子地圖',
+          nlsc_photo: '國土規劃中心正射影像',
+          terrain: '地形圖',
+          aerial: '空照圖 (Esri)',
+          carto_light: 'Carto Light (無標籤)',
+          carto_light_labels: 'Carto Light (有標籤)',
+          carto_dark: 'Carto Dark (無標籤)',
+          carto_dark_labels: 'Carto Dark (有標籤)',
+          carto_voyager: 'Carto Voyager',
+          carto_positron: 'Carto Positron',
+          carto_dark_matter: 'Carto Dark Matter',
+          carto_light_nolabels: 'Carto Light (無標籤)',
+          carto_dark_nolabels: 'Carto Dark (無標籤)',
+          blank: '空白無地圖',
+        };
+        return basemapLabels[value] || value;
       };
 
       // 初始化地圖
@@ -631,6 +661,7 @@
         mapContainer,
         selectedBasemap,
         changeBasemap,
+        getBasemapLabel,
         showAllFeatures,
         isAnyLayerVisible,
         highlightFeature,
@@ -649,35 +680,128 @@
     <div class="map-bottom-controls">
       <!-- 🗺️ 底圖選擇器群組 (Basemap Selector Group) -->
       <div class="basemap-select-group">
-        <label for="basemap-select" class="form-label mb-0 small fw-medium me-2">底圖:</label>
-        <select
-          id="basemap-select"
-          class="form-select form-select-sm"
-          v-model="selectedBasemap"
-          @change="changeBasemap"
-          style="width: auto; min-width: 150px"
-        >
-          <option value="osm">OpenStreetMap</option>
-          <option value="esri_street">Esri Street</option>
-          <option value="esri_topo">Esri Topo</option>
-          <option value="esri_imagery">Esri World Imagery</option>
-          <option value="google_road">Google Maps 街道</option>
-          <option value="google_satellite">Google Maps 衛星</option>
-          <option value="nlsc_emap">國土規劃中心電子地圖</option>
-          <option value="nlsc_photo">國土規劃中心正射影像</option>
-          <option value="terrain">地形圖</option>
-          <option value="aerial">空照圖 (Esri)</option>
-          <option value="carto_light">Carto Light (無標籤)</option>
-          <option value="carto_light_labels">Carto Light (有標籤)</option>
-          <option value="carto_dark">Carto Dark (無標籤)</option>
-          <option value="carto_dark_labels">Carto Dark (有標籤)</option>
-          <option value="carto_voyager">Carto Voyager</option>
-          <option value="carto_positron">Carto Positron</option>
-          <option value="carto_dark_matter">Carto Dark Matter</option>
-          <option value="carto_light_nolabels">Carto Light (無標籤)</option>
-          <option value="carto_dark_nolabels">Carto Dark (無標籤)</option>
-          <option value="blank">空白無地圖</option>
-        </select>
+        <label class="form-label mb-0 small fw-medium me-2">底圖:</label>
+        <div class="dropdown">
+          <button
+            class="btn btn-outline-secondary btn-sm dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            style="min-width: 150px; font-size: 0.875rem"
+          >
+            {{ getBasemapLabel(selectedBasemap) }}
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+              <a class="dropdown-item" href="#" @click.prevent="changeBasemap('osm')"
+                >OpenStreetMap</a
+              >
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" @click.prevent="changeBasemap('esri_street')"
+                >Esri Street</a
+              >
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" @click.prevent="changeBasemap('esri_topo')"
+                >Esri Topo</a
+              >
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" @click.prevent="changeBasemap('esri_imagery')"
+                >Esri World Imagery</a
+              >
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" @click.prevent="changeBasemap('google_road')"
+                >Google Maps 街道</a
+              >
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" @click.prevent="changeBasemap('google_satellite')"
+                >Google Maps 衛星</a
+              >
+            </li>
+            <li><hr class="dropdown-divider" /></li>
+            <li>
+              <a class="dropdown-item" href="#" @click.prevent="changeBasemap('nlsc_emap')"
+                >國土規劃中心電子地圖</a
+              >
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" @click.prevent="changeBasemap('nlsc_photo')"
+                >國土規劃中心正射影像</a
+              >
+            </li>
+            <li><hr class="dropdown-divider" /></li>
+            <li>
+              <a class="dropdown-item" href="#" @click.prevent="changeBasemap('terrain')">地形圖</a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" @click.prevent="changeBasemap('aerial')"
+                >空照圖 (Esri)</a
+              >
+            </li>
+            <li><hr class="dropdown-divider" /></li>
+            <li>
+              <a class="dropdown-item" href="#" @click.prevent="changeBasemap('carto_light')"
+                >Carto Light (無標籤)</a
+              >
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" @click.prevent="changeBasemap('carto_light_labels')"
+                >Carto Light (有標籤)</a
+              >
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" @click.prevent="changeBasemap('carto_dark')"
+                >Carto Dark (無標籤)</a
+              >
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" @click.prevent="changeBasemap('carto_dark_labels')"
+                >Carto Dark (有標籤)</a
+              >
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" @click.prevent="changeBasemap('carto_voyager')"
+                >Carto Voyager</a
+              >
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" @click.prevent="changeBasemap('carto_positron')"
+                >Carto Positron</a
+              >
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" @click.prevent="changeBasemap('carto_dark_matter')"
+                >Carto Dark Matter</a
+              >
+            </li>
+            <li>
+              <a
+                class="dropdown-item"
+                href="#"
+                @click.prevent="changeBasemap('carto_light_nolabels')"
+                >Carto Light (無標籤)</a
+              >
+            </li>
+            <li>
+              <a
+                class="dropdown-item"
+                href="#"
+                @click.prevent="changeBasemap('carto_dark_nolabels')"
+                >Carto Dark (無標籤)</a
+              >
+            </li>
+            <li><hr class="dropdown-divider" /></li>
+            <li>
+              <a class="dropdown-item" href="#" @click.prevent="changeBasemap('blank')"
+                >空白無地圖</a
+              >
+            </li>
+          </ul>
+        </div>
       </div>
 
       <!-- 🔍 顯示全部資料按鈕 (Show All Data Button) -->
@@ -705,6 +829,7 @@
     /* 移除 min-height 限制，讓地圖能自由縮放 */
     position: relative; /* 確保子元素定位正確 */
     overflow: hidden; /* 防止內容溢出 */
+    z-index: 0; /* 確保地圖在左側面板陰影下方 */
   }
 
   /* 🗺️ Leaflet 地圖容器樣式 (Leaflet Map Container Styles) */
@@ -721,41 +846,40 @@
     bottom: 10px; /* 距離地圖容器底部 10px */
     left: 50%; /* 水平置中 */
     transform: translateX(-50%); /* 完美水平置中 */
-    z-index: 1000; /* 確保在地圖上方 */
-    background: rgba(255, 255, 255, 0.95); /* 更不透明的白色背景 */
+    z-index: 2000; /* 提高層級，確保在所有元素上方 */
+    background: rgba(255, 255, 255, 0.85); /* 半透明白色背景 */
     padding: 6px 10px; /* 調整內邊距，在小高度時更緊湊 */
-    border-radius: 6px; /* 稍微減小圓角 */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* 調整陰影效果 */
+    border-radius: 8px; /* 圓角 */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* 增強陰影效果 */
     display: flex; /* 使用 Flexbox 佈局 */
     align-items: center; /* 垂直對齊 */
     gap: 10px; /* 減少子元素間距 */
-    backdrop-filter: blur(8px); /* 增強背景模糊效果 */
+    backdrop-filter: blur(12px) saturate(180%); /* 強化霧化效果 */
+    -webkit-backdrop-filter: blur(12px) saturate(180%); /* Safari 支援 */
     pointer-events: auto; /* 確保控制項可以接收滑鼠事件 */
     min-width: 280px; /* 減少最小寬度 */
     max-width: 90%; /* 設定最大寬度，避免在小螢幕上溢出 */
     font-size: 0.875rem; /* 稍微減小字體大小 */
     transition: all 0.3s ease; /* 平滑過渡效果 */
+    border: 1px solid rgba(255, 255, 255, 0.3); /* 半透明邊框增強玻璃效果 */
   }
 
-  /* 當地圖容器高度很小時，調整控制條樣式 */
+  /* 當地圖容器高度很小時，調整控制條樣式但保持可見 */
   #map-container[style*='height: 1'] .map-bottom-controls,
   #map-container[style*='height: 2'] .map-bottom-controls,
   #map-container[style*='height: 3'] .map-bottom-controls,
   #map-container[style*='height: 4'] .map-bottom-controls,
   #map-container[style*='height: 5'] .map-bottom-controls {
-    bottom: 5px; /* 減少底部距離 */
-    padding: 4px 8px; /* 進一步減少內邊距 */
-    font-size: 0.75rem; /* 更小的字體 */
-    min-width: 240px; /* 更小的最小寬度 */
-    gap: 6px; /* 更小的間距 */
+    bottom: 3px; /* 減少底部距離 */
+    padding: 3px 6px; /* 進一步減少內邊距 */
+    font-size: 0.7rem; /* 更小的字體 */
+    min-width: 200px; /* 更小的最小寬度 */
+    gap: 4px; /* 更小的間距 */
+    backdrop-filter: blur(8px) saturate(150%); /* 小尺寸時稍微減少模糊 */
+    -webkit-backdrop-filter: blur(8px) saturate(150%); /* Safari 支援 */
   }
 
-  /* 當地圖容器高度非常小時（小於150px），隱藏控制條 */
-  @container (max-height: 150px) {
-    .map-bottom-controls {
-      display: none;
-    }
-  }
+  /* 移除隱藏控制條的規則，確保控制條永遠可見 */
 
   /* 🗺️ 底圖選擇器群組樣式 (Basemap Selector Group Styles) */
   .basemap-select-group {
@@ -764,9 +888,18 @@
     gap: 6px; /* 減少間距 */
   }
 
-  .basemap-select-group .form-select {
+  .basemap-select-group .dropdown-toggle {
     font-size: 0.875rem; /* 減小選擇器字體大小 */
     padding: 0.25rem 0.5rem; /* 減少內邊距 */
+  }
+
+  .basemap-select-group .dropdown-menu {
+    z-index: 9999; /* 確保下拉選單在最上層 */
+    backdrop-filter: blur(8px) saturate(120%); /* 下拉選單也加上霧化效果 */
+    -webkit-backdrop-filter: blur(8px) saturate(120%); /* Safari 支援 */
+    background: rgba(255, 255, 255, 0.95); /* 半透明背景 */
+    border: 1px solid rgba(0, 0, 0, 0.1); /* 淡邊框 */
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); /* 增強陰影 */
   }
 
   .basemap-select-group .form-label {

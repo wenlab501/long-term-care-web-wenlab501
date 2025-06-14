@@ -433,7 +433,7 @@
           <!-- 🎛️ 左側控制面板容器 (Left Control Panel Container) -->
           <!-- 包含圖層控制、資料載入等功能，支援動態寬度調整 -->
           <div
-            class="h-100 overflow-auto"
+            class="h-100 overflow-auto my-left-panel"
             :style="{ width: leftViewWidthPx }"
             v-if="leftViewWidth > 0"
           >
@@ -453,7 +453,7 @@
           <!-- 包含地圖、儀表板、資料表格等核心功能組件 -->
           <MiddleView
             ref="middlePanelRef"
-            class="d-flex flex-column overflow-hidden h-100"
+            class="d-flex flex-column overflow-hidden h-100 my-middle-panel"
             style="z-index: 1"
             :style="{ width: mainPanelWidthPx, 'min-width': '0px' }"
             :dynamicMainAreaHeight="calculatedMiddleViewHeight"

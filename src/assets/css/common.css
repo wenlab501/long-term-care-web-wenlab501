@@ -272,6 +272,42 @@ body {
   border-left: 1px solid var(--my-color-gray-200); /* 左邊框 */
 }
 
+/* 🌟 左側面板右側陰影 (Left Panel Right Shadow) */
+.my-left-panel {
+  box-shadow: 4px 0 16px rgba(0, 0, 0, 0.15); /* 增強右側陰影效果 */
+  position: relative;
+  z-index: 1500; /* 提高層級，確保陰影顯示在地圖等所有元素上方 */
+}
+
+/* 🌟 左側面板陰影偽元素 (Left Panel Shadow Pseudo Element) */
+.my-left-panel::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -8px; /* 陰影延伸到右側 */
+  width: 8px;
+  height: 100%;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.1), transparent);
+  pointer-events: none; /* 不影響滑鼠事件 */
+  z-index: 1501; /* 比面板本身更高的層級 */
+}
+
+/* 🌟 中間面板左側內陰影 (Middle Panel Left Inner Shadow) */
+.my-middle-panel {
+  box-shadow: inset 4px 0 8px rgba(0, 0, 0, 0.1); /* 左側內陰影效果 */
+  position: relative;
+  z-index: 1; /* 確保在左側面板陰影下方 */
+}
+
+/* =============================================================================
+   🔽 下拉選單樣式 (Dropdown Styles)
+   ============================================================================= */
+
+/* 🔽 確保所有 Bootstrap 下拉選單在最上層 (Ensure All Bootstrap Dropdowns on Top) */
+.dropdown-menu {
+  z-index: 9999 !important; /* 強制最高層級 */
+}
+
 /* =============================================================================
    🔧 拖拉調整器樣式 (Resize Handle Styles)
    ============================================================================= */
