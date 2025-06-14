@@ -29,6 +29,16 @@
        */
       const selectedFeature = computed(() => dataStore.selectedFeature);
 
+      const selectedLayer = computed(() => {
+        if (!selectedFeature.value?.properties?.layerId) {
+          return null;
+        }
+
+        const layerId = selectedFeature.value.properties.layerId;
+        const layer = dataStore.findLayerById(layerId);
+        return layer;
+      });
+
       /**
        * 🏷️ 圖層名稱計算屬性 (Layer Name Computed Property)
        * 根據 selectedFeature.properties.layerId 從 dataStore 的 layers 中找到對應的圖層名稱
@@ -59,6 +69,7 @@
       // 📤 返回響應式數據給模板使用
       return {
         selectedFeature, // 選中物件
+        selectedLayer, // 選中圖層
         layerName, // 圖層名稱
         hasProperties, // 是否有屬性
       };
@@ -110,32 +121,31 @@
 </script>
 
 <template>
-  <div class="flex-grow-1 d-flex flex-column p-3">
+  <div class="flex-grow-1 d-flex flex-column">
     <div v-if="selectedFeature">
       <div class="">
         <div
-          class="mb-2"
+          class="my-title-md p-3 mb-2"
           :style="{
-            backgroundColor: selectedFeature.properties.color,
+            backgroundColor: selectedLayer.color,
           }"
         >
-          {{ layerName }}
           {{ selectedFeature.properties.name }}
         </div>
 
-        <template v-if="hasProperties">
-          <DetailItem
-            v-for="(value, key) in selectedFeature.properties.propertyData"
-            :key="key"
-            :label="formatLabel(key)"
-            :value="formatValue(value)"
-          />
-        </template>
-
-        <div v-else class="">此物件沒有屬性資料</div>
+        <div class="p-3">
+          <template v-if="hasProperties">
+            <DetailItem
+              v-for="(value, key) in selectedFeature.properties.propertyData"
+              :key="key"
+              :label="formatLabel(key)"
+              :value="formatValue(value)"
+            />
+          </template>
+          <div v-else class="">此物件沒有屬性資料</div>
+        </div>
       </div>
     </div>
-
     <div v-else class="flex-grow-1 d-flex align-items-center justify-content-center">
       <div class="text-center">
         <div class="my-title-xl my-2">沒有點擊地圖上的物件</div>
