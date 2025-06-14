@@ -269,7 +269,7 @@ body {
 
 .my-right-panel {
   background-color: var(--my-panel-bg); /* 面板背景色 */
-  border-left: 1px solid var(--my-border-light); /* 左邊框 */
+  border-left: 1px solid var(--my-color-gray-200); /* 左邊框 */
 }
 
 /* =============================================================================
@@ -279,7 +279,7 @@ body {
 .my-resizer {
   background-color: var(--my-bg-color-gray-100); /* 調整器背景色 */
   transition: all 0.2s ease; /* 平滑過渡效果 */
-  border: 1px solid var(--my-bg-color-gray-100);
+  border: none; /* 移除邊框 */
 }
 
 .my-resizer:hover {

@@ -443,7 +443,7 @@
           <!-- 🔧 左側拖曳調整器 (Left Panel Resizer) -->
           <!-- 提供滑鼠拖曳功能，動態調整左側面板寬度 -->
           <div
-            class="my-resizer my-resizer-vertical my-resizer-left border-start border-end"
+            class="my-resizer my-resizer-vertical my-resizer-left"
             :class="{ 'my-dragging': isSidePanelDragging }"
             @mousedown="startResize('left', $event)"
             title="拖曳調整左側面板寬度"
@@ -454,6 +454,7 @@
           <MiddleView
             ref="middlePanelRef"
             class="d-flex flex-column overflow-hidden h-100"
+            style="z-index: 1"
             :style="{ width: mainPanelWidthPx, 'min-width': '0px' }"
             :dynamicMainAreaHeight="calculatedMiddleViewHeight"
             :activeTab="activeTab"
@@ -480,7 +481,7 @@
           <!-- 🔧 右側拖曳調整器 (Right Panel Resizer) -->
           <!-- 提供滑鼠拖曳功能，動態調整右側面板寬度 -->
           <div
-            class="my-resizer my-resizer-vertical my-resizer-right border-start border-end"
+            class="my-resizer my-resizer-vertical my-resizer-right"
             :class="{ 'my-dragging': isSidePanelDragging }"
             @mousedown="startResize('right', $event)"
             title="拖曳調整右側面板寬度"
