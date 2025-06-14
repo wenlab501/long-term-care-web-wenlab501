@@ -251,11 +251,10 @@
        * 🎯 高亮顯示指定地圖特徵 (Highlight Feature on Map)
        * 如果當前不在地圖分頁，會自動切換到地圖分頁再執行高亮
        *
-       * @param {string} id - 要高亮顯示的區域名稱
-       * @param {Object} layerInfo - 圖層資訊（可選）
+       * @param {Object} highlightData - 包含 layerId 和 id 的高亮數據物件
        */
-      const highlightFeature = (id, layerInfo = null) => {
-        console.log('🎯 UpperView: highlightFeature called with id:', id, 'layerInfo:', layerInfo);
+      const highlightFeature = (highlightData) => {
+        console.log('🎯 UpperView: highlightFeature called with data:', highlightData);
 
         // 如果當前不在地圖分頁，先切換到地圖分頁
         if (props.activeTab !== 'map') {
@@ -263,11 +262,11 @@
 
           // 等待分頁切換完成後再執行高亮
           nextTick(() => {
-            mapView.value?.highlightFeature(id, layerInfo);
+            mapView.value?.highlightFeature(highlightData);
           });
         } else {
           // 如果已經在地圖分頁，直接執行高亮
-          mapView.value?.highlightFeature(id, layerInfo);
+          mapView.value?.highlightFeature(highlightData);
         }
       };
 

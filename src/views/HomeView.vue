@@ -322,15 +322,11 @@
 
       /**
        * 🎯 處理高亮顯示事件 (Handle Highlight Event)
-       * 在地圖上高亮顯示指定名稱的特徵
-       * @param {string|Object} highlightData - 要高亮顯示的特徵資料，可以是ID字串或包含圖層資訊的物件
+       * 在地圖上高亮顯示指定的特徵
+       * @param {Object} highlightData - 包含 layerId 和 id 的物件
        */
-      const handleHighlight = (layerId, id) => {
-        // 處理向後相容：如果傳入的是字串，就是舊格式的ID
-        const targetId = typeof highlightData === 'string' ? highlightData : highlightData.id;
-        const layerInfo = typeof highlightData === 'object' ? highlightData : null;
-
-        console.log('處理高亮顯示:', { targetId, layerInfo });
+      const handleHighlight = (highlightData) => {
+        console.log('🎯 HomeView 處理高亮顯示:', highlightData);
 
         // 如果當前不在地圖視圖，先切換到地圖
         if (activeTab.value !== 'map') {
@@ -340,9 +336,9 @@
         // 使用 nextTick 確保地圖組件已渲染完成
         nextTick(() => {
           if (middlePanelRef.value) {
-            middlePanelRef.value.highlightFeature(targetId, layerInfo);
+            middlePanelRef.value.highlightFeature(highlightData);
           } else {
-            console.error('Cannot highlight: middlePanelRef is not available.');
+            console.error('❌ 無法高亮顯示: middlePanelRef 不可用');
           }
         });
       };

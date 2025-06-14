@@ -418,7 +418,7 @@
           const layerConfig = dataStore.getAllLayers().find((l) => l.layerId === targetLayerId);
 
           // 根據要素類型應用高亮樣式
-          if (targetFeature.geometry.type === 'point') {
+          if (targetFeature.geometry.type === 'Point') {
             // 點要素高亮
             if (layerConfig) {
               const layerIconInfo = getLayerIcon(layerConfig.name);
@@ -448,14 +448,16 @@
               targetLayer.setIcon(highlightIcon);
             }
           } else {
-            // 面要素高亮
-            targetLayer.setStyle({
-              weight: 4,
-              color: '#E74C3C',
-              dashArray: '5, 5',
-              fillOpacity: 0.8,
-              fillColor: '#E74C3C',
-            });
+            // 面要素高亮 - 只對有 setStyle 方法的圖層調用
+            if (targetLayer.setStyle) {
+              targetLayer.setStyle({
+                weight: 4,
+                color: '#E74C3C',
+                dashArray: '5, 5',
+                fillOpacity: 0.8,
+                fillColor: '#E74C3C',
+              });
+            }
           }
 
           // 將圖層置於最前

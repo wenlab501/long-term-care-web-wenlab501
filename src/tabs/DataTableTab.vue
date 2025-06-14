@@ -269,7 +269,7 @@
                     <button
                       class="btn rounded-circle w-100 my-content-xs p-0"
                       style="width: 24px; height: 24px"
-                      @click="handleHighlight(layer.layerId, item.id)"
+                      @click="handleHighlight(item, layer)"
                     >
                       <i :class="getIcon('location').icon"></i>
                     </button>

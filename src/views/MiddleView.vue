@@ -218,16 +218,15 @@
    * 透過 mainContentRef 呼叫主內容面板的高亮功能
    * 用於從表格或其他來源觸發地圖上的要素高亮
    *
-   * @param {string} name - 要高亮顯示的特徵名稱或識別碼
-   * @param {Object} layerInfo - 圖層資訊（可選）
+   * @param {Object} highlightData - 包含 layerId 和 id 的高亮數據物件
    */
-  const highlightFeature = (name, layerInfo = null) => {
+  const highlightFeature = (highlightData) => {
     if (!mainContentRef.value) {
       console.warn('⚠️ 無法高亮顯示：mainContentRef 未定義');
       return;
     }
-    console.log(`🎯 MiddleView: 呼叫 highlightFeature with name: ${name}`, layerInfo);
-    mainContentRef.value.highlightFeature(name, layerInfo);
+    console.log('🎯 MiddleView: 呼叫 highlightFeature', highlightData);
+    mainContentRef.value.highlightFeature(highlightData);
   };
 
   /**
