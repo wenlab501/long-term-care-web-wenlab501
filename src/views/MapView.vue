@@ -332,17 +332,27 @@
         }
       };
 
-      // 🎯 完全重寫的顯示位置功能
+      // 高亮顯示特定要素
       const highlightFeature = (highlightData) => {
-        console.log('🎯 開始顯示位置功能:', highlightData);
+        console.log('🎯 開始高亮顯示要素:', highlightData);
 
+        // 檢查地圖是否準備就緒
         if (!mapInstance || !isMapReady.value) {
-          console.warn('⚠️ 地圖未準備好');
+          console.warn('⚠️ 地圖尚未準備就緒，延遲執行高亮顯示');
+          setTimeout(() => highlightFeature(highlightData), 200);
           return;
         }
 
-        // 解析高亮數據
+        // 檢查是否有圖層群組
+        if (!layerGroups || Object.keys(layerGroups).length === 0) {
+          console.warn('⚠️ 圖層群組尚未載入，延遲執行高亮顯示');
+          setTimeout(() => highlightFeature(highlightData), 200);
+          return;
+        }
+
+        // 解析高亮資料
         let targetLayerId, targetFeatureId;
+
         if (typeof highlightData === 'object' && highlightData !== null) {
           targetLayerId = highlightData.layerId;
           targetFeatureId = highlightData.id;
@@ -353,45 +363,27 @@
         console.log(`🔍 尋找要素: layerId="${targetLayerId}", featureId="${targetFeatureId}"`);
         console.log('🔍 可用的圖層群組:', Object.keys(layerGroups));
 
-        // 重置所有圖層樣式
-        Object.values(layerGroups).forEach((layerGroup) => {
-          if (layerGroup && layerGroup.resetStyle) {
-            layerGroup.resetStyle();
-          }
-        });
-
-        // 尋找目標要素
-        let targetLayer = null;
-        let targetFeature = null;
-
-        if (targetLayerId && layerGroups[targetLayerId]) {
-          console.log(`🔍 在指定圖層 "${targetLayerId}" 中尋找要素`);
-          const specificLayerGroup = layerGroups[targetLayerId];
-
-          specificLayerGroup.eachLayer((layer) => {
-            const feature = layer.feature;
-            if (feature && feature.properties) {
-              // 嘗試多種可能的 ID 屬性
-              const featureId = feature.properties.id;
-
-              console.log(`🔍 檢查要素 ID: ${featureId} (目標: ${targetFeatureId})`);
-
-              if (String(featureId) === String(targetFeatureId)) {
-                targetLayer = layer;
-                targetFeature = feature;
-                console.log(`✅ 在圖層 "${targetLayerId}" 中找到要素 "${targetFeatureId}"`);
-                return;
-              }
+        // 執行高亮顯示的核心邏輯
+        const performHighlight = () => {
+          // 重置所有圖層樣式
+          Object.values(layerGroups).forEach((layerGroup) => {
+            if (layerGroup && layerGroup.resetStyle) {
+              layerGroup.resetStyle();
             }
           });
-        } else {
-          console.log('🔍 在所有圖層中尋找要素');
-          // 在所有圖層中尋找
-          for (const [layerId, layerGroup] of Object.entries(layerGroups)) {
-            console.log(`🔍 檢查圖層: ${layerId}`);
-            layerGroup.eachLayer((layer) => {
+
+          // 尋找目標要素
+          let targetLayer = null;
+          let targetFeature = null;
+
+          if (targetLayerId && layerGroups[targetLayerId]) {
+            console.log(`🔍 在指定圖層 "${targetLayerId}" 中尋找要素`);
+            const specificLayerGroup = layerGroups[targetLayerId];
+
+            specificLayerGroup.eachLayer((layer) => {
               const feature = layer.feature;
               if (feature && feature.properties) {
+                // 嘗試多種可能的 ID 屬性
                 const featureId = feature.properties.id;
 
                 console.log(`🔍 檢查要素 ID: ${featureId} (目標: ${targetFeatureId})`);
@@ -399,100 +391,135 @@
                 if (String(featureId) === String(targetFeatureId)) {
                   targetLayer = layer;
                   targetFeature = feature;
-                  targetLayerId = layerId;
-                  console.log(`✅ 在圖層 "${layerId}" 中找到要素 "${targetFeatureId}"`);
+                  console.log(`✅ 在圖層 "${targetLayerId}" 中找到要素 "${targetFeatureId}"`);
                   return;
                 }
               }
             });
-            if (targetLayer) break;
-          }
-        }
-
-        if (targetLayer && targetFeature) {
-          // 設置選中的特徵到 store
-          dataStore.setSelectedFeature(targetFeature);
-          console.log('🎯 設置選中特徵到 store');
-
-          // 獲取圖層配置
-          const layerConfig = dataStore.getAllLayers().find((l) => l.layerId === targetLayerId);
-
-          // 根據要素類型應用高亮樣式
-          if (targetFeature.geometry.type === 'Point') {
-            // 點要素高亮
-            if (layerConfig) {
-              const layerIconInfo = getLayerIcon(layerConfig.name);
-              const highlightIcon = L.divIcon({
-                html: `<div style="
-                   background-color: #E74C3C;
-                   border-radius: 50%;
-                   width: 40px;
-                   height: 40px;
-                   display: flex;
-                   align-items: center;
-                   justify-content: center;
-                   box-shadow: 0 4px 12px rgba(231, 76, 60, 0.6);
-                   animation: pulse 1.5s infinite;
-                 ">
-                   <i class="${layerIconInfo.icon}" style="
-                     color: white;
-                     font-size: 16px;
-                     text-shadow: 0 1px 2px rgba(0,0,0,0.7);
-                   "></i>
-                 </div>`,
-                className: 'custom-marker-icon highlight-marker',
-                iconSize: [40, 40],
-                iconAnchor: [20, 20],
-                popupAnchor: [0, -20],
-              });
-              targetLayer.setIcon(highlightIcon);
-            }
           } else {
-            // 面要素高亮 - 只對有 setStyle 方法的圖層調用
-            if (targetLayer.setStyle) {
-              targetLayer.setStyle({
-                weight: 4,
-                color: '#E74C3C',
-                dashArray: '5, 5',
-                fillOpacity: 0.8,
-                fillColor: '#E74C3C',
+            console.log('🔍 在所有圖層中尋找要素');
+            // 在所有圖層中尋找
+            for (const [layerId, layerGroup] of Object.entries(layerGroups)) {
+              console.log(`🔍 檢查圖層: ${layerId}`);
+              layerGroup.eachLayer((layer) => {
+                const feature = layer.feature;
+                if (feature && feature.properties) {
+                  const featureId = feature.properties.id;
+
+                  console.log(`🔍 檢查要素 ID: ${featureId} (目標: ${targetFeatureId})`);
+
+                  if (String(featureId) === String(targetFeatureId)) {
+                    targetLayer = layer;
+                    targetFeature = feature;
+                    targetLayerId = layerId;
+                    console.log(`✅ 在圖層 "${layerId}" 中找到要素 "${targetFeatureId}"`);
+                    return;
+                  }
+                }
               });
+              if (targetLayer) break;
             }
           }
 
-          // 將圖層置於最前
-          if (targetLayer.bringToFront) {
-            targetLayer.bringToFront();
-          }
+          if (targetLayer && targetFeature) {
+            // 設置選中的特徵到 store
+            dataStore.setSelectedFeature(targetFeature);
+            console.log('🎯 設置選中特徵到 store');
 
-          // 定位到要素
-          let bounds;
-          if (targetLayer.getBounds) {
-            bounds = targetLayer.getBounds();
-          } else if (targetLayer.getLatLng) {
-            const latlng = targetLayer.getLatLng();
-            bounds = L.latLngBounds([latlng, latlng]);
-          }
+            // 獲取圖層配置
+            const layerConfig = dataStore.getAllLayers().find((l) => l.layerId === targetLayerId);
 
-          if (bounds && bounds.isValid()) {
-            mapInstance.fitBounds(bounds, {
-              maxZoom: 16,
-              padding: [50, 50],
-            });
-
-            // 延遲打開彈窗
-            setTimeout(() => {
-              if (targetLayer.openPopup) {
-                targetLayer.openPopup();
+            // 根據要素類型應用高亮樣式
+            if (targetFeature.geometry.type === 'Point') {
+              // 點要素高亮
+              if (layerConfig) {
+                const layerIconInfo = getLayerIcon(layerConfig.name);
+                const highlightIcon = L.divIcon({
+                  html: `<div style="
+                     background-color: #E74C3C;
+                     border-radius: 50%;
+                     width: 40px;
+                     height: 40px;
+                     display: flex;
+                     align-items: center;
+                     justify-content: center;
+                     box-shadow: 0 4px 12px rgba(231, 76, 60, 0.6);
+                     animation: pulse 1.5s infinite;
+                   ">
+                     <i class="${layerIconInfo.icon}" style="
+                       color: white;
+                       font-size: 16px;
+                       text-shadow: 0 1px 2px rgba(0,0,0,0.7);
+                     "></i>
+                   </div>`,
+                  className: 'custom-marker-icon highlight-marker',
+                  iconSize: [40, 40],
+                  iconAnchor: [20, 20],
+                  popupAnchor: [0, -20],
+                });
+                targetLayer.setIcon(highlightIcon);
               }
-            }, 500);
-          }
+            } else {
+              // 面要素高亮 - 只對有 setStyle 方法的圖層調用
+              if (targetLayer.setStyle) {
+                targetLayer.setStyle({
+                  weight: 4,
+                  color: '#E74C3C',
+                  dashArray: '5, 5',
+                  fillOpacity: 0.8,
+                  fillColor: '#E74C3C',
+                });
+              }
+            }
 
-          console.log('✅ 顯示位置功能完成');
-        } else {
-          console.warn(
-            `❌ 找不到要素 "${targetFeatureId}"${targetLayerId ? ` 在圖層 "${targetLayerId}" 中` : ''}`
-          );
+            // 將圖層置於最前
+            if (targetLayer.bringToFront) {
+              targetLayer.bringToFront();
+            }
+
+            // 定位到要素
+            let bounds;
+            if (targetLayer.getBounds) {
+              bounds = targetLayer.getBounds();
+            } else if (targetLayer.getLatLng) {
+              const latlng = targetLayer.getLatLng();
+              bounds = L.latLngBounds([latlng, latlng]);
+            }
+
+            if (bounds && bounds.isValid()) {
+              mapInstance.fitBounds(bounds, {
+                maxZoom: 16,
+                padding: [50, 50],
+              });
+
+              // 延遲打開彈窗
+              setTimeout(() => {
+                if (targetLayer.openPopup) {
+                  targetLayer.openPopup();
+                }
+              }, 500);
+            }
+
+            console.log('✅ 顯示位置功能完成');
+            return true; // 成功找到並高亮
+          } else {
+            console.warn(
+              `❌ 找不到要素 "${targetFeatureId}"${targetLayerId ? ` 在圖層 "${targetLayerId}" 中` : ''}`
+            );
+            return false; // 未找到要素
+          }
+        };
+
+        // 嘗試執行高亮顯示，如果失敗則重試
+        const success = performHighlight();
+        if (!success) {
+          console.log('🔄 第一次高亮顯示失敗，1秒後重試...');
+          setTimeout(() => {
+            const retrySuccess = performHighlight();
+            if (!retrySuccess) {
+              console.error('❌ 重試後仍無法高亮顯示要素');
+            }
+          }, 1000);
         }
       };
 
@@ -507,8 +534,31 @@
       const invalidateSize = () => {
         if (mapInstance && isMapReady.value) {
           nextTick(() => {
-            mapInstance.invalidateSize();
+            try {
+              mapInstance.invalidateSize();
+              console.log('🗺️ 地圖尺寸已刷新');
+            } catch (error) {
+              console.error('❌ 刷新地圖尺寸時發生錯誤:', error);
+            }
           });
+        }
+      };
+
+      // 設置 ResizeObserver 監聽容器大小變化
+      let resizeObserver = null;
+      const setupResizeObserver = () => {
+        if (mapContainer.value && window.ResizeObserver) {
+          resizeObserver = new ResizeObserver((entries) => {
+            for (let entry of entries) {
+              console.log('🔄 地圖容器大小變化:', entry.contentRect);
+              // 延遲執行，確保DOM更新完成
+              setTimeout(() => {
+                invalidateSize();
+              }, 100);
+            }
+          });
+          resizeObserver.observe(mapContainer.value);
+          console.log('✅ ResizeObserver 已設置');
         }
       };
 
@@ -544,11 +594,22 @@
       // 生命週期
       onMounted(() => {
         nextTick(() => {
-          setTimeout(initMap, 100);
+          setTimeout(() => {
+            initMap();
+            // 地圖初始化完成後設置 ResizeObserver
+            setTimeout(setupResizeObserver, 500);
+          }, 100);
         });
       });
 
       onUnmounted(() => {
+        // 清理 ResizeObserver
+        if (resizeObserver) {
+          resizeObserver.disconnect();
+          resizeObserver = null;
+          console.log('🧹 ResizeObserver 已清理');
+        }
+
         // 清理事件
         if (mapInstance) {
           mapInstance.off('zoomend', handleZoomEnd);
@@ -641,32 +702,37 @@
   /* 🗺️ 地圖容器樣式 (Map Container Styles) */
   #map-container {
     background-color: #f0f0f0; /* 空白地圖時的後備背景色 */
-    min-height: 400px; /* 確保容器有最小高度 */
+    /* 移除 min-height 限制，讓地圖能自由縮放 */
+    position: relative; /* 確保子元素定位正確 */
+    overflow: hidden; /* 防止內容溢出 */
   }
 
   /* 🗺️ Leaflet 地圖容器樣式 (Leaflet Map Container Styles) */
   #leaflet-map {
-    min-height: 400px; /* 確保地圖容器有最小高度 */
+    /* 移除 min-height 限制，讓地圖能自由縮放 */
     width: 100% !important; /* 強制寬度100% */
     height: 100% !important; /* 強制高度100% */
+    position: relative; /* 確保正確的定位上下文 */
   }
 
   /* ✨ 地圖底部控制項樣式 (Map Bottom Controls Styles) */
   .map-bottom-controls {
     position: absolute;
-    bottom: 10px; /* 距離地圖容器底部 10px */
+    bottom: 15px; /* 距離地圖容器底部 15px */
     left: 50%; /* 水平置中 */
     transform: translateX(-50%); /* 完美水平置中 */
     z-index: 1000; /* 確保在地圖上方 */
-    background: rgba(255, 255, 255, 0.9); /* 半透明白色背景 */
-    padding: 8px; /* 內邊距 */
+    background: rgba(255, 255, 255, 0.95); /* 更不透明的白色背景 */
+    padding: 10px 15px; /* 增加內邊距 */
     border-radius: 8px; /* 圓角邊框 */
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); /* 陰影效果 */
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2); /* 增強陰影效果 */
     display: flex; /* 使用 Flexbox 佈局 */
     align-items: center; /* 垂直對齊 */
     gap: 15px; /* 子元素間距 */
-    backdrop-filter: blur(5px); /* 背景模糊效果 */
+    backdrop-filter: blur(8px); /* 增強背景模糊效果 */
     pointer-events: auto; /* 確保控制項可以接收滑鼠事件 */
+    min-width: 300px; /* 設定最小寬度 */
+    max-width: 90%; /* 設定最大寬度，避免在小螢幕上溢出 */
   }
 
   /* 🗺️ 底圖選擇器群組樣式 (Basemap Selector Group Styles) */

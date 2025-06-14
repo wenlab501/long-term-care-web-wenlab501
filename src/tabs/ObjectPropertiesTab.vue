@@ -95,7 +95,7 @@
 </script>
 
 <template>
-  <div class="p-3">
+  <div class="flex-grow-1 d-flex flex-column p-3">
     <div v-if="selectedFeature">
       <div class="">
         <h6 class="mb-2">{{ selectedFeature.properties.name }}</h6>
@@ -113,7 +113,9 @@
       </div>
     </div>
 
-    <div v-else class="text-center p-3">請點擊地圖上的物件以查看其屬性</div>
+    <div v-else class="flex-grow-1 d-flex align-items-center justify-content-center text-center">
+      請點擊地圖上的物件以查看其屬性
+    </div>
   </div>
 </template>
 

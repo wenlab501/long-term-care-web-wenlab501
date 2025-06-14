@@ -175,7 +175,7 @@
       </div>
 
       <!-- 📊 圖層儀表板內容 -->
-      <div class="overflow-auto">
+      <div class="flex-grow-1 overflow-auto">
         <!-- 有開啟圖層時的內容 -->
         <div v-if="visibleLayers.length > 0 && activeLayerTab" class="p-4">
           <!-- 📊 當前圖層資訊 -->

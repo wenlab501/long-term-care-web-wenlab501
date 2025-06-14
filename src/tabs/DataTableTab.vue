@@ -146,7 +146,11 @@
     };
 
     console.log('發送高亮事件:', highlightData);
-    emit('highlight-on-map', highlightData);
+
+    // 添加小延遲，確保地圖已準備就緒
+    setTimeout(() => {
+      emit('highlight-on-map', highlightData);
+    }, 50);
   };
 
   // 記錄上一次的圖層列表用於比較
@@ -235,7 +239,7 @@
     </div>
 
     <!-- 📋 圖層表格內容區域 -->
-    <div v-if="visibleLayers.length > 0" class="overflow-hidden">
+    <div v-if="visibleLayers.length > 0" class="flex-grow-1 overflow-hidden">
       <div
         v-for="layer in visibleLayers"
         :key="layer.layerId"
@@ -243,7 +247,7 @@
         class="h-100"
       >
         <div class="h-100 d-flex flex-column">
-          <div class="overflow-auto">
+          <div class="flex-grow-1 overflow-auto">
             <table class="table mb-0">
               <thead class="sticky-top">
                 <tr class="text-center text-nowrap">

@@ -44,7 +44,7 @@
       <h1 class="my-font-size-lg my-letter-spacing-lg text-center m-3">臺北市長照資訊</h1>
     </div>
 
-    <div class="overflow-auto layer-list-container" ref="layerListRef">
+    <div class="flex-grow-1 overflow-auto layer-list-container" ref="layerListRef">
       <div class="mb-3">
         <div v-for="group in layers" :key="group.groupName" class="p-3">
           <div class="d-flex align-items-center pb-2">

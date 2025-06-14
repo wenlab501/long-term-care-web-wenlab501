@@ -67,10 +67,10 @@
 <template>
   <!-- 📋 底部面板組件 (Bottom Panel Component) -->
   <!-- 提供資料表格顯示功能 -->
-  <div class="" :style="{ height: bottomViewHeight + 'px' }">
+  <div class="d-flex flex-column" :style="{ height: bottomViewHeight + 'px' }">
     <!-- 📄 底部分頁內容區域 (Bottom Tab Content Area) -->
     <!-- 顯示資料表格內容組件 -->
-    <div ref="bottomTabContentRef" class="h-100 overflow-auto">
+    <div ref="bottomTabContentRef" class="flex-grow-1 h-100 overflow-auto">
       <!-- 📊 資料表格分頁內容 (Data Table Tab Content) -->
       <!-- 顯示載入的地理資料，支援搜尋、排序、高亮等功能 -->
       <div class="h-100">

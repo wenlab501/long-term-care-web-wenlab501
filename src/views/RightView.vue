@@ -106,7 +106,7 @@
   <div class="my-right-panel h-100 d-flex flex-column custom-scroll overflow-hidden">
     <!-- 📄 右側分頁內容區域 (Right Panel Tab Content Area) -->
     <!-- 根據選中的分頁顯示對應的內容組件 -->
-    <div class="tab-content overflow-auto" style="min-width: 0">
+    <div class="flex-grow-1 tab-content overflow-auto" style="min-width: 0">
       <!-- 📋 物件屬性分頁內容 (Object Properties Tab Content) -->
       <!-- 顯示選中地圖物件的詳細屬性資訊 -->
       <div v-show="activeRightTab === 'properties'" class="h-100">
