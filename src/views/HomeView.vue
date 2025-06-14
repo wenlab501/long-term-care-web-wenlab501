@@ -433,7 +433,7 @@
           <!-- 🎛️ 左側控制面板容器 (Left Control Panel Container) -->
           <!-- 包含圖層控制、資料載入等功能，支援動態寬度調整 -->
           <div
-            class="h-100 overflow-auto my-left-panel"
+            class="h-100 overflow-y-auto overflow-x-hidden my-left-panel"
             :style="{ width: leftViewWidthPx }"
             v-if="leftViewWidth > 0"
           >

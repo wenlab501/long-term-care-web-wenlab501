@@ -681,7 +681,7 @@
       <!-- 🗺️ 底圖選擇器群組 (Basemap Selector Group) -->
       <div class="basemap-select-group">
         <label class="form-label mb-0 small fw-medium me-2">底圖:</label>
-        <div class="dropdown">
+        <div class="dropdown dropup">
           <button
             class="btn btn-outline-secondary btn-sm dropdown-toggle"
             type="button"
