@@ -718,27 +718,60 @@
   /* ✨ 地圖底部控制項樣式 (Map Bottom Controls Styles) */
   .map-bottom-controls {
     position: absolute;
-    bottom: 15px; /* 距離地圖容器底部 15px */
+    bottom: 10px; /* 距離地圖容器底部 10px */
     left: 50%; /* 水平置中 */
     transform: translateX(-50%); /* 完美水平置中 */
     z-index: 1000; /* 確保在地圖上方 */
     background: rgba(255, 255, 255, 0.95); /* 更不透明的白色背景 */
-    padding: 10px 15px; /* 增加內邊距 */
-    border-radius: 8px; /* 圓角邊框 */
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2); /* 增強陰影效果 */
+    padding: 6px 10px; /* 調整內邊距，在小高度時更緊湊 */
+    border-radius: 6px; /* 稍微減小圓角 */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* 調整陰影效果 */
     display: flex; /* 使用 Flexbox 佈局 */
     align-items: center; /* 垂直對齊 */
-    gap: 15px; /* 子元素間距 */
+    gap: 10px; /* 減少子元素間距 */
     backdrop-filter: blur(8px); /* 增強背景模糊效果 */
     pointer-events: auto; /* 確保控制項可以接收滑鼠事件 */
-    min-width: 300px; /* 設定最小寬度 */
+    min-width: 280px; /* 減少最小寬度 */
     max-width: 90%; /* 設定最大寬度，避免在小螢幕上溢出 */
+    font-size: 0.875rem; /* 稍微減小字體大小 */
+    transition: all 0.3s ease; /* 平滑過渡效果 */
+  }
+
+  /* 當地圖容器高度很小時，調整控制條樣式 */
+  #map-container[style*='height: 1'] .map-bottom-controls,
+  #map-container[style*='height: 2'] .map-bottom-controls,
+  #map-container[style*='height: 3'] .map-bottom-controls,
+  #map-container[style*='height: 4'] .map-bottom-controls,
+  #map-container[style*='height: 5'] .map-bottom-controls {
+    bottom: 5px; /* 減少底部距離 */
+    padding: 4px 8px; /* 進一步減少內邊距 */
+    font-size: 0.75rem; /* 更小的字體 */
+    min-width: 240px; /* 更小的最小寬度 */
+    gap: 6px; /* 更小的間距 */
+  }
+
+  /* 當地圖容器高度非常小時（小於150px），隱藏控制條 */
+  @container (max-height: 150px) {
+    .map-bottom-controls {
+      display: none;
+    }
   }
 
   /* 🗺️ 底圖選擇器群組樣式 (Basemap Selector Group Styles) */
   .basemap-select-group {
     display: flex; /* 使用 Flexbox 佈局 */
     align-items: center; /* 垂直對齊 */
+    gap: 6px; /* 減少間距 */
+  }
+
+  .basemap-select-group .form-select {
+    font-size: 0.875rem; /* 減小選擇器字體大小 */
+    padding: 0.25rem 0.5rem; /* 減少內邊距 */
+  }
+
+  .basemap-select-group .form-label {
+    font-size: 0.875rem; /* 減小標籤字體大小 */
+    margin-bottom: 0; /* 移除底部邊距 */
   }
 
   /* 🎯 不同幾何類型的特殊樣式 (Special Styles for Different Geometry Types) */
