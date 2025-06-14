@@ -15,9 +15,9 @@
 </script>
 
 <template>
-  <div class="d-flex align-items-center justify-content-between py-2">
-    <span class="my-title-xs text-nowrap me-3">{{ label }}</span>
-    <span class="my-content-sm">{{ value }}</span>
+  <div class="pb-2">
+    <div class="my-title-xs pb-1">{{ label }}</div>
+    <div class="my-content-sm pb-1">{{ value }}</div>
   </div>
 </template>
 

@@ -799,7 +799,7 @@
 
   /* 🗺️ 地圖容器樣式 (Map Container Styles) */
   #map-container {
-    background-color: #f0f0f0; /* 空白地圖時的後備背景色 */
+    background-color: white; /* 空白地圖時設為全白底圖 */
     /* 移除 min-height 限制，讓地圖能自由縮放 */
     position: relative; /* 確保子元素定位正確 */
     overflow: hidden; /* 防止內容溢出 */

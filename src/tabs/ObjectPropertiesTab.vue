@@ -30,6 +30,20 @@
       const selectedFeature = computed(() => dataStore.selectedFeature);
 
       /**
+       * 🏷️ 圖層名稱計算屬性 (Layer Name Computed Property)
+       * 根據 selectedFeature.properties.layerId 從 dataStore 的 layers 中找到對應的圖層名稱
+       */
+      const layerName = computed(() => {
+        if (!selectedFeature.value?.properties?.layerId) {
+          return null;
+        }
+
+        const layerId = selectedFeature.value.properties.layerId;
+        const layer = dataStore.findLayerById(layerId);
+        return layer ? layer.name : layerId;
+      });
+
+      /**
        * 📋 是否有屬性計算屬性 (Has Properties Computed Property)
        * 檢查選中物件是否包含有效的屬性資料
        *
@@ -45,6 +59,7 @@
       // 📤 返回響應式數據給模板使用
       return {
         selectedFeature, // 選中物件
+        layerName, // 圖層名稱
         hasProperties, // 是否有屬性
       };
     },
@@ -98,7 +113,15 @@
   <div class="flex-grow-1 d-flex flex-column p-3">
     <div v-if="selectedFeature">
       <div class="">
-        <h6 class="mb-2">{{ selectedFeature.properties.name }}</h6>
+        <div
+          class="mb-2"
+          :style="{
+            backgroundColor: selectedFeature.properties.color,
+          }"
+        >
+          {{ layerName }}
+          {{ selectedFeature.properties.name }}
+        </div>
 
         <template v-if="hasProperties">
           <DetailItem
@@ -113,8 +136,10 @@
       </div>
     </div>
 
-    <div v-else class="flex-grow-1 d-flex align-items-center justify-content-center text-center">
-      請點擊地圖上的物件以查看其屬性
+    <div v-else class="flex-grow-1 d-flex align-items-center justify-content-center">
+      <div class="text-center">
+        <div class="my-title-xl my-2">沒有點擊地圖上的物件</div>
+      </div>
     </div>
   </div>
 </template>
