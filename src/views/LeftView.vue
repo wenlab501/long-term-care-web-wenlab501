@@ -54,26 +54,20 @@
           <div v-for="layer in group.groupLayers" :key="layer.layerId" class="mb-1">
             <!-- 圖層卡片 -->
             <div
-              class="btn rounded-0 border-0 d-flex align-items-center justify-content-between shadow-sm my-bg-white-hover w-100 p-3"
+              class="btn rounded-0 border-0 d-flex shadow-sm my-bg-white-hover p-0"
               @click="toggleLayer(layer.layerId)"
             >
-              <div class="d-flex align-items-center">
+              <div class="d-flex w-100">
                 <!-- 圖層圖示 -->
                 <div
-                  class="d-none d-lg-flex align-items-center justify-content-center rounded-circle my-color-white my-font-size-xs p-2 me-3"
+                  class="d-flex"
                   :style="{
                     backgroundColor: layer.color,
-                    minHeight: '28px',
-                    minWidth: '28px',
+                    width: '6px',
                   }"
-                >
-                  <i
-                    :class="getLayerIcon(layer.name).icon"
-                    :title="getLayerIcon(layer.name).zh"
-                  ></i>
-                </div>
+                ></div>
                 <!-- 圖層名稱 -->
-                <div class="d-flex align-items-center text-start w-100">
+                <div class="d-flex align-items-center text-start px-3 py-2">
                   <span class="my-content-sm">
                     {{ layer.name }}
                   </span>
@@ -83,12 +77,7 @@
                 </div>
               </div>
               <!-- 切換圖層可見性 -->
-              <div
-                class="d-none d-lg-flex align-items-center justify-content-center ms-3"
-                :style="{
-                  'min-width': '32px',
-                }"
-              >
+              <div class="d-none d-lg-flex align-items-center justify-content-center px-3 py-2">
                 <input
                   type="checkbox"
                   :id="'switch-' + layer.layerId"
