@@ -132,16 +132,6 @@
       // 🗺️ 地圖互動函數 (Map Interaction Functions)
 
       /**
-       * 🗺️ 適應地圖到數據範圍 (Fit Map to Data)
-       * 調整地圖視圖以包含所有資料範圍
-       */
-      const fitMapToData = () => {
-        if (middlePanelRef.value) {
-          middlePanelRef.value.fitToTainanBounds();
-        }
-      };
-
-      /**
        * 🔄 重設地圖視圖 (Reset Map View)
        * 將地圖恢復到初始狀態
        */
@@ -382,7 +372,6 @@
         tableData, // 表格資料
 
         // 📥 數據管理功能
-        fitMapToData, // 適應地圖到資料
         resetView, // 重設視圖
 
         // 🔧 拖拽調整功能
@@ -499,7 +488,6 @@
               :activeMarkers="activeMarkers"
               :rightViewWidth="rightViewWidth"
               @update:activeRightTab="activeRightTab = $event"
-              @fit-map-to-data="fitMapToData"
               @highlight-feature="handleHighlight"
               :current-coords="currentCoords"
             />
