@@ -306,7 +306,7 @@
     <!-- 用於調整上下面板的高度比例 -->
     <!-- 監聽 mousedown 事件開始拖曳，動態顯示拖曳狀態的樣式 -->
     <div
-      class="my-resizer my-resizer-horizontal border-top"
+      class="my-resizer my-resizer-horizontal my-resizer-middle border-top"
       :class="{ 'my-dragging': isVerticalDragging }"
       @mousedown="startVerticalResize"
       title="拖曳調整底部面板高度"

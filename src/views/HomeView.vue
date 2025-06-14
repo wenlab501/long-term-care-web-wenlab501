@@ -443,7 +443,7 @@
           <!-- 🔧 左側拖曳調整器 (Left Panel Resizer) -->
           <!-- 提供滑鼠拖曳功能，動態調整左側面板寬度 -->
           <div
-            class="my-resizer my-resizer-vertical border-start border-end"
+            class="my-resizer my-resizer-vertical my-resizer-left border-start border-end"
             :class="{ 'my-dragging': isSidePanelDragging }"
             @mousedown="startResize('left', $event)"
             title="拖曳調整左側面板寬度"
@@ -480,7 +480,7 @@
           <!-- 🔧 右側拖曳調整器 (Right Panel Resizer) -->
           <!-- 提供滑鼠拖曳功能，動態調整右側面板寬度 -->
           <div
-            class="my-resizer my-resizer-vertical border-start border-end"
+            class="my-resizer my-resizer-vertical my-resizer-right border-start border-end"
             :class="{ 'my-dragging': isSidePanelDragging }"
             @mousedown="startResize('right', $event)"
             title="拖曳調整右側面板寬度"

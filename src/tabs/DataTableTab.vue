@@ -267,8 +267,8 @@
                   </td>
                   <td class="d-flex align-items-center justify-content-end">
                     <button
-                      class="btn rounded-circle w-100 my-content-xs p-0"
-                      style="width: 24px; height: 24px"
+                      class="btn rounded-circle my-content-xs p-0 mx-3"
+                      style="width: 28px; height: 28px"
                       @click="handleHighlight(item, layer)"
                     >
                       <i :class="getIcon('location').icon"></i>
@@ -283,7 +283,7 @@
     </div>
 
     <!-- 📭 無開啟圖層的空狀態 -->
-    <div v-else class="flex-grow-1 d-flex align-items-center justify-content-center bg-light">
+    <div v-else class="flex-grow-1 d-flex align-items-center justify-content-center">
       <div class="text-center">
         <div class="my-title-xl my-2">沒有開啟的圖層</div>
       </div>

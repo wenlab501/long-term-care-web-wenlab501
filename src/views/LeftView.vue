@@ -39,7 +39,7 @@
 </script>
 
 <template>
-  <div class="bg-light border-end h-100 d-flex flex-column overflow-hidden">
+  <div class="bg-light h-100 d-flex flex-column overflow-hidden">
     <div class="p-3">
       <h1 class="my-font-size-lg my-letter-spacing-lg text-center m-3">臺北市長照資訊</h1>
     </div>

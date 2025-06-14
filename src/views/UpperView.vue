@@ -70,7 +70,7 @@
       <!-- 當分頁狀態異常時顯示，協助開發者診斷問題 -->
       <div
         v-if="activeTab !== 'map' && activeTab !== 'dashboard'"
-        class="h-100 d-flex align-items-center justify-content-center bg-light"
+        class="h-100 d-flex align-items-center justify-content-center"
       >
         <div class="text-center">
           <h5>調試信息</h5>

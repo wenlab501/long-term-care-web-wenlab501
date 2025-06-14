@@ -103,9 +103,7 @@
 <template>
   <!-- 📊 右側面板組件 (Right Panel Component) -->
   <!-- 提供物件屬性查看和分析清單管理功能 -->
-  <div
-    class="my-right-panel bg-light border-start h-100 d-flex flex-column custom-scroll overflow-hidden"
-  >
+  <div class="my-right-panel h-100 d-flex flex-column custom-scroll overflow-hidden">
     <!-- 📄 右側分頁內容區域 (Right Panel Tab Content Area) -->
     <!-- 根據選中的分頁顯示對應的內容組件 -->
     <div class="tab-content overflow-auto" style="min-width: 0">

@@ -185,7 +185,6 @@ body {
   padding: var(--my-spacing-4) 0; /* 上下內距 */
   margin-top: auto;
   font-size: var(--my-font-size-sm); /* 小字體 */
-  border-top: 1px solid var(--my-border-color); /* 上邊框 */
 }
 
 .my-app-footer .container-fluid {
@@ -278,8 +277,9 @@ body {
    ============================================================================= */
 
 .my-resizer {
-  background-color: var(--my-border-color); /* 調整器背景色 */
+  background-color: var(--my-bg-color-gray-100); /* 調整器背景色 */
   transition: all 0.2s ease; /* 平滑過渡效果 */
+  border: 1px solid var(--my-bg-color-gray-100);
 }
 
 .my-resizer:hover {
@@ -314,6 +314,31 @@ body {
 
 .my-resizer.my-dragging {
   background-color: var(--my-primary-color) !important; /* 拖曳時的背景色 */
+}
+
+/* 🔧 不同位置的 resizer 顏色 (Different Resizer Colors) */
+.my-resizer-left {
+  background-color: var(--my-bg-color-gray-200); /* 左側面板 resizer - gray-200 */
+}
+
+.my-resizer-left:hover {
+  background-color: var(--my-primary-color); /* 懸停時保持主色 */
+}
+
+.my-resizer-right {
+  background-color: white; /* 右側面板 resizer - white */
+}
+
+.my-resizer-right:hover {
+  background-color: var(--my-primary-color); /* 懸停時保持主色 */
+}
+
+.my-resizer-middle {
+  background-color: white; /* 中間面板上下拉 resizer - white */
+}
+
+.my-resizer-middle:hover {
+  background-color: var(--my-primary-color); /* 懸停時保持主色 */
 }
 
 /* =============================================================================

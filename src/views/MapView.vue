@@ -654,11 +654,11 @@
   /* ✨ 地圖底部控制項樣式 (Map Bottom Controls Styles) */
   .map-bottom-controls {
     position: absolute;
-    bottom: 10px; /* 距離底部 10px */
+    bottom: 10px; /* 距離地圖容器底部 10px */
     left: 50%; /* 水平置中 */
     transform: translateX(-50%); /* 完美水平置中 */
     z-index: 1000; /* 確保在地圖上方 */
-    background: rgba(255, 255, 255, 0.6); /* 半透明白色背景 */
+    background: rgba(255, 255, 255, 0.9); /* 半透明白色背景 */
     padding: 8px; /* 內邊距 */
     border-radius: 8px; /* 圓角邊框 */
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); /* 陰影效果 */
@@ -666,6 +666,7 @@
     align-items: center; /* 垂直對齊 */
     gap: 15px; /* 子元素間距 */
     backdrop-filter: blur(5px); /* 背景模糊效果 */
+    pointer-events: auto; /* 確保控制項可以接收滑鼠事件 */
   }
 
   /* 🗺️ 底圖選擇器群組樣式 (Basemap Selector Group Styles) */

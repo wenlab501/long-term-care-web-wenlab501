@@ -149,7 +149,7 @@
 
 <template>
   <!-- 📊 多圖層資料儀表板視圖組件 -->
-  <div class="h-100 dashboard-container bg-light">
+  <div class="h-100 dashboard-container">
     <div class="d-flex flex-column h-100">
       <!-- 📑 圖層分頁導航 -->
       <div v-if="visibleLayers.length > 0" class="border-bottom bg-white">
@@ -198,7 +198,7 @@
                 </div>
                 <div class="card-body">
                   <div v-if="currentLayerSummary" class="summary-content">
-                    <pre class="json-display bg-light p-3 rounded">{{
+                    <pre class="json-display p-3 rounded">{{
                       JSON.stringify(currentLayerSummary, null, 2)
                     }}</pre>
                   </div>
