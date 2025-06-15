@@ -132,7 +132,7 @@
   /* 📄 載入內容卡片 (Loading Content Card) */
   .my-loading-content {
     text-align: center; /* 文字置中對齊 */
-    background-color: #ffffff; /* 白色背景 */
+    background-color: var(--my-color-white); /* 白色背景 */
     padding: 2rem; /* 內邊距 */
     border-radius: 8px; /* 圓角邊框 */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* 陰影效果 */
@@ -151,7 +151,7 @@
   .my-loading-text {
     font-size: 1.25rem; /* 較大字體 */
     font-weight: 500; /* 中等字重 */
-    color: #374151; /* 深灰色文字 */
+    color: var(--my-color-gray-700); /* 深灰色文字 */
     margin-bottom: 0.5rem; /* 下邊距 */
   }
 
@@ -163,13 +163,17 @@
   /* 📊 Bootstrap 進度條自定義 (Bootstrap Progress Customization) */
   .my-loading-progress .progress {
     height: 8px; /* 進度條高度 */
-    background-color: #e5e7eb; /* 進度條背景色 */
+    background-color: var(--my-color-gray-200); /* 進度條背景色 */
     border-radius: 4px; /* 圓角邊框 */
   }
 
   /* 📊 進度條滑塊樣式 (Progress Bar Styles) */
   .my-loading-progress .progress-bar {
-    background: linear-gradient(90deg, #3b82f6, #1d4ed8); /* 藍色漸層背景 */
+    background: linear-gradient(
+      90deg,
+      var(--my-color-blue),
+      var(--my-color-indigo)
+    ); /* 藍色漸層背景 */
     transition: width 0.3s ease; /* 寬度變化動畫 */
     font-size: 0.75rem; /* 小字體顯示百分比 */
     color: white; /* 白色文字 */

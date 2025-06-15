@@ -15,7 +15,7 @@
 
 **新增內容：**
 
-- **圖層顏色系統**：16 種預定義顏色變數 (`--my-layer-color-*`)
+- **圖層顏色系統**：16 種預定義顏色變數 (`--my-color-*`)
 - **顏色類別**：文字顏色類別 (`.my-layer-color-*`) 和背景顏色類別 (`.my-layer-bg-*`)
 - **共用霧化樣式**：
   - `.my-blur-strong`：強化霧化效果 (12px blur, 180% saturate)
@@ -58,7 +58,7 @@
 - 導入新的顏色工具函數：`assignLayerColorNames`、`getLayerColorVar`、`getLayerColorClass`
 - 為每個圖層添加：
   - `colorName`：顏色名稱 (如 'blue', 'green')
-  - `color`：CSS 變數 (如 'var(--my-layer-color-blue)')
+  - `color`：CSS 變數 (如 'var(--my-color-blue)')
   - `colorClass`：CSS 類別名稱 (如 'my-layer-color-blue')
 
 ### 4. `src/views/LeftView.vue`
@@ -118,7 +118,7 @@ const LAYER_COLOR_NAMES = [
 const colorNames = assignLayerColorNames(6);
 
 // 獲取 CSS 變數
-const colorVar = getLayerColorVar('blue'); // 'var(--my-layer-color-blue)'
+const colorVar = getLayerColorVar('blue'); // 'var(--my-color-blue)'
 
 // 獲取 CSS 類別
 const colorClass = getLayerColorClass('blue'); // 'my-layer-color-blue'
@@ -181,7 +181,7 @@ const iconClass = getLayerIconClass('hospital'); // 'my-layer-icon-hospital'
 
 ### 添加新顏色
 
-1. 在 `common.css` 中添加新的 CSS 變數：`--my-layer-color-新顏色名`
+1. 在 `common.css` 中添加新的 CSS 變數：`--my-color-新顏色名`
 2. 在 `LAYER_COLOR_NAMES` 陣列中添加新顏色名稱
 3. 添加對應的 CSS 類別
 

@@ -125,14 +125,14 @@
     left: 2px;
     width: 12px;
     height: 12px;
-    background: #fff;
+    background: var(--my-color-white);
     border-radius: 12px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* 優化滑動過渡 */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 添加陰影增強立體感 */
   }
 
   input:checked + label {
-    background: var(--my-color-success-500);
+    background: var(--my-color-green);
   }
 
   /* 🎯 優化按壓動畫效果 (Optimized Press Animation) */
@@ -144,15 +144,5 @@
   input:checked + label:after {
     left: calc(100% - 2px);
     transform: translateX(-100%);
-  }
-
-  /* 🎨 懸停效果 (Hover Effects) */
-  label:hover {
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1); /* 添加懸停光暈 */
-    transition: all 0.2s ease; /* 快速懸停響應 */
-  }
-
-  input:checked + label:hover {
-    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1); /* 激活狀態懸停光暈 */
   }
 </style>

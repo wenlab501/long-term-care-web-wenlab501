@@ -2,7 +2,7 @@
 
 ## 📋 重構目標
 
-1. **圖層顏色集中管理**：將所有 `--my-layer-color-{color}` 變數移到 `variables.css`
+1. **圖層顏色集中管理**：將所有 `--my-color-{color}` 變數移到 `variables.css`
 2. **移除不當使用的變數**：刪除 `variables.css` 中定義但不應該使用的顏色變數
 3. **簡化 UpperView CSS**：使用 Bootstrap 類別替代自定義樣式
 4. **統一顏色系統**：只使用圖層顏色變數，避免混用其他顏色系統
@@ -10,27 +10,27 @@
 ## 🔧 主要更改
 
 ### 1. variables.css 更改
-- ✅ **新增圖層顏色變數**：添加 16 個 `--my-layer-color-{color}` 變數
+- ✅ **新增圖層顏色變數**：添加 16 個 `--my-color-{color}` 變數
 - ❌ **移除背景顏色變數**：刪除 `--my-bg-color-gray-*` 系列變數
 
 ```css
 /* 新增的圖層顏色變數 */
---my-layer-color-blue: #2196f3;
---my-layer-color-green: #4caf50;
---my-layer-color-orange: #ff9800;
---my-layer-color-red: #f44336;
---my-layer-color-purple: #9c27b0;
---my-layer-color-cyan: #00bcd4;
---my-layer-color-deep-orange: #ff5722;
---my-layer-color-brown: #795548;
---my-layer-color-blue-grey: #607d8b;
---my-layer-color-pink: #e91e63;
---my-layer-color-light-green: #8bc34a;
---my-layer-color-amber: #ffc107;
---my-layer-color-indigo: #3f51b5;
---my-layer-color-teal: #009688;
---my-layer-color-lime: #cddc39;
---my-layer-color-orange-variant: #ff6f00;
+--my-color-blue: #2196f3;
+--my-color-green: #4caf50;
+--my-color-orange: #ff9800;
+--my-color-red: #f44336;
+--my-color-purple: #9c27b0;
+--my-color-cyan: #00bcd4;
+--my-color-deep-orange: #ff5722;
+--my-color-brown: #795548;
+--my-color-blue-grey: #607d8b;
+--my-color-pink: #e91e63;
+--my-color-light-green: #8bc34a;
+--my-color-amber: #ffc107;
+--my-color-indigo: #3f51b5;
+--my-color-teal: #009688;
+--my-color-lime: #cddc39;
+--my-color-orange-variant: #ff6f00;
 ```
 
 ### 2. common.css 更改
@@ -46,7 +46,7 @@
 
 /* 修復後 */
 .my-resizer-left:hover {
-  background-color: var(--my-layer-color-blue);
+  background-color: var(--my-color-blue);
 }
 ```
 
@@ -61,7 +61,7 @@ background: var(--my-primary-color);
 
 /* 修復後 */
 color: #757575;
-background: var(--my-layer-color-blue);
+background: var(--my-color-blue);
 ```
 
 ### 4. 組件更新
@@ -80,7 +80,7 @@ background: var(--my-layer-color-blue);
 6. `src/views/DashboardView.vue` - 使用 Bootstrap 類別，修復變數引用
 
 ### 變數使用規範
-- ✅ **允許使用**：`--my-layer-color-{color}` 系列變數
+- ✅ **允許使用**：`--my-color-{color}` 系列變數
 - ❌ **禁止使用**：`--my-bg-color-gray-*`、`--my-primary-*`、`--my-text-*` 等其他顏色變數
 - 🔄 **替代方案**：直接使用 hex 顏色值或 Bootstrap 類別
 
@@ -94,7 +94,7 @@ background: var(--my-layer-color-blue);
 5. **增強可讀性**：明確的顏色使用規範
 
 ### 注意事項
-1. **開發規範**：新功能只能使用 `--my-layer-color-{color}` 變數
+1. **開發規範**：新功能只能使用 `--my-color-{color}` 變數
 2. **Bootstrap 優先**：優先使用 Bootstrap 內建類別
 3. **直接顏色值**：非圖層相關的顏色使用直接 hex 值
 

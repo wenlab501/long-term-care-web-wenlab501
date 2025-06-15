@@ -123,7 +123,7 @@ export const ICONS = {
 
 /**
  * 預定義的圖層顏色名稱列表
- * 這些顏色名稱對應到 CSS 中定義的 --my-layer-color-* 變數
+ * 這些顏色名稱對應到 CSS 中定義的 --my-color-* 變數
  */
 export const LAYER_COLOR_NAMES = [
   'blue',
@@ -167,7 +167,7 @@ export function assignLayerColorNames(totalLayers) {
  * @returns {string} CSS 變數名稱
  */
 export function getLayerColorVar(colorName) {
-  return `var(--my-layer-color-${colorName})`;
+  return `var(--my-color-${colorName})`;
 }
 
 /**

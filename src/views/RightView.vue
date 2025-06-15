@@ -141,24 +141,24 @@
 
   /* 滾動條軌道背景 */
   .custom-scroll::-webkit-scrollbar-track {
-    background: #f1f1f1; /* 淺灰色軌道背景 */
+    background: var(--my-color-gray-100); /* 淺灰色軌道背景 */
     border-radius: 3px; /* 圓角軌道 */
   }
 
   /* 滾動條滑塊樣式 */
   .custom-scroll::-webkit-scrollbar-thumb {
-    background: #c1c1c1; /* 中灰色滑塊 */
+    background: var(--my-color-gray-400); /* 中灰色滑塊 */
     border-radius: 3px; /* 圓角滑塊 */
   }
 
   /* 滾動條滑塊懸停樣式 */
   .custom-scroll::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8; /* 懸停時變深灰色 */
+    background: var(--my-color-gray-500); /* 懸停時變深灰色 */
   }
 
   /* 🔗 分頁導航樣式調整 (Tab Navigation Style Adjustments) */
   .nav-tabs {
-    border-bottom: 1px solid #dee2e6; /* 分頁底部邊框 */
+    border-bottom: 1px solid var(--my-color-gray-300); /* 分頁底部邊框 */
   }
 
   .nav-link {
@@ -167,11 +167,11 @@
   }
 
   .nav-link:hover {
-    background-color: #f8f9fa; /* 懸停時的背景色 */
+    background-color: var(--my-color-gray-50); /* 懸停時的背景色 */
   }
 
   .nav-link.active {
-    border-bottom: 2px solid #007bff; /* 作用中分頁的底部邊框 */
+    border-bottom: 2px solid var(--my-color-blue); /* 作用中分頁的底部邊框 */
   }
 
   /* 📄 分頁內容區域樣式 (Tab Content Area Styles) */

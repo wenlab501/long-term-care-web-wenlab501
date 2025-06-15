@@ -229,7 +229,7 @@
 <style scoped>
   .my-dashboard-container {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #eeeeee; /* 資料儀表版底色為 gray-200 */
+    background-color: var(--my-color-gray-200); /* 資料儀表版底色為 gray-200 */
   }
 
   .stats-card {
@@ -258,7 +258,7 @@
     word-break: break-word;
     max-height: 400px;
     overflow-y: auto;
-    border: 1px solid #dee2e6;
+    border: 1px solid var(--my-color-gray-300);
   }
 
   .summary-content {

@@ -356,7 +356,7 @@
   .my-view-switcher-btn {
     background: transparent; /* 透明背景 */
     border: none; /* 無邊框 */
-    color: #757575; /* 次要文字顏色 */
+    color: var(--my-color-gray-600); /* 次要文字顏色 */
     width: 32px; /* 固定寬度 */
     height: 32px; /* 固定高度 */
     display: flex; /* Flexbox 佈局 */
@@ -370,20 +370,20 @@
   /* 🔘 視圖切換按鈕懸停效果 (View Switcher Button Hover) */
   .my-view-switcher-btn:hover {
     background: rgba(0, 123, 255, 0.1); /* 淺藍色背景 */
-    color: var(--my-layer-color-blue); /* 主要顏色 */
+    color: var(--my-color-blue); /* 主要顏色 */
     transform: translateY(-1px); /* 輕微上移 */
   }
 
   /* 🔘 視圖切換按鈕激活狀態 (View Switcher Button Active) */
   .my-view-switcher-active {
-    background: var(--my-layer-color-blue) !important; /* 主要顏色背景 */
+    background: var(--my-color-blue) !important; /* 主要顏色背景 */
     color: white !important; /* 白色文字 */
     box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3); /* 藍色陰影 */
   }
 
   /* 🔘 視圖切換按鈕激活懸停效果 (View Switcher Button Active Hover) */
   .my-view-switcher-active:hover {
-    background: #1976d2 !important; /* 深藍色懸停 */
+    background: var(--my-color-indigo) !important; /* 深藍色懸停 */
     transform: translateY(-1px); /* 輕微上移 */
   }
 </style>

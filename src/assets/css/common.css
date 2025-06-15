@@ -38,9 +38,11 @@ body {
   font-size: var(--my-font-size-base); /* 基礎字體大小 */
   letter-spacing: var(--my-letter-spacing-base);
   line-height: var(--my-line-height-normal); /* 行高設定 */
-  color: #212121; /* 主要文字顏色 */
-  background-color: #ffffff; /* 主要背景顏色 */
+  color: var(--my-color-gray-900); /* 主要文字顏色 */
+  background-color: var(--my-color-white); /* 主要背景顏色 */
 }
+
+.my-bg-gray-100 { background-color: var(--my-color-gray-100); }
 
 /* 字體大小 */
 
@@ -72,52 +74,52 @@ body {
 /* 文字顏色 */
 
 .my-color-white {
-  color: #ffffff;
+  color: var(--my-color-white);
 }
 
 .my-color-gray-500 {
-  color: #9e9e9e;
+  color: var(--my-color-gray-500);
 }
 
 .my-title-xl {
   font-size: var(--my-font-size-xl);
-  color: #9e9e9e;
+  color: var(--my-color-gray-500);
   font-weight: var(--my-font-weight-normal);
 }
 
 .my-title-sm {
   font-size: var(--my-font-size-sm);
-  color: #616161;
+  color: var(--my-color-gray-700);
   font-weight: var(--my-font-weight-medium);
 }
 
 .my-title-xs {
   font-size: var(--my-font-size-xs);
-  color: #9e9e9e;
+  color: var(--my-color-gray-500);
   font-weight: var(--my-font-weight-medium);
 }
 
 .my-content-sm {
   font-size: var(--my-font-size-sm);
-  color: #212121;
+  color: var(--my-color-gray-900);
 }
 
 .my-content-xs {
   font-size: var(--my-font-size-xs);
-  color: #9e9e9e;
+  color: var(--my-color-gray-500);
 }
 
 /* 背景顏色 */
 
 .my-bg-white {
-  background-color: #ffffff;
+  background-color: var(--my-color-white);
 }
 
 .my-bg-white-hover {
-  background-color: #ffffff;
+  background-color: var(--my-color-white);
 }
 .my-bg-white-hover:hover {
-  background-color: #eeeeee;
+  background-color: var(--my-color-gray-200);
 }
 
 
@@ -129,7 +131,7 @@ body {
 }
 
 .my-tab-sm:hover {
-  background-color: #f5f5f5;
+  background-color: var(--my-color-gray-100);
 }
 
 /* =============================================================================
@@ -160,8 +162,8 @@ body {
    ============================================================================= */
 
 .my-right-panel {
-  background-color: #ffffff; /* 面板背景色 */
-  border-left: 1px solid #eeeeee; /* 左邊框 */
+  background-color: var(--my-color-white); /* 面板背景色 */
+  border-left: 1px solid var(--my-color-gray-200); /* 左邊框 */
 }
 
 /* 🌟 左側面板右側陰影 (Left Panel Right Shadow) */
@@ -208,13 +210,13 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #eeeeee; /* 滾動條顏色 */
+  background: var(--my-color-gray-200); /* 滾動條顏色 */
   border-radius: 3px; /* 滾動條圓角 */
   transition: background-color 0.2s ease; /* 平滑過渡效果 */
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #e0e0e0; /* 滑鼠懸停時的顏色 */
+  background: var(--my-color-gray-300); /* 滑鼠懸停時的顏色 */
 }
 
 ::-webkit-scrollbar-corner {
@@ -224,7 +226,7 @@ body {
 /* 🎨 Firefox 滾動條樣式 */
 * {
   scrollbar-width: thin; /* 細滾動條 */
-  scrollbar-color: #eeeeee white; /* 滾動條顏色 軌道顏色 */
+  scrollbar-color: var(--my-color-gray-200) var(--my-color-white); /* 滾動條顏色 軌道顏色 */
 }
 
 /* =============================================================================
@@ -241,13 +243,13 @@ body {
    ============================================================================= */
 
 .my-resizer {
-  background-color: #f5f5f5; /* 調整器背景色 */
+  background-color: var(--my-color-gray-100); /* 調整器背景色 */
   transition: all 0.2s ease; /* 平滑過渡效果 */
   border: none; /* 移除邊框 */
 }
 
 .my-resizer:hover {
-  background-color: var(--my-layer-color-blue); /* 懸停時的背景色 */
+  background-color: var(--my-color-blue); /* 懸停時的背景色 */
 }
 
 /* 🔧 垂直拖曳調整器 (Vertical Resizer) */
@@ -277,34 +279,34 @@ body {
 }
 
 .my-resizer.my-dragging {
-  background-color: var(--my-layer-color-blue) !important; /* 拖曳時的背景色 */
+  background-color: var(--my-color-blue) !important; /* 拖曳時的背景色 */
 }
 
   /* 🔧 不同位置的 resizer 顏色 (Different Resizer Colors) */
   .my-resizer-left {
-    background-color: #f5f5f5; /* 左側面板 resizer - gray-100 */
+    background-color: var(--my-color-gray-100); /* 左側面板 resizer - gray-100 */
   }
 
 .my-resizer-left:hover {
-  background-color: var(--my-layer-color-blue); /* 懸停時保持主色 */
+  background-color: var(--my-color-blue); /* 懸停時保持主色 */
 }
 
 .my-resizer-right {
-  background-color: white; /* 右側面板 resizer - white */
+  background-color: var(--my-color-white); /* 右側面板 resizer - white */
 }
 
 .my-resizer-right:hover {
-  background-color: var(--my-layer-color-blue); /* 懸停時保持主色 */
+  background-color: var(--my-color-blue); /* 懸停時保持主色 */
 }
 
   .my-resizer-middle {
-    background-color: #eeeeee; /* 中間面板上下拉 resizer - gray-200 */
+    background-color: var(--my-color-gray-200); /* 中間面板上下拉 resizer - gray-200 */
     position: relative; /* 為偽元素提供定位上下文 */
-    /* border-top: 1px solid #eeeeee; */ /* 上邊框分隔線 */
+    /* border-top: 1px solid var(--my-color-gray-200); */ /* 上邊框分隔線 */
   }
 
 .my-resizer-middle:hover {
-  background-color: var(--my-layer-color-blue); /* 懸停時保持主色 */
+  background-color: var(--my-color-blue); /* 懸停時保持主色 */
 }
 
 /* =============================================================================
@@ -376,104 +378,116 @@ body.my-no-select * {
 
 
 
-/* 圖層顏色類別 (Layer Color Classes) */
-.my-layer-color-blue {
-  color: var(--my-layer-color-blue);
-}
-.my-layer-color-green {
-  color: var(--my-layer-color-green);
-}
-.my-layer-color-orange {
-  color: var(--my-layer-color-orange);
-}
+/* 圖層顏色類別 (Layer Color Classes) - 按 RGB 順序排列 */
 .my-layer-color-red {
-  color: var(--my-layer-color-red);
-}
-.my-layer-color-purple {
-  color: var(--my-layer-color-purple);
-}
-.my-layer-color-cyan {
-  color: var(--my-layer-color-cyan);
-}
-.my-layer-color-deep-orange {
-  color: var(--my-layer-color-deep-orange);
-}
-.my-layer-color-brown {
-  color: var(--my-layer-color-brown);
-}
-.my-layer-color-blue-grey {
-  color: var(--my-layer-color-blue-grey);
+  color: var(--my-color-red);
 }
 .my-layer-color-pink {
-  color: var(--my-layer-color-pink);
+  color: var(--my-color-pink);
 }
-.my-layer-color-light-green {
-  color: var(--my-layer-color-light-green);
+.my-layer-color-purple {
+  color: var(--my-color-purple);
 }
-.my-layer-color-amber {
-  color: var(--my-layer-color-amber);
+.my-layer-color-deep-purple {
+  color: var(--my-color-deep-purple);
 }
 .my-layer-color-indigo {
-  color: var(--my-layer-color-indigo);
+  color: var(--my-color-indigo);
+}
+.my-layer-color-blue {
+  color: var(--my-color-blue);
+}
+.my-layer-color-light-blue {
+  color: var(--my-color-light-blue);
+}
+.my-layer-color-cyan {
+  color: var(--my-color-cyan);
 }
 .my-layer-color-teal {
-  color: var(--my-layer-color-teal);
+  color: var(--my-color-teal);
+}
+.my-layer-color-green {
+  color: var(--my-color-green);
+}
+.my-layer-color-light-green {
+  color: var(--my-color-light-green);
 }
 .my-layer-color-lime {
-  color: var(--my-layer-color-lime);
+  color: var(--my-color-lime);
 }
-.my-layer-color-orange-variant {
-  color: var(--my-layer-color-orange-variant);
+.my-layer-color-yellow {
+  color: var(--my-color-yellow);
+}
+.my-layer-color-amber {
+  color: var(--my-color-amber);
+}
+.my-layer-color-orange {
+  color: var(--my-color-orange);
+}
+.my-layer-color-deep-orange {
+  color: var(--my-color-deep-orange);
+}
+.my-layer-color-brown {
+  color: var(--my-color-brown);
+}
+.my-layer-color-blue-grey {
+  color: var(--my-color-blue-grey);
 }
 
-/* 圖層背景顏色類別 (Layer Background Color Classes) */
-.my-layer-bg-blue {
-  background-color: var(--my-layer-color-blue);
-}
-.my-layer-bg-green {
-  background-color: var(--my-layer-color-green);
-}
-.my-layer-bg-orange {
-  background-color: var(--my-layer-color-orange);
-}
+/* 圖層背景顏色類別 (Layer Background Color Classes) - 按 RGB 順序排列 */
 .my-layer-bg-red {
-  background-color: var(--my-layer-color-red);
-}
-.my-layer-bg-purple {
-  background-color: var(--my-layer-color-purple);
-}
-.my-layer-bg-cyan {
-  background-color: var(--my-layer-color-cyan);
-}
-.my-layer-bg-deep-orange {
-  background-color: var(--my-layer-color-deep-orange);
-}
-.my-layer-bg-brown {
-  background-color: var(--my-layer-color-brown);
-}
-.my-layer-bg-blue-grey {
-  background-color: var(--my-layer-color-blue-grey);
+  background-color: var(--my-color-red);
 }
 .my-layer-bg-pink {
-  background-color: var(--my-layer-color-pink);
+  background-color: var(--my-color-pink);
 }
-.my-layer-bg-light-green {
-  background-color: var(--my-layer-color-light-green);
+.my-layer-bg-purple {
+  background-color: var(--my-color-purple);
 }
-.my-layer-bg-amber {
-  background-color: var(--my-layer-color-amber);
+.my-layer-bg-deep-purple {
+  background-color: var(--my-color-deep-purple);
 }
 .my-layer-bg-indigo {
-  background-color: var(--my-layer-color-indigo);
+  background-color: var(--my-color-indigo);
+}
+.my-layer-bg-blue {
+  background-color: var(--my-color-blue);
+}
+.my-layer-bg-light-blue {
+  background-color: var(--my-color-light-blue);
+}
+.my-layer-bg-cyan {
+  background-color: var(--my-color-cyan);
 }
 .my-layer-bg-teal {
-  background-color: var(--my-layer-color-teal);
+  background-color: var(--my-color-teal);
+}
+.my-layer-bg-green {
+  background-color: var(--my-color-green);
+}
+.my-layer-bg-light-green {
+  background-color: var(--my-color-light-green);
 }
 .my-layer-bg-lime {
-  background-color: var(--my-layer-color-lime);
+  background-color: var(--my-color-lime);
 }
-.my-layer-bg-orange-variant {
-  background-color: var(--my-layer-color-orange-variant);
+.my-layer-bg-yellow {
+  background-color: var(--my-color-yellow);
+}
+.my-layer-bg-amber {
+  background-color: var(--my-color-amber);
+}
+.my-layer-bg-orange {
+  background-color: var(--my-color-orange);
+}
+.my-layer-bg-deep-orange {
+  background-color: var(--my-color-deep-orange);
+}
+.my-layer-bg-brown {
+  background-color: var(--my-color-brown);
+}
+.my-layer-bg-blue-grey {
+  background-color: var(--my-color-blue-grey);
 }
 
 /* 🌫️ 共用霧化樣式 (Shared Blur Effects) */
