@@ -222,7 +222,7 @@
         >
           <!-- tab按鈕 -->
           <div
-            class="btn nav-link rounded-0 border-0 position-relative d-flex align-items-center justify-content-center my-bg-color-gray-200"
+            class="btn nav-link rounded-0 border-0 position-relative d-flex align-items-center justify-content-center"
             :class="{
               active: activeLayerTab === layer.layerId,
             }"

@@ -40,7 +40,7 @@
 </script>
 
 <template>
-  <div class="my-bg-color-gray-100 h-100 d-flex flex-column overflow-hidden">
+  <div class="my-bg-gray-100 h-100 d-flex flex-column overflow-hidden">
     <div class="p-3">
       <h1 class="my-font-size-lg my-letter-spacing-lg text-center m-3">臺北市長照資訊</h1>
     </div>

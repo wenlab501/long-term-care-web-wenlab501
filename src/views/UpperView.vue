@@ -321,63 +321,17 @@
    * 定義上半部面板的視覺樣式，包含導航、內容區域、滾動條等
    */
 
-  /* 🎛️ 固定導航條樣式 (Fixed Navigation Bar Styles) */
-  .navbar {
-    padding: 0.5rem 1rem; /* 適中的內邊距 */
-  }
-
-  .navbar .btn {
-    border-radius: 0.375rem; /* 圓角按鈕 */
-    margin-right: 0.25rem; /* 按鈕間距 */
-  }
-
-  .navbar .btn:last-child {
-    margin-right: 0; /* 最後一個按鈕不需要右邊距 */
-  }
-
-  /* 📊 儀表板區域樣式 (Dashboard Area Styles) */
-  .overflow-auto {
-    scrollbar-width: thin; /* Firefox 細滾動條 */
-    scrollbar-color: #c1c1c1 transparent; /* Firefox 滾動條顏色 */
-  }
-
-  /* WebKit 瀏覽器 (Chrome, Safari, Edge) 滾動條樣式 */
-  .overflow-auto::-webkit-scrollbar {
-    width: 8px; /* 滾動條寬度 */
-  }
-
-  .overflow-auto::-webkit-scrollbar-track {
-    background: transparent; /* 透明軌道背景 */
-  }
-
-  .overflow-auto::-webkit-scrollbar-thumb {
-    background-color: #c1c1c1; /* 滾動條滑塊顏色 */
-    border-radius: 4px; /* 圓角滑塊 */
-  }
-
-  .overflow-auto::-webkit-scrollbar-thumb:hover {
-    background-color: #a1a1a1; /* 懸停時的滑塊顏色 */
-  }
-
-  /* 🎛️ 導航按鈕組樣式 (Navigation Button Group Styles) */
+  /* 🎛️ 導航按鈕組樣式 (Navigation Button Group Styles) - 使用 Bootstrap 基礎樣式 */
   .btn-group .btn {
     transition: all 0.3s ease; /* 平滑的狀態轉換動畫 */
   }
 
   .btn-group .btn:hover {
     transform: translateY(-1px); /* 懸停時輕微上移效果 */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15); /* 懸停時陰影效果 */
   }
 
   .btn-group .btn.active {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* 作用中按鈕的陰影 */
-  }
-
-  .text-center code {
-    background-color: #e9ecef; /* 程式碼背景色 */
-    padding: 0.25rem 0.5rem; /* 程式碼內邊距 */
-    border-radius: 0.25rem; /* 程式碼圓角 */
-    font-family: 'Courier New', monospace; /* 等寬字體 */
   }
 
   /**
@@ -402,7 +356,7 @@
   .my-view-switcher-btn {
     background: transparent; /* 透明背景 */
     border: none; /* 無邊框 */
-    color: var(--my-text-secondary); /* 次要文字顏色 */
+    color: #757575; /* 次要文字顏色 */
     width: 32px; /* 固定寬度 */
     height: 32px; /* 固定高度 */
     display: flex; /* Flexbox 佈局 */
@@ -416,20 +370,20 @@
   /* 🔘 視圖切換按鈕懸停效果 (View Switcher Button Hover) */
   .my-view-switcher-btn:hover {
     background: rgba(0, 123, 255, 0.1); /* 淺藍色背景 */
-    color: var(--my-primary-color); /* 主要顏色 */
+    color: var(--my-layer-color-blue); /* 主要顏色 */
     transform: translateY(-1px); /* 輕微上移 */
   }
 
   /* 🔘 視圖切換按鈕激活狀態 (View Switcher Button Active) */
   .my-view-switcher-active {
-    background: var(--my-primary-color) !important; /* 主要顏色背景 */
+    background: var(--my-layer-color-blue) !important; /* 主要顏色背景 */
     color: white !important; /* 白色文字 */
     box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3); /* 藍色陰影 */
   }
 
   /* 🔘 視圖切換按鈕激活懸停效果 (View Switcher Button Active Hover) */
   .my-view-switcher-active:hover {
-    background: var(--my-primary-hover) !important; /* 主要顏色懸停 */
+    background: #1976d2 !important; /* 深藍色懸停 */
     transform: translateY(-1px); /* 輕微上移 */
   }
 </style>

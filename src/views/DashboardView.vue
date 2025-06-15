@@ -161,7 +161,7 @@
           >
             <!-- tab按鈕 -->
             <div
-              class="btn nav-link rounded-0 border-0 position-relative d-flex align-items-center justify-content-center my-bg-color-gray-200"
+              class="btn nav-link rounded-0 border-0 position-relative d-flex align-items-center justify-content-center"
               :class="{
                 active: activeLayerTab === layer.layerId,
               }"
@@ -229,7 +229,7 @@
 <style scoped>
   .my-dashboard-container {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--my-bg-color-gray-200); /* 資料儀表版底色為 gray-200 */
+    background-color: #eeeeee; /* 資料儀表版底色為 gray-200 */
   }
 
   .stats-card {

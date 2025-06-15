@@ -13,7 +13,6 @@
    ============================================================================= */
 
 @import "./variables.css"; /* 基礎變數定義 */
-@import "./theme-colors.css"; /* 主題顏色配置 */
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap");
 
 /* =============================================================================
@@ -39,8 +38,8 @@ body {
   font-size: var(--my-font-size-base); /* 基礎字體大小 */
   letter-spacing: var(--my-letter-spacing-base);
   line-height: var(--my-line-height-normal); /* 行高設定 */
-  color: var(--my-text-primary); /* 主要文字顏色 */
-  background-color: var(--my-bg-primary); /* 主要背景顏色 */
+  color: #212121; /* 主要文字顏色 */
+  background-color: #ffffff; /* 主要背景顏色 */
 }
 
 /* 字體大小 */
@@ -73,75 +72,55 @@ body {
 /* 文字顏色 */
 
 .my-color-white {
-  color: var(--my-color-white);
+  color: #ffffff;
 }
 
 .my-color-gray-500 {
-  color: var(--my-color-gray-500);
+  color: #9e9e9e;
 }
 
 .my-title-xl {
   font-size: var(--my-font-size-xl);
-  color: var(--my-color-gray-500);
+  color: #9e9e9e;
   font-weight: var(--my-font-weight-normal);
 }
 
 .my-title-sm {
   font-size: var(--my-font-size-sm);
-  color: var(--my-color-gray-700);
+  color: #616161;
   font-weight: var(--my-font-weight-medium);
 }
 
 .my-title-xs {
   font-size: var(--my-font-size-xs);
-  color: var(--my-color-gray-500);
+  color: #9e9e9e;
   font-weight: var(--my-font-weight-medium);
 }
 
 .my-content-sm {
   font-size: var(--my-font-size-sm);
-  color: var(--my-color-gray-900);
+  color: #212121;
 }
 
 .my-content-xs {
   font-size: var(--my-font-size-xs);
-  color: var(--my-color-gray-500);
+  color: #9e9e9e;
 }
 
 /* 背景顏色 */
 
 .my-bg-white {
-  background-color: var(--my-color-white);
+  background-color: #ffffff;
 }
 
 .my-bg-white-hover {
-  background-color: var(--my-color-white);
+  background-color: #ffffff;
 }
 .my-bg-white-hover:hover {
-  background-color: var(--my-color-gray-200);
+  background-color: #eeeeee;
 }
 
-.my-bg-color-gray-50 {
-  background-color: var(--my-color-gray-50);
-}
-.my-bg-color-gray-100 {
-  background-color: var(--my-color-gray-100);
-}
-.my-bg-color-gray-200 {
-  background-color: var(--my-color-gray-200);
-}
-.my-bg-color-gray-300 {
-  background-color: var(--my-color-gray-300);
-}
-.my-bg-color-gray-400 {
-  background-color: var(--my-color-gray-400);
-}
-.my-bg-color-gray-500 {
-  background-color: var(--my-color-gray-500);
-}
-.my-bg-color-gray-600 {
-  background-color: var(--my-color-gray-600);
-}
+
 
 /* tab */
 
@@ -150,7 +129,7 @@ body {
 }
 
 .my-tab-sm:hover {
-  background-color: var(--my-color-gray-100);
+  background-color: #f5f5f5;
 }
 
 /* =============================================================================
@@ -174,102 +153,15 @@ body {
   height: calc(100vh - 116px); /* 計算可用高度（扣除導航欄56px+頁腳60px） */
 }
 
-/* =============================================================================
-   🦶 頁腳樣式 (Footer Styles)
-   ============================================================================= */
 
-.my-app-footer {
-  flex-shrink: 0;
-  background-color: var(--my-bg-dark); /* 深色背景 */
-  color: var(--my-text-light); /* 淺色文字 */
-  padding: var(--my-spacing-4) 0; /* 上下內距 */
-  margin-top: auto;
-  font-size: var(--my-font-size-sm); /* 小字體 */
-}
-
-.my-app-footer .container-fluid {
-  max-width: 1200px;
-}
-
-.my-app-footer a {
-  color: var(--my-text-light); /* 連結顏色 */
-  text-decoration: none;
-  transition: var(--my-transition-colors); /* 顏色轉換效果 */
-}
-
-.my-app-footer a:hover {
-  color: var(--my-primary-light); /* 懸停時的顏色 */
-  text-decoration: underline;
-}
-
-/* =============================================================================
-   ⏳ 載入覆蓋層樣式 (Loading Overlay Styles)
-   ============================================================================= */
-
-.my-loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: var(--my-bg-overlay-heavy); /* 半透明背景 */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: var(--my-z-index-loading); /* 最高層級 */
-}
-
-.my-loading-content {
-  text-align: center;
-  color: var(--my-text-light); /* 淺色文字 */
-  background-color: var(--my-panel-bg); /* 面板背景 */
-  padding: var(--my-spacing-6); /* 內距 */
-  border-radius: var(--my-radius-lg); /* 圓角 */
-  box-shadow: var(--my-shadow-lg); /* 陰影效果 */
-  min-width: 300px;
-  max-width: 400px;
-}
-
-.my-loading-spinner {
-  width: 3rem;
-  height: 3rem;
-  margin: 0 auto var(--my-spacing-4); /* 置中並設定下邊距 */
-  border-radius: 50%;
-}
-
-.my-loading-text {
-  font-size: var(--my-font-size-xl); /* 載入文字大小 */
-  font-weight: var(--my-font-weight-medium); /* 中等字重 */
-  color: var(--my-text-primary); /* 主要文字顏色 */
-  margin-bottom: var(--my-spacing-2); /* 下邊距 */
-}
-
-.my-loading-progress {
-  margin-top: var(--my-spacing-4); /* 進度條上邊距 */
-}
-
-.my-loading-progress .progress {
-  height: 6px; /* 進度條高度 */
-  background-color: var(--my-bg-secondary); /* 進度條背景 */
-  border-radius: var(--my-radius-base); /* 進度條圓角 */
-}
-
-.my-loading-progress .progress-bar {
-  background: linear-gradient(
-    90deg,
-    var(--my-primary-color),
-    var(--my-primary-light)
-  ); /* 進度條漸層背景 */
-  transition: width 0.3s ease; /* 寬度變化動畫 */
-}
 
 /* =============================================================================
    📊 面板樣式 (Panel Styles)
    ============================================================================= */
 
 .my-right-panel {
-  background-color: var(--my-panel-bg); /* 面板背景色 */
-  border-left: 1px solid var(--my-color-gray-200); /* 左邊框 */
+  background-color: #ffffff; /* 面板背景色 */
+  border-left: 1px solid #eeeeee; /* 左邊框 */
 }
 
 /* 🌟 左側面板右側陰影 (Left Panel Right Shadow) */
@@ -316,13 +208,13 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--my-color-gray-200); /* 滾動條顏色 */
+  background: #eeeeee; /* 滾動條顏色 */
   border-radius: 3px; /* 滾動條圓角 */
   transition: background-color 0.2s ease; /* 平滑過渡效果 */
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--my-color-gray-300); /* 滑鼠懸停時的顏色 */
+  background: #e0e0e0; /* 滑鼠懸停時的顏色 */
 }
 
 ::-webkit-scrollbar-corner {
@@ -332,7 +224,7 @@ body {
 /* 🎨 Firefox 滾動條樣式 */
 * {
   scrollbar-width: thin; /* 細滾動條 */
-  scrollbar-color: var(--my-color-gray-200) white; /* 滾動條顏色 軌道顏色 */
+  scrollbar-color: #eeeeee white; /* 滾動條顏色 軌道顏色 */
 }
 
 /* =============================================================================
@@ -349,13 +241,13 @@ body {
    ============================================================================= */
 
 .my-resizer {
-  background-color: var(--my-bg-color-gray-100); /* 調整器背景色 */
+  background-color: #f5f5f5; /* 調整器背景色 */
   transition: all 0.2s ease; /* 平滑過渡效果 */
   border: none; /* 移除邊框 */
 }
 
 .my-resizer:hover {
-  background-color: var(--my-primary-color); /* 懸停時的背景色 */
+  background-color: var(--my-layer-color-blue); /* 懸停時的背景色 */
 }
 
 /* 🔧 垂直拖曳調整器 (Vertical Resizer) */
@@ -385,16 +277,16 @@ body {
 }
 
 .my-resizer.my-dragging {
-  background-color: var(--my-primary-color) !important; /* 拖曳時的背景色 */
+  background-color: var(--my-layer-color-blue) !important; /* 拖曳時的背景色 */
 }
 
-/* 🔧 不同位置的 resizer 顏色 (Different Resizer Colors) */
-.my-resizer-left {
-  background-color: var(--my-bg-color-gray-100); /* 左側面板 resizer - gray-200 */
-}
+  /* 🔧 不同位置的 resizer 顏色 (Different Resizer Colors) */
+  .my-resizer-left {
+    background-color: #f5f5f5; /* 左側面板 resizer - gray-100 */
+  }
 
 .my-resizer-left:hover {
-  background-color: var(--my-primary-color); /* 懸停時保持主色 */
+  background-color: var(--my-layer-color-blue); /* 懸停時保持主色 */
 }
 
 .my-resizer-right {
@@ -402,17 +294,17 @@ body {
 }
 
 .my-resizer-right:hover {
-  background-color: var(--my-primary-color); /* 懸停時保持主色 */
+  background-color: var(--my-layer-color-blue); /* 懸停時保持主色 */
 }
 
-.my-resizer-middle {
-  background-color: var(--my-bg-color-gray-200); /* 中間面板上下拉 resizer - white */
-  position: relative; /* 為偽元素提供定位上下文 */
-  /* border-top: 1px solid var(--my-color-gray-200); */ /* 上邊框分隔線 */
-}
+  .my-resizer-middle {
+    background-color: #eeeeee; /* 中間面板上下拉 resizer - gray-200 */
+    position: relative; /* 為偽元素提供定位上下文 */
+    /* border-top: 1px solid #eeeeee; */ /* 上邊框分隔線 */
+  }
 
 .my-resizer-middle:hover {
-  background-color: var(--my-primary-color); /* 懸停時保持主色 */
+  background-color: var(--my-layer-color-blue); /* 懸停時保持主色 */
 }
 
 /* =============================================================================
@@ -482,27 +374,7 @@ body.my-no-select * {
   border-radius: 0 0 4px 4px;
 }
 
-/* 🎨 圖層顏色系統 (Layer Color System) */
-/* 預定義的圖層顏色，使用語義化的顏色名稱 */
-:root {
-  /* 主要圖層顏色 (Primary Layer Colors) */
-  --my-layer-color-blue: #2196f3;
-  --my-layer-color-green: #4caf50;
-  --my-layer-color-orange: #ff9800;
-  --my-layer-color-red: #f44336;
-  --my-layer-color-purple: #9c27b0;
-  --my-layer-color-cyan: #00bcd4;
-  --my-layer-color-deep-orange: #ff5722;
-  --my-layer-color-brown: #795548;
-  --my-layer-color-blue-grey: #607d8b;
-  --my-layer-color-pink: #e91e63;
-  --my-layer-color-light-green: #8bc34a;
-  --my-layer-color-amber: #ffc107;
-  --my-layer-color-indigo: #3f51b5;
-  --my-layer-color-teal: #009688;
-  --my-layer-color-lime: #cddc39;
-  --my-layer-color-orange-variant: #ff6f00;
-}
+
 
 /* 圖層顏色類別 (Layer Color Classes) */
 .my-layer-color-blue {
