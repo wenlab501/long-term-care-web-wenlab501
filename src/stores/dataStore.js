@@ -8,23 +8,14 @@ import {
   loadHospitalClinicData,
 } from '../utils/dataProcessor.js';
 
+import { assignLayerColorNames, getLayerColorVar, getLayerColorClass } from '../utils/utils.js';
+
 // 主要數據存儲定義 (Main Data Store Definition)
 export const useDataStore = defineStore(
   'data',
   () => {
-    // 🎨 預定義圖層顏色
-    const LAYER_COLORS = [
-      '#FF6B6B', // 紅色
-      '#4ECDC4', // 青色
-      '#45B7D1', // 藍色
-      '#96CEB4', // 綠色
-      '#FFEAA7', // 黃色
-      '#DDA0DD', // 紫色
-      '#98D8C8', // 薄荷綠
-      '#F7DC6F', // 金黃色
-      '#BB8FCE', // 淡紫色
-      '#85C1E9', // 天藍色
-    ];
+    // 🎨 為所有圖層分配顏色名稱
+    const layerColorNames = assignLayerColorNames(6); // 總共6個圖層
 
     const layers = ref([
       {
@@ -37,7 +28,9 @@ export const useDataStore = defineStore(
             isLoading: false,
             isLoaded: false,
             type: 'point',
-            color: LAYER_COLORS[0],
+            colorName: layerColorNames[0],
+            color: getLayerColorVar(layerColorNames[0]),
+            colorClass: getLayerColorClass(layerColorNames[0]),
             data: null,
             summaryData: null,
             tableData: null,
@@ -57,7 +50,9 @@ export const useDataStore = defineStore(
             isLoading: false,
             isLoaded: false,
             type: 'point',
-            color: LAYER_COLORS[1],
+            colorName: layerColorNames[1],
+            color: getLayerColorVar(layerColorNames[1]),
+            colorClass: getLayerColorClass(layerColorNames[1]),
             data: null,
             summaryData: null,
             tableData: null,
@@ -72,7 +67,9 @@ export const useDataStore = defineStore(
             isLoading: false,
             isLoaded: false,
             type: 'point',
-            color: LAYER_COLORS[2],
+            colorName: layerColorNames[2],
+            color: getLayerColorVar(layerColorNames[2]),
+            colorClass: getLayerColorClass(layerColorNames[2]),
             data: null,
             summaryData: null,
             tableData: null,
@@ -87,7 +84,9 @@ export const useDataStore = defineStore(
             isLoading: false,
             isLoaded: false,
             type: 'point',
-            color: LAYER_COLORS[3],
+            colorName: layerColorNames[3],
+            color: getLayerColorVar(layerColorNames[3]),
+            colorClass: getLayerColorClass(layerColorNames[3]),
             data: null,
             summaryData: null,
             tableData: null,
@@ -107,7 +106,9 @@ export const useDataStore = defineStore(
             isLoading: false,
             isLoaded: false,
             type: 'polygon',
-            color: LAYER_COLORS[4],
+            colorName: layerColorNames[4],
+            color: getLayerColorVar(layerColorNames[4]),
+            colorClass: getLayerColorClass(layerColorNames[4]),
             data: null,
             summaryData: null,
             tableData: null,
@@ -122,7 +123,9 @@ export const useDataStore = defineStore(
             isLoading: false,
             isLoaded: false,
             type: 'polygon',
-            color: LAYER_COLORS[5],
+            colorName: layerColorNames[5],
+            color: getLayerColorVar(layerColorNames[5]),
+            colorClass: getLayerColorClass(layerColorNames[5]),
             data: null,
             summaryData: null,
             tableData: null,

@@ -390,7 +390,7 @@ body {
 
 /* 🔧 不同位置的 resizer 顏色 (Different Resizer Colors) */
 .my-resizer-left {
-  background-color: var(--my-bg-color-gray-200); /* 左側面板 resizer - gray-200 */
+  background-color: var(--my-bg-color-gray-100); /* 左側面板 resizer - gray-200 */
 }
 
 .my-resizer-left:hover {
@@ -408,7 +408,7 @@ body {
 .my-resizer-middle {
   background-color: var(--my-bg-color-gray-200); /* 中間面板上下拉 resizer - white */
   position: relative; /* 為偽元素提供定位上下文 */
-  border-top: 1px solid var(--my-color-gray-200); /* 上邊框分隔線 */
+  /* border-top: 1px solid var(--my-color-gray-200); */ /* 上邊框分隔線 */
 }
 
 .my-resizer-middle:hover {
@@ -480,4 +480,233 @@ body.my-no-select * {
   width: 100%;
   height: 4px;
   border-radius: 0 0 4px 4px;
+}
+
+/* 🎨 圖層顏色系統 (Layer Color System) */
+/* 預定義的圖層顏色，使用語義化的顏色名稱 */
+:root {
+  /* 主要圖層顏色 (Primary Layer Colors) */
+  --my-layer-color-blue: #2196f3;
+  --my-layer-color-green: #4caf50;
+  --my-layer-color-orange: #ff9800;
+  --my-layer-color-red: #f44336;
+  --my-layer-color-purple: #9c27b0;
+  --my-layer-color-cyan: #00bcd4;
+  --my-layer-color-deep-orange: #ff5722;
+  --my-layer-color-brown: #795548;
+  --my-layer-color-blue-grey: #607d8b;
+  --my-layer-color-pink: #e91e63;
+  --my-layer-color-light-green: #8bc34a;
+  --my-layer-color-amber: #ffc107;
+  --my-layer-color-indigo: #3f51b5;
+  --my-layer-color-teal: #009688;
+  --my-layer-color-lime: #cddc39;
+  --my-layer-color-orange-variant: #ff6f00;
+}
+
+/* 圖層顏色類別 (Layer Color Classes) */
+.my-layer-color-blue {
+  color: var(--my-layer-color-blue);
+}
+.my-layer-color-green {
+  color: var(--my-layer-color-green);
+}
+.my-layer-color-orange {
+  color: var(--my-layer-color-orange);
+}
+.my-layer-color-red {
+  color: var(--my-layer-color-red);
+}
+.my-layer-color-purple {
+  color: var(--my-layer-color-purple);
+}
+.my-layer-color-cyan {
+  color: var(--my-layer-color-cyan);
+}
+.my-layer-color-deep-orange {
+  color: var(--my-layer-color-deep-orange);
+}
+.my-layer-color-brown {
+  color: var(--my-layer-color-brown);
+}
+.my-layer-color-blue-grey {
+  color: var(--my-layer-color-blue-grey);
+}
+.my-layer-color-pink {
+  color: var(--my-layer-color-pink);
+}
+.my-layer-color-light-green {
+  color: var(--my-layer-color-light-green);
+}
+.my-layer-color-amber {
+  color: var(--my-layer-color-amber);
+}
+.my-layer-color-indigo {
+  color: var(--my-layer-color-indigo);
+}
+.my-layer-color-teal {
+  color: var(--my-layer-color-teal);
+}
+.my-layer-color-lime {
+  color: var(--my-layer-color-lime);
+}
+.my-layer-color-orange-variant {
+  color: var(--my-layer-color-orange-variant);
+}
+
+/* 圖層背景顏色類別 (Layer Background Color Classes) */
+.my-layer-bg-blue {
+  background-color: var(--my-layer-color-blue);
+}
+.my-layer-bg-green {
+  background-color: var(--my-layer-color-green);
+}
+.my-layer-bg-orange {
+  background-color: var(--my-layer-color-orange);
+}
+.my-layer-bg-red {
+  background-color: var(--my-layer-color-red);
+}
+.my-layer-bg-purple {
+  background-color: var(--my-layer-color-purple);
+}
+.my-layer-bg-cyan {
+  background-color: var(--my-layer-color-cyan);
+}
+.my-layer-bg-deep-orange {
+  background-color: var(--my-layer-color-deep-orange);
+}
+.my-layer-bg-brown {
+  background-color: var(--my-layer-color-brown);
+}
+.my-layer-bg-blue-grey {
+  background-color: var(--my-layer-color-blue-grey);
+}
+.my-layer-bg-pink {
+  background-color: var(--my-layer-color-pink);
+}
+.my-layer-bg-light-green {
+  background-color: var(--my-layer-color-light-green);
+}
+.my-layer-bg-amber {
+  background-color: var(--my-layer-color-amber);
+}
+.my-layer-bg-indigo {
+  background-color: var(--my-layer-color-indigo);
+}
+.my-layer-bg-teal {
+  background-color: var(--my-layer-color-teal);
+}
+.my-layer-bg-lime {
+  background-color: var(--my-layer-color-lime);
+}
+.my-layer-bg-orange-variant {
+  background-color: var(--my-layer-color-orange-variant);
+}
+
+/* 🌫️ 共用霧化樣式 (Shared Blur Effects) */
+/* 強化霧化效果 - 用於主要控制項 */
+.my-blur-strong {
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+}
+
+/* 中等霧化效果 - 用於次要控制項 */
+.my-blur-medium {
+  backdrop-filter: blur(8px) saturate(150%);
+  -webkit-backdrop-filter: blur(8px) saturate(150%);
+}
+
+/* 輕微霧化效果 - 用於下拉選單等 */
+.my-blur-light {
+  backdrop-filter: blur(8px) saturate(120%);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+}
+
+/* 🎨 圖層圖標系統 (Layer Icon System) */
+/* 預定義的圖層圖標，使用 FontAwesome 的 Unicode 字符 */
+.my-layer-icon-hospital::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f0f8"; /* fa-hospital */
+}
+.my-layer-icon-clinic::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f7f2"; /* fa-clinic-medical */
+}
+.my-layer-icon-pharmacy::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f484"; /* fa-pills */
+}
+.my-layer-icon-elderly-care::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f4c4"; /* fa-hands-helping */
+}
+.my-layer-icon-nursing-home::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f015"; /* fa-home */
+}
+.my-layer-icon-population::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f0c0"; /* fa-users */
+}
+.my-layer-icon-demographics::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f500"; /* fa-user-friends */
+}
+.my-layer-icon-elderly::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f4fd"; /* fa-user-clock */
+}
+.my-layer-icon-district::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f5a0"; /* fa-map-marked-alt */
+}
+.my-layer-icon-village::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f015"; /* fa-home */
+}
+.my-layer-icon-boundary::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f853"; /* fa-border-style */
+}
+.my-layer-icon-transport::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f207"; /* fa-bus */
+}
+.my-layer-icon-parking::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f540"; /* fa-parking */
+}
+.my-layer-icon-school::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f549"; /* fa-school */
+}
+.my-layer-icon-park::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f1bb"; /* fa-tree */
+}
+.my-layer-icon-government::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f19c"; /* fa-landmark */
+}
+.my-layer-icon-default::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f3c5"; /* fa-map-marker-alt */
 }

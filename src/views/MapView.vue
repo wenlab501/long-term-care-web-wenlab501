@@ -762,7 +762,7 @@
 
     <!-- ✨ 地圖底部控制項區域 (Bottom Map Controls Area) -->
     <!-- 浮動在地圖底部中央，提供底圖選擇和功能按鈕 -->
-    <div class="map-bottom-controls">
+    <div class="map-bottom-controls my-blur-strong">
       <!-- 🗺️ 底圖選擇器群組 (Basemap Selector Group) -->
       <!-- 使用 Bootstrap 下拉選單提供多種底圖選擇 -->
       <div class="basemap-select-group">
@@ -781,7 +781,7 @@
             {{ getBasemapLabel(selectedBasemap) }}
           </button>
           <!-- 下拉選單項目列表 -->
-          <ul class="dropdown-menu dropdown-menu-end">
+          <ul class="dropdown-menu dropdown-menu-end my-blur-light">
             <!-- OpenStreetMap 開源地圖選項 -->
             <li>
               <a class="dropdown-item" href="#" @click.prevent="changeBasemap('osm')"
@@ -969,8 +969,7 @@
     display: flex; /* 使用 Flexbox 佈局 */
     align-items: center; /* 垂直對齊 */
     gap: 10px; /* 減少子元素間距 */
-    backdrop-filter: blur(12px) saturate(180%); /* 強化霧化效果 */
-    -webkit-backdrop-filter: blur(12px) saturate(180%); /* Safari 支援 */
+
     pointer-events: auto; /* 確保控制項可以接收滑鼠事件 */
     min-width: 280px; /* 減少最小寬度 */
     max-width: 90%; /* 設定最大寬度，避免在小螢幕上溢出 */
@@ -990,8 +989,6 @@
     font-size: 0.7rem; /* 更小的字體 */
     min-width: 200px; /* 更小的最小寬度 */
     gap: 4px; /* 更小的間距 */
-    backdrop-filter: blur(8px) saturate(150%); /* 小尺寸時稍微減少模糊 */
-    -webkit-backdrop-filter: blur(8px) saturate(150%); /* Safari 支援 */
   }
 
   /* 移除隱藏控制條的規則，確保控制條永遠可見 */
@@ -1010,8 +1007,7 @@
 
   .basemap-select-group .dropdown-menu {
     z-index: 9999; /* 確保下拉選單在最上層 */
-    backdrop-filter: blur(8px) saturate(120%); /* 下拉選單也加上霧化效果 */
-    -webkit-backdrop-filter: blur(8px) saturate(120%); /* Safari 支援 */
+
     background: rgba(255, 255, 255, 0.95); /* 半透明背景 */
     border: 1px solid rgba(0, 0, 0, 0.1); /* 淡邊框 */
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); /* 增強陰影 */

@@ -7,7 +7,7 @@
       <!-- 🎛️ 統一的導航按鈕組 (Unified Navigation Buttons) -->
       <!-- 浮動在左上角，提供地圖和儀表板之間的快速切換 -->
       <div class="position-absolute top-0 start-0 m-3" style="z-index: 1000">
-        <div class="my-view-switcher-controls">
+        <div class="my-view-switcher-controls my-blur-strong">
           <!-- 🗺️ 地圖視圖按鈕 (Map View Button) -->
           <button
             class="btn btn-sm my-view-switcher-btn"
@@ -373,16 +373,6 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* 作用中按鈕的陰影 */
   }
 
-  /* 🎨 分頁內容區域樣式 (Tab Content Area Styles) */
-  .position-relative {
-    /* 為浮動導航按鈕提供定位上下文 */
-  }
-
-  /* 🐛 調試信息區域樣式 (Debug Information Area Styles) */
-  .bg-light {
-    background-color: #f8f9fa !important; /* 淺灰色背景 */
-  }
-
   .text-center code {
     background-color: #e9ecef; /* 程式碼背景色 */
     padding: 0.25rem 0.5rem; /* 程式碼內邊距 */
@@ -403,8 +393,7 @@
     padding: 6px 10px; /* 內邊距 */
     border-radius: 8px; /* 圓角 */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* 陰影效果 */
-    backdrop-filter: blur(12px) saturate(180%); /* 強化霧化效果 */
-    -webkit-backdrop-filter: blur(12px) saturate(180%); /* Safari 支援 */
+
     border: 1px solid rgba(255, 255, 255, 0.3); /* 半透明邊框增強玻璃效果 */
     transition: all 0.3s ease; /* 平滑過渡效果 */
   }

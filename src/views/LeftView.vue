@@ -1,7 +1,7 @@
 <script>
   import { computed, ref } from 'vue';
-  import { useDataStore } from '../stores/dataStore';
-  import { ICONS, getIcon, getLayerIcon } from '../utils/utils.js';
+  import { useDataStore } from '@/stores/dataStore.js';
+  import { ICONS, getIcon, getLayerIconName, getLayerIconHtml } from '../utils/utils.js';
 
   export default {
     name: 'LeftView',
@@ -31,7 +31,8 @@
         toggleLayer,
         layerListRef,
         getIcon,
-        getLayerIcon,
+        getLayerIconName,
+        getLayerIconHtml,
         ICONS,
       };
     },
@@ -39,7 +40,7 @@
 </script>
 
 <template>
-  <div class="bg-light h-100 d-flex flex-column overflow-hidden">
+  <div class="my-bg-color-gray-100 h-100 d-flex flex-column overflow-hidden">
     <div class="p-3">
       <h1 class="my-font-size-lg my-letter-spacing-lg text-center m-3">臺北市長照資訊</h1>
     </div>

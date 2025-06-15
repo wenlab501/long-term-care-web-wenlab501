@@ -14,11 +14,48 @@
  * 用於統一管理系統中使用的所有圖標
  */
 export const ICONS = {
+  // 基本操作圖標
+  add: { zh: '新增', en: 'Add', icon: 'fas fa-plus' },
+  edit: { zh: '編輯', en: 'Edit', icon: 'fas fa-edit' },
+  delete: { zh: '刪除', en: 'Delete', icon: 'fas fa-trash' },
+  save: { zh: '儲存', en: 'Save', icon: 'fas fa-save' },
+  cancel: { zh: '取消', en: 'Cancel', icon: 'fas fa-times' },
+  confirm: { zh: '確認', en: 'Confirm', icon: 'fas fa-check' },
+  search: { zh: '搜尋', en: 'Search', icon: 'fas fa-search' },
+  filter: { zh: '篩選', en: 'Filter', icon: 'fas fa-filter' },
+  sort: { zh: '排序', en: 'Sort', icon: 'fas fa-sort' },
+  refresh: { zh: '重新整理', en: 'Refresh', icon: 'fas fa-sync-alt' },
+
+  // 檔案操作圖標
+  upload: { zh: '上傳', en: 'Upload', icon: 'fas fa-upload' },
+  download: { zh: '下載', en: 'Download', icon: 'fas fa-download' },
+  import: { zh: '匯入', en: 'Import', icon: 'fas fa-file-import' },
+  export: { zh: '匯出', en: 'Export', icon: 'fas fa-file-export' },
+
+  // 導航圖標
+  home: { zh: '首頁', en: 'Home', icon: 'fas fa-home' },
+  back: { zh: '返回', en: 'Back', icon: 'fas fa-arrow-left' },
+  forward: { zh: '前進', en: 'Forward', icon: 'fas fa-arrow-right' },
+  up: { zh: '向上', en: 'Up', icon: 'fas fa-arrow-up' },
+  down: { zh: '向下', en: 'Down', icon: 'fas fa-arrow-down' },
+
+  // 狀態圖標
+  success: { zh: '成功', en: 'Success', icon: 'fas fa-check-circle' },
+  error: { zh: '錯誤', en: 'Error', icon: 'fas fa-exclamation-circle' },
+  warning: { zh: '警告', en: 'Warning', icon: 'fas fa-exclamation-triangle' },
+  info: { zh: '資訊', en: 'Info', icon: 'fas fa-info-circle' },
+  loading: { zh: '載入中', en: 'Loading', icon: 'fas fa-spinner' },
+
+  // 視圖控制圖標
+  view: { zh: '檢視', en: 'View', icon: 'fas fa-eye' },
+  hide: { zh: '隱藏', en: 'Hide', icon: 'fas fa-eye-slash' },
+  expand: { zh: '展開', en: 'Expand', icon: 'fas fa-expand' },
+  collapse: { zh: '收縮', en: 'Collapse', icon: 'fas fa-compress' },
+
   // 📂 圖層和資料相關 (Layer & Data Icons)
   layer: { zh: '圖層', en: 'Layer', icon: 'fas fa-layer-group' },
   visible: { zh: '可見', en: 'Visible', icon: 'fas fa-eye' },
   hidden: { zh: '隱藏', en: 'Hidden', icon: 'fas fa-eye-slash' },
-  loading: { zh: '載入中', en: 'Loading', icon: 'fas fa-spinner fa-spin' },
   data: { zh: '資料', en: 'Data', icon: 'fas fa-database' },
   table: { zh: '表格', en: 'Table', icon: 'fas fa-table' },
 
@@ -55,17 +92,9 @@ export const ICONS = {
   drag: { zh: '拖拉', en: 'Drag', icon: 'fa-solid fa-grip-lines-vertical' },
   move_up: { zh: '上移', en: 'Move Up', icon: 'fas fa-arrow-up' },
   move_down: { zh: '下移', en: 'Move Down', icon: 'fas fa-arrow-down' },
-  delete: { zh: '刪除', en: 'Delete', icon: 'fas fa-trash' },
-  edit: { zh: '編輯', en: 'Edit', icon: 'fas fa-edit' },
-  save: { zh: '保存', en: 'Save', icon: 'fas fa-save' },
-  cancel: { zh: '取消', en: 'Cancel', icon: 'fas fa-times' },
-  confirm: { zh: '確認', en: 'Confirm', icon: 'fas fa-check' },
 
   // ⚙️ 設定和配置 (Settings & Configuration Icons)
   settings: { zh: '設定', en: 'Settings', icon: 'fas fa-cog' },
-  filter: { zh: '篩選', en: 'Filter', icon: 'fas fa-filter' },
-  search: { zh: '搜尋', en: 'Search', icon: 'fas fa-search' },
-  sort: { zh: '排序', en: 'Sort', icon: 'fas fa-sort' },
   sort_up: { zh: '升序', en: 'Sort Ascending', icon: 'fas fa-sort-up' },
   sort_down: { zh: '降序', en: 'Sort Descending', icon: 'fas fa-sort-down' },
 
@@ -73,87 +102,145 @@ export const ICONS = {
   folder: { zh: '資料夾', en: 'Folder', icon: 'fas fa-folder' },
   folder_open: { zh: '開啟資料夾', en: 'Open Folder', icon: 'fas fa-folder-open' },
   file: { zh: '檔案', en: 'File', icon: 'fas fa-file' },
-  download: { zh: '下載', en: 'Download', icon: 'fas fa-download' },
-  upload: { zh: '上傳', en: 'Upload', icon: 'fas fa-upload' },
 
   // ℹ️ 資訊和狀態 (Information & Status Icons)
-  info: { zh: '資訊', en: 'Information', icon: 'fas fa-info-circle' },
-  warning: { zh: '警告', en: 'Warning', icon: 'fas fa-exclamation-triangle' },
-  error: { zh: '錯誤', en: 'Error', icon: 'fas fa-times-circle' },
-  success: { zh: '成功', en: 'Success', icon: 'fas fa-check-circle' },
+  information: { zh: '資訊', en: 'Information', icon: 'fas fa-info-circle' },
+  alert: { zh: '警告', en: 'Warning', icon: 'fas fa-exclamation-triangle' },
+  failure: { zh: '錯誤', en: 'Error', icon: 'fas fa-times-circle' },
+  complete: { zh: '成功', en: 'Success', icon: 'fas fa-check-circle' },
 
   // 🔄 狀態轉換 (State Transition Icons)
-  refresh: { zh: '重新整理', en: 'Refresh', icon: 'fas fa-sync-alt' },
   reset: { zh: '重設', en: 'Reset', icon: 'fas fa-undo' },
 
   // 📱 介面元素 (UI Element Icons)
   menu: { zh: '選單', en: 'Menu', icon: 'fas fa-bars' },
   close: { zh: '關閉', en: 'Close', icon: 'fas fa-times' },
-  expand: { zh: '展開', en: 'Expand', icon: 'fas fa-expand' },
-  collapse: { zh: '收縮', en: 'Collapse', icon: 'fas fa-compress' },
 };
 
 // =================================================================================
-// 🏥 圖層類型圖標映射 (Layer Type Icon Mapping)
+// 🎨 圖層顏色系統 (Layer Color System)
 // =================================================================================
 
 /**
- * 圖層類型與圖標的映射表
- * 根據圖層名稱或類型自動分配對應的 FontAwesome 圖標
+ * 預定義的圖層顏色名稱列表
+ * 這些顏色名稱對應到 CSS 中定義的 --my-layer-color-* 變數
  */
-export const LAYER_TYPE_ICONS = {
+export const LAYER_COLOR_NAMES = [
+  'blue',
+  'green',
+  'orange',
+  'red',
+  'purple',
+  'cyan',
+  'deep-orange',
+  'brown',
+  'blue-grey',
+  'pink',
+  'light-green',
+  'amber',
+  'indigo',
+  'teal',
+  'lime',
+  'orange-variant',
+];
+
+/**
+ * 為圖層分配顏色名稱
+ * @param {number} totalLayers - 總圖層數量
+ * @returns {string[]} 顏色名稱陣列
+ */
+export function assignLayerColorNames(totalLayers) {
+  const colorNames = [];
+
+  for (let i = 0; i < totalLayers; i++) {
+    // 循環使用預定義的顏色名稱
+    const colorIndex = i % LAYER_COLOR_NAMES.length;
+    colorNames.push(LAYER_COLOR_NAMES[colorIndex]);
+  }
+
+  return colorNames;
+}
+
+/**
+ * 獲取圖層顏色的 CSS 變數名稱
+ * @param {string} colorName - 顏色名稱
+ * @returns {string} CSS 變數名稱
+ */
+export function getLayerColorVar(colorName) {
+  return `var(--my-layer-color-${colorName})`;
+}
+
+/**
+ * 獲取圖層顏色的 CSS 類別名稱
+ * @param {string} colorName - 顏色名稱
+ * @param {boolean} isBackground - 是否為背景顏色
+ * @returns {string} CSS 類別名稱
+ */
+export function getLayerColorClass(colorName, isBackground = false) {
+  const prefix = isBackground ? 'my-layer-bg-' : 'my-layer-color-';
+  return `${prefix}${colorName}`;
+}
+
+// =================================================================================
+// 🎨 圖層圖標系統 (Layer Icon System)
+// =================================================================================
+
+/**
+ * 預定義的圖層圖標名稱對應表
+ * 根據圖層名稱或類型自動分配對應的圖標名稱
+ */
+export const LAYER_ICON_MAPPING = {
   // 醫療機構類型
-  hospital: { icon: 'fas fa-hospital', zh: '醫院', en: 'Hospital' },
-  clinic: { icon: 'fas fa-clinic-medical', zh: '診所', en: 'Clinic' },
-  pharmacy: { icon: 'fas fa-pills', zh: '藥局', en: 'Pharmacy' },
-  elderly_care: { icon: 'fas fa-hands-helping', zh: '長照機構', en: 'Elderly Care' },
-  nursing_home: { icon: 'fas fa-home', zh: '護理之家', en: 'Nursing Home' },
+  hospital: 'hospital',
+  clinic: 'clinic',
+  pharmacy: 'pharmacy',
+  elderly_care: 'elderly-care',
+  nursing_home: 'nursing-home',
 
   // 人口統計類型
-  population: { icon: 'fas fa-users', zh: '人口', en: 'Population' },
-  demographics: { icon: 'fas fa-user-friends', zh: '人口統計', en: 'Demographics' },
-  elderly: { icon: 'fas fa-user-clock', zh: '老年人口', en: 'Elderly Population' },
+  population: 'population',
+  demographics: 'demographics',
+  elderly: 'elderly',
 
   // 地理區域類型
-  district: { icon: 'fas fa-map-marked-alt', zh: '行政區', en: 'District' },
-  village: { icon: 'fas fa-home', zh: '村里', en: 'Village' },
-  boundary: { icon: 'fas fa-border-style', zh: '邊界', en: 'Boundary' },
+  district: 'district',
+  village: 'village',
+  boundary: 'boundary',
 
   // 交通設施類型
-  transport: { icon: 'fas fa-bus', zh: '交通', en: 'Transport' },
-  parking: { icon: 'fas fa-parking', zh: '停車場', en: 'Parking' },
+  transport: 'transport',
+  parking: 'parking',
 
   // 公共設施類型
-  school: { icon: 'fas fa-school', zh: '學校', en: 'School' },
-  park: { icon: 'fas fa-tree', zh: '公園', en: 'Park' },
-  government: { icon: 'fas fa-landmark', zh: '政府機關', en: 'Government' },
+  school: 'school',
+  park: 'park',
+  government: 'government',
 
   // 預設類型
-  default: { icon: 'fas fa-map-marker-alt', zh: '地點', en: 'Location' },
+  default: 'default',
 };
 
 /**
- * 根據圖層名稱自動判斷圖標類型
- *
+ * 根據圖層名稱自動判斷圖標名稱
  * @param {string} layerName - 圖層名稱
- * @returns {object} 包含圖標資訊的物件
+ * @returns {string} 圖標名稱
  */
-export function getLayerIcon(layerName) {
+export function getLayerIconName(layerName) {
   if (!layerName) {
-    return LAYER_TYPE_ICONS.default;
+    return LAYER_ICON_MAPPING.default;
   }
 
   const name = layerName.toLowerCase();
 
   // 醫療相關關鍵字
   if (name.includes('醫院') || name.includes('hospital')) {
-    return LAYER_TYPE_ICONS.hospital;
+    return LAYER_ICON_MAPPING.hospital;
   }
   if (name.includes('診所') || name.includes('clinic')) {
-    return LAYER_TYPE_ICONS.clinic;
+    return LAYER_ICON_MAPPING.clinic;
   }
   if (name.includes('藥局') || name.includes('pharmacy') || name.includes('藥房')) {
-    return LAYER_TYPE_ICONS.pharmacy;
+    return LAYER_ICON_MAPPING.pharmacy;
   }
   if (
     name.includes('長照') ||
@@ -161,29 +248,29 @@ export function getLayerIcon(layerName) {
     name.includes('elderly') ||
     name.includes('福利')
   ) {
-    return LAYER_TYPE_ICONS.elderly_care;
+    return LAYER_ICON_MAPPING.elderly_care;
   }
   if (name.includes('護理') || name.includes('nursing')) {
-    return LAYER_TYPE_ICONS.nursing_home;
+    return LAYER_ICON_MAPPING.nursing_home;
   }
 
   // 人口相關關鍵字
   if (name.includes('人口') || name.includes('population')) {
-    return LAYER_TYPE_ICONS.population;
+    return LAYER_ICON_MAPPING.population;
   }
   if (name.includes('統計') || name.includes('demographics')) {
-    return LAYER_TYPE_ICONS.demographics;
+    return LAYER_ICON_MAPPING.demographics;
   }
 
   // 地理相關關鍵字
   if (name.includes('區') || name.includes('district') || name.includes('行政')) {
-    return LAYER_TYPE_ICONS.district;
+    return LAYER_ICON_MAPPING.district;
   }
   if (name.includes('村') || name.includes('里') || name.includes('village')) {
-    return LAYER_TYPE_ICONS.village;
+    return LAYER_ICON_MAPPING.village;
   }
   if (name.includes('邊界') || name.includes('boundary')) {
-    return LAYER_TYPE_ICONS.boundary;
+    return LAYER_ICON_MAPPING.boundary;
   }
 
   // 交通相關關鍵字
@@ -193,95 +280,68 @@ export function getLayerIcon(layerName) {
     name.includes('公車') ||
     name.includes('捷運')
   ) {
-    return LAYER_TYPE_ICONS.transport;
+    return LAYER_ICON_MAPPING.transport;
   }
   if (name.includes('停車') || name.includes('parking')) {
-    return LAYER_TYPE_ICONS.parking;
+    return LAYER_ICON_MAPPING.parking;
   }
 
   // 公共設施關鍵字
   if (name.includes('學校') || name.includes('school') || name.includes('教育')) {
-    return LAYER_TYPE_ICONS.school;
+    return LAYER_ICON_MAPPING.school;
   }
   if (name.includes('公園') || name.includes('park') || name.includes('綠地')) {
-    return LAYER_TYPE_ICONS.park;
+    return LAYER_ICON_MAPPING.park;
   }
   if (name.includes('政府') || name.includes('government') || name.includes('公所')) {
-    return LAYER_TYPE_ICONS.government;
+    return LAYER_ICON_MAPPING.government;
   }
 
   // 預設返回位置圖標
-  return LAYER_TYPE_ICONS.default;
+  return LAYER_ICON_MAPPING.default;
+}
+
+/**
+ * 獲取圖層圖標的完整 HTML 標籤
+ * @param {string} iconName - 圖標名稱
+ * @returns {string} 完整的 <i> 標籤 HTML
+ */
+export function getLayerIconHtml(iconName) {
+  const iconMap = {
+    hospital: '<i class="fas fa-hospital"></i>',
+    clinic: '<i class="fas fa-clinic-medical"></i>',
+    pharmacy: '<i class="fas fa-pills"></i>',
+    'elderly-care': '<i class="fas fa-hands-helping"></i>',
+    'nursing-home': '<i class="fas fa-home"></i>',
+    population: '<i class="fas fa-users"></i>',
+    demographics: '<i class="fas fa-user-friends"></i>',
+    elderly: '<i class="fas fa-user-clock"></i>',
+    district: '<i class="fas fa-map-marked-alt"></i>',
+    village: '<i class="fas fa-home"></i>',
+    boundary: '<i class="fas fa-border-style"></i>',
+    transport: '<i class="fas fa-bus"></i>',
+    parking: '<i class="fas fa-parking"></i>',
+    school: '<i class="fas fa-school"></i>',
+    park: '<i class="fas fa-tree"></i>',
+    government: '<i class="fas fa-landmark"></i>',
+    default: '<i class="fas fa-map-marker-alt"></i>',
+  };
+
+  return iconMap[iconName] || iconMap['default'];
+}
+
+/**
+ * 獲取圖層圖標的 CSS 類別名稱
+ * @param {string} iconName - 圖標名稱
+ * @returns {string} CSS 類別名稱
+ */
+export function getLayerIconClass(iconName) {
+  return `my-layer-icon-${iconName}`;
 }
 
 // =================================================================================
-// 🎨 顏色生成器 (Color Generator)
+// 🏥 圖層類型圖標映射 (Layer Type Icon Mapping)
 // =================================================================================
-
-/**
- * 預定義的視覺化顏色調色盤
- * 確保顏色之間有足夠的對比度和視覺區分
- */
-const VISUALIZATION_COLORS = [
-  '#2196F3', // 藍色
-  '#4CAF50', // 綠色
-  '#FF9800', // 橙色
-  '#F44336', // 紅色
-  '#9C27B0', // 紫色
-  '#00BCD4', // 青色
-  '#FF5722', // 深橙色
-  '#795548', // 棕色
-  '#607D8B', // 藍灰色
-  '#E91E63', // 粉紅色
-  '#8BC34A', // 淺綠色
-  '#FFC107', // 琥珀色
-  '#3F51B5', // 靛青色
-  '#009688', // 藍綠色
-  '#CDDC39', // 檸檬綠
-  '#FF6F00', // 深橙色變體
-];
-
-/**
- * 智能顏色分配器
- * 根據圖層數量預先生成顏色，避免顏色相似
- *
- * @param {number} totalLayers - 總圖層數量
- * @returns {string[]} 顏色陣列
- */
-export function generateLayerColors(totalLayers) {
-  if (totalLayers <= VISUALIZATION_COLORS.length) {
-    // 如果圖層數量少於預定義顏色，直接返回對應數量的顏色
-    return VISUALIZATION_COLORS.slice(0, totalLayers);
-  }
-
-  // 如果圖層數量超過預定義顏色，使用 HSL 色彩空間生成更多顏色
-  const colors = [...VISUALIZATION_COLORS];
-  const additionalColors = totalLayers - VISUALIZATION_COLORS.length;
-
-  for (let i = 0; i < additionalColors; i++) {
-    // 使用黃金角度 (137.5°) 來生成均勻分布的色相
-    const hue = (i * 137.5) % 360;
-    const saturation = 60 + (i % 3) * 15; // 60%, 75%, 90% 飽和度循環
-    const lightness = 45 + (i % 2) * 10; // 45%, 55% 亮度循環
-
-    colors.push(`hsl(${hue}, ${saturation}%, ${lightness}%)`);
-  }
-
-  return colors;
-}
-
-/**
- * 為單個圖層生成隨機顏色（保持向後兼容）
- * 注意：建議使用 generateLayerColors 來獲得更好的顏色分布
- *
- * @returns {string} RGB 顏色字串
- */
-export function generateRandomColor() {
-  const r = Math.floor(Math.random() * 156 + 100); // 100-255 確保顏色不會太暗
-  const g = Math.floor(Math.random() * 156 + 100);
-  const b = Math.floor(Math.random() * 156 + 100);
-  return `rgb(${r}, ${g}, ${b})`;
-}
 
 // =================================================================================
 // 🛠️ 輔助函數 (Helper Functions)
