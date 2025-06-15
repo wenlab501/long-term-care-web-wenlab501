@@ -35,34 +35,133 @@ body {
 
 body {
   font-family: var(--my-font-family-primary); /* 使用主要字體 */
-  font-size: var(--my-font-size-base); /* 基礎字體大小 */
-  letter-spacing: var(--my-letter-spacing-base);
-  line-height: var(--my-line-height-normal); /* 行高設定 */
+  font-size: var(--my-font-size-md); /* 基礎字體大小 */
+  font-weight: var(--my-font-weight-md);
+  letter-spacing: var(--my-letter-spacing-md);
   color: var(--my-color-gray-900); /* 主要文字顏色 */
   background-color: var(--my-color-white); /* 主要背景顏色 */
 }
 
-.my-bg-gray-100 { background-color: var(--my-color-gray-100); }
+/* 應用程式佈局 (Application Layout)  */
+
+#app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
 
 /* 字體大小 */
 
-.my-font-size-2xl {
-  font-size: var(--my-font-size-2xl);
-}
-.my-font-size-xl {
-  font-size: var(--my-font-size-xl);
-}
-.my-font-size-lg {
-  font-size: var(--my-font-size-lg);
-}
-.my-font-size-base {
-  font-size: var(--my-font-size-base);
+.my-font-size-xs {
+  font-size: var(--my-font-size-xs);
 }
 .my-font-size-sm {
   font-size: var(--my-font-size-sm);
 }
-.my-font-size-xs {
-  font-size: var(--my-font-size-xs);
+.my-font-size-md {
+  font-size: var(--my-font-size-md);
+}
+.my-font-size-lg {
+  font-size: var(--my-font-size-lg);
+}
+.my-font-size-xl {
+  font-size: var(--my-font-size-xl);
+}
+.my-font-size-2xl {
+  font-size: var(--my-font-size-2xl);
+}
+
+/* 圖層顏色類別 */
+.my-color-white {
+  color: var(--my-color-white);
+}
+.my-color-gray-50 {
+  color: var(--my-color-gray-50);
+}
+.my-color-gray-100 {
+  color: var(--my-color-gray-100);
+}
+.my-color-gray-200 {
+  color: var(--my-color-gray-200);
+}
+.my-color-gray-300 {
+  color: var(--my-color-gray-300);
+}
+.my-color-gray-400 {
+  color: var(--my-color-gray-400);
+}
+.my-color-gray-500 {
+  color: var(--my-color-gray-500);
+}
+.my-color-gray-600 {
+  color: var(--my-color-gray-600);
+}
+.my-color-gray-700 {
+  color: var(--my-color-gray-700);
+}
+.my-color-gray-800 {
+  color: var(--my-color-gray-800);
+}
+.my-color-gray-900 {
+  color: var(--my-color-gray-900);
+}
+.my-color-black {
+  color: var(--my-color-black);
+}
+
+.my-color-red {
+  color: var(--my-color-red);
+}
+.my-color-deeporange {
+  color: var(--my-color-deeporange);
+}
+.my-color-orange {
+  color: var(--my-color-orange);
+}
+.my-color-amber {
+  color: var(--my-color-amber);
+}
+.my-color-yellow {
+  color: var(--my-color-yellow);
+}
+.my-color-lime {
+  color: var(--my-color-lime);
+}
+.my-color-light-green {
+  color: var(--my-color-light-green);
+}
+.my-color-green {
+  color: var(--my-color-green);
+}
+.my-color-teal {
+  color: var(--my-color-teal);
+}
+.my-color-cyan {
+  color: var(--my-color-cyan);
+}
+.my-color-lightblue {
+  color: var(--my-color-lightblue);
+}
+.my-color-blue {
+  color: var(--my-color-blue);
+}
+.my-color-bluegrey {
+  color: var(--my-color-bluegrey);
+}
+.my-color-indigo {
+  color: var(--my-color-indigo);
+}
+.my-color-deeppurple {
+  color: var(--my-color-deeppurple);
+}
+.my-color-purple {
+  color: var(--my-color-purple);
+}
+.my-color-pink {
+  color: var(--my-color-pink);
+}
+.my-color-brown {
+  color: var(--my-color-brown);
 }
 
 /* 文字間距 */
@@ -71,95 +170,131 @@ body {
   letter-spacing: var(--my-letter-spacing-lg);
 }
 
+/* 圖層背景顏色類別  */
+.my-bgcolor-white {
+  background-color: var(--my-color-white);
+}
+.my-bgcolor-gray-50 {
+  background-color: var(--my-color-gray-50);
+}
+.my-bgcolor-gray-100 {
+  background-color: var(--my-color-gray-100);
+}
+.my-bgcolor-gray-200 {
+  background-color: var(--my-color-gray-200);
+}
+.my-bgcolor-gray-300 {
+  background-color: var(--my-color-gray-300);
+}
+.my-bgcolor-gray-400 {
+  background-color: var(--my-color-gray-400);
+}
+.my-bgcolor-gray-500 {
+  background-color: var(--my-color-gray-500);
+}
+.my-bgcolor-gray-600 {
+  background-color: var(--my-color-gray-600);
+}
+.my-bgcolor-gray-700 {
+  background-color: var(--my-color-gray-700);
+}
+.my-bgcolor-gray-800 {
+  background-color: var(--my-color-gray-800);
+}
+.my-bgcolor-gray-900 {
+  background-color: var(--my-color-gray-900);
+}
+.my-bgcolor-black {
+  background-color: var(--my-color-black);
+}
+
+.my-bgcolor-red {
+  background-color: var(--my-color-red);
+}
+.my-bgcolor-deeporange {
+  background-color: var(--my-color-deeporange);
+}
+.my-bgcolor-orange {
+  background-color: var(--my-color-orange);
+}
+.my-bgcolor-amber {
+  background-color: var(--my-color-amber);
+}
+.my-bgcolor-yellow {
+  background-color: var(--my-color-yellow);
+}
+.my-bgcolor-lime {
+  background-color: var(--my-color-lime);
+}
+.my-bgcolor-light-green {
+  background-color: var(--my-color-light-green);
+}
+.my-bgcolor-green {
+  background-color: var(--my-color-green);
+}
+.my-bgcolor-teal {
+  background-color: var(--my-color-teal);
+}
+.my-bgcolor-cyan {
+  background-color: var(--my-color-cyan);
+}
+.my-bgcolor-lightblue {
+  background-color: var(--my-color-lightblue);
+}
+.my-bgcolor-blue {
+  background-color: var(--my-color-blue);
+}
+.my-bgcolor-bluegrey {
+  background-color: var(--my-color-bluegrey);
+}
+.my-bgcolor-indigo {
+  background-color: var(--my-color-indigo);
+}
+.my-bgcolor-deeppurple {
+  background-color: var(--my-color-deeppurple);
+}
+.my-bgcolor-purple {
+  background-color: var(--my-color-purple);
+}
+.my-bgcolor-pink {
+  background-color: var(--my-color-pink);
+}
+
+.my-bgcolor-white-hover {
+  background-color: var(--my-color-white);
+}
+.my-bgcolor-white-hover:active,
+.my-bgcolor-white-hover:hover {
+  background-color: var(--my-color-gray-100);
+}
+
 /* 文字顏色 */
-
-.my-color-white {
-  color: var(--my-color-white);
-}
-
-.my-color-gray-500 {
-  color: var(--my-color-gray-500);
-}
 
 .my-title-xl {
   font-size: var(--my-font-size-xl);
-  color: var(--my-color-gray-500);
-  font-weight: var(--my-font-weight-normal);
+  font-weight: var(--my-font-weight-sm);
 }
 
 .my-title-sm {
   font-size: var(--my-font-size-sm);
-  color: var(--my-color-gray-700);
-  font-weight: var(--my-font-weight-medium);
+  font-weight: var(--my-font-weight-md);
 }
 
 .my-title-xs {
   font-size: var(--my-font-size-xs);
-  color: var(--my-color-gray-500);
-  font-weight: var(--my-font-weight-medium);
+  color: var(--my-color-gray-600);
+  font-weight: var(--my-font-weight-md);
 }
 
 .my-content-sm {
   font-size: var(--my-font-size-sm);
-  color: var(--my-color-gray-900);
 }
 
 .my-content-xs {
   font-size: var(--my-font-size-xs);
-  color: var(--my-color-gray-500);
 }
 
-/* 背景顏色 */
-
-.my-bg-white {
-  background-color: var(--my-color-white);
-}
-
-.my-bg-white-hover {
-  background-color: var(--my-color-white);
-}
-.my-bg-white-hover:hover {
-  background-color: var(--my-color-gray-200);
-}
-
-
-
-/* tab */
-
-.my-tab-sm {
-  font-size: var(--my-font-size-sm);
-}
-
-.my-tab-sm:hover {
-  background-color: var(--my-color-gray-100);
-}
-
-/* =============================================================================
-   🏗️ 應用程式佈局 (Application Layout)
-   ============================================================================= */
-
-#app {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.my-main-content {
-  flex: 1;
-  overflow: hidden;
-  position: relative;
-  min-height: 0;
-}
-
-.my-main-content .container-fluid {
-  height: calc(100vh - 116px); /* 計算可用高度（扣除導航欄56px+頁腳60px） */
-}
-
-
-
-/* =============================================================================
-   📊 面板樣式 (Panel Styles)
-   ============================================================================= */
+/* 面板樣式  */
 
 .my-right-panel {
   background-color: var(--my-color-white); /* 面板背景色 */
@@ -229,18 +364,7 @@ body {
   scrollbar-color: var(--my-color-gray-200) var(--my-color-white); /* 滾動條顏色 軌道顏色 */
 }
 
-/* =============================================================================
-   🔽 下拉選單樣式 (Dropdown Styles)
-   ============================================================================= */
-
-/* 🔽 確保所有 Bootstrap 下拉選單在最上層 (Ensure All Bootstrap Dropdowns on Top) */
-.dropdown-menu {
-  z-index: 9999 !important; /* 強制最高層級 */
-}
-
-/* =============================================================================
-   🔧 拖拉調整器樣式 (Resize Handle Styles)
-   ============================================================================= */
+/* 拖拉調整器樣式  */
 
 .my-resizer {
   background-color: var(--my-color-gray-100); /* 調整器背景色 */
@@ -282,10 +406,10 @@ body {
   background-color: var(--my-color-blue) !important; /* 拖曳時的背景色 */
 }
 
-  /* 🔧 不同位置的 resizer 顏色 (Different Resizer Colors) */
-  .my-resizer-left {
-    background-color: var(--my-color-gray-100); /* 左側面板 resizer - gray-100 */
-  }
+/* 🔧 不同位置的 resizer 顏色 (Different Resizer Colors) */
+.my-resizer-left {
+  background-color: var(--my-color-gray-100); /* 左側面板 resizer - gray-100 */
+}
 
 .my-resizer-left:hover {
   background-color: var(--my-color-blue); /* 懸停時保持主色 */
@@ -299,11 +423,11 @@ body {
   background-color: var(--my-color-blue); /* 懸停時保持主色 */
 }
 
-  .my-resizer-middle {
-    background-color: var(--my-color-gray-200); /* 中間面板上下拉 resizer - gray-200 */
-    position: relative; /* 為偽元素提供定位上下文 */
-    /* border-top: 1px solid var(--my-color-gray-200); */ /* 上邊框分隔線 */
-  }
+.my-resizer-middle {
+  background-color: var(--my-color-gray-200); /* 中間面板上下拉 resizer - gray-200 */
+  position: relative; /* 為偽元素提供定位上下文 */
+  /* border-top: 1px solid var(--my-color-gray-200); */ /* 上邊框分隔線 */
+}
 
 .my-resizer-middle:hover {
   background-color: var(--my-color-blue); /* 懸停時保持主色 */
@@ -329,165 +453,6 @@ body.my-no-select * {
   -moz-user-select: none !important;
   -ms-user-select: none !important;
   user-select: none !important; /* 防止所有元素被選取 */
-}
-
-/* =============================================================================
-   🎭 動畫效果 (Animation Effects)
-   ============================================================================= */
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
-.my-fade-in {
-  animation: fadeIn 0.3s ease-in-out; /* 淡入動畫 */
-}
-
-.my-pulse {
-  animation: pulse 2s infinite; /* 脈衝動畫 */
-}
-
-/* =============================================================================
-   🎨 圖層顏色指示器樣式 (Layer Color Indicator Styles)
-   ============================================================================= */
-
-/* 底部顏色指示器 - 用於分頁標籤 */
-.layer-color-indicator-bottom {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  border-radius: 0 0 4px 4px;
-}
-
-
-
-/* 圖層顏色類別 (Layer Color Classes) - 按 RGB 順序排列 */
-.my-layer-color-red {
-  color: var(--my-color-red);
-}
-.my-layer-color-pink {
-  color: var(--my-color-pink);
-}
-.my-layer-color-purple {
-  color: var(--my-color-purple);
-}
-.my-layer-color-deep-purple {
-  color: var(--my-color-deep-purple);
-}
-.my-layer-color-indigo {
-  color: var(--my-color-indigo);
-}
-.my-layer-color-blue {
-  color: var(--my-color-blue);
-}
-.my-layer-color-light-blue {
-  color: var(--my-color-light-blue);
-}
-.my-layer-color-cyan {
-  color: var(--my-color-cyan);
-}
-.my-layer-color-teal {
-  color: var(--my-color-teal);
-}
-.my-layer-color-green {
-  color: var(--my-color-green);
-}
-.my-layer-color-light-green {
-  color: var(--my-color-light-green);
-}
-.my-layer-color-lime {
-  color: var(--my-color-lime);
-}
-.my-layer-color-yellow {
-  color: var(--my-color-yellow);
-}
-.my-layer-color-amber {
-  color: var(--my-color-amber);
-}
-.my-layer-color-orange {
-  color: var(--my-color-orange);
-}
-.my-layer-color-deep-orange {
-  color: var(--my-color-deep-orange);
-}
-.my-layer-color-brown {
-  color: var(--my-color-brown);
-}
-.my-layer-color-blue-grey {
-  color: var(--my-color-blue-grey);
-}
-
-/* 圖層背景顏色類別 (Layer Background Color Classes) - 按 RGB 順序排列 */
-.my-layer-bg-red {
-  background-color: var(--my-color-red);
-}
-.my-layer-bg-pink {
-  background-color: var(--my-color-pink);
-}
-.my-layer-bg-purple {
-  background-color: var(--my-color-purple);
-}
-.my-layer-bg-deep-purple {
-  background-color: var(--my-color-deep-purple);
-}
-.my-layer-bg-indigo {
-  background-color: var(--my-color-indigo);
-}
-.my-layer-bg-blue {
-  background-color: var(--my-color-blue);
-}
-.my-layer-bg-light-blue {
-  background-color: var(--my-color-light-blue);
-}
-.my-layer-bg-cyan {
-  background-color: var(--my-color-cyan);
-}
-.my-layer-bg-teal {
-  background-color: var(--my-color-teal);
-}
-.my-layer-bg-green {
-  background-color: var(--my-color-green);
-}
-.my-layer-bg-light-green {
-  background-color: var(--my-color-light-green);
-}
-.my-layer-bg-lime {
-  background-color: var(--my-color-lime);
-}
-.my-layer-bg-yellow {
-  background-color: var(--my-color-yellow);
-}
-.my-layer-bg-amber {
-  background-color: var(--my-color-amber);
-}
-.my-layer-bg-orange {
-  background-color: var(--my-color-orange);
-}
-.my-layer-bg-deep-orange {
-  background-color: var(--my-color-deep-orange);
-}
-.my-layer-bg-brown {
-  background-color: var(--my-color-brown);
-}
-.my-layer-bg-blue-grey {
-  background-color: var(--my-color-blue-grey);
 }
 
 /* 🌫️ 共用霧化樣式 (Shared Blur Effects) */

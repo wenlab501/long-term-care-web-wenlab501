@@ -38,59 +38,6 @@
     return layer ? layer.name || '未知圖層' : '無開啟圖層';
   });
 
-  /**
-   * 📊 計算圖層統計數據 (Calculate Layer Statistics)
-   * @param {Object} layer - 圖層物件
-   */
-  const getLayerStats = (layer) => {
-    const data = layer.tableData || [];
-    if (data.length === 0) {
-      return {
-        total: 0,
-        max: 0,
-        average: 0,
-        hasDataCount: 0,
-      };
-    }
-
-    // 計算統計數據
-    const counts = data.map((item) => {
-      // 動態獲取數值欄位
-      const numericFields = Object.keys(item).filter((key) => {
-        const value = item[key];
-        return typeof value === 'number' && !isNaN(value);
-      });
-
-      // 優先使用常見的數值欄位名稱
-      const priorityFields = ['count', 'value', 'amount', 'population', 'density'];
-      const field = priorityFields.find((f) => numericFields.includes(f)) || numericFields[0];
-
-      return field ? item[field] || 0 : 0;
-    });
-
-    const validCounts = counts.filter((c) => c > 0);
-    const total = data.length;
-    const max = counts.length > 0 ? Math.max(...counts) : 0;
-    const average = counts.length > 0 ? counts.reduce((a, b) => a + b, 0) / counts.length : 0;
-    const hasDataCount = validCounts.length;
-
-    return {
-      total,
-      max,
-      average,
-      hasDataCount,
-    };
-  };
-
-  // /**
-  //  * 📊 當前圖層統計數據 (Current Layer Statistics)
-  //  */
-  // const currentLayerStats = computed(() => {
-  //   if (!activeLayerTab.value) return { total: 0, max: 0, average: 0, hasDataCount: 0 };
-  //   const layer = visibleLayers.value.find((l) => l.id === activeLayerTab.value);
-  //   return layer ? getLayerStats(layer) : { total: 0, max: 0, average: 0, hasDataCount: 0 };
-  // });
-
   // 記錄上一次的圖層列表用於比較
   const previousLayers = ref([]);
 
@@ -168,11 +115,8 @@
               @click="setActiveLayerTab(layer.layerId)"
             >
               <div class="my-title-sm">{{ layer.name }}</div>
-              <div class="my-content-xs ms-2" v-if="getLayerStats(layer).total">
-                {{ getLayerStats(layer).total }}
-              </div>
             </div>
-            <div class="w-100" style="height: 4px" :style="{ backgroundColor: layer.color }"></div>
+            <div class="w-100" :class="`my-bgcolor-${layer.colorName}`" style="height: 4px"></div>
           </li>
         </ul>
       </div>

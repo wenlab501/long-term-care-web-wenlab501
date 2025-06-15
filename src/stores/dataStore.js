@@ -8,15 +8,10 @@ import {
   loadHospitalClinicData,
 } from '../utils/dataProcessor.js';
 
-import { assignLayerColorNames, getLayerColorVar, getLayerColorClass } from '../utils/utils.js';
-
 // 主要數據存儲定義 (Main Data Store Definition)
 export const useDataStore = defineStore(
   'data',
   () => {
-    // 🎨 為所有圖層分配顏色名稱
-    const layerColorNames = assignLayerColorNames(6); // 總共6個圖層
-
     const layers = ref([
       {
         groupName: '長照機構',
@@ -28,9 +23,7 @@ export const useDataStore = defineStore(
             isLoading: false,
             isLoaded: false,
             type: 'point',
-            colorName: layerColorNames[0],
-            color: getLayerColorVar(layerColorNames[0]),
-            colorClass: getLayerColorClass(layerColorNames[0]),
+            colorName: 'orange',
             data: null,
             summaryData: null,
             tableData: null,
@@ -50,9 +43,7 @@ export const useDataStore = defineStore(
             isLoading: false,
             isLoaded: false,
             type: 'point',
-            colorName: layerColorNames[1],
-            color: getLayerColorVar(layerColorNames[1]),
-            colorClass: getLayerColorClass(layerColorNames[1]),
+            colorName: 'green',
             data: null,
             summaryData: null,
             tableData: null,
@@ -67,9 +58,7 @@ export const useDataStore = defineStore(
             isLoading: false,
             isLoaded: false,
             type: 'point',
-            colorName: layerColorNames[2],
-            color: getLayerColorVar(layerColorNames[2]),
-            colorClass: getLayerColorClass(layerColorNames[2]),
+            colorName: 'green',
             data: null,
             summaryData: null,
             tableData: null,
@@ -84,9 +73,7 @@ export const useDataStore = defineStore(
             isLoading: false,
             isLoaded: false,
             type: 'point',
-            colorName: layerColorNames[3],
-            color: getLayerColorVar(layerColorNames[3]),
-            colorClass: getLayerColorClass(layerColorNames[3]),
+            colorName: 'green',
             data: null,
             summaryData: null,
             tableData: null,
@@ -106,9 +93,7 @@ export const useDataStore = defineStore(
             isLoading: false,
             isLoaded: false,
             type: 'polygon',
-            colorName: layerColorNames[4],
-            color: getLayerColorVar(layerColorNames[4]),
-            colorClass: getLayerColorClass(layerColorNames[4]),
+            colorName: 'green',
             data: null,
             summaryData: null,
             tableData: null,
@@ -123,9 +108,7 @@ export const useDataStore = defineStore(
             isLoading: false,
             isLoaded: false,
             type: 'polygon',
-            colorName: layerColorNames[5],
-            color: getLayerColorVar(layerColorNames[5]),
-            colorClass: getLayerColorClass(layerColorNames[5]),
+            colorName: 'green',
             data: null,
             summaryData: null,
             tableData: null,
@@ -136,12 +119,6 @@ export const useDataStore = defineStore(
         ],
       },
     ]);
-
-    /**
-     * 📊 最後開啟的圖層 ID (Last Opened Layer ID)
-     * 追蹤最近開啟的圖層，用於決定主要顯示的資料
-     */
-    const lastOpenedLayerId = ref(null);
 
     /**
      * 🔍 根據 ID 尋找圖層 (Find Layer by ID)
@@ -191,12 +168,6 @@ export const useDataStore = defineStore(
       // 切換可見性狀態
       layer.visible = !layer.visible;
 
-      // 如果開啟圖層，設定為最後開啟的圖層
-      if (layer.visible) {
-        lastOpenedLayerId.value = layerId;
-        console.log(`🔄 設定最後開啟圖層: ${layerId}`);
-      }
-
       // 如果圖層被開啟且尚未載入，則載入資料
       if (layer.visible && !layer.isLoaded && !layer.isLoading) {
         try {
@@ -223,33 +194,6 @@ export const useDataStore = defineStore(
       }
     };
 
-    // ==================== 📊 原始資料狀態 (Raw Data State - Legacy) ====================
-
-    /**
-     * 📊 原始資料存儲 (Raw Data Storage)
-     * 保存未經處理的原始資料，包含各種格式的地理和表格資料
-     *
-     * 注意：這是舊版結構，新功能應使用圖層管理系統
-     */
-    const rawData = ref({
-      geojson: null, // 原始 GeoJSON 資料
-      csvData: [], // CSV 表格資料
-      excelData: [], // Excel 表格資料
-      spatialData: [], // 空間資料
-    });
-
-    // ==================== 🔄 處理後資料狀態 (Processed Data State - Legacy) ====================
-
-    /**
-     * 🔄 處理後資料存儲 (Processed Data Storage)
-     * 保存經過轉換、分析和處理的資料
-     *
-     * 注意：這是舊版結構，新功能應使用圖層管理系統
-     */
-    const processedData = ref({
-      loadedAndMergedGeoJSON: null, // 載入並合併的 GeoJSON
-    });
-
     // ==================== 🎯 選中物件狀態 (Selected Feature State) ====================
 
     /**
@@ -257,57 +201,6 @@ export const useDataStore = defineStore(
      * 存儲用戶在地圖上點擊選中的地理物件
      */
     const selectedFeature = ref(null);
-
-    // ==================== ⚙️ 分析參數 (Analysis Parameters) ====================
-
-    /**
-     * ⚙️ 分析參數配置 (Analysis Parameters Configuration)
-     * 存儲各種空間分析和統計分析的參數設定
-     */
-    const analysisParameters = ref({
-      // 🗺️ 空間分析參數 (Spatial Analysis Parameters)
-      spatialAnalysis: {
-        kValue: 5, // K 值（鄰近分析）
-        weightType: 'inverse_distance', // 權重類型
-        threshold: 0.5, // 閾值
-        bufferRadius: 1000, // 緩衝區半徑（公尺）
-      },
-
-      // 🔍 聚類分析參數 (Clustering Parameters)
-      clustering: {
-        method: 'kmeans', // 聚類方法
-        numClusters: 5, // 聚類數量
-        eps: 0.5, // DBSCAN epsilon 參數
-        minPts: 5, // DBSCAN 最小點數
-      },
-
-      // 🔥 熱力圖參數 (Heatmap Parameters)
-      heatmap: {
-        radius: 20, // 熱力圖半徑
-        blur: 15, // 模糊程度
-        maxZoom: 18, // 最大縮放等級
-        gradient: {
-          // 漸層色彩
-          0.4: 'blue',
-          0.6: 'cyan',
-          0.7: 'lime',
-          0.8: 'yellow',
-          1.0: 'red',
-        },
-      },
-    });
-
-    // ==================== 🧮 計算屬性 (Computed Properties) ====================
-
-    /**
-     * 📊 資料摘要計算屬性 (Data Summary Computed Property)
-     * 根據最後開啟的圖層提供資料摘要
-     */
-    const dataSummary = computed(() => {
-      if (!lastOpenedLayerId.value) return null;
-      const layer = findLayerById(lastOpenedLayerId.value);
-      return layer?.summary || null;
-    });
 
     // ==================== 🛠️ 資料操作方法 (Data Manipulation Methods) ====================
 
@@ -318,73 +211,6 @@ export const useDataStore = defineStore(
       selectedFeature.value = feature;
     };
 
-    const clearData = (key) => {
-      // This function might need rethinking in the context of the new layer structure
-      console.warn(
-        `clearData for key "${key}" may not be fully supported with the new layer structure.`
-      );
-      if (key in processedData.value) {
-        processedData.value[key] = null;
-      }
-      if (key in rawData.value) {
-        rawData.value[key] = null;
-      }
-    };
-
-    // Other functions (unchanged for now)
-    const setRawData = (dataType, data, metadata = {}) => {
-      if (dataType in rawData.value) {
-        rawData.value[dataType] = data;
-        console.log(`Raw data for ${dataType} updated.`);
-      }
-      if (metadata.source) {
-        // Basic metadata update
-      }
-    };
-
-    const setProcessedData = (dataType, data) => {
-      if (dataType in processedData.value) {
-        processedData.value[dataType] = data;
-        console.log(`Processed data for ${dataType} updated.`);
-      }
-    };
-
-    const updateAnalysisParameters = (paramType, newParams) => {
-      Object.assign(analysisParameters.value[paramType], newParams);
-    };
-
-    const getData = (dataType, processed = false) => {
-      if (processed) {
-        return processedData.value[dataType];
-      }
-      return rawData.value[dataType];
-    };
-
-    const hasData = (dataType, processed = false) => {
-      if (processed) {
-        return !!processedData.value[dataType];
-      }
-      return !!rawData.value[dataType];
-    };
-
-    /**
-     * 📊 活躍資料表格計算屬性 (Active Table Data Computed Property)
-     * 根據最後開啟的圖層提供表格資料
-     * 用於資料表格分頁的資料來源
-     */
-    const activeTableData = computed(() => {
-      if (lastOpenedLayerId.value) {
-        const lastLayer = findLayerById(lastOpenedLayerId.value);
-        if (lastLayer && lastLayer.visible && lastLayer.tableData) {
-          return lastLayer.tableData;
-        }
-      }
-      return [];
-    });
-
-    const fetchLatestData = async () => {
-      /* ... */
-    };
     const clearSelectedFeature = () => {
       selectedFeature.value = null;
     };
@@ -394,28 +220,13 @@ export const useDataStore = defineStore(
       // Centralized Layer Management
       layers,
       toggleLayerVisibility,
-      lastOpenedLayerId,
-      activeTableData, // ✅ 活躍表格資料計算屬性
 
       // Legacy State & Actions (for compatibility)
-      rawData,
-      processedData,
       selectedFeature,
-      analysisParameters,
-      dataSummary,
 
       // Actions
-      setRawData,
-      setProcessedData,
-      updateAnalysisParameters,
-      clearData,
       setSelectedFeature,
       clearSelectedFeature,
-
-      // Other functions
-      getData,
-      hasData,
-      fetchLatestData,
 
       // 📊 Computed properties for visibility (使用 computed 確保其他組件可以使用)
       visibleLayers: computed(() => getAllLayers().filter((layer) => layer.visible)),

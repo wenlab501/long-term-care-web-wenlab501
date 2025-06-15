@@ -25,9 +25,6 @@
     // 🔧 組件屬性定義 (Component Props Definition)
     props: {
       zoomLevel: { type: Number, default: 11 }, // 地圖縮放等級，預設為 11
-      showTainanLayer: { type: Boolean, default: false }, // 是否顯示台南圖層，預設為 false
-      selectedFilter: { type: String, default: '' }, // 選定的篩選器，預設為空字串
-      maxCount: { type: Number, default: 5000 }, // 最大顯示數量，預設為 5000
       isPanelDragging: { type: Boolean, default: false }, // 面板是否正在拖曳，預設為 false
     },
 
@@ -199,7 +196,7 @@
         if (!layer.data) return null;
 
         // 解構圖層屬性
-        const { name, color, type } = layer; // 獲取圖層名稱、顏色和類型
+        const { name, colorName, type } = layer; // 獲取圖層名稱、顏色和類型
 
         // 創建 GeoJSON 圖層
         const geoJsonLayer = L.geoJSON(layer.data, {
@@ -212,7 +209,7 @@
                 html: `<div
                 class="rounded-circle"
                 style="
-                   background-color: ${color};
+                   background-color: var(--my-color-${colorName});
                    width: 8x;
                    height: 8px;
                    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
@@ -1029,42 +1026,5 @@
 
   .feature-polygon {
     transition: all 0.2s ease; /* 多邊形過渡效果 */
-  }
-
-  /* 🎯 高亮動畫效果 (Highlight Animation) */
-  @keyframes pulse {
-    0% {
-      transform: scale(1);
-      box-shadow: 0 4px 12px rgba(231, 76, 60, 0.6);
-    }
-    50% {
-      transform: scale(1.1);
-      box-shadow: 0 6px 16px rgba(231, 76, 60, 0.8);
-    }
-    100% {
-      transform: scale(1);
-      box-shadow: 0 4px 12px rgba(231, 76, 60, 0.6);
-    }
-  }
-
-  .highlight-marker {
-    animation: pulse 1.5s infinite;
-  }
-
-  /* ✨ 高亮狀態的動畫效果 (Highlight State Animation Effects) */
-  @keyframes highlight-pulse {
-    0% {
-      opacity: 0.7;
-    } /* 起始透明度 */
-    50% {
-      opacity: 1;
-    } /* 中間透明度 */
-    100% {
-      opacity: 0.7;
-    } /* 結束透明度 */
-  }
-
-  .leaflet-interactive[style*='dashArray'] {
-    animation: highlight-pulse 2s infinite; /* 高亮時的脈衝動畫 */
   }
 </style>

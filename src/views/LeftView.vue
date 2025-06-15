@@ -40,7 +40,7 @@
 </script>
 
 <template>
-  <div class="my-bg-gray-100 h-100 d-flex flex-column overflow-hidden">
+  <div class="my-bgcolor-gray-100 h-100 d-flex flex-column overflow-hidden">
     <div class="p-3">
       <h1 class="my-font-size-lg my-letter-spacing-lg text-center m-3">臺北市長照資訊</h1>
     </div>
@@ -55,17 +55,15 @@
           <div v-for="layer in group.groupLayers" :key="layer.layerId" class="mb-1">
             <!-- 圖層卡片 -->
             <div
-              class="btn rounded-0 border-0 d-flex shadow-sm my-bg-white-hover p-0"
+              class="btn rounded-0 border-0 d-flex shadow-sm my-bgcolor-white-hover p-0"
               @click="toggleLayer(layer.layerId)"
             >
               <div class="d-flex w-100">
                 <!-- 圖層圖示 -->
                 <div
                   class="d-flex"
-                  :style="{
-                    backgroundColor: layer.color,
-                    width: '6px',
-                  }"
+                  :class="`my-bgcolor-${layer.colorName}`"
+                  style="width: 6px"
                 ></div>
                 <!-- 圖層名稱 -->
                 <div class="d-flex align-items-center text-start px-3 py-2">
@@ -127,22 +125,14 @@
     height: 12px;
     background: var(--my-color-white);
     border-radius: 12px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* 優化滑動過渡 */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 添加陰影增強立體感 */
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); /* 優化滑動過渡 */
   }
 
   input:checked + label {
     background: var(--my-color-green);
   }
 
-  /* 🎯 優化按壓動畫效果 (Optimized Press Animation) */
-  label:active:after {
-    width: 16px; /* 減少拉伸寬度，更自然 */
-    transition: width 0.15s cubic-bezier(0.4, 0, 0.2, 1); /* 快速響應按壓 */
-  }
-
   input:checked + label:after {
-    left: calc(100% - 2px);
-    transform: translateX(-100%);
+    transform: translateX(12px);
   }
 </style>

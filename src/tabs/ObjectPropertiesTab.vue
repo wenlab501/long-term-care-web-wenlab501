@@ -124,12 +124,7 @@
   <div class="flex-grow-1 d-flex flex-column">
     <div v-if="selectedFeature">
       <div class="">
-        <div
-          class="my-title-md p-3 mb-2"
-          :style="{
-            backgroundColor: selectedLayer.color,
-          }"
-        >
+        <div class="my-title-md p-3 mb-2" :class="`my-bgcolor-${layer.colorName}`">
           {{ selectedFeature.properties.name }}
         </div>
 

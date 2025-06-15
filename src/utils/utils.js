@@ -132,9 +132,9 @@ export const LAYER_COLOR_NAMES = [
   'red',
   'purple',
   'cyan',
-  'deep-orange',
+  'deeporange',
   'brown',
-  'blue-grey',
+  'bluegrey',
   'pink',
   'light-green',
   'amber',
@@ -145,39 +145,13 @@ export const LAYER_COLOR_NAMES = [
 ];
 
 /**
- * 為圖層分配顏色名稱
- * @param {number} totalLayers - 總圖層數量
- * @returns {string[]} 顏色名稱陣列
- */
-export function assignLayerColorNames(totalLayers) {
-  const colorNames = [];
-
-  for (let i = 0; i < totalLayers; i++) {
-    // 循環使用預定義的顏色名稱
-    const colorIndex = i % LAYER_COLOR_NAMES.length;
-    colorNames.push(LAYER_COLOR_NAMES[colorIndex]);
-  }
-
-  return colorNames;
-}
-
-/**
- * 獲取圖層顏色的 CSS 變數名稱
- * @param {string} colorName - 顏色名稱
- * @returns {string} CSS 變數名稱
- */
-export function getLayerColorVar(colorName) {
-  return `var(--my-color-${colorName})`;
-}
-
-/**
  * 獲取圖層顏色的 CSS 類別名稱
  * @param {string} colorName - 顏色名稱
  * @param {boolean} isBackground - 是否為背景顏色
  * @returns {string} CSS 類別名稱
  */
 export function getLayerColorClass(colorName, isBackground = false) {
-  const prefix = isBackground ? 'my-layer-bg-' : 'my-layer-color-';
+  const prefix = isBackground ? 'my-bgcolor-' : 'my-color-';
   return `${prefix}${colorName}`;
 }
 

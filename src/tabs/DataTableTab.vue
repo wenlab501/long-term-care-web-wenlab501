@@ -233,7 +233,7 @@
               {{ getLayerDataCount(layer) }}
             </div>
           </div>
-          <div class="w-100" style="height: 4px" :style="{ backgroundColor: layer.color }"></div>
+          <div class="w-100" :class="`my-bgcolor-${layer.colorName}`" style="height: 4px"></div>
         </li>
       </ul>
     </div>

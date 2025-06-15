@@ -1,19 +1,12 @@
-/**
- * CSS變數統一配置文件
- * 統一管理字體大小、間距、圓角、陰影和圖層顏色等設計元素
- */
-
 :root {
-  /*=====================================
-    字體設定
-  =====================================*/
+  /* 字體設定 */
   --my-font-family-primary: "Noto Sans TC", sans-serif;
   --my-font-family-monospace: "Consolas", "Monaco", "Courier New", monospace;
 
   /* 字體大小層級 */
   --my-font-size-xs: 0.75rem; /* 12px */
   --my-font-size-sm: 0.875rem; /* 14px */
-  --my-font-size-base: 1rem; /* 16px - 基準大小 */
+  --my-font-size-md: 1rem; /* 16px - 基準大小 */
   --my-font-size-lg: 1.125rem; /* 18px */
   --my-font-size-xl: 1.25rem; /* 20px */
   --my-font-size-2xl: 1.5rem; /* 24px */
@@ -21,41 +14,16 @@
   --my-font-size-4xl: 2.25rem; /* 36px */
 
   /* 字寬 */
-  --my-letter-spacing-base: 1.2px;
-  --my-letter-spacing-lg: 2.6px;
+  --my-letter-spacing-md: 1.2px;
+  --my-letter-spacing-lg: 2.4px;
 
   /* 字重 */
-  --my-font-weight-light: 300;
-  --my-font-weight-normal: 400;
-  --my-font-weight-medium: 500;
-  --my-font-weight-semibold: 600;
-  --my-font-weight-bold: 700;
+  --my-font-weight-xs: 300;
+  --my-font-weight-sm: 400;
+  --my-font-weight-md: 500;
+  --my-font-weight-lg: 600;
+  --my-font-weight-xl: 700;
 
-  /* 行高 */
-  --my-line-height-tight: 1.25;
-  --my-line-height-normal: 1.5;
-  --my-line-height-relaxed: 1.75;
-
-  /*=====================================
-    間距系統
-  =====================================*/
-  --my-spacing-0: 0;
-  --my-spacing-1: 0.25rem; /* 4px */
-  --my-spacing-2: 0.5rem; /* 8px */
-  --my-spacing-3: 0.75rem; /* 12px */
-  --my-spacing-4: 1rem; /* 16px */
-  --my-spacing-5: 1.25rem; /* 20px */
-  --my-spacing-6: 1.5rem; /* 24px */
-  --my-spacing-8: 2rem; /* 32px */
-  --my-spacing-10: 2.5rem; /* 40px */
-  --my-spacing-12: 3rem; /* 48px */
-  --my-spacing-16: 4rem; /* 64px */
-  --my-spacing-20: 5rem; /* 80px */
-  --my-spacing-24: 6rem; /* 96px */
-
-  /*=====================================
-    圖層顏色系統 (Layer Color System)
-  =====================================*/
   /* Gray 層級顏色 */
   --my-color-white: #ffffff;
   --my-color-gray-50: #fafafa;
@@ -72,151 +40,21 @@
 
   /* 圖層顏色，按 RGB 順序排列 */
   --my-color-red: #f44336;
-  --my-color-pink: #e91e63;
-  --my-color-purple: #9c27b0;
-  --my-color-deep-purple: #673ab7;
-  --my-color-indigo: #3f51b5;
-  --my-color-blue: #2196f3;
-  --my-color-light-blue: #03a9f4;
-  --my-color-cyan: #00bcd4;
-  --my-color-teal: #009688;
-  --my-color-green: #4caf50;
-  --my-color-light-green: #8bc34a;
-  --my-color-lime: #cddc39;
-  --my-color-yellow: #ffeb3b;
-  --my-color-amber: #ffc107;
+  --my-color-deeporange: #ff5722;
   --my-color-orange: #ff9800;
-  --my-color-deep-orange: #ff5722;
+  --my-color-amber: #ffc107;
+  --my-color-yellow: #ffeb3b;
+  --my-color-lime: #cddc39;
+  --my-color-light-green: #8bc34a;
+  --my-color-green: #4caf50;
+  --my-color-teal: #009688;
+  --my-color-cyan: #00bcd4;
+  --my-color-lightblue: #03a9f4;
+  --my-color-blue: #2196f3;
+  --my-color-bluegrey: #607d8b;
+  --my-color-indigo: #3f51b5;
+  --my-color-deeppurple: #673ab7;
+  --my-color-purple: #9c27b0;
+  --my-color-pink: #e91e63;
   --my-color-brown: #795548;
-  --my-color-blue-grey: #607d8b;
-
-  /*=====================================
-    圓角系統
-  =====================================*/
-  --my-radius-none: 0;
-  --my-radius-sm: 0.125rem; /* 2px */
-  --my-radius-base: 0.25rem; /* 4px */
-  --my-radius-md: 0.375rem; /* 6px */
-  --my-radius-lg: 0.5rem; /* 8px */
-  --my-radius-xl: 0.75rem; /* 12px */
-  --my-radius-2xl: 1rem; /* 16px */
-  --my-radius-full: 9999px; /* 完全圓形 */
-
-  /*=====================================
-    陰影系統
-  =====================================*/
-  --my-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --my-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  --my-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --my-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --my-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  --my-shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-
-  /*=====================================
-    過渡動畫系統
-  =====================================*/
-  --my-transition-fast: all 0.15s ease-in-out;
-  --my-transition: all 0.3s ease-in-out;
-  --my-transition-slow: all 0.5s ease-in-out;
-}
-
-/*=====================================
-  實用工具類別 (Utility Classes)
-=====================================*/
-
-/* 字體大小類別 */
-.my-text-xs {
-  font-size: var(--my-font-size-xs);
-}
-.my-text-sm {
-  font-size: var(--my-font-size-sm);
-}
-.my-text-base {
-  font-size: var(--my-font-size-base);
-}
-.my-text-lg {
-  font-size: var(--my-font-size-lg);
-}
-.my-text-xl {
-  font-size: var(--my-font-size-xl);
-}
-.my-text-2xl {
-  font-size: var(--my-font-size-2xl);
-}
-.my-text-3xl {
-  font-size: var(--my-font-size-3xl);
-}
-.my-text-4xl {
-  font-size: var(--my-font-size-4xl);
-}
-
-/* 字重類別 */
-.font-light {
-  font-weight: var(--my-font-weight-light);
-}
-.font-normal {
-  font-weight: var(--my-font-weight-normal);
-}
-.font-medium {
-  font-weight: var(--my-font-weight-medium);
-}
-.font-semibold {
-  font-weight: var(--my-font-weight-semibold);
-}
-.font-bold {
-  font-weight: var(--my-font-weight-bold);
-}
-
-/* 圓角類別 */
-.my-rounded-sm {
-  border-radius: var(--my-radius-sm);
-}
-.my-rounded {
-  border-radius: var(--my-radius-base);
-}
-.my-rounded-md {
-  border-radius: var(--my-radius-md);
-}
-.my-rounded-lg {
-  border-radius: var(--my-radius-lg);
-}
-.my-rounded-xl {
-  border-radius: var(--my-radius-xl);
-}
-.my-rounded-2xl {
-  border-radius: var(--my-radius-2xl);
-}
-.my-rounded-full {
-  border-radius: var(--my-radius-full);
-}
-
-/* 陰影類別 */
-.my-shadow-sm {
-  box-shadow: var(--my-shadow-sm);
-}
-.my-shadow {
-  box-shadow: var(--my-shadow);
-}
-.my-shadow-md {
-  box-shadow: var(--my-shadow-md);
-}
-.my-shadow-lg {
-  box-shadow: var(--my-shadow-lg);
-}
-.my-shadow-xl {
-  box-shadow: var(--my-shadow-xl);
-}
-.my-shadow-2xl {
-  box-shadow: var(--my-shadow-2xl);
-}
-
-/* 過渡動畫類別 */
-.my-transition-fast {
-  transition: var(--my-transition-fast);
-}
-.my-transition {
-  transition: var(--my-transition);
-}
-.my-transition-slow {
-  transition: var(--my-transition-slow);
 }
