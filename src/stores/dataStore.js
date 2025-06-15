@@ -24,7 +24,7 @@ export const useDataStore = defineStore(
             isLoaded: false,
             type: 'point',
             colorName: 'orange',
-            data: null,
+            geoJsonData: null,
             summaryData: null,
             tableData: null,
             loader: loadElderlyWelfareInstitutionData,
@@ -44,7 +44,7 @@ export const useDataStore = defineStore(
             isLoaded: false,
             type: 'point',
             colorName: 'green',
-            data: null,
+            geoJsonData: null,
             summaryData: null,
             tableData: null,
             loader: loadHospitalClinicData,
@@ -59,7 +59,7 @@ export const useDataStore = defineStore(
             isLoaded: false,
             type: 'point',
             colorName: 'green',
-            data: null,
+            geoJsonData: null,
             summaryData: null,
             tableData: null,
             loader: loadHospitalClinicData,
@@ -74,7 +74,7 @@ export const useDataStore = defineStore(
             isLoaded: false,
             type: 'point',
             colorName: 'green',
-            data: null,
+            geoJsonData: null,
             summaryData: null,
             tableData: null,
             loader: loadHealthcareFacilityPharmacyData,
@@ -94,7 +94,7 @@ export const useDataStore = defineStore(
             isLoaded: false,
             type: 'polygon',
             colorName: 'green',
-            data: null,
+            geoJsonData: null,
             summaryData: null,
             tableData: null,
             loader: loadIncomeGeoJson,
@@ -109,7 +109,7 @@ export const useDataStore = defineStore(
             isLoaded: false,
             type: 'polygon',
             colorName: 'green',
-            data: null,
+            geoJsonData: null,
             summaryData: null,
             tableData: null,
             loader: loadIncomeGeoJson,
@@ -120,13 +120,7 @@ export const useDataStore = defineStore(
       },
     ]);
 
-    /**
-     * 🔍 根據 ID 尋找圖層 (Find Layer by ID)
-     * 在新的分組結構中搜尋指定 ID 的圖層
-     *
-     * @param {string} layerId - 圖層 ID
-     * @returns {object|null} 找到的圖層物件或 null
-     */
+    // 在新的分組結構中搜尋指定 ID 的圖層
     const findLayerById = (layerId) => {
       for (const group of layers.value) {
         for (const layer of group.groupLayers) {
@@ -138,12 +132,7 @@ export const useDataStore = defineStore(
       return null;
     };
 
-    /**
-     * 📋 獲取所有圖層 (Get All Layers)
-     * 從分組結構中提取所有圖層的扁平陣列
-     *
-     * @returns {Array} 所有圖層的陣列
-     */
+    // 從分組結構中提取所有圖層的扁平陣列
     const getAllLayers = () => {
       const allLayers = [];
       for (const group of layers.value) {
@@ -152,12 +141,7 @@ export const useDataStore = defineStore(
       return allLayers;
     };
 
-    /**
-     * 🔄 切換圖層可見性 (Toggle Layer Visibility)
-     * 控制圖層的顯示/隱藏，並在需要時自動載入資料
-     *
-     * @param {string} layerId - 圖層 ID
-     */
+    // 控制圖層的顯示/隱藏，並在需要時自動載入資料
     const toggleLayerVisibility = async (layerId) => {
       const layer = findLayerById(layerId);
       if (!layer) {
@@ -175,14 +159,14 @@ export const useDataStore = defineStore(
           const result = await layer.loader(layer.layerId, layer.fileName, layer.fieldName);
 
           // 將載入的資料直接存儲在圖層物件中
-          layer.data = result.geoJsonText;
+          layer.geoJsonData = result.geoJsonData;
           layer.tableData = result.tableData;
           layer.summaryData = result.summaryData;
           layer.isLoaded = true;
 
           // 🔄 強制觸發響應式更新
           console.log(
-            `✅ 圖層 "${layer.name}" 載入完成 (${result.geoJsonText?.features?.length || 0} 筆資料)`
+            `✅ 圖層 "${layer.name}" 載入完成 (${result.geoJsonData?.features?.length || 0} 筆資料)`
           );
           console.log(`📊 圖層摘要資料:`, layer.summaryData);
         } catch (error) {
@@ -194,18 +178,8 @@ export const useDataStore = defineStore(
       }
     };
 
-    // ==================== 🎯 選中物件狀態 (Selected Feature State) ====================
-
-    /**
-     * 🎯 選中的地圖物件 (Selected Map Feature)
-     * 存儲用戶在地圖上點擊選中的地理物件
-     */
+    // 選中的地圖物件
     const selectedFeature = ref(null);
-
-    // ==================== 🛠️ 資料操作方法 (Data Manipulation Methods) ====================
-
-    // Keep this for components that haven't been updated yet.
-    // This is the crucial fix: make the legacy property reactive to the new system.
 
     const setSelectedFeature = (feature) => {
       selectedFeature.value = feature;
@@ -215,24 +189,14 @@ export const useDataStore = defineStore(
       selectedFeature.value = null;
     };
 
-    // ==================== EXPORTS ====================
     return {
-      // Centralized Layer Management
       layers,
       toggleLayerVisibility,
-
-      // Legacy State & Actions (for compatibility)
       selectedFeature,
-
-      // Actions
       setSelectedFeature,
       clearSelectedFeature,
-
-      // 📊 Computed properties for visibility (使用 computed 確保其他組件可以使用)
       visibleLayers: computed(() => getAllLayers().filter((layer) => layer.visible)),
       loadingLayers: computed(() => getAllLayers().filter((layer) => layer.isLoading)),
-
-      // 🛠️ 新增的輔助函數 (New Helper Functions)
       findLayerById, // 根據 ID 尋找圖層
       getAllLayers, // 獲取所有圖層的扁平陣列
     };

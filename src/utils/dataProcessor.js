@@ -42,7 +42,7 @@ export async function loadElderlyWelfareInstitutionData(layerId, fileName) {
       lon: headers.indexOf('lon'),
     };
 
-    const geoJsonText = {
+    const geoJsonData = {
       type: 'FeatureCollection',
       features: rows
         .slice(1) // 使用 .slice(1) 方法，從索引 1 開始提取所有元素，即跳過第一行(標頭)
@@ -101,18 +101,18 @@ export async function loadElderlyWelfareInstitutionData(layerId, fileName) {
     };
 
     // 包含為表格量身打造的數據陣列
-    const tableData = geoJsonText.features.map((feature, index) => ({
+    const tableData = geoJsonData.features.map((feature, index) => ({
       id: index + 1,
       name: feature.properties.name,
     }));
 
     // 包含摘要資訊
     const summaryData = {
-      totalCount: geoJsonText.features.length,
+      totalCount: geoJsonData.features.length,
     };
 
     return {
-      geoJsonText, // 包含原始且完整的 GeoJSON 數據
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
       tableData, // 包含為表格量身打造的數據陣列
       summaryData, // 包含摘要資訊
     };
@@ -157,7 +157,7 @@ export async function loadHospitalClinicData(layerId, fileName) {
       lon: headers.indexOf('lon'),
     };
 
-    const geoJsonText = {
+    const geoJsonData = {
       type: 'FeatureCollection',
       features: rows
         .slice(1) // 使用 .slice(1) 方法，從索引 1 開始提取所有元素，即跳過第一行(標頭)
@@ -209,7 +209,7 @@ export async function loadHospitalClinicData(layerId, fileName) {
     };
 
     // 包含為表格量身打造的數據陣列
-    const tableData = geoJsonText.features.map((feature, index) => ({
+    const tableData = geoJsonData.features.map((feature, index) => ({
       id: index + 1,
       name: feature.properties.name,
       ...feature.properties,
@@ -217,11 +217,11 @@ export async function loadHospitalClinicData(layerId, fileName) {
 
     // 包含摘要資訊
     const summaryData = {
-      totalCount: geoJsonText.features.length,
+      totalCount: geoJsonData.features.length,
     };
 
     return {
-      geoJsonText, // 包含原始且完整的 GeoJSON 數據
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
       tableData, // 包含為表格量身打造的數據陣列
       summaryData, // 包含摘要資訊
     };
@@ -275,7 +275,7 @@ export async function loadHealthcareFacilityPharmacyData(layerId, fileName) {
       lon: headers.indexOf('lon'),
     };
 
-    const geoJsonText = {
+    const geoJsonData = {
       type: 'FeatureCollection',
       features: rows
         .slice(1) // 使用 .slice(1) 方法，從索引 1 開始提取所有元素，即跳過第一行(標頭)
@@ -336,18 +336,18 @@ export async function loadHealthcareFacilityPharmacyData(layerId, fileName) {
     };
 
     // 包含為表格量身打造的數據陣列
-    const tableData = geoJsonText.features.map((feature, index) => ({
+    const tableData = geoJsonData.features.map((feature, index) => ({
       id: index + 1,
       name: feature.properties.name,
     })); // .map() 方法結束
 
     // 包含摘要資訊
     const summaryData = {
-      totalCount: geoJsonText.features.length,
+      totalCount: geoJsonData.features.length,
     };
 
     return {
-      geoJsonText, // 包含原始且完整的 GeoJSON 數據
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
       tableData, // 包含為表格量身打造的數據陣列
       summaryData, // 包含摘要資訊
     };
@@ -375,14 +375,14 @@ export async function loadIncomeGeoJson(layerId, fileName, fieldName) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const geoJsonText = await response.json();
+    const geoJsonData = await response.json();
 
     // ----------------------------
 
     let minValue = 0;
     let maxValue = 0;
 
-    const values = geoJsonText.features
+    const values = geoJsonData.features
       .map((f) => parseFloat(f.properties[fieldName]))
       .filter((v) => !isNaN(v));
 
@@ -422,7 +422,7 @@ export async function loadIncomeGeoJson(layerId, fileName, fieldName) {
 
     // ----------------------------
 
-    geoJsonText.features.forEach((feature, index) => {
+    geoJsonData.features.forEach((feature, index) => {
       feature.properties.id = index + 1;
       feature.properties.layerId = layerId;
       feature.properties.name = feature.properties.FULL;
@@ -453,7 +453,7 @@ export async function loadIncomeGeoJson(layerId, fileName, fieldName) {
     });
 
     // 包含為表格量身打造的數據陣列
-    const tableData = geoJsonText.features.map((feature, index) => ({
+    const tableData = geoJsonData.features.map((feature, index) => ({
       id: index + 1,
       名稱: feature.properties.name,
       [fieldName]: feature.properties[fieldName],
@@ -461,11 +461,11 @@ export async function loadIncomeGeoJson(layerId, fileName, fieldName) {
 
     // 包含摘要資訊
     const summaryData = {
-      totalCount: geoJsonText.features.length,
+      totalCount: geoJsonData.features.length,
     };
 
     return {
-      geoJsonText, // 包含原始且完整的 GeoJSON 數據
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
       tableData, // 包含為表格量身打造的數據陣列
       summaryData, // 包含摘要資訊
     };

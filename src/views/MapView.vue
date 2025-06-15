@@ -112,7 +112,7 @@
 
       // 📊 計算屬性：檢查是否有任何圖層可見 (Computed Property: Check if Any Layer is Visible)
       const isAnyLayerVisible = computed(
-        () => dataStore.getAllLayers().some((l) => l.visible && l.data) // 檢查所有圖層中是否有可見且有資料的圖層
+        () => dataStore.getAllLayers().some((l) => l.visible && l.geoJsonData) // 檢查所有圖層中是否有可見且有資料的圖層
       );
 
       // 🏗️ 創建地圖實例函數 (Create Map Instance Function)
@@ -193,13 +193,13 @@
       // 🎨 創建要素圖層函數 (Create Feature Layer Function)
       const createFeatureLayer = (layer) => {
         // 檢查圖層是否有資料
-        if (!layer.data) return null;
+        if (!layer.geoJsonData) return null;
 
         // 解構圖層屬性
         const { name, colorName, type } = layer; // 獲取圖層名稱、顏色和類型
 
         // 創建 GeoJSON 圖層
-        const geoJsonLayer = L.geoJSON(layer.data, {
+        const geoJsonLayer = L.geoJSON(layer.geoJsonData, {
           // 點要素轉換函數
           pointToLayer: (feature, latlng) => {
             if (type === 'point') {
@@ -324,7 +324,7 @@
         // 獲取當前地圖上的圖層 ID 列表
         const currentLayerIds = Object.keys(layerGroups);
         // 篩選出可見且有資料的圖層
-        const visibleLayers = storeLayers.filter((l) => l.visible && l.data);
+        const visibleLayers = storeLayers.filter((l) => l.visible && l.geoJsonData);
 
         // 移除所有現有圖層
         currentLayerIds.forEach((layerId) => {
