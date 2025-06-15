@@ -149,7 +149,7 @@
 
 <template>
   <!-- 📊 多圖層資料儀表板視圖組件 -->
-  <div class="h-100 dashboard-container">
+  <div class="h-100 my-dashboard-container">
     <div class="d-flex flex-column h-100">
       <!-- 📑 圖層分頁導航 -->
       <div v-if="visibleLayers.length > 0" class="">
@@ -227,8 +227,9 @@
 </template>
 
 <style scoped>
-  .dashboard-container {
+  .my-dashboard-container {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--my-bg-color-gray-200); /* 資料儀表版底色為 gray-200 */
   }
 
   .stats-card {

@@ -390,10 +390,35 @@ export async function loadIncomeGeoJson(layerId, fileName, fieldName) {
     maxValue = d3.max(values);
 
     // 建立一個使用內建「紅白藍」色帶的發散型比例尺
-    const redBlueScale = d3
-      .scaleSequential()
+    // const colorScale = d3
+    //   .scaleSequential()
+    //   .domain([minValue, maxValue]) // 輸入範圍：[最小值, 最大值]
+    //   .interpolator(d3.interpolateYlGnBu); // [關鍵] 直接使用 D3 內建的顏色產生器
+
+    const colorScale = d3
+      .scaleQuantize()
       .domain([minValue, maxValue]) // 輸入範圍：[最小值, 最大值]
-      .interpolator(d3.interpolateYlGnBu); // [關鍵] 直接使用 D3 內建的顏色產生器
+      // [關鍵] 輸出範圍：直接從 D3 的色彩方案中取 5 個顏色
+      // d3.schemeRdBu 是 D3 內建的「紅-白-藍」發散型色彩方案
+      .range(d3.schemeRdBu[10]);
+
+    // --- [關鍵] 產生圖例用的 JSON 資料 ---
+    const legendData = colorScale.range().map((color) => {
+      // 1. 使用 invertExtent() 找出顏色對應的數值區間 [start, end]
+      const extent = colorScale.invertExtent(color);
+
+      // 2. 組合出標籤文字
+      const label = `${extent[0]} - ${extent[1]}`;
+
+      // 3. 回傳結構化的物件
+      return {
+        color: color,
+        label: label,
+        extent: extent, // 也可以把原始區間放進來，以備不時之需
+      };
+    });
+
+    console.log('legendData', legendData);
 
     // ----------------------------
 
@@ -402,7 +427,7 @@ export async function loadIncomeGeoJson(layerId, fileName, fieldName) {
       feature.properties.layerId = layerId;
       feature.properties.name = feature.properties.FULL;
       feature.properties.value = parseFloat(feature.properties[fieldName]);
-      feature.properties.fillColor = redBlueScale(feature.properties.value);
+      feature.properties.fillColor = colorScale(feature.properties.value);
 
       console.log(
         'feature.properties.value',

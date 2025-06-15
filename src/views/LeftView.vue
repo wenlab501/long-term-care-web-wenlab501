@@ -97,6 +97,7 @@
 </template>
 
 <style scoped>
+  /* 🎨 圖層切換開關樣式 (Layer Toggle Switch Styles) */
   /* https://www.tpisoftware.com/tpu/articleDetails/2744 */
 
   input[type='checkbox'] {
@@ -113,6 +114,7 @@
     display: block;
     border-radius: 16px;
     position: relative;
+    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* 優化背景色過渡 */
   }
 
   label:after {
@@ -124,19 +126,32 @@
     height: 12px;
     background: #fff;
     border-radius: 12px;
-    transition: 0.2s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* 優化滑動過渡 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 添加陰影增強立體感 */
   }
 
   input:checked + label {
     background: var(--my-color-success-500);
   }
 
+  /* 🎯 優化按壓動畫效果 (Optimized Press Animation) */
   label:active:after {
-    width: 24px;
+    width: 16px; /* 減少拉伸寬度，更自然 */
+    transition: width 0.15s cubic-bezier(0.4, 0, 0.2, 1); /* 快速響應按壓 */
   }
 
   input:checked + label:after {
     left: calc(100% - 2px);
     transform: translateX(-100%);
+  }
+
+  /* 🎨 懸停效果 (Hover Effects) */
+  label:hover {
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1); /* 添加懸停光暈 */
+    transition: all 0.2s ease; /* 快速懸停響應 */
+  }
+
+  input:checked + label:hover {
+    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1); /* 激活狀態懸停光暈 */
   }
 </style>

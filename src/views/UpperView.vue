@@ -7,28 +7,28 @@
       <!-- 🎛️ 統一的導航按鈕組 (Unified Navigation Buttons) -->
       <!-- 浮動在左上角，提供地圖和儀表板之間的快速切換 -->
       <div class="position-absolute top-0 start-0 m-3" style="z-index: 1000">
-        <div class="btn-group shadow-sm" role="group">
+        <div class="my-view-switcher-controls">
           <!-- 🗺️ 地圖視圖按鈕 (Map View Button) -->
           <button
-            class="btn btn-light btn-sm"
+            class="btn btn-sm my-view-switcher-btn"
             :class="{
-              'btn-primary active': activeTab === 'map',
-              'text-primary': activeTab !== 'map',
+              'my-view-switcher-active': activeTab === 'map',
             }"
             @click="$emit('update:activeTab', 'map')"
+            title="地圖視圖"
           >
-            地圖視圖
+            <i class="fas fa-map"></i>
           </button>
           <!-- 📊 儀表板按鈕 (Dashboard Button) -->
           <button
-            class="btn btn-light btn-sm"
+            class="btn btn-sm my-view-switcher-btn"
             :class="{
-              'btn-success active': activeTab === 'dashboard',
-              'text-success': activeTab !== 'dashboard',
+              'my-view-switcher-active': activeTab === 'dashboard',
             }"
             @click="$emit('update:activeTab', 'dashboard')"
+            title="資料儀表板"
           >
-            資料儀表板
+            <i class="fas fa-chart-bar"></i>
           </button>
         </div>
       </div>
@@ -316,10 +316,10 @@
 
 <style scoped>
   /**
- * 🎨 上半部面板樣式 (Upper Panel Styles)
- *
- * 定義上半部面板的視覺樣式，包含導航、內容區域、滾動條等
- */
+   * 🎨 上半部面板樣式 (Upper Panel Styles)
+   *
+   * 定義上半部面板的視覺樣式，包含導航、內容區域、滾動條等
+   */
 
   /* 🎛️ 固定導航條樣式 (Fixed Navigation Bar Styles) */
   .navbar {
@@ -388,5 +388,59 @@
     padding: 0.25rem 0.5rem; /* 程式碼內邊距 */
     border-radius: 0.25rem; /* 程式碼圓角 */
     font-family: 'Courier New', monospace; /* 等寬字體 */
+  }
+
+  /**
+   * �� UpperView 組件專屬樣式 (UpperView Component Scoped Styles)
+   */
+
+  /* ✨ 視圖切換控制項樣式 (View Switcher Controls Styles) */
+  .my-view-switcher-controls {
+    display: flex; /* 使用 Flexbox 佈局 */
+    align-items: center; /* 垂直對齊 */
+    gap: 8px; /* 按鈕間距 */
+    background: rgba(255, 255, 255, 0.85); /* 半透明白色背景 */
+    padding: 6px 10px; /* 內邊距 */
+    border-radius: 8px; /* 圓角 */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* 陰影效果 */
+    backdrop-filter: blur(12px) saturate(180%); /* 強化霧化效果 */
+    -webkit-backdrop-filter: blur(12px) saturate(180%); /* Safari 支援 */
+    border: 1px solid rgba(255, 255, 255, 0.3); /* 半透明邊框增強玻璃效果 */
+    transition: all 0.3s ease; /* 平滑過渡效果 */
+  }
+
+  /* 🔘 視圖切換按鈕樣式 (View Switcher Button Styles) */
+  .my-view-switcher-btn {
+    background: transparent; /* 透明背景 */
+    border: none; /* 無邊框 */
+    color: var(--my-text-secondary); /* 次要文字顏色 */
+    width: 32px; /* 固定寬度 */
+    height: 32px; /* 固定高度 */
+    display: flex; /* Flexbox 佈局 */
+    align-items: center; /* 垂直置中 */
+    justify-content: center; /* 水平置中 */
+    border-radius: 6px; /* 圓角 */
+    transition: all 0.2s ease; /* 平滑過渡 */
+    font-size: 0.875rem; /* 圖標大小 */
+  }
+
+  /* 🔘 視圖切換按鈕懸停效果 (View Switcher Button Hover) */
+  .my-view-switcher-btn:hover {
+    background: rgba(0, 123, 255, 0.1); /* 淺藍色背景 */
+    color: var(--my-primary-color); /* 主要顏色 */
+    transform: translateY(-1px); /* 輕微上移 */
+  }
+
+  /* 🔘 視圖切換按鈕激活狀態 (View Switcher Button Active) */
+  .my-view-switcher-active {
+    background: var(--my-primary-color) !important; /* 主要顏色背景 */
+    color: white !important; /* 白色文字 */
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3); /* 藍色陰影 */
+  }
+
+  /* 🔘 視圖切換按鈕激活懸停效果 (View Switcher Button Active Hover) */
+  .my-view-switcher-active:hover {
+    background: var(--my-primary-hover) !important; /* 主要顏色懸停 */
+    transform: translateY(-1px); /* 輕微上移 */
   }
 </style>
