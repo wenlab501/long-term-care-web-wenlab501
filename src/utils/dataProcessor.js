@@ -100,6 +100,7 @@ export async function loadElderlyWelfareInstitutionData(layer) {
             properties: {
               id: id,
               layerId: layerId,
+              name: row[headerIndices.機構名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
                 .trim(),
@@ -219,6 +220,7 @@ export async function loadHospitalClinicData(layer) {
             properties: {
               id: id,
               layerId: layerId,
+              name: row[headerIndices.醫療院所],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
                 .trim(),
@@ -356,6 +358,7 @@ export async function loadHealthcareFacilityPharmacyData(layer) {
             properties: {
               id: id,
               layerId: layerId,
+              name: row[headerIndices.醫事機構名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
                 .trim(),

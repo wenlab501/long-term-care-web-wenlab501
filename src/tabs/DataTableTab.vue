@@ -129,13 +129,13 @@
    * @param {Object} layer - 圖層物件
    */
   const handleHighlight = (item, layer) => {
-    console.log('準備高亮顯示:', { item, layer: layer.name });
+    console.log('準備高亮顯示:', { item, layer: layer.layerName });
 
     // 傳遞包含圖層資訊和項目ID的物件
     const highlightData = {
       id: item['#'],
       layerId: layer.layerId,
-      layerName: layer.name,
+      layerName: layer.layerName,
       item: item,
     };
 
@@ -173,7 +173,7 @@
         const newestAddedLayerId = addedLayerIds[addedLayerIds.length - 1];
         activeLayerTab.value = newestAddedLayerId;
         console.log(
-          `🔄 自動切換到新開啟的圖層: ${newLayers.find((layer) => layer.layerId === newestAddedLayerId)?.name}`
+          `🔄 自動切換到新開啟的圖層: ${newLayers.find((layer) => layer.layerId === newestAddedLayerId)?.layerName}`
         );
       }
       // 如果當前沒有選中分頁，或選中的分頁不在可見列表中，選中第一個
@@ -223,7 +223,7 @@
             @click="setActiveLayerTab(layer.layerId)"
           >
             <span class="my-title-sm-black"
-              >{{ layer.name }}
+              >{{ layer.layerName }}
               <span class="my-content-xs-gray ms-2" v-if="getLayerDataCount(layer)">
                 {{ getLayerDataCount(layer) }}
               </span>

@@ -50,7 +50,7 @@
 
         const layerId = selectedFeature.value.properties.layerId;
         const layer = dataStore.findLayerById(layerId);
-        return layer ? layer.name : layerId;
+        return layer ? layer.layerName : layerId;
       });
 
       /**
@@ -125,7 +125,7 @@
     <div v-if="selectedFeature" class="my-bgcolor-white h-100">
       <div>
         <div class="my-title-md p-3 mb-2" :class="`my-bgcolor-${selectedLayer.colorName}`">
-          {{ selectedFeature.properties.name }}
+          {{ selectedFeature.properties.layerName }}
         </div>
 
         <div class="p-3">

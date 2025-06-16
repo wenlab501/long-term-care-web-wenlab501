@@ -18,7 +18,7 @@ export const useDataStore = defineStore(
         groupLayers: [
           {
             layerId: '老人福利機構',
-            name: '老人福利機構',
+            layerName: '老人福利機構',
             visible: false,
             isLoading: false,
             isLoaded: false,
@@ -39,7 +39,7 @@ export const useDataStore = defineStore(
         groupLayers: [
           {
             layerId: '醫院',
-            name: '醫院',
+            layerName: '醫院',
             visible: false,
             isLoading: false,
             isLoaded: false,
@@ -55,7 +55,7 @@ export const useDataStore = defineStore(
           },
           {
             layerId: '診所',
-            name: '診所',
+            layerName: '診所',
             visible: false,
             isLoading: false,
             isLoaded: false,
@@ -71,7 +71,7 @@ export const useDataStore = defineStore(
           },
           {
             layerId: '健保特約藥局',
-            name: '健保特約藥局',
+            layerName: '健保特約藥局',
             visible: false,
             isLoading: false,
             isLoaded: false,
@@ -92,7 +92,7 @@ export const useDataStore = defineStore(
         groupLayers: [
           {
             layerId: '綜稅綜合所得總額-中位數',
-            name: '綜稅綜合所得總額-中位數',
+            layerName: '綜稅綜合所得總額-中位數',
             visible: false,
             isLoading: false,
             isLoaded: false,
@@ -108,7 +108,7 @@ export const useDataStore = defineStore(
           },
           {
             layerId: '綜稅綜合所得總額-平均數',
-            name: '綜稅綜合所得總額-平均數',
+            layerName: '綜稅綜合所得總額-平均數',
             visible: false,
             isLoading: false,
             isLoaded: false,
@@ -173,11 +173,11 @@ export const useDataStore = defineStore(
 
           // 🔄 強制觸發響應式更新
           console.log(
-            `✅ 圖層 "${layer.name}" 載入完成 (${result.geoJsonData?.features?.length || 0} 筆資料)`
+            `✅ 圖層 "${layer.layerName}" 載入完成 (${result.geoJsonData?.features?.length || 0} 筆資料)`
           );
           console.log(`📊 圖層摘要資料:`, layer.summaryData);
         } catch (error) {
-          console.error(`Failed to load data for layer "${layer.name}":`, error);
+          console.error(`Failed to load data for layer "${layer.layerName}":`, error);
           layer.visible = false; // 載入失敗時恢復可見性狀態
         } finally {
           layer.isLoading = false;

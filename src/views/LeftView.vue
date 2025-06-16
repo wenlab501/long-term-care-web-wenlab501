@@ -69,7 +69,7 @@
                   <!-- 圖層名稱 -->
                   <div class="d-flex align-items-center text-start w-100 px-3 py-2">
                     <span class="my-content-sm-black">
-                      {{ layer.name }}
+                      {{ layer.layerName }}
                       <span class="my-content-xs-gray ms-2">
                         {{ layer.summaryData?.totalCount }}
                       </span>

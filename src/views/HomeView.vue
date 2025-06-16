@@ -102,7 +102,7 @@
         (loading) => {
           if (loading) {
             const loadingLayer = dataStore.getAllLayers().find((l) => l.isLoading);
-            loadingText.value = `載入 ${loadingLayer.name} 數據中...`;
+            loadingText.value = `載入 ${loadingLayer.layerName} 數據中...`;
             loadingSubText.value = '正在處理地理資訊...';
           } else {
             loadingText.value = '載入完成';

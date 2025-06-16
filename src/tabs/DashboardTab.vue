@@ -35,7 +35,7 @@
   const currentLayerName = computed(() => {
     if (!activeLayerTab.value) return '無開啟圖層';
     const layer = visibleLayers.value.find((l) => l.layerId === activeLayerTab.value);
-    return layer ? layer.name || '未知圖層' : '無開啟圖層';
+    return layer ? layer.layerName || '未知圖層' : '無開啟圖層';
   });
 
   // 記錄上一次的圖層列表用於比較
@@ -64,7 +64,7 @@
         const newestAddedLayerId = addedLayerIds[addedLayerIds.length - 1];
         activeLayerTab.value = newestAddedLayerId;
         console.log(
-          `🔄 自動切換到新開啟的圖層: ${newLayers.find((layer) => layer.layerId === newestAddedLayerId)?.name}`
+          `🔄 自動切換到新開啟的圖層: ${newLayers.find((layer) => layer.layerId === newestAddedLayerId)?.layerName}`
         );
       }
       // 如果當前沒有選中分頁，或選中的分頁不在可見列表中，選中第一個
@@ -113,7 +113,7 @@
             }"
             @click="setActiveLayerTab(layer.layerId)"
           >
-            <span class="my-title-sm-black">{{ layer.name }}</span>
+            <span class="my-title-sm-black">{{ layer.layerName }}</span>
           </div>
           <div class="w-100" :class="`my-bgcolor-${layer.colorName}`" style="min-height: 4px"></div>
         </li>

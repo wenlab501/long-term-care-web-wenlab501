@@ -155,7 +155,7 @@
         if (!layer.geoJsonData) return null;
 
         // 解構圖層屬性
-        const { name, colorName, type } = layer; // 獲取圖層名稱、顏色和類型
+        const { layerName, colorName, type } = layer; // 獲取圖層名稱、顏色和類型
 
         // 創建 GeoJSON 圖層
         const geoJsonLayer = L.geoJSON(layer.geoJsonData, {
@@ -197,23 +197,30 @@
           // 每個要素的處理函數
           onEachFeature: (feature, layer) => {
             // 創建彈窗內容 HTML
-            const properties = Object.entries(feature.properties.popupData) // 獲取彈窗資料項目
-              .map(
-                ([key, value]) =>
-                  `<div class="pb-2">
-                     <div class="my-title-xs-gray pb-1">${key}</div>
-                     <div class="my-content-sm-black pb-1">${value}</div>
-                   </div>` // 格式化每個資料項目
-              )
-              .join(''); // 合併所有項目
+            // const properties = Object.entries(feature.properties.popupData) // 獲取彈窗資料項目
+            //   .map(
+            //     ([key, value]) =>
+            //       `<div class="pb-2">
+            //          <div class="my-title-xs-gray pb-1">${key}</div>
+            //          <div class="my-content-sm-black pb-1">${value}</div>
+            //        </div>` // 格式化每個資料項目
+            //   )
+            //   .join(''); // 合併所有項目
 
             // 綁定彈窗到圖層
+            // layer.bindPopup(`
+            //   <div class="p-2">
+            //     <div class="my-title-sm-gray pb-2">${layerName}</div>
+            //     ${properties}
+            //   </div>
+            // `);
+
             layer.bindPopup(`
-              <div class="p-2">
-                <div class="my-title-sm-gray pb-2">${name}</div>
-                ${properties}
+              <div class="">
+                <div class="my-title-xs-gray pb-2">${layerName}</div>
+                <div class="my-content-sm-black">${feature.properties.name}</div>
               </div>
-            `); // 設定彈窗內容
+            `);
 
             // 綁定滑鼠事件
             layer.on({
@@ -309,10 +316,10 @@
               newLayer.addTo(mapInstance); // 添加到地圖實例
               layerGroups[layerId] = newLayer; // 存儲到圖層群組物件
               console.log(layer); // 輸出圖層資訊
-              console.log(`🗺️ 圖層 "${layer.name}" 已添加到地圖`); // 輸出成功訊息
+              console.log(`🗺️ 圖層 "${layer.layerName}" 已添加到地圖`); // 輸出成功訊息
             }
           } catch (error) {
-            console.error(`添加圖層 "${layer.name}" 時發生錯誤:`, error); // 輸出錯誤訊息
+            console.error(`添加圖層 "${layer.layerName}" 時發生錯誤:`, error); // 輸出錯誤訊息
           }
         });
 
