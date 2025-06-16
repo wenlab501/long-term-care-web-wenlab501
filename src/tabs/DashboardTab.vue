@@ -142,7 +142,10 @@
     </div>
 
     <!-- 沒有開啟圖層時的空狀態 -->
-    <div v-else class="flex-grow-1 d-flex align-items-center justify-content-center">
+    <div
+      v-else
+      class="flex-grow-1 d-flex align-items-center justify-content-center my-bgcolor-white"
+    >
       <div class="text-center">
         <div class="my-title-md-gray my-2">沒有開啟的圖層</div>
       </div>
