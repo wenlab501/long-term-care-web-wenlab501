@@ -124,10 +124,14 @@
   <div class="h-100 flex-grow-1 d-flex flex-column my-bgcolor-gray-200">
     <div v-if="selectedFeature" class="my-bgcolor-white h-100">
       <div>
-        <div :class="`my-bgcolor-${selectedLayer.colorName}`" :style="{ minHeight: '4px' }"></div>
+        <div
+          v-if="selectedLayer"
+          :class="`my-bgcolor-${selectedLayer.colorName}`"
+          :style="{ minHeight: '4px' }"
+        ></div>
 
         <div class="p-3">
-          <DetailItem label="圖層" :value="selectedFeature.properties.layerName" />
+          <DetailItem label="圖層" :value="layerName" />
           <template v-if="hasProperties">
             <DetailItem
               v-for="(value, key) in selectedFeature.properties.propertyData"

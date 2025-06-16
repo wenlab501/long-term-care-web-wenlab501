@@ -1,7 +1,7 @@
 <script>
   import { computed, ref } from 'vue';
   import { useDataStore } from '@/stores/dataStore.js';
-  import { ICONS, getIcon, getLayerIconName, getLayerIconHtml } from '../utils/utils.js';
+  import { getIcon } from '../utils/utils.js';
 
   export default {
     name: 'LeftView',
@@ -31,9 +31,6 @@
         toggleLayer,
         layerListRef,
         getIcon,
-        getLayerIconName,
-        getLayerIconHtml,
-        ICONS,
       };
     },
   };
