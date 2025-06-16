@@ -113,7 +113,7 @@
             }"
             @click="setActiveLayerTab(layer.layerId)"
           >
-            <div class="my-title-sm-black">{{ layer.name }}</div>
+            <span class="my-title-sm-black">{{ layer.name }}</span>
           </div>
           <div class="w-100" :class="`my-bgcolor-${layer.colorName}`" style="min-height: 4px"></div>
         </li>

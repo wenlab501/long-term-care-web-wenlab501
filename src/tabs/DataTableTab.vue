@@ -222,10 +222,12 @@
             }"
             @click="setActiveLayerTab(layer.layerId)"
           >
-            <div class="my-title-sm-black">{{ layer.name }}</div>
-            <div class="my-content-xs-gray ms-2" v-if="getLayerDataCount(layer)">
-              {{ getLayerDataCount(layer) }}
-            </div>
+            <span class="my-title-sm-black"
+              >{{ layer.name }}
+              <span class="my-content-xs-gray ms-2" v-if="getLayerDataCount(layer)">
+                {{ getLayerDataCount(layer) }}
+              </span>
+            </span>
           </div>
           <div class="w-100" :class="`my-bgcolor-${layer.colorName}`" style="min-height: 4px"></div>
         </li>
@@ -265,7 +267,7 @@
                 <tr
                   v-for="item in getSortedData(layer)"
                   :key="item.id"
-                  class="my-bgcolor-white-hover text-center text-nowrap border-bottom my-cursor-pointer"
+                  class="my-table-tr-hover text-center text-nowrap border-bottom my-cursor-pointer"
                   @click="handleHighlight(item, layer)"
                 >
                   <template v-for="column in getLayerColumns(layer)" :key="column">

@@ -70,9 +70,9 @@
                   <div class="d-flex align-items-center text-start w-100 px-3 py-2">
                     <span class="my-content-sm-black">
                       {{ layer.name }}
-                    </span>
-                    <span class="my-content-xs-gray ms-2">
-                      {{ layer.summaryData?.totalCount }}
+                      <span class="my-content-xs-gray ms-2">
+                        {{ layer.summaryData?.totalCount }}
+                      </span>
                     </span>
                   </div>
                   <!-- 切換圖層可見性 -->
@@ -95,7 +95,7 @@
                     class="d-flex align-items-center"
                   >
                     <div
-                      style="min-width: 12px; min-height: 18px"
+                      style="min-width: 6px; min-height: 18px"
                       :style="{
                         backgroundColor: data.color,
                       }"

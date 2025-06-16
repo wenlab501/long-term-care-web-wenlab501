@@ -268,6 +268,14 @@ body {
   background-color: var(--my-color-gray-100);
 }
 
+.my-table-tr-hover:hover {
+  background-color: var(--my-color-gray-100);
+}
+
+.my-table-tr-hover:hover > td {
+  background-color: transparent;
+}
+
 /* 文字顏色 */
 
 .my-title-xl-black {
@@ -361,12 +369,12 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--my-color-white); /* 滾動條軌道背景色 */
+  background: var(--my-color-gray-100); /* 滾動條軌道背景色 */
   border-radius: 4px; /* 軌道圓角 */
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--my-color-gray-200); /* 滾動條顏色 */
+  background: var(--my-color-gray-300); /* 滾動條顏色 */
   border-radius: 4px; /* 滾動條圓角 */
   transition: background-color 0.2s ease; /* 平滑過渡效果 */
 }
@@ -382,7 +390,7 @@ body {
 /* 🎨 Firefox 滾動條樣式 */
 * {
   scrollbar-width: thin; /* 細滾動條 */
-  scrollbar-color: var(--my-color-gray-200) var(--my-color-white); /* 滾動條顏色 軌道顏色 */
+  scrollbar-color: var(--my-color-gray-300) var(--my-color-gray-100); /* 滾動條顏色 軌道顏色 */
 }
 
 /* 拖拉調整器樣式  */
