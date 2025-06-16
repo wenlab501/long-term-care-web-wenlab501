@@ -21,7 +21,7 @@
    */
   const props = defineProps({
     // 🎛️ 分頁和面板設定 (Tab and Panel Settings)
-    activeTab: { type: String, default: 'map' },
+    activeUpperTab: { type: String, default: 'map' },
     activeBottomTab: { type: String, default: 'table' },
     mainPanelWidth: { type: Number, default: 60 },
     dynamicMainAreaHeight: { type: Number, default: 500 },
@@ -44,7 +44,7 @@
    */
   defineEmits([
     // 📊 分頁更新事件 (Tab Update Events)
-    'update:activeTab', // 更新主要分頁
+    'update:activeUpperTab', // 更新主要分頁
     'update:activeBottomTab', // 更新底部分頁
 
     // 🗺️ 地圖狀態更新事件 (Map State Update Events)
@@ -182,14 +182,14 @@
   };
 
   /**
-   * 👀 監聽 activeTab 變化 (Watch activeTab Changes)
+   * 👀 監聽 activeUpperTab 變化 (Watch activeUpperTab Changes)
    * 當分頁切換時記錄日誌，用於除錯和狀態追蹤
    */
   watch(
-    () => props.activeTab,
+    () => props.activeUpperTab,
     (newTab, oldTab) => {
       console.log(
-        `🔧 MiddleView Watcher: activeTab changed from "${oldTab}" to "${newTab}". Current bottomViewHeightPercent: ${bottomViewHeightPercent.value}%`
+        `🔧 MiddleView Watcher: activeUpperTab changed from "${oldTab}" to "${newTab}". Current bottomViewHeightPercent: ${bottomViewHeightPercent.value}%`
       );
     }
   );
@@ -286,7 +286,7 @@
       <!-- 傳遞所有必要的 props 給 UpperView，包含地圖狀態、資料、樣式設定等 -->
       <UpperView
         ref="mainContentRef"
-        :activeTab="activeTab"
+        :activeUpperTab="activeUpperTab"
         :mainPanelWidth="mainPanelWidth"
         :contentHeight="contentHeight"
         :showTainanLayer="showTainanLayer"
@@ -294,7 +294,7 @@
         :zoomLevel="zoomLevel"
         :isPanelDragging="isOverallDragging"
         :activeMarkers="activeMarkers"
-        @update:activeTab="$emit('update:activeTab', $event)"
+        @update:activeUpperTab="$emit('update:activeUpperTab', $event)"
         @update:zoomLevel="$emit('update:zoomLevel', $event)"
         @update:currentCoords="$emit('update:currentCoords', $event)"
         @update:activeMarkers="$emit('update:activeMarkers', $event)"

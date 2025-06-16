@@ -42,7 +42,7 @@
 
       // 📑 分頁狀態 (Tab States)
       /** 🗺️ 主要分頁狀態（地圖/儀表板） */
-      const activeTab = ref('map');
+      const activeUpperTab = ref('map');
       /** 📋 底部分頁狀態（表格/樣式） */
       const activeBottomTab = ref('table');
       /** 📊 右側分頁狀態（屬性/分析） */
@@ -319,8 +319,8 @@
         console.log('🎯 HomeView 處理高亮顯示:', highlightData);
 
         // 如果當前不在地圖視圖，先切換到地圖
-        if (activeTab.value !== 'map') {
-          activeTab.value = 'map';
+        if (activeUpperTab.value !== 'map') {
+          activeUpperTab.value = 'map';
         }
 
         // 使用 nextTick 確保地圖組件已渲染完成
@@ -339,7 +339,7 @@
         middlePanelRef, // 中間面板引用
 
         // 📑 分頁狀態
-        activeTab, // 主要分頁狀態
+        activeUpperTab, // 主要分頁狀態
         activeBottomTab, // 底部分頁狀態
         activeRightTab, // 右側分頁狀態
 
@@ -446,7 +446,7 @@
             style="z-index: 1"
             :style="{ width: mainPanelWidthPx, 'min-width': '0px' }"
             :dynamicMainAreaHeight="calculatedMiddleViewHeight"
-            :activeTab="activeTab"
+            :activeUpperTab="activeUpperTab"
             :activeBottomTab="activeBottomTab"
             :mainPanelWidth="mainPanelWidth"
             :showTainanLayer="showTainanLayer"
@@ -456,7 +456,7 @@
             :activeMarkers="activeMarkers"
             :isLoadingData="isAnyLayerLoading"
             :isSidePanelDragging="isSidePanelDragging"
-            @update:activeTab="activeTab = $event"
+            @update:activeUpperTab="activeUpperTab = $event"
             @update:activeBottomTab="activeBottomTab = $event"
             @update:zoomLevel="zoomLevel = $event"
             @update:currentCoords="currentCoords = $event"

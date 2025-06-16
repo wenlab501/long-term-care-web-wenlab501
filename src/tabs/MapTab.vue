@@ -759,7 +759,7 @@
 
     <!-- ✨ 地圖底部控制項區域 (Bottom Map Controls Area) -->
     <!-- 浮動在地圖底部中央，提供底圖選擇和功能按鈕 -->
-    <div class="map-bottom-controls my-blur-strong">
+    <div class="map-bottom-controls my-blur">
       <!-- 🗺️ 底圖選擇器群組 (Basemap Selector Group) -->
       <!-- 使用 Bootstrap 下拉選單提供多種底圖選擇 -->
       <div class="basemap-select-group">

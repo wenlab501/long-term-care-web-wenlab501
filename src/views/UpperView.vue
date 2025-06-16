@@ -22,7 +22,7 @@
      * 接收來自父組件的配置和狀態數據
      */
     props: {
-      activeTab: { type: String, default: 'map' },
+      activeUpperTab: { type: String, default: 'map' },
       mainPanelWidth: { type: Number, default: 60 },
       contentHeight: { type: Number, default: 500 },
       showTainanLayer: { type: Boolean, default: false },
@@ -37,7 +37,7 @@
      * 定義向父組件發送的事件類型
      */
     emits: [
-      'update:activeTab', // 更新作用中分頁
+      'update:activeUpperTab', // 更新作用中分頁
       'update:zoomLevel', // 更新地圖縮放等級
       'update:currentCoords', // 更新當前座標
       'update:activeMarkers', // 更新作用中標記數量
@@ -62,7 +62,7 @@
        * 調整儀表板容器的滑鼠指標事件，防止拖曳時的干擾
        */
       watch(
-        [() => props.isPanelDragging, () => props.activeTab],
+        [() => props.isPanelDragging, () => props.activeUpperTab],
         ([dragging, tab]) => {
           nextTick(() => {
             if (dashboardContainerRef.value) {
@@ -92,7 +92,7 @@
        * 當切換分頁時觸發相應的更新動作，確保組件正常顯示
        */
       watch(
-        () => props.activeTab,
+        () => props.activeUpperTab,
         (newTab, oldTab) => {
           console.log('🔄 UpperView: Tab changed from', oldTab, 'to', newTab);
 
@@ -125,7 +125,7 @@
        */
       watch([() => props.mainPanelWidth, () => props.contentHeight], () => {
         nextTick(() => {
-          if (props.activeTab === 'map' && MapTab.value) {
+          if (props.activeUpperTab === 'map' && MapTab.value) {
             // 🗺️ 重新計算地圖大小，適應新的容器尺寸
             MapTab.value.invalidateSize();
           }
@@ -143,8 +143,8 @@
         console.log('🎯 UpperView: highlightFeature called with data:', highlightData);
 
         // 如果當前不在地圖分頁，先切換到地圖分頁
-        if (props.activeTab !== 'map') {
-          emit('update:activeTab', 'map');
+        if (props.activeUpperTab !== 'map') {
+          emit('update:activeUpperTab', 'map');
 
           // 等待分頁切換完成後再執行高亮
           nextTick(() => {
@@ -161,7 +161,7 @@
        * 將地圖恢復到初始視圖狀態
        */
       const resetView = () => {
-        if (props.activeTab === 'map' && MapTab.value) {
+        if (props.activeUpperTab === 'map' && MapTab.value) {
           MapTab.value.resetView();
         }
       };
@@ -171,7 +171,7 @@
        * 調整地圖視圖以完整顯示台南地區
        */
       const fitToTainanBounds = () => {
-        if (props.activeTab === 'map' && MapTab.value) {
+        if (props.activeUpperTab === 'map' && MapTab.value) {
           MapTab.value.fitToTainanBounds();
         }
       };
@@ -181,7 +181,7 @@
        * 當容器大小變化但自動偵測失效時使用
        */
       const invalidateMapSize = () => {
-        if (props.activeTab === 'map' && MapTab.value) {
+        if (props.activeUpperTab === 'map' && MapTab.value) {
           MapTab.value.invalidateSize();
         }
       };
@@ -201,33 +201,31 @@
 </script>
 
 <template>
-  <!-- 📊 上半部面板組件 (Upper Panel Component) -->
   <div class="d-flex flex-column my-bgcolor-gray-200 h-100">
-    <!-- 📱 分頁內容區域 (Tab Content Area) -->
-    <!-- 地圖和儀表板滿版顯示，提供無縫的用戶體驗 -->
     <div class="flex-grow-1 overflow-hidden position-relative">
-      <!-- 🎛️ 統一的導航按鈕組 (Unified Navigation Buttons) -->
-      <!-- 浮動在左上角，提供地圖和儀表板之間的快速切換 -->
+      <!-- 統一的導航按鈕組 -->
       <div class="position-absolute top-0 start-0 m-3" style="z-index: 1000">
-        <div class="my-view-switcher-controls my-blur-strong">
+        <div class="d-flex align-items-center rounded-pill shadow my-blur gap-1 p-2">
           <!-- 🗺️ 地圖視圖按鈕 (Map View Button) -->
           <button
-            class="btn btn-sm my-view-switcher-btn"
+            class="btn rounded-circle d-flex align-items-center justify-content-center my-btn-transparent my-font-size-sm"
             :class="{
-              'my-view-switcher-active': activeTab === 'map',
+              'my-btn-blue': activeUpperTab === 'map',
             }"
-            @click="$emit('update:activeTab', 'map')"
+            @click="$emit('update:activeUpperTab', 'map')"
+            style="width: 36px; height: 36px"
             title="地圖視圖"
           >
             <i class="fas fa-map"></i>
           </button>
           <!-- 📊 儀表板按鈕 (Dashboard Button) -->
           <button
-            class="btn btn-sm my-view-switcher-btn"
+            class="btn rounded-circle d-flex align-items-center justify-content-center my-btn-transparent my-font-size-sm"
             :class="{
-              'my-view-switcher-active': activeTab === 'dashboard',
+              'my-btn-blue': activeUpperTab === 'dashboard',
             }"
-            @click="$emit('update:activeTab', 'dashboard')"
+            @click="$emit('update:activeUpperTab', 'dashboard')"
+            style="width: 36px; height: 36px"
             title="資料儀表板"
           >
             <i class="fas fa-chart-bar"></i>
@@ -235,9 +233,8 @@
         </div>
       </div>
 
-      <!-- 🗺️ 地圖分頁內容 (Map Tab Content) -->
-      <!-- 顯示互動式地圖，支援圖層控制、樣式設定等功能 -->
-      <div v-if="activeTab === 'map'" class="h-100">
+      <!-- 地圖分頁內容-->
+      <div v-if="activeUpperTab === 'map'" class="h-100">
         <MapTab
           ref="MapTab"
           :showTainanLayer="showTainanLayer"
@@ -251,10 +248,9 @@
         />
       </div>
 
-      <!-- 📊 儀表板分頁內容 (Dashboard Tab Content) -->
-      <!-- 顯示資料統計圖表、分析結果等視覺化內容 -->
+      <!-- 儀表板分頁內容 -->
       <div
-        v-if="activeTab === 'dashboard'"
+        v-if="activeUpperTab === 'dashboard'"
         ref="dashboardContainerRef"
         class="h-100 overflow-auto pt-5"
       >
@@ -267,101 +263,8 @@
           :activeMarkers="activeMarkers"
         />
       </div>
-
-      <!-- 🐛 調試信息區域 (Debug Information Area) -->
-      <!-- 當分頁狀態異常時顯示，協助開發者診斷問題 -->
-      <div
-        v-if="activeTab !== 'map' && activeTab !== 'dashboard'"
-        class="h-100 d-flex align-items-center justify-content-center"
-      >
-        <div class="text-center">
-          <h5>調試信息</h5>
-          <p>
-            當前 activeTab: <code>{{ activeTab }}</code>
-          </p>
-          <p>預期值: <code>map</code> 或 <code>dashboard</code></p>
-          <button class="btn btn-primary me-2" @click="$emit('update:activeTab', 'map')">
-            切換到地圖
-          </button>
-          <button class="btn btn-success" @click="$emit('update:activeTab', 'dashboard')">
-            切換到儀表板
-          </button>
-        </div>
-      </div>
     </div>
   </div>
 </template>
 
-<style scoped>
-  /**
-   * 🎨 上半部面板樣式 (Upper Panel Styles)
-   *
-   * 定義上半部面板的視覺樣式，包含導航、內容區域、滾動條等
-   */
-
-  /* 🎛️ 導航按鈕組樣式 (Navigation Button Group Styles) - 使用 Bootstrap 基礎樣式 */
-  .btn-group .btn {
-    transition: all 0.3s ease; /* 平滑的狀態轉換動畫 */
-  }
-
-  .btn-group .btn:hover {
-    transform: translateY(-1px); /* 懸停時輕微上移效果 */
-  }
-
-  .btn-group .btn.active {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* 作用中按鈕的陰影 */
-  }
-
-  /**
-   * �� UpperView 組件專屬樣式 (UpperView Component Scoped Styles)
-   */
-
-  /* ✨ 視圖切換控制項樣式 (View Switcher Controls Styles) */
-  .my-view-switcher-controls {
-    display: flex; /* 使用 Flexbox 佈局 */
-    align-items: center; /* 垂直對齊 */
-    gap: 8px; /* 按鈕間距 */
-    background: rgba(255, 255, 255, 0.85); /* 半透明白色背景 */
-    padding: 6px 10px; /* 內邊距 */
-    border-radius: 8px; /* 圓角 */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* 陰影效果 */
-
-    border: 1px solid rgba(255, 255, 255, 0.3); /* 半透明邊框增強玻璃效果 */
-    transition: all 0.3s ease; /* 平滑過渡效果 */
-  }
-
-  /* 🔘 視圖切換按鈕樣式 (View Switcher Button Styles) */
-  .my-view-switcher-btn {
-    background: transparent; /* 透明背景 */
-    border: none; /* 無邊框 */
-    color: var(--my-color-gray-600); /* 次要文字顏色 */
-    width: 32px; /* 固定寬度 */
-    height: 32px; /* 固定高度 */
-    display: flex; /* Flexbox 佈局 */
-    align-items: center; /* 垂直置中 */
-    justify-content: center; /* 水平置中 */
-    border-radius: 6px; /* 圓角 */
-    transition: all 0.2s ease; /* 平滑過渡 */
-    font-size: 0.875rem; /* 圖標大小 */
-  }
-
-  /* 🔘 視圖切換按鈕懸停效果 (View Switcher Button Hover) */
-  .my-view-switcher-btn:hover {
-    background: rgba(0, 123, 255, 0.1); /* 淺藍色背景 */
-    color: var(--my-color-blue); /* 主要顏色 */
-    transform: translateY(-1px); /* 輕微上移 */
-  }
-
-  /* 🔘 視圖切換按鈕激活狀態 (View Switcher Button Active) */
-  .my-view-switcher-active {
-    background: var(--my-color-blue) !important; /* 主要顏色背景 */
-    color: white !important; /* 白色文字 */
-    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3); /* 藍色陰影 */
-  }
-
-  /* 🔘 視圖切換按鈕激活懸停效果 (View Switcher Button Active Hover) */
-  .my-view-switcher-active:hover {
-    background: var(--my-color-indigo) !important; /* 深藍色懸停 */
-    transform: translateY(-1px); /* 輕微上移 */
-  }
-</style>
+<style scoped></style>

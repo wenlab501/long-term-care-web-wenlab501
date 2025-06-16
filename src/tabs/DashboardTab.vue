@@ -96,7 +96,7 @@
 
 <template>
   <!-- 📊 多圖層資料儀表板視圖組件 -->
-  <div class="h-100 d-flex flex-column my-bgcolor-white">
+  <div class="h-100 d-flex flex-column my-bgcolor-gray-200">
     <!-- 📑 圖層分頁導航 -->
     <div v-if="visibleLayers.length > 0" class="">
       <ul class="nav nav-tabs nav-fill">
@@ -120,34 +120,31 @@
       </ul>
     </div>
 
-    <!-- 📊 圖層儀表板內容 -->
-    <div class="flex-grow-1 overflow-auto">
-      <!-- 有開啟圖層時的內容 -->
-      <div v-if="visibleLayers.length > 0 && activeLayerTab" class="p-4">
-        <!-- 📊 當前圖層資訊 -->
-        <div class="mb-4">
-          {{ currentLayerName }}
-        </div>
-
-        <!-- 📊 圖層摘要資料 -->
-        <div class="card-body">
-          <div v-if="currentLayerSummary">
-            <pre class="json-display p-3 rounded">{{
-              JSON.stringify(currentLayerSummary, null, 2)
-            }}</pre>
-          </div>
-          <div v-else class="text-center py-5">
-            <h5>沒有摘要資料</h5>
-            <p>此圖層沒有可用的摘要資訊</p>
-          </div>
-        </div>
+    <!-- 有開啟圖層時的內容 -->
+    <div v-if="visibleLayers.length > 0" class="flex-grow-1 overflow-hidden my-bgcolor-white p-3">
+      <!-- 📊 當前圖層資訊 -->
+      <div class="mb-4">
+        {{ currentLayerName }}
       </div>
 
-      <!-- 沒有開啟圖層時的空狀態 -->
-      <div v-else class="flex-grow-1 d-flex align-items-center justify-content-center">
-        <div class="text-center">
-          <div class="my-title-xl-gray my-2">沒有開啟的圖層</div>
+      <!-- 📊 圖層摘要資料 -->
+      <div class="card-body">
+        <div v-if="currentLayerSummary">
+          <pre class="json-display p-3 rounded">{{
+            JSON.stringify(currentLayerSummary, null, 2)
+          }}</pre>
         </div>
+        <div v-else class="text-center py-5">
+          <h5>沒有摘要資料</h5>
+          <p>此圖層沒有可用的摘要資訊</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 沒有開啟圖層時的空狀態 -->
+    <div v-else class="flex-grow-1 d-flex align-items-center justify-content-center">
+      <div class="text-center">
+        <div class="my-title-xl-gray my-2">沒有開啟的圖層</div>
       </div>
     </div>
   </div>

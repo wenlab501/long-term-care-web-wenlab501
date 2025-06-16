@@ -40,21 +40,56 @@
 
   /* 圖層顏色，按 RGB 順序排列 */
   --my-color-red: #f44336;
-  --my-color-deeporange: #ff5722;
-  --my-color-orange: #ff9800;
-  --my-color-amber: #ffc107;
-  --my-color-yellow: #ffeb3b;
-  --my-color-lime: #cddc39;
-  --my-color-light-green: #8bc34a;
-  --my-color-green: #4caf50;
-  --my-color-teal: #009688;
-  --my-color-cyan: #00bcd4;
-  --my-color-lightblue: #03a9f4;
-  --my-color-blue: #2196f3;
-  --my-color-bluegrey: #607d8b;
-  --my-color-indigo: #3f51b5;
-  --my-color-deeppurple: #673ab7;
-  --my-color-purple: #9c27b0;
+  --my-color-red-hover: #d32f2f;
+
   --my-color-pink: #e91e63;
+  --my-color-pink-hover: #c2185b;
+
+  --my-color-deeporange: #ff5722;
+  --my-color-deeporange-hover: #e64a19;
+
+  --my-color-orange: #ff9800;
+  --my-color-orange-hover: #f57c00;
+
+  --my-color-amber: #ffc107;
+  --my-color-amber-hover: #ffa000;
+
+  --my-color-yellow: #ffeb3b;
+  --my-color-yellow-hover: #fbc02d;
+
+  --my-color-lime: #cddc39;
+  --my-color-lime-hover: #afb42b;
+
+  --my-color-light-green: #8bc34a;
+  --my-color-light-green-hover: #689f38;
+
+  --my-color-green: #4caf50;
+  --my-color-green-hover: #388e3c;
+
+  --my-color-teal: #009688;
+  --my-color-teal-hover: #00796b;
+
+  --my-color-cyan: #00bcd4;
+  --my-color-cyan-hover: #0097a7;
+
+  --my-color-lightblue: #03a9f4;
+  --my-color-lightblue-hover: #0288d1;
+
+  --my-color-blue: #2196f3;
+  --my-color-blue-hover: #1976d2;
+
+  --my-color-bluegrey: #607d8b;
+  --my-color-bluegrey-hover: #455a64;
+
+  --my-color-indigo: #3f51b5;
+  --my-color-indigo-hover: #303f9f;
+
+  --my-color-deeppurple: #673ab7;
+  --my-color-deeppurple-hover: #512da8;
+
+  --my-color-purple: #9c27b0;
+  --my-color-purple-hover: #7b1fa2;
+
   --my-color-brown: #795548;
+  --my-color-brown-hover: #5d4037;
 }
