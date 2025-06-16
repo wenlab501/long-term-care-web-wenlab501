@@ -4,6 +4,7 @@
   import L from 'leaflet'; // 引入 Leaflet 地圖庫
   import 'leaflet/dist/leaflet.css'; // 引入 Leaflet 預設樣式
   import { useDataStore } from '@/stores/dataStore.js'; // 引入資料存儲
+  import { useDefineStore } from '@/stores/defineStore.js'; // 引入定義存儲
 
   // 🔧 修復 Leaflet 預設圖標問題 (Fix Leaflet Default Icon Issues)
   import icon from 'leaflet/dist/images/marker-icon.png'; // 引入標準標記圖標
@@ -35,6 +36,7 @@
     setup(props, { emit }) {
       // 📦 資料存儲實例 (Data Store Instance)
       const dataStore = useDataStore(); // 獲取 Pinia 資料存儲實例
+      const defineStore = useDefineStore(); // 獲取定義存儲實例
 
       // 🗺️ 地圖相關變數 (Map Related Variables)
       const mapContainer = ref(null); // 地圖容器 DOM 元素引用
@@ -620,23 +622,9 @@
 
       // 🏷️ 獲取底圖標籤函數 (Get Basemap Label Function)
       const getBasemapLabel = (value) => {
-        // 底圖標籤對應表
-        const basemapLabels = {
-          osm: 'OpenStreetMap', // OpenStreetMap 開源地圖
-          esri_street: 'Esri Street', // Esri 街道地圖
-          esri_topo: 'Esri Topo', // Esri 地形地圖
-          esri_imagery: 'Esri World Imagery', // Esri 世界影像地圖
-          google_road: 'Google Maps 街道', // Google Maps 街道地圖
-          google_satellite: 'Google Maps 衛星', // Google Maps 衛星地圖
-          nlsc_emap: '國土規劃中心電子地圖', // 國土測繪中心電子地圖
-          nlsc_photo: '國土規劃中心正射影像', // 國土測繪中心正射影像
-          terrain: '地形圖', // 地形圖
-          carto_light_labels: 'Carto Light (有標籤)', // Carto Light 有標籤版本
-          carto_dark_labels: 'Carto Dark (有標籤)', // Carto Dark 有標籤版本
-          carto_voyager: 'Carto Voyager', // Carto Voyager 探險風格
-          blank: '空白無地圖', // 空白地圖
-        };
-        return basemapLabels[value] || value; // 返回對應標籤或原始值
+        // 從 defineStore 中獲取底圖標籤
+        const basemap = defineStore.basemaps.find((b) => b.value === value);
+        return basemap ? basemap.label : value;
       };
 
       // 🚀 初始化地圖函數 (Initialize Map Function)
@@ -718,6 +706,7 @@
         highlightFeature, // 高亮顯示特定要素函數
         resetView, // 重設地圖視圖函數
         invalidateSize, // 刷新地圖尺寸函數
+        defineStore, // 定義存儲實例
       };
     },
   };
@@ -734,10 +723,10 @@
     <div
       class="position-absolute map-bottom-controls d-flex align-items-center rounded-pill shadow my-blur gap-2 p-2"
     >
-      <div class="basemap-select-group">
+      <div class="d-flex align-items-center">
         <div class="dropdown dropup">
           <button
-            class="btn rounded-pill border-1"
+            class="btn rounded-pill border-0 my-btn-white my-font-size-sm text-nowrap"
             type="button"
             data-bs-toggle="dropdown"
             aria-expanded="false"
@@ -745,120 +734,15 @@
           >
             {{ getBasemapLabel(selectedBasemap) }}
           </button>
-          <ul class="dropdown-menu dropdown-menu-end my-blur-light">
-            <li>
-              <a class="dropdown-item my-title-xs" href="#" @click.prevent="changeBasemap('osm')"
-                >OpenStreetMap</a
-              >
-            </li>
-            <!-- Esri 街道地圖選項 -->
-            <li>
+          <ul class="dropdown-menu">
+            <li v-for="basemap in defineStore.basemaps" :key="basemap.value">
               <a
                 class="dropdown-item my-title-xs"
                 href="#"
-                @click.prevent="changeBasemap('esri_street')"
-                >Esri Street</a
+                @click.prevent="changeBasemap(basemap.value)"
               >
-            </li>
-            <!-- Esri 地形地圖選項 -->
-            <li>
-              <a
-                class="dropdown-item my-title-xs"
-                href="#"
-                @click.prevent="changeBasemap('esri_topo')"
-                >Esri Topo</a
-              >
-            </li>
-            <!-- Esri 世界影像地圖選項 -->
-            <li>
-              <a
-                class="dropdown-item my-title-xs"
-                href="#"
-                @click.prevent="changeBasemap('esri_imagery')"
-                >Esri World Imagery</a
-              >
-            </li>
-            <!-- Google Maps 街道地圖選項 -->
-            <li>
-              <a
-                class="dropdown-item my-title-xs"
-                href="#"
-                @click.prevent="changeBasemap('google_road')"
-                >Google Maps 街道</a
-              >
-            </li>
-            <!-- Google Maps 衛星地圖選項 -->
-            <li>
-              <a
-                class="dropdown-item my-title-xs"
-                href="#"
-                @click.prevent="changeBasemap('google_satellite')"
-                >Google Maps 衛星</a
-              >
-            </li>
-
-            <!-- 國土測繪中心電子地圖選項 -->
-            <li>
-              <a
-                class="dropdown-item my-title-xs"
-                href="#"
-                @click.prevent="changeBasemap('nlsc_emap')"
-                >國土規劃中心電子地圖</a
-              >
-            </li>
-            <!-- 國土測繪中心正射影像選項 -->
-            <li>
-              <a
-                class="dropdown-item my-title-xs"
-                href="#"
-                @click.prevent="changeBasemap('nlsc_photo')"
-                >國土規劃中心正射影像</a
-              >
-            </li>
-
-            <!-- 地形圖選項 -->
-            <li>
-              <a
-                class="dropdown-item my-title-xs"
-                href="#"
-                @click.prevent="changeBasemap('terrain')"
-                >地形圖</a
-              >
-            </li>
-
-            <!-- Carto Light 有標籤版本選項 -->
-            <li>
-              <a
-                class="dropdown-item my-title-xs"
-                href="#"
-                @click.prevent="changeBasemap('carto_light_labels')"
-                >Carto Light (有標籤)</a
-              >
-            </li>
-            <!-- Carto Dark 有標籤版本選項 -->
-            <li>
-              <a
-                class="dropdown-item my-title-xs"
-                href="#"
-                @click.prevent="changeBasemap('carto_dark_labels')"
-                >Carto Dark (有標籤)</a
-              >
-            </li>
-            <!-- Carto Voyager 探險風格選項 -->
-            <li>
-              <a
-                class="dropdown-item my-title-xs"
-                href="#"
-                @click.prevent="changeBasemap('carto_voyager')"
-                >Carto Voyager</a
-              >
-            </li>
-
-            <!-- 空白地圖選項 -->
-            <li>
-              <a class="dropdown-item my-title-xs" href="#" @click.prevent="changeBasemap('blank')"
-                >空白無地圖</a
-              >
+                {{ basemap.label }}
+              </a>
             </li>
           </ul>
         </div>
@@ -901,29 +785,5 @@
     left: 50%; /* 水平置中 */
     transform: translateX(-50%); /* 完美水平置中 */
     z-index: 2000;
-  }
-
-  /* 🗺️ 底圖選擇器群組樣式 (Basemap Selector Group Styles) */
-  .basemap-select-group {
-    display: flex; /* 使用 Flexbox 佈局 */
-    align-items: center; /* 垂直對齊 */
-    gap: 6px; /* 減少間距 */
-  }
-
-  .basemap-select-group .dropdown-menu {
-    z-index: 9999; /* 確保下拉選單在最上層 */
-  }
-
-  /* 🎯 不同幾何類型的特殊樣式 (Special Styles for Different Geometry Types) */
-  .feature-point {
-    transition: all 0.3s ease; /* 平滑過渡效果 */
-  }
-
-  .feature-point:hover {
-    transform: scale(1.2); /* 懸停時放大 */
-  }
-
-  .feature-polygon {
-    transition: all 0.2s ease; /* 多邊形過渡效果 */
   }
 </style>

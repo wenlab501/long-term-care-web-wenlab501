@@ -245,7 +245,7 @@
         <div class="h-100 d-flex flex-column">
           <div class="flex-grow-1 overflow-auto">
             <table class="table w-100 mb-0">
-              <thead class="sticky-top">
+              <thead class="sticky-top my-table-thead">
                 <tr class="text-center text-nowrap">
                   <template v-for="column in getLayerColumns(layer)" :key="column">
                     <th
@@ -303,10 +303,14 @@
     <!-- 📭 無開啟圖層的空狀態 -->
     <div v-else class="flex-grow-1 d-flex align-items-center justify-content-center">
       <div class="text-center">
-        <div class="my-title-xl-gray my-2">沒有開啟的圖層</div>
+        <div class="my-title-md-gray my-2">沒有開啟的圖層</div>
       </div>
     </div>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+  .my-table-thead {
+    border-bottom: 2px solid var(--my-color-gray-300) !important;
+  }
+</style>

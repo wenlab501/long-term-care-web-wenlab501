@@ -145,7 +145,7 @@
     <!-- 📭 無點擊地圖上物件的空狀態 -->
     <div v-else class="flex-grow-1 d-flex align-items-center justify-content-center">
       <div class="text-center">
-        <div class="my-title-xl-gray my-2">沒有點擊地圖上的物件</div>
+        <div class="my-title-md-gray my-2">沒有點擊地圖上的物件</div>
       </div>
     </div>
   </div>
