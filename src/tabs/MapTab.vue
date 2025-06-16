@@ -45,7 +45,6 @@
       let layerGroups = {}; // 存放所有圖層群組的物件
 
       // 🎛️ 地圖控制狀態 (Map Control States)
-      const selectedBasemap = ref('carto_light_labels'); // 選定的底圖類型，預設為 Carto Light 有標籤版本
       const isMapReady = ref(false); // 地圖是否已準備就緒的狀態標記
 
       // 📊 計算屬性：檢查是否有任何圖層可見 (Computed Property: Check if Any Layer is Visible)
@@ -120,7 +119,7 @@
         }
 
         // 步驟二：查找新的底圖設定
-        const config = defineStore.basemaps.find((b) => b.value === selectedBasemap.value);
+        const config = defineStore.basemaps.find((b) => b.value === defineStore.selectedBasemap);
 
         // 步驟三：只有在找到設定檔(config)且 URL 不是空值(falsy)時，才加入新的圖層
         // 由於空字串 '' 是 falsy 值，這個判斷式會自動過濾掉 url 為 '' 的情況。
@@ -129,8 +128,17 @@
           currentTileLayer.addTo(mapInstance);
         }
 
-        // 如果 config.url 是空字串或不存在，程式碼會在這之後結束，
-        // 地圖上就不會有任何底圖圖層，完美達成您的需求。
+        // 動態設定地圖容器背景色
+        const mapContainerElement = mapContainer.value;
+        if (mapContainerElement) {
+          if (defineStore.selectedBasemap === 'blank') {
+            // 空白地圖時設為白色背景
+            mapContainerElement.style.backgroundColor = 'var(--my-color-white)';
+          } else {
+            // 其他底圖時設為透明，讓底圖顯示
+            mapContainerElement.style.backgroundColor = 'transparent';
+          }
+        }
       };
 
       // 🎨 創建要素圖層函數 (Create Feature Layer Function)
@@ -572,12 +580,9 @@
         }
       };
 
-      // 🗺️ 切換底圖函數 (Change Basemap Function)
-      const changeBasemap = (basemapValue) => {
-        if (basemapValue) {
-          // 如果提供了底圖值
-          selectedBasemap.value = basemapValue; // 更新選定的底圖
-        }
+      // 🔄 切換底圖函數 (Change Basemap Function)
+      const changeBasemap = (basemapType) => {
+        defineStore.setSelectedBasemap(basemapType); // 使用 store action 更新底圖狀態
         setBasemap(); // 應用底圖變更
       };
 
@@ -656,10 +661,20 @@
       // 👀 監聽器：監聽資料存儲中的圖層變化 (Watcher: Watch Data Store Layers)
       watch(() => dataStore.layers, syncLayers, { deep: true }); // 深度監聽圖層變化並同步
 
+      // 👀 監聽器：監聽底圖變化 (Watcher: Watch Basemap Changes)
+      watch(
+        () => defineStore.selectedBasemap,
+        () => {
+          if (isMapReady.value) {
+            setBasemap(); // 當底圖變化時重新設定
+          }
+        }
+      );
+
       // 📤 返回組件公開的屬性和方法 (Return Component Public Properties and Methods)
       return {
         mapContainer, // 地圖容器 DOM 元素引用
-        selectedBasemap, // 選定的底圖類型響應式變數
+        selectedBasemap: computed(() => defineStore.selectedBasemap), // 選定的底圖類型響應式變數
         changeBasemap, // 切換底圖函數
         getBasemapLabel, // 獲取底圖標籤函數
         showAllFeatures, // 顯示全部要素函數
@@ -724,7 +739,7 @@
 <style scoped>
   /* 🗺️ 地圖容器樣式 (Map Container Styles) */
   #map-container {
-    background-color: var(--my-color-white); /* 空白地圖時設為灰色底圖 */
+    background-color: transparent; /* 預設透明，讓底圖顯示，空白地圖時由 JS 動態設定為白色 */
     /* 移除 min-height 限制，讓地圖能自由縮放 */
     position: relative; /* 確保子元素定位正確 */
     overflow: hidden; /* 防止內容溢出 */

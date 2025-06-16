@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 
 export const useDefineStore = defineStore('define', {
   state: () => ({
+    selectedBasemap: 'carto_light_labels', // 當前選中的底圖
     basemaps: [
       {
         label: 'OpenStreetMap',
@@ -70,4 +71,9 @@ export const useDefineStore = defineStore('define', {
       },
     ],
   }),
+  actions: {
+    setSelectedBasemap(value) {
+      this.selectedBasemap = value;
+    },
+  },
 });
