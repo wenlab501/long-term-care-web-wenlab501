@@ -101,14 +101,10 @@
 </script>
 
 <template>
-  <!-- 📊 右側面板組件 (Right Panel Component) -->
-  <!-- 提供物件屬性查看和分析清單管理功能 -->
-  <div class="my-right-panel h-100 d-flex flex-column custom-scroll overflow-hidden">
-    <!-- 📄 右側分頁內容區域 (Right Panel Tab Content Area) -->
-    <!-- 根據選中的分頁顯示對應的內容組件 -->
-    <div class="flex-grow-1 tab-content overflow-auto" style="min-width: 0">
-      <!-- 📋 物件屬性分頁內容 (Object Properties Tab Content) -->
-      <!-- 顯示選中地圖物件的詳細屬性資訊 -->
+  <div class="my-right-panel h-100 d-flex flex-column overflow-hidden">
+    <!-- 📄 右側分頁內容區域 -->
+    <div class="flex-grow-1 overflow-auto">
+      <!-- 📋 物件屬性分頁內容 -->
       <div v-show="activeRightTab === 'properties'" class="h-100">
         <PropertiesTab
           :selected-feature="selectedFeature"
@@ -119,78 +115,4 @@
   </div>
 </template>
 
-<style scoped>
-  /**
- * 🎨 右側面板樣式 (Right Panel Styles)
- *
- * 定義右側面板的視覺樣式，包含基礎佈局、滾動條客製化等
- */
-
-  /* 📋 面板基礎樣式 (Panel Base Styles) */
-  .my-right-panel {
-    overflow-y: auto; /* 內容溢出時可垂直滾動 */
-  }
-
-  /* 📋 自定義滾動條樣式 (Custom Scrollbar Styles) */
-  /* WebKit 瀏覽器 (Chrome, Safari, Edge) 的滾動條樣式 */
-
-  /* 滾動條軌道寬度 */
-  .custom-scroll::-webkit-scrollbar {
-    width: 6px; /* 窄版滾動條，節省空間 */
-  }
-
-  /* 滾動條軌道背景 */
-  .custom-scroll::-webkit-scrollbar-track {
-    background: var(--my-color-gray-100); /* 淺灰色軌道背景 */
-    border-radius: 3px; /* 圓角軌道 */
-  }
-
-  /* 滾動條滑塊樣式 */
-  .custom-scroll::-webkit-scrollbar-thumb {
-    background: var(--my-color-gray-400); /* 中灰色滑塊 */
-    border-radius: 3px; /* 圓角滑塊 */
-  }
-
-  /* 滾動條滑塊懸停樣式 */
-  .custom-scroll::-webkit-scrollbar-thumb:hover {
-    background: var(--my-color-gray-500); /* 懸停時變深灰色 */
-  }
-
-  /* 🔗 分頁導航樣式調整 (Tab Navigation Style Adjustments) */
-  .nav-tabs {
-    border-bottom: 1px solid var(--my-color-gray-300); /* 分頁底部邊框 */
-  }
-
-  .nav-link {
-    transition: all 0.2s ease; /* 平滑的狀態轉換 */
-    padding: 0.5rem 1rem; /* 適中的內邊距 */
-  }
-
-  .nav-link:hover {
-    background-color: var(--my-color-gray-50); /* 懸停時的背景色 */
-  }
-
-  .nav-link.active {
-    border-bottom: 2px solid var(--my-color-blue); /* 作用中分頁的底部邊框 */
-  }
-
-  /* 📄 分頁內容區域樣式 (Tab Content Area Styles) */
-  .tab-content {
-    min-height: 0; /* 確保內容區域可以正確縮放 */
-  }
-
-  /* 📱 響應式設計調整 (Responsive Design Adjustments) */
-  @media (max-width: 768px) {
-    .nav-tabs {
-      font-size: 0.875rem; /* 在小螢幕上縮小字體 */
-    }
-
-    .nav-link {
-      padding: 0.375rem 0.75rem; /* 在小螢幕上減少內邊距 */
-    }
-
-    .custom-scroll::-webkit-scrollbar {
-      width: 8px; /* 在觸控設備上增加滾動條寬度，便於操作 */
-    }
-  }
-</style>
+<style scoped></style>
