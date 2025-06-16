@@ -1,7 +1,6 @@
 <script setup>
   import { ref, computed, defineEmits, onMounted, watch } from 'vue';
   import { useDataStore } from '@/stores/dataStore.js';
-  import { getIcon } from '../utils/utils.js';
 
   const emit = defineEmits(['highlight-on-map']);
 
@@ -132,14 +131,9 @@
   const handleHighlight = (item, layer) => {
     console.log('準備高亮顯示:', { item, layer: layer.name });
 
-    if (!item || !item.id) {
-      console.warn('無法高亮顯示：資料為空或缺少ID');
-      return;
-    }
-
     // 傳遞包含圖層資訊和項目ID的物件
     const highlightData = {
-      id: item.id,
+      id: item['#'],
       layerId: layer.layerId,
       layerName: layer.name,
       item: item,
@@ -211,7 +205,7 @@
 
 <template>
   <!-- 📊 多圖層資料表格分頁組件 -->
-  <div class="h-100 d-flex flex-column">
+  <div class="h-100 d-flex flex-column my-bgcolor-gray-200">
     <!-- 📑 圖層分頁導航 -->
     <div v-if="visibleLayers.length > 0" class="">
       <ul class="nav nav-tabs nav-fill">
@@ -222,18 +216,18 @@
         >
           <!-- tab按鈕 -->
           <div
-            class="btn nav-link rounded-0 border-0 position-relative d-flex align-items-center justify-content-center"
+            class="btn nav-link rounded-0 border-0 position-relative d-flex align-items-center justify-content-center my-bgcolor-gray-200"
             :class="{
               active: activeLayerTab === layer.layerId,
             }"
             @click="setActiveLayerTab(layer.layerId)"
           >
-            <div class="my-title-sm">{{ layer.name }}</div>
-            <div class="my-content-xs ms-2" v-if="getLayerDataCount(layer)">
+            <div class="my-title-sm-black">{{ layer.name }}</div>
+            <div class="my-content-xs-gray ms-2" v-if="getLayerDataCount(layer)">
               {{ getLayerDataCount(layer) }}
             </div>
           </div>
-          <div class="w-100" :class="`my-bgcolor-${layer.colorName}`" style="height: 4px"></div>
+          <div class="w-100" :class="`my-bgcolor-${layer.colorName}`" style="min-height: 4px"></div>
         </li>
       </ul>
     </div>
@@ -248,36 +242,54 @@
       >
         <div class="h-100 d-flex flex-column">
           <div class="flex-grow-1 overflow-auto">
-            <table class="table mb-0">
+            <table class="table w-100 mb-0">
               <thead class="sticky-top">
                 <tr class="text-center text-nowrap">
-                  <th
-                    v-for="column in getLayerColumns(layer)"
-                    :key="column"
-                    @click="handleSort(layer.layerId, column)"
-                    class="my-title-xs"
-                    style="cursor: pointer"
-                  >
-                    {{ column }}
-                    <i :class="getSortIcon(layer.layerId, column)" class="ms-1"></i>
-                  </th>
-                  <th></th>
+                  <template v-for="column in getLayerColumns(layer)" :key="column">
+                    <th
+                      v-if="column !== 'color'"
+                      @click="handleSort(layer.layerId, column)"
+                      class="my-bgcolor-white-hover p-1 my-cursor-pointer"
+                    >
+                      <span class="my-title-xs-gray text-nowrap">
+                        {{ column }}
+                      </span>
+                      <span class="my-title-xs-gray text-nowrap ms-2">
+                        <i :class="getSortIcon(layer.layerId, column)"></i>
+                      </span>
+                    </th>
+                  </template>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="item in getSortedData(layer)" :key="item.id" class="text-center">
-                  <td v-for="column in getLayerColumns(layer)" :key="column" class="my-content-sm">
-                    {{ item[column] }}
-                  </td>
-                  <td class="d-flex align-items-center justify-content-end">
-                    <button
-                      class="btn rounded-circle my-content-xs p-0 mx-3"
-                      style="width: 28px; height: 28px"
-                      @click="handleHighlight(item, layer)"
+                <tr
+                  v-for="item in getSortedData(layer)"
+                  :key="item.id"
+                  class="my-bgcolor-white-hover text-center text-nowrap border-bottom my-cursor-pointer"
+                  @click="handleHighlight(item, layer)"
+                >
+                  <template v-for="column in getLayerColumns(layer)" :key="column">
+                    <td
+                      v-if="column !== 'color'"
+                      class="border-0 text-nowrap text-truncate p-0"
+                      style="max-width: 80px"
                     >
-                      <i :class="getIcon('location').icon"></i>
-                    </button>
-                  </td>
+                      <div v-if="column === '#'" class="d-flex p-0">
+                        <div
+                          style="min-width: 6px"
+                          :style="{
+                            backgroundColor: item['color'],
+                          }"
+                        ></div>
+                        <div class="my-content-xs-black w-100 px-3 py-2">
+                          {{ item[column] }}
+                        </div>
+                      </div>
+                      <div v-else class="my-content-xs-black px-3 py-2">
+                        {{ item[column] }}
+                      </div>
+                    </td>
+                  </template>
                 </tr>
               </tbody>
             </table>
@@ -289,7 +301,7 @@
     <!-- 📭 無開啟圖層的空狀態 -->
     <div v-else class="flex-grow-1 d-flex align-items-center justify-content-center">
       <div class="text-center">
-        <div class="my-title-xl my-2">沒有開啟的圖層</div>
+        <div class="my-title-xl-gray my-2">沒有開啟的圖層</div>
       </div>
     </div>
   </div>

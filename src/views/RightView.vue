@@ -1,12 +1,12 @@
 <script>
-  import ObjectPropertiesTab from '../tabs/ObjectPropertiesTab.vue';
+  import PropertiesTab from '../tabs/PropertiesTab.vue';
   import { useDataStore } from '../stores/dataStore';
   import { computed, watch } from 'vue';
 
   export default {
     name: 'RightView',
     components: {
-      ObjectPropertiesTab, // 物件屬性分頁組件
+      PropertiesTab, // 物件屬性分頁組件
     },
     props: {
       /** 🔗 當前作用中的右側分頁標籤 */
@@ -110,7 +110,7 @@
       <!-- 📋 物件屬性分頁內容 (Object Properties Tab Content) -->
       <!-- 顯示選中地圖物件的詳細屬性資訊 -->
       <div v-show="activeRightTab === 'properties'" class="h-100">
-        <ObjectPropertiesTab
+        <PropertiesTab
           :selected-feature="selectedFeature"
           @highlight-feature="$emit('highlight-feature', $event)"
         />

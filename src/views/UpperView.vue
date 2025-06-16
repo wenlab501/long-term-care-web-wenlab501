@@ -1,118 +1,4 @@
-<template>
-  <!-- 📊 上半部面板組件 (Upper Panel Component) -->
-  <div class="d-flex flex-column h-100">
-    <!-- 📱 分頁內容區域 (Tab Content Area) -->
-    <!-- 地圖和儀表板滿版顯示，提供無縫的用戶體驗 -->
-    <div class="flex-grow-1 overflow-hidden position-relative">
-      <!-- 🎛️ 統一的導航按鈕組 (Unified Navigation Buttons) -->
-      <!-- 浮動在左上角，提供地圖和儀表板之間的快速切換 -->
-      <div class="position-absolute top-0 start-0 m-3" style="z-index: 1000">
-        <div class="my-view-switcher-controls my-blur-strong">
-          <!-- 🗺️ 地圖視圖按鈕 (Map View Button) -->
-          <button
-            class="btn btn-sm my-view-switcher-btn"
-            :class="{
-              'my-view-switcher-active': activeTab === 'map',
-            }"
-            @click="$emit('update:activeTab', 'map')"
-            title="地圖視圖"
-          >
-            <i class="fas fa-map"></i>
-          </button>
-          <!-- 📊 儀表板按鈕 (Dashboard Button) -->
-          <button
-            class="btn btn-sm my-view-switcher-btn"
-            :class="{
-              'my-view-switcher-active': activeTab === 'dashboard',
-            }"
-            @click="$emit('update:activeTab', 'dashboard')"
-            title="資料儀表板"
-          >
-            <i class="fas fa-chart-bar"></i>
-          </button>
-        </div>
-      </div>
-
-      <!-- 🗺️ 地圖分頁內容 (Map Tab Content) -->
-      <!-- 顯示互動式地圖，支援圖層控制、樣式設定等功能 -->
-      <div v-if="activeTab === 'map'" class="h-100">
-        <MapView
-          ref="mapView"
-          :showTainanLayer="showTainanLayer"
-          :selectedFilter="selectedFilter"
-          :zoomLevel="zoomLevel"
-          :maxCount="maxCount"
-          @update:zoomLevel="$emit('update:zoomLevel', $event)"
-          @update:currentCoords="$emit('update:currentCoords', $event)"
-          @update:activeMarkers="$emit('update:activeMarkers', $event)"
-          @feature-selected="$emit('feature-selected', $event)"
-        />
-      </div>
-
-      <!-- 📊 儀表板分頁內容 (Dashboard Tab Content) -->
-      <!-- 顯示資料統計圖表、分析結果等視覺化內容 -->
-      <div
-        v-if="activeTab === 'dashboard'"
-        ref="dashboardContainerRef"
-        class="h-100 overflow-auto p-3 pt-5"
-      >
-        <!-- 🎛️ 為導航按鈕組預留空間 (Reserve Space for Navigation Buttons) -->
-        <div style="height: 40px"></div>
-        <DashboardView
-          ref="dashboardView"
-          :containerHeight="contentHeight"
-          :isPanelDragging="isPanelDragging"
-          :activeMarkers="activeMarkers"
-        />
-      </div>
-
-      <!-- 🐛 調試信息區域 (Debug Information Area) -->
-      <!-- 當分頁狀態異常時顯示，協助開發者診斷問題 -->
-      <div
-        v-if="activeTab !== 'map' && activeTab !== 'dashboard'"
-        class="h-100 d-flex align-items-center justify-content-center"
-      >
-        <div class="text-center">
-          <h5>調試信息</h5>
-          <p>
-            當前 activeTab: <code>{{ activeTab }}</code>
-          </p>
-          <p>預期值: <code>map</code> 或 <code>dashboard</code></p>
-          <button class="btn btn-primary me-2" @click="$emit('update:activeTab', 'map')">
-            切換到地圖
-          </button>
-          <button class="btn btn-success" @click="$emit('update:activeTab', 'dashboard')">
-            切換到儀表板
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script>
-  /**
-   * 📊 UpperView.vue - 上半部面板組件
-   *
-   * 功能說明：
-   * 1. 📑 提供地圖和儀表板的分頁切換功能
-   * 2. 🗺️ 管理地圖視圖組件的生命週期和互動
-   * 3. 📊 管理儀表板視圖組件的生命週期和更新
-   * 4. 📏 響應面板大小變化，自動調整子組件
-   * 5. 🎛️ 支援浮動導航按鈕的佈局模式
-   * 6. 🎯 提供高亮顯示和地圖操作的統一介面
-   *
-   * 架構說明：
-   * - 導航區域：浮動按鈕組，提供分頁切換
-   * - 內容區域：條件渲染地圖或儀表板組件
-   * - 調試區域：開發時的錯誤診斷界面
-   *
-   * 設計理念：
-   * - 滿版顯示，最大化內容空間利用
-   * - 響應式設計，自動適應容器大小變化
-   * - 統一的事件處理和狀態管理
-   */
-
   // 🔧 Vue Composition API 引入
   import { ref, watch, nextTick } from 'vue';
   // 🧩 子組件引入
@@ -313,6 +199,98 @@
     },
   };
 </script>
+
+<template>
+  <!-- 📊 上半部面板組件 (Upper Panel Component) -->
+  <div class="d-flex flex-column h-100">
+    <!-- 📱 分頁內容區域 (Tab Content Area) -->
+    <!-- 地圖和儀表板滿版顯示，提供無縫的用戶體驗 -->
+    <div class="flex-grow-1 overflow-hidden position-relative">
+      <!-- 🎛️ 統一的導航按鈕組 (Unified Navigation Buttons) -->
+      <!-- 浮動在左上角，提供地圖和儀表板之間的快速切換 -->
+      <div class="position-absolute top-0 start-0 m-3" style="z-index: 1000">
+        <div class="my-view-switcher-controls my-blur-strong">
+          <!-- 🗺️ 地圖視圖按鈕 (Map View Button) -->
+          <button
+            class="btn btn-sm my-view-switcher-btn"
+            :class="{
+              'my-view-switcher-active': activeTab === 'map',
+            }"
+            @click="$emit('update:activeTab', 'map')"
+            title="地圖視圖"
+          >
+            <i class="fas fa-map"></i>
+          </button>
+          <!-- 📊 儀表板按鈕 (Dashboard Button) -->
+          <button
+            class="btn btn-sm my-view-switcher-btn"
+            :class="{
+              'my-view-switcher-active': activeTab === 'dashboard',
+            }"
+            @click="$emit('update:activeTab', 'dashboard')"
+            title="資料儀表板"
+          >
+            <i class="fas fa-chart-bar"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- 🗺️ 地圖分頁內容 (Map Tab Content) -->
+      <!-- 顯示互動式地圖，支援圖層控制、樣式設定等功能 -->
+      <div v-if="activeTab === 'map'" class="h-100">
+        <MapView
+          ref="mapView"
+          :showTainanLayer="showTainanLayer"
+          :selectedFilter="selectedFilter"
+          :zoomLevel="zoomLevel"
+          :maxCount="maxCount"
+          @update:zoomLevel="$emit('update:zoomLevel', $event)"
+          @update:currentCoords="$emit('update:currentCoords', $event)"
+          @update:activeMarkers="$emit('update:activeMarkers', $event)"
+          @feature-selected="$emit('feature-selected', $event)"
+        />
+      </div>
+
+      <!-- 📊 儀表板分頁內容 (Dashboard Tab Content) -->
+      <!-- 顯示資料統計圖表、分析結果等視覺化內容 -->
+      <div
+        v-if="activeTab === 'dashboard'"
+        ref="dashboardContainerRef"
+        class="h-100 overflow-auto pt-5"
+      >
+        <!-- 🎛️ 為導航按鈕組預留空間 (Reserve Space for Navigation Buttons) -->
+        <div style="height: 40px"></div>
+        <DashboardView
+          ref="dashboardView"
+          :containerHeight="contentHeight"
+          :isPanelDragging="isPanelDragging"
+          :activeMarkers="activeMarkers"
+        />
+      </div>
+
+      <!-- 🐛 調試信息區域 (Debug Information Area) -->
+      <!-- 當分頁狀態異常時顯示，協助開發者診斷問題 -->
+      <div
+        v-if="activeTab !== 'map' && activeTab !== 'dashboard'"
+        class="h-100 d-flex align-items-center justify-content-center"
+      >
+        <div class="text-center">
+          <h5>調試信息</h5>
+          <p>
+            當前 activeTab: <code>{{ activeTab }}</code>
+          </p>
+          <p>預期值: <code>map</code> 或 <code>dashboard</code></p>
+          <button class="btn btn-primary me-2" @click="$emit('update:activeTab', 'map')">
+            切換到地圖
+          </button>
+          <button class="btn btn-success" @click="$emit('update:activeTab', 'dashboard')">
+            切換到儀表板
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
 
 <style scoped>
   /**

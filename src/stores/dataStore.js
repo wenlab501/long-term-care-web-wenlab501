@@ -27,6 +27,7 @@ export const useDataStore = defineStore(
             geoJsonData: null,
             summaryData: null,
             tableData: null,
+            legendData: null,
             loader: loadElderlyWelfareInstitutionData,
             fileName: '臺北市老人福利機構名冊1140201_coord.csv',
             fieldName: null,
@@ -43,10 +44,11 @@ export const useDataStore = defineStore(
             isLoading: false,
             isLoaded: false,
             type: 'point',
-            colorName: 'green',
+            colorName: 'lime',
             geoJsonData: null,
             summaryData: null,
             tableData: null,
+            legendData: null,
             loader: loadHospitalClinicData,
             fileName: '112年12月醫療院所分布圖_全國_醫院_coord.csv',
             fieldName: null,
@@ -62,6 +64,7 @@ export const useDataStore = defineStore(
             geoJsonData: null,
             summaryData: null,
             tableData: null,
+            legendData: null,
             loader: loadHospitalClinicData,
             fileName: '112年12月醫療院所分布圖_全國_診所_coord.csv',
             fieldName: null,
@@ -73,10 +76,11 @@ export const useDataStore = defineStore(
             isLoading: false,
             isLoaded: false,
             type: 'point',
-            colorName: 'green',
+            colorName: 'cyan',
             geoJsonData: null,
             summaryData: null,
             tableData: null,
+            legendData: null,
             loader: loadHealthcareFacilityPharmacyData,
             fileName: '健保特約醫事機構-藥局_coord.csv',
             fieldName: null,
@@ -93,10 +97,11 @@ export const useDataStore = defineStore(
             isLoading: false,
             isLoaded: false,
             type: 'polygon',
-            colorName: 'green',
+            colorName: 'deeppurple',
             geoJsonData: null,
             summaryData: null,
             tableData: null,
+            legendData: null,
             loader: loadIncomeGeoJson,
             fileName: '臺北市_村里_綜稅綜合所得總額.geojson',
             fieldName: '中位數',
@@ -108,10 +113,11 @@ export const useDataStore = defineStore(
             isLoading: false,
             isLoaded: false,
             type: 'polygon',
-            colorName: 'green',
+            colorName: 'purple',
             geoJsonData: null,
             summaryData: null,
             tableData: null,
+            legendData: null,
             loader: loadIncomeGeoJson,
             fileName: '臺北市_村里_綜稅綜合所得總額.geojson',
             fieldName: '平均數',
@@ -156,12 +162,13 @@ export const useDataStore = defineStore(
       if (layer.visible && !layer.isLoaded && !layer.isLoading) {
         try {
           layer.isLoading = true;
-          const result = await layer.loader(layer.layerId, layer.fileName, layer.fieldName);
+          const result = await layer.loader(layer);
 
           // 將載入的資料直接存儲在圖層物件中
           layer.geoJsonData = result.geoJsonData;
           layer.tableData = result.tableData;
           layer.summaryData = result.summaryData;
+          layer.legendData = result.legendData || null;
           layer.isLoaded = true;
 
           // 🔄 強制觸發響應式更新
@@ -178,6 +185,7 @@ export const useDataStore = defineStore(
       }
     };
 
+    // ------------------------------------------------------------
     // 選中的地圖物件
     const selectedFeature = ref(null);
 
@@ -191,14 +199,14 @@ export const useDataStore = defineStore(
 
     return {
       layers,
+      findLayerById, // 根據 ID 尋找圖層
+      getAllLayers, // 獲取所有圖層的扁平陣列
       toggleLayerVisibility,
       selectedFeature,
       setSelectedFeature,
       clearSelectedFeature,
       visibleLayers: computed(() => getAllLayers().filter((layer) => layer.visible)),
       loadingLayers: computed(() => getAllLayers().filter((layer) => layer.isLoading)),
-      findLayerById, // 根據 ID 尋找圖層
-      getAllLayers, // 獲取所有圖層的扁平陣列
     };
   },
   {

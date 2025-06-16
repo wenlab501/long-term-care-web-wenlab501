@@ -242,8 +242,8 @@
               .map(
                 ([key, value]) =>
                   `<div class="pb-2">
-                     <div class="my-title-xs pb-1">${key}</div>
-                     <div class="my-content-sm pb-1">${value}</div>
+                     <div class="my-title-xs-gray pb-1">${key}</div>
+                     <div class="my-content-sm-black pb-1">${value}</div>
                    </div>` // 格式化每個資料項目
               )
               .join(''); // 合併所有項目
@@ -251,7 +251,7 @@
             // 綁定彈窗到圖層
             layer.bindPopup(`
               <div class="p-2">
-                <div class="my-title-sm pb-2">${name}</div>
+                <div class="my-title-sm-gray pb-2">${name}</div>
                 ${properties}
               </div>
             `); // 設定彈窗內容

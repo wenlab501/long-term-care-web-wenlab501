@@ -49,7 +49,7 @@
       <div class="mb-3">
         <div v-for="group in layers" :key="group.groupName" class="p-3">
           <div class="d-flex align-items-center pb-2">
-            <div class="my-title-xs">{{ group.groupName }}</div>
+            <div class="my-title-xs-gray">{{ group.groupName }}</div>
           </div>
 
           <div v-for="layer in group.groupLayers" :key="layer.layerId" class="mb-1">
@@ -58,34 +58,51 @@
               class="btn rounded-0 border-0 d-flex shadow-sm my-bgcolor-white-hover p-0"
               @click="toggleLayer(layer.layerId)"
             >
-              <div class="d-flex w-100">
-                <!-- 圖層圖示 -->
-                <div
-                  class="d-flex"
-                  :class="`my-bgcolor-${layer.colorName}`"
-                  style="width: 6px"
-                ></div>
-                <!-- 圖層名稱 -->
-                <div class="d-flex align-items-center text-start px-3 py-2">
-                  <span class="my-content-sm">
-                    {{ layer.name }}
-                  </span>
-                  <span class="my-content-xs ms-2">
-                    {{ layer.summaryData?.totalCount }}
-                  </span>
+              <!-- 圖層圖示 -->
+              <div
+                class="d-flex"
+                :class="`my-bgcolor-${layer.colorName}`"
+                style="min-width: 6px"
+              ></div>
+              <div class="w-100">
+                <div class="d-flex">
+                  <!-- 圖層名稱 -->
+                  <div class="d-flex align-items-center text-start w-100 px-3 py-2">
+                    <span class="my-content-sm-black">
+                      {{ layer.name }}
+                    </span>
+                    <span class="my-content-xs-gray ms-2">
+                      {{ layer.summaryData?.totalCount }}
+                    </span>
+                  </div>
+                  <!-- 切換圖層可見性 -->
+                  <div class="d-none d-lg-flex align-items-center justify-content-center px-3 py-2">
+                    <input
+                      type="checkbox"
+                      :id="'switch-' + layer.layerId"
+                      :for="'switch-' + layer.layerId"
+                      :checked="layer.visible"
+                      :disabled="layer.isLoading"
+                      @change="toggleLayer(layer.layerId)"
+                    />
+                    <label for="switch"></label>
+                  </div>
                 </div>
-              </div>
-              <!-- 切換圖層可見性 -->
-              <div class="d-none d-lg-flex align-items-center justify-content-center px-3 py-2">
-                <input
-                  type="checkbox"
-                  :id="'switch-' + layer.layerId"
-                  :for="'switch-' + layer.layerId"
-                  :checked="layer.visible"
-                  :disabled="layer.isLoading"
-                  @change="toggleLayer(layer.layerId)"
-                />
-                <label for="switch"></label>
+                <div v-if="layer.legendData && layer.visible" class="px-3 pb-2">
+                  <div
+                    v-for="data in layer.legendData"
+                    :key="data.color"
+                    class="d-flex align-items-center"
+                  >
+                    <div
+                      style="min-width: 12px; min-height: 18px"
+                      :style="{
+                        backgroundColor: data.color,
+                      }"
+                    ></div>
+                    <div class="my-content-xs-black text-nowrap ms-2">{{ data.label }}</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

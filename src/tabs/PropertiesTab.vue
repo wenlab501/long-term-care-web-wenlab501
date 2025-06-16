@@ -4,7 +4,7 @@
   import { computed } from 'vue';
 
   export default {
-    name: 'ObjectPropertiesTab',
+    name: 'PropertiesTab',
 
     /**
      * 🧩 組件註冊 (Component Registration)
@@ -143,7 +143,7 @@
     </div>
     <div v-else class="flex-grow-1 d-flex align-items-center justify-content-center">
       <div class="text-center">
-        <div class="my-title-xl my-2">沒有點擊地圖上的物件</div>
+        <div class="my-title-xl-black my-2">沒有點擊地圖上的物件</div>
       </div>
     </div>
   </div>

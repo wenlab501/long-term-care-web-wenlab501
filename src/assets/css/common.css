@@ -270,28 +270,49 @@ body {
 
 /* 文字顏色 */
 
-.my-title-xl {
+.my-title-xl-black {
   font-size: var(--my-font-size-xl);
-  font-weight: var(--my-font-weight-sm);
+  color: var(--my-color-black);
 }
 
-.my-title-sm {
+.my-title-xl-gray {
+  font-size: var(--my-font-size-xl);
+  color: var(--my-color-gray-600);
+}
+
+.my-title-sm-black {
   font-size: var(--my-font-size-sm);
-  font-weight: var(--my-font-weight-md);
+  color: var(--my-color-black);
 }
 
-.my-title-xs {
+.my-title-sm-gray {
+  font-size: var(--my-font-size-sm);
+  color: var(--my-color-gray-600);
+}
+
+.my-title-xs-black {
+  font-size: var(--my-font-size-xs);
+  color: var(--my-color-black);
+}
+
+.my-title-xs-gray {
   font-size: var(--my-font-size-xs);
   color: var(--my-color-gray-600);
-  font-weight: var(--my-font-weight-md);
 }
 
-.my-content-sm {
+.my-content-sm-black {
   font-size: var(--my-font-size-sm);
+  color: var(--my-color-black);
 }
 
-.my-content-xs {
+.my-content-xs-black {
   font-size: var(--my-font-size-xs);
+  color: var(--my-color-black);
+}
+
+.my-content-xs-gray {
+  font-size: var(--my-font-size-xs);
+  color: var(--my-color-gray-600);
 }
 
 /* 面板樣式  */
@@ -335,23 +356,23 @@ body {
 /* 🎨 自定義滾動條樣式 (Custom Scrollbar Styles) */
 /* 適用於 Webkit 瀏覽器 (Chrome, Safari, Edge) */
 ::-webkit-scrollbar {
-  width: 6px; /* 垂直滾動條寬度 */
-  height: 6px; /* 水平滾動條高度 */
+  width: 8px; /* 垂直滾動條寬度 */
+  height: 8px; /* 水平滾動條高度 */
 }
 
 ::-webkit-scrollbar-track {
-  background: white; /* 滾動條軌道背景色 */
-  border-radius: 3px; /* 軌道圓角 */
+  background: var(--my-color-white); /* 滾動條軌道背景色 */
+  border-radius: 4px; /* 軌道圓角 */
 }
 
 ::-webkit-scrollbar-thumb {
   background: var(--my-color-gray-200); /* 滾動條顏色 */
-  border-radius: 3px; /* 滾動條圓角 */
+  border-radius: 4px; /* 滾動條圓角 */
   transition: background-color 0.2s ease; /* 平滑過渡效果 */
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--my-color-gray-300); /* 滑鼠懸停時的顏色 */
+  background: var(--my-color-gray-400); /* 滑鼠懸停時的顏色 */
 }
 
 ::-webkit-scrollbar-corner {
@@ -426,7 +447,7 @@ body {
 .my-resizer-middle {
   background-color: var(--my-color-gray-200); /* 中間面板上下拉 resizer - gray-200 */
   position: relative; /* 為偽元素提供定位上下文 */
-  /* border-top: 1px solid var(--my-color-gray-200); */ /* 上邊框分隔線 */
+  border-top: 1px solid var(--my-color-gray-300); /* 上邊框分隔線 */
 }
 
 .my-resizer-middle:hover {
@@ -474,90 +495,6 @@ body.my-no-select * {
   -webkit-backdrop-filter: blur(8px) saturate(120%);
 }
 
-/* 🎨 圖層圖標系統 (Layer Icon System) */
-/* 預定義的圖層圖標，使用 FontAwesome 的 Unicode 字符 */
-.my-layer-icon-hospital::before {
-  font-family: "Font Awesome 5 Free";
-  font-weight: 900;
-  content: "\f0f8"; /* fa-hospital */
-}
-.my-layer-icon-clinic::before {
-  font-family: "Font Awesome 5 Free";
-  font-weight: 900;
-  content: "\f7f2"; /* fa-clinic-medical */
-}
-.my-layer-icon-pharmacy::before {
-  font-family: "Font Awesome 5 Free";
-  font-weight: 900;
-  content: "\f484"; /* fa-pills */
-}
-.my-layer-icon-elderly-care::before {
-  font-family: "Font Awesome 5 Free";
-  font-weight: 900;
-  content: "\f4c4"; /* fa-hands-helping */
-}
-.my-layer-icon-nursing-home::before {
-  font-family: "Font Awesome 5 Free";
-  font-weight: 900;
-  content: "\f015"; /* fa-home */
-}
-.my-layer-icon-population::before {
-  font-family: "Font Awesome 5 Free";
-  font-weight: 900;
-  content: "\f0c0"; /* fa-users */
-}
-.my-layer-icon-demographics::before {
-  font-family: "Font Awesome 5 Free";
-  font-weight: 900;
-  content: "\f500"; /* fa-user-friends */
-}
-.my-layer-icon-elderly::before {
-  font-family: "Font Awesome 5 Free";
-  font-weight: 900;
-  content: "\f4fd"; /* fa-user-clock */
-}
-.my-layer-icon-district::before {
-  font-family: "Font Awesome 5 Free";
-  font-weight: 900;
-  content: "\f5a0"; /* fa-map-marked-alt */
-}
-.my-layer-icon-village::before {
-  font-family: "Font Awesome 5 Free";
-  font-weight: 900;
-  content: "\f015"; /* fa-home */
-}
-.my-layer-icon-boundary::before {
-  font-family: "Font Awesome 5 Free";
-  font-weight: 900;
-  content: "\f853"; /* fa-border-style */
-}
-.my-layer-icon-transport::before {
-  font-family: "Font Awesome 5 Free";
-  font-weight: 900;
-  content: "\f207"; /* fa-bus */
-}
-.my-layer-icon-parking::before {
-  font-family: "Font Awesome 5 Free";
-  font-weight: 900;
-  content: "\f540"; /* fa-parking */
-}
-.my-layer-icon-school::before {
-  font-family: "Font Awesome 5 Free";
-  font-weight: 900;
-  content: "\f549"; /* fa-school */
-}
-.my-layer-icon-park::before {
-  font-family: "Font Awesome 5 Free";
-  font-weight: 900;
-  content: "\f1bb"; /* fa-tree */
-}
-.my-layer-icon-government::before {
-  font-family: "Font Awesome 5 Free";
-  font-weight: 900;
-  content: "\f19c"; /* fa-landmark */
-}
-.my-layer-icon-default::before {
-  font-family: "Font Awesome 5 Free";
-  font-weight: 900;
-  content: "\f3c5"; /* fa-map-marker-alt */
+.my-cursor-pointer {
+  cursor: pointer;
 }

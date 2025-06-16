@@ -1,9 +1,12 @@
 import * as d3 from 'd3';
 
 // 老人福利機
-export async function loadElderlyWelfareInstitutionData(layerId, fileName) {
+export async function loadElderlyWelfareInstitutionData(layer) {
   try {
-    const filePath = `/long-term-care-web/data/csv/${fileName}`;
+    const layerId = layer.layerId;
+    const colorName = layer.colorName;
+
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -50,7 +53,7 @@ export async function loadElderlyWelfareInstitutionData(layerId, fileName) {
           const lat = parseFloat(row[headerIndices.lat]);
           const lon = parseFloat(row[headerIndices.lon]);
 
-          const id = index + 2;
+          const id = index + 1;
 
           if (isNaN(lat) || isNaN(lon)) {
             console.warn(`第 ${id} 行 ${row[headerIndices.address]} 的座標無效:`, {
@@ -61,7 +64,6 @@ export async function loadElderlyWelfareInstitutionData(layerId, fileName) {
           }
 
           const propertyData = {
-            id: id,
             編號: row[headerIndices.編號],
             屬性: row[headerIndices.屬性],
             機構名稱: row[headerIndices.機構名稱],
@@ -77,7 +79,14 @@ export async function loadElderlyWelfareInstitutionData(layerId, fileName) {
           };
 
           const popupData = {
-            id: id,
+            name: row[headerIndices.機構名稱],
+          };
+
+          const tableData = {
+            '#': id,
+            color: getComputedStyle(document.documentElement)
+              .getPropertyValue(`--my-color-${colorName}`)
+              .trim(),
             機構名稱: row[headerIndices.機構名稱],
             地址: row[headerIndices.地址],
           };
@@ -91,9 +100,12 @@ export async function loadElderlyWelfareInstitutionData(layerId, fileName) {
             properties: {
               id: id,
               layerId: layerId,
-              name: row[headerIndices.機構名稱],
+              fillColor: getComputedStyle(document.documentElement)
+                .getPropertyValue(`--my-color-${colorName}`)
+                .trim(),
               propertyData: propertyData,
               popupData: popupData,
+              tableData: tableData,
             },
           };
         })
@@ -101,9 +113,8 @@ export async function loadElderlyWelfareInstitutionData(layerId, fileName) {
     };
 
     // 包含為表格量身打造的數據陣列
-    const tableData = geoJsonData.features.map((feature, index) => ({
-      id: index + 1,
-      name: feature.properties.name,
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
     }));
 
     // 包含摘要資訊
@@ -123,9 +134,12 @@ export async function loadElderlyWelfareInstitutionData(layerId, fileName) {
 }
 
 // 醫院/診所
-export async function loadHospitalClinicData(layerId, fileName) {
+export async function loadHospitalClinicData(layer) {
   try {
-    const filePath = `/long-term-care-web/data/csv/${fileName}`;
+    const layerId = layer.layerId;
+    const colorName = layer.colorName;
+
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -176,7 +190,6 @@ export async function loadHospitalClinicData(layerId, fileName) {
           }
 
           const propertyData = {
-            id: id,
             醫療院所: row[headerIndices.醫療院所],
             縣市: row[headerIndices.縣市],
             鄉鎮市區: row[headerIndices.鄉鎮市區],
@@ -185,7 +198,14 @@ export async function loadHospitalClinicData(layerId, fileName) {
           };
 
           const popupData = {
-            id: index + 2,
+            name: row[headerIndices.醫療院所],
+          };
+
+          const tableData = {
+            '#': id,
+            color: getComputedStyle(document.documentElement)
+              .getPropertyValue(`--my-color-${colorName}`)
+              .trim(),
             醫療院所: row[headerIndices.醫療院所],
             地址: row[headerIndices.地址],
           };
@@ -199,9 +219,12 @@ export async function loadHospitalClinicData(layerId, fileName) {
             properties: {
               id: id,
               layerId: layerId,
-              name: row[headerIndices.醫療院所],
+              fillColor: getComputedStyle(document.documentElement)
+                .getPropertyValue(`--my-color-${colorName}`)
+                .trim(),
               propertyData: propertyData,
               popupData: popupData,
+              tableData: tableData,
             },
           };
         })
@@ -209,11 +232,9 @@ export async function loadHospitalClinicData(layerId, fileName) {
     };
 
     // 包含為表格量身打造的數據陣列
-    const tableData = geoJsonData.features.map((feature, index) => ({
-      id: index + 1,
-      name: feature.properties.name,
-      ...feature.properties,
-    })); // .map() 方法結束
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
 
     // 包含摘要資訊
     const summaryData = {
@@ -232,9 +253,12 @@ export async function loadHospitalClinicData(layerId, fileName) {
 }
 
 // 健保特約藥局
-export async function loadHealthcareFacilityPharmacyData(layerId, fileName) {
+export async function loadHealthcareFacilityPharmacyData(layer) {
   try {
-    const filePath = `/long-term-care-web/data/csv/${fileName}`;
+    const layerId = layer.layerId;
+    const colorName = layer.colorName;
+
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -294,7 +318,6 @@ export async function loadHealthcareFacilityPharmacyData(layerId, fileName) {
           }
 
           const propertyData = {
-            id: id,
             醫事機構代碼: row[headerIndices.醫事機構代碼],
             醫事機構名稱: row[headerIndices.醫事機構名稱],
             醫事機構種類: row[headerIndices.醫事機構種類],
@@ -312,7 +335,14 @@ export async function loadHealthcareFacilityPharmacyData(layerId, fileName) {
           };
 
           const popupData = {
-            id: id,
+            name: row[headerIndices.醫事機構名稱],
+          };
+
+          const tableData = {
+            '#': id,
+            color: getComputedStyle(document.documentElement)
+              .getPropertyValue(`--my-color-${colorName}`)
+              .trim(),
             醫事機構名稱: row[headerIndices.醫事機構名稱],
             地址: row[headerIndices.地址],
           };
@@ -326,9 +356,12 @@ export async function loadHealthcareFacilityPharmacyData(layerId, fileName) {
             properties: {
               id: id,
               layerId: layerId,
-              name: row[headerIndices.醫事機構名稱],
+              fillColor: getComputedStyle(document.documentElement)
+                .getPropertyValue(`--my-color-${colorName}`)
+                .trim(),
               propertyData: propertyData,
               popupData: popupData,
+              tableData: tableData,
             },
           };
         })
@@ -336,10 +369,9 @@ export async function loadHealthcareFacilityPharmacyData(layerId, fileName) {
     };
 
     // 包含為表格量身打造的數據陣列
-    const tableData = geoJsonData.features.map((feature, index) => ({
-      id: index + 1,
-      name: feature.properties.name,
-    })); // .map() 方法結束
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
 
     // 包含摘要資訊
     const summaryData = {
@@ -358,9 +390,12 @@ export async function loadHealthcareFacilityPharmacyData(layerId, fileName) {
 }
 
 // 綜稅綜合所得總額
-export async function loadIncomeGeoJson(layerId, fileName, fieldName) {
+export async function loadIncomeGeoJson(layer) {
   try {
-    const filePath = `/long-term-care-web/data/geojson/${fileName}`;
+    const layerId = layer.layerId;
+    const fieldName = layer.fieldName;
+
+    const filePath = `/long-term-care-web/data/geojson/${layer.fileName}`;
     const a = fieldName || null;
     console.log(a);
 
@@ -402,7 +437,46 @@ export async function loadIncomeGeoJson(layerId, fileName, fieldName) {
       // d3.schemeRdBu 是 D3 內建的「紅-白-藍」發散型色彩方案
       .range(d3.schemeRdBu[10]);
 
-    // --- [關鍵] 產生圖例用的 JSON 資料 ---
+    // ----------------------------
+
+    geoJsonData.features.forEach((feature, index) => {
+      feature.properties.id = index + 1;
+      feature.properties.layerId = layerId;
+      feature.properties.name = feature.properties.FULL;
+      feature.properties.value = parseFloat(feature.properties[fieldName]);
+      feature.properties.fillColor = colorScale(feature.properties.value);
+
+      const propertyData = {
+        里名: feature.properties.name,
+        ...feature.properties,
+      };
+
+      const popupData = {
+        里名: feature.properties.name,
+      };
+
+      const tableData = {
+        '#': feature.properties.id,
+        color: colorScale(feature.properties.value),
+        里名: feature.properties.name,
+        [fieldName]: feature.properties[fieldName],
+      };
+
+      feature.properties.propertyData = propertyData;
+      feature.properties.popupData = popupData;
+      feature.properties.tableData = tableData;
+    });
+
+    // 包含為表格量身打造的數據陣列
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
+
+    // 包含摘要資訊
+    const summaryData = {
+      totalCount: geoJsonData.features.length,
+    };
+
     const legendData = colorScale.range().map((color) => {
       // 1. 使用 invertExtent() 找出顏色對應的數值區間 [start, end]
       const extent = colorScale.invertExtent(color);
@@ -418,56 +492,11 @@ export async function loadIncomeGeoJson(layerId, fileName, fieldName) {
       };
     });
 
-    console.log('legendData', legendData);
-
-    // ----------------------------
-
-    geoJsonData.features.forEach((feature, index) => {
-      feature.properties.id = index + 1;
-      feature.properties.layerId = layerId;
-      feature.properties.name = feature.properties.FULL;
-      feature.properties.value = parseFloat(feature.properties[fieldName]);
-      feature.properties.fillColor = colorScale(feature.properties.value);
-
-      console.log(
-        'feature.properties.value',
-        minValue,
-        feature.properties.value,
-        feature.properties.color
-      );
-
-      const propertyData = {
-        id: index + 1,
-        名稱: feature.properties.name,
-        ...feature.properties,
-      };
-
-      const popupData = {
-        id: feature.properties.id,
-        名稱: feature.properties.name,
-        [fieldName]: feature.properties[fieldName],
-      };
-
-      feature.properties.propertyData = propertyData;
-      feature.properties.popupData = popupData;
-    });
-
-    // 包含為表格量身打造的數據陣列
-    const tableData = geoJsonData.features.map((feature, index) => ({
-      id: index + 1,
-      名稱: feature.properties.name,
-      [fieldName]: feature.properties[fieldName],
-    }));
-
-    // 包含摘要資訊
-    const summaryData = {
-      totalCount: geoJsonData.features.length,
-    };
-
     return {
       geoJsonData, // 包含原始且完整的 GeoJSON 數據
       tableData, // 包含為表格量身打造的數據陣列
       summaryData, // 包含摘要資訊
+      legendData, // 包含圖例資訊
     };
   } catch (error) {
     console.error('❌ GeoJSON 數據載入或處理失敗:', error);
