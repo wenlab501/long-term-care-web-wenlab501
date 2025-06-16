@@ -208,7 +208,7 @@
         <div class="d-flex align-items-center rounded-pill shadow my-blur gap-1 p-2">
           <!-- 🗺️ 地圖視圖按鈕 (Map View Button) -->
           <button
-            class="btn rounded-circle d-flex align-items-center justify-content-center my-btn-transparent my-font-size-sm"
+            class="btn rounded-circle border-0 d-flex align-items-center justify-content-center my-btn-transparent my-font-size-sm"
             :class="{
               'my-btn-blue': activeUpperTab === 'map',
             }"
@@ -220,7 +220,7 @@
           </button>
           <!-- 📊 儀表板按鈕 (Dashboard Button) -->
           <button
-            class="btn rounded-circle d-flex align-items-center justify-content-center my-btn-transparent my-font-size-sm"
+            class="btn rounded-circle border-0 d-flex align-items-center justify-content-center my-btn-transparent my-font-size-sm"
             :class="{
               'my-btn-blue': activeUpperTab === 'dashboard',
             }"
