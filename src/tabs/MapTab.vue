@@ -66,10 +66,10 @@
         }
 
         try {
-          // 創建 Leaflet 地圖實例
+          // 創建 Leaflet 地圖實例，使用 defineStore 中保存的視圖狀態
           mapInstance = L.map(mapContainer.value, {
-            center: [25.033, 121.5654], // 設定地圖中心點（台北市座標）
-            zoom: props.zoomLevel, // 設定初始縮放等級
+            center: defineStore.mapView.center, // 使用保存的地圖中心點
+            zoom: defineStore.mapView.zoom, // 使用保存的縮放等級
             zoomControl: false, // 禁用預設縮放控制項
             attributionControl: false, // 禁用預設版權資訊控制項
           });
@@ -94,7 +94,11 @@
       const handleZoomEnd = () => {
         if (mapInstance) {
           // 確保地圖實例存在
-          emit('update:zoomLevel', mapInstance.getZoom()); // 發送縮放等級更新事件
+          const zoom = mapInstance.getZoom();
+          const center = mapInstance.getCenter();
+          // 保存地圖視圖狀態到 defineStore
+          defineStore.setMapView([center.lat, center.lng], zoom);
+          emit('update:zoomLevel', zoom); // 發送縮放等級更新事件
         }
       };
 
@@ -102,7 +106,11 @@
       const handleMoveEnd = () => {
         if (mapInstance) {
           // 確保地圖實例存在
-          emit('update:currentCoords', mapInstance.getCenter()); // 發送座標更新事件
+          const center = mapInstance.getCenter();
+          const zoom = mapInstance.getZoom();
+          // 保存地圖視圖狀態到 defineStore
+          defineStore.setMapView([center.lat, center.lng], zoom);
+          emit('update:currentCoords', center); // 發送座標更新事件
         }
       };
 
