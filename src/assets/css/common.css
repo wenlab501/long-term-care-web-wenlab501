@@ -276,7 +276,7 @@ body {
 .my-title-xl-gray {
   font-size: var(--my-font-size-xl);
   color: var(--my-color-gray-600);
-  }
+}
 
 .my-title-lg-gray {
   font-size: var(--my-font-size-lg);

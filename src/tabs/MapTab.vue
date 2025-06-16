@@ -48,50 +48,6 @@
       const selectedBasemap = ref('carto_light_labels'); // 選定的底圖類型，預設為 Carto Light 有標籤版本
       const isMapReady = ref(false); // 地圖是否已準備就緒的狀態標記
 
-      // 🗺️ 底圖配置物件 (Basemap Configuration Object)
-      const basemaps = {
-        // OpenStreetMap 開源地圖
-        osm: { url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' },
-        // Esri 街道地圖
-        esri_street: {
-          url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
-        },
-        // Esri 地形地圖
-        esri_topo: {
-          url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
-        },
-        // Esri 衛星影像地圖
-        esri_imagery: {
-          url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-        },
-        // Google Maps 街道地圖
-        google_road: { url: 'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}' },
-        // Google Maps 衛星地圖
-        google_satellite: { url: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}' },
-        // 國土測繪中心電子地圖
-        nlsc_emap: {
-          url: 'https://wmts.nlsc.gov.tw/wmts/EMAP/default/GoogleMapsCompatible/{z}/{y}/{x}',
-        },
-        // 國土測繪中心正射影像
-        nlsc_photo: {
-          url: 'https://wmts.nlsc.gov.tw/wmts/PHOTO2/default/GoogleMapsCompatible/{z}/{y}/{x}',
-        },
-        // OpenTopoMap 地形圖
-        terrain: { url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png' },
-        // Carto Light 有標籤版本
-        carto_light_labels: {
-          url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-        },
-        // Carto Dark 有標籤版本
-        carto_dark_labels: { url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png' },
-        // Carto Voyager 探險風格
-        carto_voyager: {
-          url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-        },
-        // 空白地圖（無底圖）
-        blank: { url: '' },
-      };
-
       // 📊 計算屬性：檢查是否有任何圖層可見 (Computed Property: Check if Any Layer is Visible)
       const isAnyLayerVisible = computed(
         () => dataStore.getAllLayers().some((l) => l.visible && l.geoJsonData) // 檢查所有圖層中是否有可見且有資料的圖層
@@ -156,20 +112,25 @@
         // 檢查地圖實例和準備狀態
         if (!mapInstance || !isMapReady.value) return;
 
-        // 移除舊的底圖圖層
+        // 步驟一：無論如何，都先移除舊的底圖圖層
+        // 這樣可以確保在切換到「無底圖」時，舊的地圖會被正確清除。
         if (currentTileLayer) {
-          // 如果存在當前底圖圖層
-          mapInstance.removeLayer(currentTileLayer); // 從地圖中移除
-          currentTileLayer = null; // 清空引用
+          mapInstance.removeLayer(currentTileLayer);
+          currentTileLayer = null;
         }
 
-        // 添加新的底圖圖層
-        const config = basemaps[selectedBasemap.value]; // 獲取選定底圖的配置
+        // 步驟二：查找新的底圖設定
+        const config = defineStore.basemaps.find((b) => b.value === selectedBasemap.value);
+
+        // 步驟三：只有在找到設定檔(config)且 URL 不是空值(falsy)時，才加入新的圖層
+        // 由於空字串 '' 是 falsy 值，這個判斷式會自動過濾掉 url 為 '' 的情況。
         if (config && config.url) {
-          // 如果配置存在且有 URL
-          currentTileLayer = L.tileLayer(config.url, { attribution: '' }); // 創建新的瓦片圖層
-          currentTileLayer.addTo(mapInstance); // 添加到地圖實例
+          currentTileLayer = L.tileLayer(config.url, { attribution: '' });
+          currentTileLayer.addTo(mapInstance);
         }
+
+        // 如果 config.url 是空字串或不存在，程式碼會在這之後結束，
+        // 地圖上就不會有任何底圖圖層，完美達成您的需求。
       };
 
       // 🎨 創建要素圖層函數 (Create Feature Layer Function)
@@ -726,18 +687,17 @@
       <div class="d-flex align-items-center">
         <div class="dropdown dropup">
           <button
-            class="btn rounded-pill border-0 my-btn-white my-font-size-sm text-nowrap"
+            class="btn rounded-pill border-0 my-btn-white my-font-size-xs text-nowrap"
             type="button"
             data-bs-toggle="dropdown"
             aria-expanded="false"
-            style="min-width: 150px; font-size: 0.875rem"
           >
             {{ getBasemapLabel(selectedBasemap) }}
           </button>
           <ul class="dropdown-menu">
             <li v-for="basemap in defineStore.basemaps" :key="basemap.value">
               <a
-                class="dropdown-item my-title-xs"
+                class="dropdown-item my-content-xs-black py-1"
                 href="#"
                 @click.prevent="changeBasemap(basemap.value)"
               >
@@ -750,7 +710,7 @@
 
       <!-- 顯示全部 -->
       <button
-        class="btn rounded-pill border-0 my-btn-blue my-font-size-sm text-nowrap"
+        class="btn rounded-pill border-0 my-btn-blue my-font-size-xs text-nowrap"
         @click="showAllFeatures"
         :disabled="!isAnyLayerVisible"
         title="顯示全部資料範圍"
@@ -764,7 +724,7 @@
 <style scoped>
   /* 🗺️ 地圖容器樣式 (Map Container Styles) */
   #map-container {
-    background-color: var(--my-color-white); /* 空白地圖時設為全白底圖 */
+    background-color: var(--my-color-white); /* 空白地圖時設為灰色底圖 */
     /* 移除 min-height 限制，讓地圖能自由縮放 */
     position: relative; /* 確保子元素定位正確 */
     overflow: hidden; /* 防止內容溢出 */

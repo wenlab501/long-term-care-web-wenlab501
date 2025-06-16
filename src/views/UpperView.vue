@@ -208,24 +208,24 @@
         <div class="d-flex align-items-center rounded-pill shadow my-blur gap-1 p-2">
           <!-- 🗺️ 地圖視圖按鈕 (Map View Button) -->
           <button
-            class="btn rounded-circle border-0 d-flex align-items-center justify-content-center my-btn-transparent my-font-size-sm"
+            class="btn rounded-circle border-0 d-flex align-items-center justify-content-center my-btn-transparent my-font-size-xs"
             :class="{
               'my-btn-blue': activeUpperTab === 'map',
             }"
             @click="$emit('update:activeUpperTab', 'map')"
-            style="width: 36px; height: 36px"
+            style="width: 30px; height: 30px"
             title="地圖視圖"
           >
             <i class="fas fa-map"></i>
           </button>
           <!-- 📊 儀表板按鈕 (Dashboard Button) -->
           <button
-            class="btn rounded-circle border-0 d-flex align-items-center justify-content-center my-btn-transparent my-font-size-sm"
+            class="btn rounded-circle border-0 d-flex align-items-center justify-content-center my-btn-transparent my-font-size-xs"
             :class="{
               'my-btn-blue': activeUpperTab === 'dashboard',
             }"
             @click="$emit('update:activeUpperTab', 'dashboard')"
-            style="width: 36px; height: 36px"
+            style="width: 30px; height: 30px"
             title="資料儀表板"
           >
             <i class="fas fa-chart-bar"></i>
