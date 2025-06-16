@@ -124,8 +124,8 @@ src/
 │   ├── LeftView.vue    # 左側控制面板
 │   ├── MiddleView.vue  # 中央內容區域
 │   ├── UpperView.vue   # 上方分頁容器
-│   ├── MapView.vue     # 地圖視圖
-│   ├── DashboardView.vue # 儀表板視圖
+│   ├── MapTab.vue     # 地圖視圖
+│   ├── DashboardTab.vue # 儀表板視圖
 │   ├── BottomView.vue  # 底部面板
 │   └── RightView.vue   # 右側資訊面板
 ├── tabs/              # 分頁組件

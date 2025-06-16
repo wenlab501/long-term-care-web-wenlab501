@@ -18,11 +18,11 @@
   --my-letter-spacing-lg: 2.4px;
 
   /* 字重 */
-  --my-font-weight-xs: 300;
-  --my-font-weight-sm: 400;
-  --my-font-weight-md: 500;
-  --my-font-weight-lg: 600;
-  --my-font-weight-xl: 700;
+  --my-font-weight-xs: 200;
+  --my-font-weight-sm: 300;
+  --my-font-weight-md: 400;
+  --my-font-weight-lg: 500;
+  --my-font-weight-xl: 600;
 
   /* Gray 層級顏色 */
   --my-color-white: #ffffff;

@@ -85,7 +85,7 @@
    * 🚀 組件掛載事件 (Component Mounted Event)
    */
   onMounted(() => {
-    console.log('[DashboardView] Component Mounted');
+    console.log('[DashboardTab] Component Mounted');
 
     // 初始化第一個可見圖層為作用中分頁
     if (visibleLayers.value.length > 0 && !activeLayerTab.value) {
@@ -96,7 +96,7 @@
 
 <template>
   <!-- 📊 多圖層資料儀表板視圖組件 -->
-  <div class="h-100 d-flex flex-column my-bgcolor-gray-200">
+  <div class="h-100 d-flex flex-column my-bgcolor-white">
     <!-- 📑 圖層分頁導航 -->
     <div v-if="visibleLayers.length > 0" class="">
       <ul class="nav nav-tabs nav-fill">
@@ -126,34 +126,19 @@
       <div v-if="visibleLayers.length > 0 && activeLayerTab" class="p-4">
         <!-- 📊 當前圖層資訊 -->
         <div class="mb-4">
-          <div class="card">
-            <div class="card-header bg-primary text-white">
-              <h5 class="mb-0">
-                {{ currentLayerName }}
-              </h5>
-            </div>
-          </div>
+          {{ currentLayerName }}
         </div>
 
         <!-- 📊 圖層摘要資料 -->
-        <div class="row flex-grow-1">
-          <div class="col-12">
-            <div class="card h-100">
-              <div class="card-header">
-                <h6 class="mb-0">圖層摘要資料</h6>
-              </div>
-              <div class="card-body">
-                <div v-if="currentLayerSummary" class="summary-content">
-                  <pre class="json-display p-3 rounded">{{
-                    JSON.stringify(currentLayerSummary, null, 2)
-                  }}</pre>
-                </div>
-                <div v-else class="text-center py-5">
-                  <h5>沒有摘要資料</h5>
-                  <p>此圖層沒有可用的摘要資訊</p>
-                </div>
-              </div>
-            </div>
+        <div class="card-body">
+          <div v-if="currentLayerSummary">
+            <pre class="json-display p-3 rounded">{{
+              JSON.stringify(currentLayerSummary, null, 2)
+            }}</pre>
+          </div>
+          <div v-else class="text-center py-5">
+            <h5>沒有摘要資料</h5>
+            <p>此圖層沒有可用的摘要資訊</p>
           </div>
         </div>
       </div>
@@ -169,37 +154,12 @@
 </template>
 
 <style scoped>
-  .stats-card {
-    transition: transform 0.2s ease;
-  }
-
-  .stats-card:hover {
-    transform: translateY(-2px);
-  }
-
-  .stats-value {
-    font-size: 2rem;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-  }
-
-  .stats-label {
-    font-size: 0.9rem;
-    opacity: 0.9;
-  }
-
   .json-display {
     font-family: 'Courier New', monospace;
-    font-size: 0.9rem;
     white-space: pre-wrap;
     word-break: break-word;
     max-height: 400px;
     overflow-y: auto;
     border: 1px solid var(--my-color-gray-300);
-  }
-
-  .summary-content {
-    height: 100%;
-    overflow: hidden;
   }
 </style>

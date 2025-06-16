@@ -121,9 +121,9 @@
 </script>
 
 <template>
-  <div class="flex-grow-1 d-flex flex-column">
-    <div v-if="selectedFeature">
-      <div class="">
+  <div class="h-100 flex-grow-1 d-flex flex-column my-bgcolor-gray-200">
+    <div v-if="selectedFeature" class="my-bgcolor-white h-100">
+      <div>
         <div class="my-title-md p-3 mb-2" :class="`my-bgcolor-${selectedLayer.colorName}`">
           {{ selectedFeature.properties.name }}
         </div>
@@ -141,9 +141,11 @@
         </div>
       </div>
     </div>
+
+    <!-- 📭 無點擊地圖上物件的空狀態 -->
     <div v-else class="flex-grow-1 d-flex align-items-center justify-content-center">
       <div class="text-center">
-        <div class="my-title-xl-black my-2">沒有點擊地圖上的物件</div>
+        <div class="my-title-xl-gray my-2">沒有點擊地圖上的物件</div>
       </div>
     </div>
   </div>

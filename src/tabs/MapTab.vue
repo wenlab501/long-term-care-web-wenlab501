@@ -20,7 +20,7 @@
   });
 
   export default {
-    name: 'MapView', // 組件名稱
+    name: 'MapTab', // 組件名稱
 
     // 🔧 組件屬性定義 (Component Props Definition)
     props: {
@@ -124,7 +124,7 @@
         const rect = mapContainer.value.getBoundingClientRect(); // 獲取容器的邊界矩形
         if (rect.width === 0 || rect.height === 0) {
           // 如果寬度或高度為零
-          console.warn('[MapView] 容器尺寸為零，延遲初始化'); // 輸出警告訊息
+          console.warn('[MapTab] 容器尺寸為零，延遲初始化'); // 輸出警告訊息
           return false; // 返回失敗狀態
         }
 
@@ -143,10 +143,10 @@
 
           // 設定地圖準備就緒狀態
           isMapReady.value = true; // 標記地圖已準備就緒
-          console.log('[MapView] 地圖創建成功'); // 輸出成功訊息
+          console.log('[MapTab] 地圖創建成功'); // 輸出成功訊息
           return true; // 返回成功狀態
         } catch (error) {
-          console.error('[MapView] 地圖創建失敗:', error); // 輸出錯誤訊息
+          console.error('[MapTab] 地圖創建失敗:', error); // 輸出錯誤訊息
           return false; // 返回失敗狀態
         }
       };
@@ -675,7 +675,7 @@
         const tryInit = () => {
           if (attempts >= maxAttempts) {
             // 如果超過最大嘗試次數
-            console.error('[MapView] 地圖初始化超時'); // 輸出超時錯誤
+            console.error('[MapTab] 地圖初始化超時'); // 輸出超時錯誤
             return;
           }
 
@@ -932,7 +932,7 @@
 
 <style scoped>
   /**
- * 🎨 MapView 組件專屬樣式 (MapView Component Scoped Styles)
+ * 🎨 MapTab 組件專屬樣式 (MapTab Component Scoped Styles)
  */
 
   /* 🗺️ 地圖容器樣式 (Map Container Styles) */

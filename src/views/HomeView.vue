@@ -137,7 +137,7 @@
        */
       const resetView = () => {
         if (middlePanelRef.value) {
-          middlePanelRef.value.resetMapView();
+          middlePanelRef.value.resetMapTab();
         }
       };
 

@@ -2,8 +2,8 @@
   // 🔧 Vue Composition API 引入
   import { ref, watch, nextTick } from 'vue';
   // 🧩 子組件引入
-  import MapView from '../views/MapView.vue';
-  import DashboardView from '../views/DashboardView.vue';
+  import MapTab from '../tabs/MapTab.vue';
+  import DashboardTab from '../tabs/DashboardTab.vue';
 
   export default {
     name: 'UpperView',
@@ -13,8 +13,8 @@
      * 註冊上半部面板內使用的子組件
      */
     components: {
-      MapView,
-      DashboardView,
+      MapTab,
+      DashboardTab,
     },
 
     /**
@@ -51,9 +51,9 @@
     setup(props, { emit }) {
       // 📚 子組件引用 (Child Component References)
       /** 🗺️ 地圖視圖組件引用 */
-      const mapView = ref(null);
+      const MapTab = ref(null);
       /** 📊 儀表板視圖組件引用 */
-      const dashboardView = ref(null);
+      const DashboardTab = ref(null);
       /** 📊 儀表板容器引用 (用於控制滑鼠事件) */
       const dashboardContainerRef = ref(null);
 
@@ -97,17 +97,17 @@
           console.log('🔄 UpperView: Tab changed from', oldTab, 'to', newTab);
 
           nextTick(() => {
-            if (newTab === 'map' && mapView.value) {
+            if (newTab === 'map' && MapTab.value) {
               console.log('🗺️ UpperView: Updating map after tab switch');
               // 🗺️ 刷新地圖大小，解決容器變化導致的顯示問題
-              mapView.value.invalidateSize();
+              MapTab.value.invalidateSize();
 
               // 如果是從其他分頁切換到地圖，延遲一點再刷新確保DOM完全渲染
               setTimeout(() => {
-                if (mapView.value) {
-                  mapView.value.invalidateSize();
+                if (MapTab.value) {
+                  MapTab.value.invalidateSize();
                   // 強制重新載入圖層，解決分頁切換後圖層消失的問題
-                  mapView.value.invalidateSize();
+                  MapTab.value.invalidateSize();
                   console.log(
                     '🗺️ UpperView: Map size invalidated and layers force updated after tab switch'
                   );
@@ -125,9 +125,9 @@
        */
       watch([() => props.mainPanelWidth, () => props.contentHeight], () => {
         nextTick(() => {
-          if (props.activeTab === 'map' && mapView.value) {
+          if (props.activeTab === 'map' && MapTab.value) {
             // 🗺️ 重新計算地圖大小，適應新的容器尺寸
-            mapView.value.invalidateSize();
+            MapTab.value.invalidateSize();
           }
           // Dashboard現在是純文字統計，不需要重新計算圖表大小
         });
@@ -148,11 +148,11 @@
 
           // 等待分頁切換完成後再執行高亮
           nextTick(() => {
-            mapView.value?.highlightFeature(highlightData);
+            MapTab.value?.highlightFeature(highlightData);
           });
         } else {
           // 如果已經在地圖分頁，直接執行高亮
-          mapView.value?.highlightFeature(highlightData);
+          MapTab.value?.highlightFeature(highlightData);
         }
       };
 
@@ -161,8 +161,8 @@
        * 將地圖恢復到初始視圖狀態
        */
       const resetView = () => {
-        if (props.activeTab === 'map' && mapView.value) {
-          mapView.value.resetView();
+        if (props.activeTab === 'map' && MapTab.value) {
+          MapTab.value.resetView();
         }
       };
 
@@ -171,8 +171,8 @@
        * 調整地圖視圖以完整顯示台南地區
        */
       const fitToTainanBounds = () => {
-        if (props.activeTab === 'map' && mapView.value) {
-          mapView.value.fitToTainanBounds();
+        if (props.activeTab === 'map' && MapTab.value) {
+          MapTab.value.fitToTainanBounds();
         }
       };
 
@@ -181,15 +181,15 @@
        * 當容器大小變化但自動偵測失效時使用
        */
       const invalidateMapSize = () => {
-        if (props.activeTab === 'map' && mapView.value) {
-          mapView.value.invalidateSize();
+        if (props.activeTab === 'map' && MapTab.value) {
+          MapTab.value.invalidateSize();
         }
       };
 
       // 📤 返回響應式數據和函數給模板和父組件使用
       return {
-        mapView, // 地圖組件引用
-        dashboardView, // 儀表板組件引用
+        MapTab, // 地圖組件引用
+        DashboardTab, // 儀表板組件引用
         dashboardContainerRef, // 儀表板容器引用
         highlightFeature, // 高亮顯示功能
         resetView, // 重設視圖功能
@@ -202,7 +202,7 @@
 
 <template>
   <!-- 📊 上半部面板組件 (Upper Panel Component) -->
-  <div class="d-flex flex-column h-100">
+  <div class="d-flex flex-column my-bgcolor-gray-200 h-100">
     <!-- 📱 分頁內容區域 (Tab Content Area) -->
     <!-- 地圖和儀表板滿版顯示，提供無縫的用戶體驗 -->
     <div class="flex-grow-1 overflow-hidden position-relative">
@@ -238,8 +238,8 @@
       <!-- 🗺️ 地圖分頁內容 (Map Tab Content) -->
       <!-- 顯示互動式地圖，支援圖層控制、樣式設定等功能 -->
       <div v-if="activeTab === 'map'" class="h-100">
-        <MapView
-          ref="mapView"
+        <MapTab
+          ref="MapTab"
           :showTainanLayer="showTainanLayer"
           :selectedFilter="selectedFilter"
           :zoomLevel="zoomLevel"
@@ -260,8 +260,8 @@
       >
         <!-- 🎛️ 為導航按鈕組預留空間 (Reserve Space for Navigation Buttons) -->
         <div style="height: 40px"></div>
-        <DashboardView
-          ref="dashboardView"
+        <DashboardTab
+          ref="DashboardTab"
           :containerHeight="contentHeight"
           :isPanelDragging="isPanelDragging"
           :activeMarkers="activeMarkers"

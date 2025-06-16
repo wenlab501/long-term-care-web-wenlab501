@@ -246,9 +246,9 @@
    * 透過 mainContentRef 呼叫地圖重設功能
    * 將地圖恢復到預設的縮放等級和中心位置
    */
-  const resetMapView = () => {
+  const resetMapTab = () => {
     if (mainContentRef.value) {
-      console.log('🔄 MiddleView: 呼叫 resetMapView');
+      console.log('🔄 MiddleView: 呼叫 resetMapTab');
       mainContentRef.value.resetView(); // 假設 UpperView 有 resetView 方法
     }
   };
@@ -260,7 +260,7 @@
   defineExpose({
     highlightFeature, // 高亮顯示功能
     fitToTainanBounds, // 地圖邊界適應
-    resetMapView, // 地圖視圖重設
+    resetMapTab, // 地圖視圖重設
     // 如果 HomeView 需要直接存取子組件，可以暴露 mainContentRef 和 bottomViewRef
     // mainContentRef,    // 主內容組件引用
     // bottomViewRef      // 底部視圖組件引用
