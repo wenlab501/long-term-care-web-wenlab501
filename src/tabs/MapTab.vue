@@ -78,6 +78,14 @@
           mapInstance.on('zoomend', handleZoomEnd); // 縮放結束事件
           mapInstance.on('moveend', handleMoveEnd); // 移動結束事件
 
+          // 綁定地圖點擊事件 - 點擊空白處清除選取
+          mapInstance.on('click', function (e) {
+            if (!e.originalEvent.target.closest('.leaflet-interactive')) {
+              dataStore.setSelectedFeature(null);
+              resetAllLayerStyles();
+            }
+          });
+
           // 設定地圖準備就緒狀態
           isMapReady.value = true; // 標記地圖已準備就緒
           console.log('[MapTab] 地圖創建成功'); // 輸出成功訊息
@@ -240,7 +248,14 @@
                     element.style.zIndex = 1000;
                   }
                 } else if (type === 'polygon') {
-                  // 多邊形類型處理
+                  // 多邊形類型處理 - 保存原始樣式
+                  if (!this._originalStyle) {
+                    this._originalStyle = {
+                      weight: this.options.weight || 1,
+                      color: this.options.color || 'white',
+                      fillOpacity: this.options.fillOpacity || 0.6,
+                    };
+                  }
                   this.setStyle({
                     weight: 4, // 增加邊框粗細
                     color: 'white', // 設定邊框顏色
@@ -251,21 +266,32 @@
               },
               // 滑鼠離開事件
               mouseout: function () {
-                if (type === 'point') {
-                  // 點類型處理
-                  const element = this.getElement(); // 獲取 DOM 元素
-                  if (element) {
-                    // 重設內部 div 的樣式
-                    const innerIconDiv = element.querySelector('.custom-marker-icon > div');
-                    if (innerIconDiv) {
-                      innerIconDiv.style.transform = ''; // 清除變形效果
+                // 只有在沒有被選中的情況下才恢復原始樣式
+                const isSelected =
+                  dataStore.selectedFeature &&
+                  dataStore.selectedFeature.properties.id === feature.properties.id;
+
+                if (!isSelected) {
+                  if (type === 'point') {
+                    // 點類型處理
+                    const element = this.getElement(); // 獲取 DOM 元素
+                    if (element) {
+                      // 重設內部 div 的樣式
+                      const innerIconDiv = element.querySelector('.custom-marker-icon > div');
+                      if (innerIconDiv) {
+                        innerIconDiv.style.transform = ''; // 清除變形效果
+                      }
+                      // 清除層級設定
+                      element.style.zIndex = '';
                     }
-                    // 清除層級設定
-                    element.style.zIndex = '';
+                  } else if (type === 'polygon') {
+                    // 多邊形類型處理 - 恢復原始樣式
+                    if (this._originalStyle) {
+                      this.setStyle(this._originalStyle);
+                    } else {
+                      geoJsonLayer.resetStyle(this); // 重設為預設樣式
+                    }
                   }
-                } else if (type === 'polygon') {
-                  // 多邊形類型處理
-                  geoJsonLayer.resetStyle(this); // 重設為預設樣式
                 }
               },
               // 點擊事件
@@ -278,6 +304,39 @@
         });
 
         return geoJsonLayer; // 返回創建的 GeoJSON 圖層
+      };
+
+      // 🔄 重設所有圖層樣式函數 (Reset All Layer Styles Function)
+      const resetAllLayerStyles = () => {
+        Object.values(layerGroups).forEach((layerGroup) => {
+          if (layerGroup) {
+            layerGroup.eachLayer((layer) => {
+              const feature = layer.feature;
+              if (feature) {
+                const type = dataStore.findLayerById(feature.properties.layerId)?.type;
+
+                if (type === 'point') {
+                  // 點類型處理
+                  const element = layer.getElement();
+                  if (element) {
+                    const innerIconDiv = element.querySelector('.custom-marker-icon > div');
+                    if (innerIconDiv) {
+                      innerIconDiv.style.transform = '';
+                    }
+                    element.style.zIndex = '';
+                  }
+                } else if (type === 'polygon') {
+                  // 多邊形類型處理
+                  if (layer._originalStyle) {
+                    layer.setStyle(layer._originalStyle);
+                  } else if (layerGroup.resetStyle) {
+                    layerGroup.resetStyle(layer);
+                  }
+                }
+              }
+            });
+          }
+        });
       };
 
       // 🔄 同步圖層函數 (Sync Layers Function)
@@ -396,12 +455,7 @@
         // 執行高亮顯示的核心邏輯函數
         const performHighlight = () => {
           // 重置所有圖層樣式
-          Object.values(layerGroups).forEach((layerGroup) => {
-            if (layerGroup && layerGroup.resetStyle) {
-              // 檢查圖層是否有重置樣式方法
-              layerGroup.resetStyle(); // 重置圖層樣式
-            }
-          });
+          resetAllLayerStyles();
 
           // 初始化目標要素搜尋變數
           let targetLayer = null; // 目標圖層實例

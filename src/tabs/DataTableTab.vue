@@ -205,7 +205,7 @@
 
 <template>
   <!-- 📊 多圖層資料表格分頁組件 -->
-  <div class="h-100 d-flex flex-column my-bgcolor-gray-200">
+  <div class="d-flex flex-column my-bgcolor-gray-200 h-100">
     <!-- 📑 圖層分頁導航 -->
     <div v-if="visibleLayers.length > 0" class="">
       <ul class="nav nav-tabs nav-fill">

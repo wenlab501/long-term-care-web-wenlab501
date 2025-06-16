@@ -96,7 +96,7 @@
 
 <template>
   <!-- 📊 多圖層資料儀表板視圖組件 -->
-  <div class="d-flex flex-column my-bgcolor-gray-200">
+  <div class="d-flex flex-column my-bgcolor-gray-200 h-100">
     <!-- 📑 圖層分頁導航 -->
     <div v-if="visibleLayers.length > 0" class="">
       <ul class="nav nav-tabs nav-fill">
@@ -142,10 +142,7 @@
     </div>
 
     <!-- 沒有開啟圖層時的空狀態 -->
-    <div
-      v-else
-      class="flex-grow-1 d-flex align-items-center justify-content-center my-bgcolor-white"
-    >
+    <div v-else class="flex-grow-1 d-flex align-items-center justify-content-center">
       <div class="text-center">
         <div class="my-title-md-gray my-2">沒有開啟的圖層</div>
       </div>
