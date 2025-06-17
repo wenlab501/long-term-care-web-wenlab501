@@ -1778,6 +1778,150 @@ export async function loadHealthcareFacilityPharmacyData(layer) {
   }
 }
 
+// 三段年齡組性別人口統計
+export async function loadPopulation3LevelsGeoJson(layer) {
+  try {
+    const layerId = layer.layerId;
+    const fieldName = layer.fieldName;
+
+    const filePath = `/long-term-care-web/data/geojson/${layer.fileName}`;
+    const a = fieldName || null;
+    console.log(a);
+
+    const response = await fetch(filePath);
+
+    if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const geoJsonData = await response.json();
+
+    // ----------------------------
+
+    let minValue = 0;
+    let maxValue = 0;
+
+    const values = geoJsonData.features
+      .map((f) => parseFloat(f.properties[fieldName]))
+      .filter((v) => !isNaN(v));
+
+    minValue = d3.min(values);
+    maxValue = d3.max(values);
+
+    // ----------------------------
+
+    // 您想使用的顏色數量
+    const numColors = 10;
+    const colors = d3.schemeRdBu[numColors];
+
+    // --- 關鍵修改從這裡開始 ---
+
+    // 1. 動態計算並產生 9 個 (numColors - 1)「整數」的間隔點
+    const step = (maxValue - minValue) / numColors; // 每個區間的約略寬度
+    const thresholds = d3.range(1, numColors).map((i) => {
+      // d3.range(1, 10) 會產生 [1, 2, 3, 4, 5, 6, 7, 8, 9]
+      // 我們用 Math.round() 來確保每個間隔點都是整數
+      return Math.round(minValue + i * step);
+    });
+
+    // 此時 thresholds 可能會是像 [50, 100, 150, 200, 250, 300, 350, 400, 450] 這樣的整數陣列
+
+    // 2. 使用 d3.scaleThreshold 並傳入我們計算好的間隔點
+    const colorScale = d3
+      .scaleThreshold()
+      .domain(thresholds) // 輸入範圍：您定義的整數門檻
+      .range(colors); // 輸出範圍：10 個顏色
+
+    // ----------------------------
+
+    geoJsonData.features.forEach((feature, index) => {
+      feature.properties.id = index + 1;
+      feature.properties.layerId = layerId;
+      feature.properties.layerName = layer.layerName;
+      feature.properties.name = `${feature.properties.COUNTY}${feature.properties.TOWN}${feature.properties.VILLAGE}`;
+      feature.properties.value = parseFloat(feature.properties[fieldName]);
+      feature.properties.fillColor = colorScale(feature.properties.value);
+
+      const propertyData = {
+        里名: feature.properties.name,
+        ...feature.properties,
+      };
+
+      const popupData = {
+        里名: feature.properties.name,
+      };
+
+      const tableData = {
+        '#': feature.properties.id,
+        color: colorScale(feature.properties.value),
+        里名: feature.properties.name,
+        [fieldName]: feature.properties[fieldName],
+      };
+
+      feature.properties.propertyData = propertyData;
+      feature.properties.popupData = popupData;
+      feature.properties.tableData = tableData;
+    });
+
+    // 包含為表格量身打造的數據陣列
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
+
+    // 包含摘要資訊
+    const summaryData = {
+      totalCount: geoJsonData.features.length,
+    };
+
+    const legendData = colors.map((color, index) => {
+      let label = '';
+      let extent = [];
+
+      // 判斷式：我們針對第一筆、最後一筆、以及中間的資料，給予不同的標籤格式
+
+      if (index === 0) {
+        // 【修正第一筆】顯示為 "< [第一個門檻值]"
+        const upperBound = thresholds[0];
+        label = `< ${Math.round(upperBound)}`;
+        extent = [null, upperBound]; // 範圍的起始值用 null 表示
+      } else if (index === colors.length - 1) {
+        // 【修正最後一筆】顯示為 "> [最後一個門檻值]"
+        const lowerBound = thresholds[thresholds.length - 1];
+        label = `> ${Math.round(lowerBound)}`;
+        extent = [lowerBound, null]; // 範圍的結束值用 null 表示
+      } else {
+        // 【中間項目】維持原本的 "起始 - 結束" 格式
+        const lowerBound = thresholds[index - 1];
+        const upperBound = thresholds[index];
+        label = `${Math.round(lowerBound)} - ${Math.round(upperBound)}`;
+        extent = [lowerBound, upperBound];
+      }
+
+      // 回傳結構化的物件
+      return {
+        color: color,
+        label: label,
+        extent: extent,
+      };
+    });
+
+    return {
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
+      tableData, // 包含為表格量身打造的數據陣列
+      summaryData, // 包含摘要資訊
+      legendData, // 包含圖例資訊
+    };
+  } catch (error) {
+    console.error('❌ GeoJSON 數據載入或處理失敗:', error);
+    throw error;
+  }
+}
+
 // 綜稅綜合所得總額
 export async function loadIncomeGeoJson(layer) {
   try {
@@ -1812,6 +1956,8 @@ export async function loadIncomeGeoJson(layer) {
 
     minValue = d3.min(values);
     maxValue = d3.max(values);
+
+    // ----------------------------
 
     // 建立一個使用內建「紅白藍」色帶的發散型比例尺
     // const colorScale = d3
@@ -1881,6 +2027,361 @@ export async function loadIncomeGeoJson(layer) {
         extent: extent, // 也可以把原始區間放進來，以備不時之需
       };
     });
+
+    return {
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
+      tableData, // 包含為表格量身打造的數據陣列
+      summaryData, // 包含摘要資訊
+      legendData, // 包含圖例資訊
+    };
+  } catch (error) {
+    console.error('❌ GeoJSON 數據載入或處理失敗:', error);
+    throw error;
+  }
+}
+
+// 4大超商
+export async function loadConvenienceStoreData(layer) {
+  try {
+    const layerId = layer.layerId;
+    const colorName = layer.colorName;
+
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
+
+    const response = await fetch(filePath);
+
+    if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const csvText = await response.text();
+
+    // 將完整的 CSV 文字內容，首先按換行符號('\n')分割成陣列的每一行
+    // 然後對每一行再用逗號(',')分割成欄位，最終形成一個二維陣列
+    const rows = csvText.split('\n').map((row) => row.split(','));
+
+    // 取得二維陣列的第一行(rows[0])作為標頭，並對每個標頭使用 trim() 去除前後可能存在的空白字元
+    const headers = rows[0].map((h) => h.trim());
+
+    const headerIndices = {
+      公司統一編號: headers.indexOf('公司統一編號'),
+      公司名稱: headers.indexOf('公司名稱'),
+      分公司統一編號: headers.indexOf('分公司統一編號'),
+      分公司名稱: headers.indexOf('分公司名稱'),
+      分公司地址: headers.indexOf('分公司地址'),
+      分公司狀態: headers.indexOf('分公司狀態'),
+      分公司核准設立日期: headers.indexOf('分公司核准設立日期'),
+      分公司最後核准變更日期: headers.indexOf('分公司最後核准變更日期'),
+      lat: headers.indexOf('lat'),
+      lon: headers.indexOf('lon'),
+    };
+
+    const geoJsonData = {
+      type: 'FeatureCollection',
+      features: rows
+        .slice(1) // 使用 .slice(1) 方法，從索引 1 開始提取所有元素，即跳過第一行(標頭)
+        .map((row, index) => {
+          const lat = parseFloat(row[headerIndices.lat]);
+          const lon = parseFloat(row[headerIndices.lon]);
+
+          const id = index + 1;
+
+          if (isNaN(lat) || isNaN(lon)) {
+            console.warn(`第 ${id} 行 ${row[headerIndices.address]} 的座標無效:`, {
+              lat: row[headerIndices.lat],
+              lon: row[headerIndices.lon],
+            });
+            return null;
+          }
+
+          const propertyData = {
+            公司統一編號: row[headerIndices.公司統一編號],
+            公司名稱: row[headerIndices.公司名稱],
+            分公司統一編號: row[headerIndices.分公司統一編號],
+            分公司名稱: row[headerIndices.分公司名稱],
+            分公司地址: row[headerIndices.分公司地址],
+            分公司狀態: row[headerIndices.分公司狀態],
+            分公司核准設立日期: row[headerIndices.分公司核准設立日期],
+          };
+
+          const popupData = {
+            name: row[headerIndices.分公司名稱],
+          };
+
+          const tableData = {
+            '#': id,
+            color: getComputedStyle(document.documentElement)
+              .getPropertyValue(`--my-color-${colorName}`)
+              .trim(),
+            公司名稱: row[headerIndices.公司名稱],
+            分公司名稱: row[headerIndices.分公司名稱],
+            分公司地址: row[headerIndices.分公司地址],
+          };
+
+          return {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [lon, lat],
+            },
+            properties: {
+              id: id,
+              layerId: layerId,
+              layerName: layer.layerName,
+              name: row[headerIndices.分公司名稱],
+              fillColor: getComputedStyle(document.documentElement)
+                .getPropertyValue(`--my-color-${colorName}`)
+                .trim(),
+              propertyData: propertyData,
+              popupData: popupData,
+              tableData: tableData,
+            },
+          };
+        })
+        .filter((feature) => feature !== null), // 使用 .filter() 方法過濾掉陣列中所有為 null 的項目 (即那些因座標無效而返回 null 的資料)
+    };
+
+    // 包含為表格量身打造的數據陣列
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
+
+    // 包含摘要資訊
+    const summaryData = {
+      totalCount: geoJsonData.features.length,
+    };
+
+    return {
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
+      tableData, // 包含為表格量身打造的數據陣列
+      summaryData, // 包含摘要資訊
+    };
+  } catch (error) {
+    console.error('❌ 數據載入失敗:', error);
+    throw error;
+  }
+}
+
+// 捷運站點
+export async function loadMRTStationGeoJson(layer) {
+  try {
+    const layerId = layer.layerId;
+    const fieldName = layer.fieldName;
+
+    const filePath = `/long-term-care-web/data/geojson/${layer.fileName}`;
+    const a = fieldName || null;
+    console.log(a);
+
+    const response = await fetch(filePath);
+
+    if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const geoJsonData = await response.json();
+
+    // ----------------------------
+
+    geoJsonData.features.forEach((feature, index) => {
+      feature.properties.id = index + 1;
+      feature.properties.layerId = layerId;
+      feature.properties.layerName = layer.layerName;
+      feature.properties.name = feature.properties.NAME;
+      feature.properties.fillColor = null;
+
+      const propertyData = {
+        站名: feature.properties.name,
+        ...feature.properties,
+      };
+
+      const popupData = {
+        站名: feature.properties.name,
+      };
+
+      const tableData = {
+        '#': feature.properties.id,
+        color: layer.color,
+        站名: feature.properties.name,
+      };
+
+      feature.properties.propertyData = propertyData;
+      feature.properties.popupData = popupData;
+      feature.properties.tableData = tableData;
+    });
+
+    // 包含為表格量身打造的數據陣列
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
+
+    // 包含摘要資訊
+    const summaryData = {
+      totalCount: geoJsonData.features.length,
+    };
+
+    const legendData = null;
+
+    return {
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
+      tableData, // 包含為表格量身打造的數據陣列
+      summaryData, // 包含摘要資訊
+      legendData, // 包含圖例資訊
+    };
+  } catch (error) {
+    console.error('❌ GeoJSON 數據載入或處理失敗:', error);
+    throw error;
+  }
+}
+
+// 公車站點
+export async function loadBusStopGeoJson(layer) {
+  try {
+    const layerId = layer.layerId;
+    const fieldName = layer.fieldName;
+
+    const filePath = `/long-term-care-web/data/geojson/${layer.fileName}`;
+    const a = fieldName || null;
+    console.log(a);
+
+    const response = await fetch(filePath);
+
+    if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const geoJsonData = await response.json();
+
+    // ----------------------------
+
+    geoJsonData.features.forEach((feature, index) => {
+      feature.properties.id = index + 1;
+      feature.properties.layerId = layerId;
+      feature.properties.layerName = layer.layerName;
+      feature.properties.name = feature.properties.BSM_CHINES;
+      feature.properties.fillColor = null;
+
+      const propertyData = {
+        站名: feature.properties.name,
+        ...feature.properties,
+      };
+
+      const popupData = {
+        站名: feature.properties.name,
+      };
+
+      const tableData = {
+        '#': feature.properties.id,
+        color: layer.color,
+        站名: feature.properties.name,
+      };
+
+      feature.properties.propertyData = propertyData;
+      feature.properties.popupData = popupData;
+      feature.properties.tableData = tableData;
+    });
+
+    // 包含為表格量身打造的數據陣列
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
+
+    // 包含摘要資訊
+    const summaryData = {
+      totalCount: geoJsonData.features.length,
+    };
+
+    const legendData = null;
+
+    return {
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
+      tableData, // 包含為表格量身打造的數據陣列
+      summaryData, // 包含摘要資訊
+      legendData, // 包含圖例資訊
+    };
+  } catch (error) {
+    console.error('❌ GeoJSON 數據載入或處理失敗:', error);
+    throw error;
+  }
+}
+
+// 臺北市區界圖
+export async function loadTaipeiDistrictGeoJson(layer) {
+  try {
+    const layerId = layer.layerId;
+    const fieldName = layer.fieldName;
+
+    const filePath = `/long-term-care-web/data/geojson/${layer.fileName}`;
+    const a = fieldName || null;
+    console.log(a);
+
+    const response = await fetch(filePath);
+
+    if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const geoJsonData = await response.json();
+
+    // ----------------------------
+
+    geoJsonData.features.forEach((feature, index) => {
+      feature.properties.id = index + 1;
+      feature.properties.layerId = layerId;
+      feature.properties.layerName = layer.layerName;
+      feature.properties.name = feature.properties.PTNAME;
+      feature.properties.fillColor = null;
+
+      const propertyData = {
+        區名: feature.properties.name,
+        ...feature.properties,
+      };
+
+      const popupData = {
+        區名: feature.properties.name,
+      };
+
+      const tableData = {
+        '#': feature.properties.id,
+        color: layer.color,
+        區名: feature.properties.name,
+      };
+
+      feature.properties.propertyData = propertyData;
+      feature.properties.popupData = popupData;
+      feature.properties.tableData = tableData;
+    });
+
+    // 包含為表格量身打造的數據陣列
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
+
+    // 包含摘要資訊
+    const summaryData = {
+      totalCount: geoJsonData.features.length,
+    };
+
+    const legendData = null;
 
     return {
       geoJsonData, // 包含原始且完整的 GeoJSON 數據

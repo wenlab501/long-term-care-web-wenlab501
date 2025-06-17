@@ -194,13 +194,22 @@
           // 樣式設定函數
           style: (feature) => {
             // 返回預設樣式物件
-            return {
-              fillColor: feature.properties.fillColor, // 填充顏色
-              weight: 1, // 邊框粗細
-              opacity: 1, // 邊框透明度
-              color: 'white', // 邊框顏色
-              fillOpacity: 0.6, // 填充透明度
-            };
+            if (feature.properties.fillColor) {
+              return {
+                fillColor: feature.properties.fillColor, // 填充顏色
+                weight: 1, // 邊框粗細
+                opacity: 1, // 邊框透明度
+                color: 'white', // 邊框顏色
+                fillOpacity: 0.6, // 填充透明度
+              };
+            } else {
+              return {
+                weight: 1, // 邊框粗細
+                opacity: 1, // 邊框透明度
+                color: 'red', // 邊框顏色
+                fillOpacity: 0, // 填充透明度
+              };
+            }
           },
           // 每個要素的處理函數
           onEachFeature: (feature, layer) => {
@@ -247,7 +256,7 @@
                     // 設定最高層級確保圖標在最上方
                     element.style.zIndex = 1000;
                   }
-                } else if (type === 'polygon') {
+                } else if (type === 'polygon' && feature.properties.fillColor !== null) {
                   // 多邊形類型處理 - 保存原始樣式
                   if (!this._originalStyle) {
                     this._originalStyle = {
@@ -537,11 +546,17 @@
               // 面要素處理
               // 面要素高亮 - 只對有 setStyle 方法的圖層調用
               if (targetLayer.setStyle) {
-                targetLayer.setStyle({
-                  weight: 4, // 增加邊框粗細
-                  color: 'white', // 設定邊框顏色
-                  fillOpacity: 0.8, // 增加填充透明度
-                });
+                if (targetLayer.feature?.properties?.fillColor) {
+                  targetLayer.setStyle({
+                    weight: 4, // 增加邊框粗細
+                    color: 'white', // 設定邊框顏色
+                    fillOpacity: 0.8, // 增加填充透明度
+                  });
+                } else {
+                  targetLayer.setStyle({
+                    weight: 4, // 增加邊框粗細
+                  });
+                }
               }
             }
 
@@ -766,7 +781,7 @@
 
     <!-- 地圖底部控制項區域 -->
     <div
-      class="position-absolute map-bottom-controls d-flex align-items-center rounded-pill shadow my-blur gap-2 p-2"
+      class="position-absolute map-bottom-controls d-flex align-items-center rounded-pill shadow-sm my-blur gap-2 p-2"
     >
       <div class="d-flex align-items-center">
         <div class="dropdown dropup">

@@ -205,7 +205,7 @@
     <div class="flex-grow-1 overflow-hidden position-relative">
       <!-- 統一的導航按鈕組 -->
       <div class="position-absolute top-0 start-0 m-3" style="z-index: 1000">
-        <div class="d-flex align-items-center rounded-pill shadow my-blur gap-1 p-2">
+        <div class="d-flex align-items-center rounded-pill shadow-sm my-blur gap-1 p-2">
           <!-- 🗺️ 地圖視圖按鈕 (Map View Button) -->
           <button
             class="btn rounded-circle border-0 d-flex align-items-center justify-content-center my-btn-transparent my-font-size-xs"

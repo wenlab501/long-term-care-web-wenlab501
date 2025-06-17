@@ -102,6 +102,9 @@ body {
 .my-color-red {
   color: var(--my-color-red);
 }
+.my-color-pink {
+  color: var(--my-color-pink);
+}
 .my-color-deeporange {
   color: var(--my-color-deeporange);
 }
@@ -146,9 +149,6 @@ body {
 }
 .my-color-purple {
   color: var(--my-color-purple);
-}
-.my-color-pink {
-  color: var(--my-color-pink);
 }
 .my-color-brown {
   color: var(--my-color-brown);
@@ -201,6 +201,9 @@ body {
 .my-bgcolor-red {
   background-color: var(--my-color-red);
 }
+.my-bgcolor-pink {
+  background-color: var(--my-color-pink);
+}
 .my-bgcolor-deeporange {
   background-color: var(--my-color-deeporange);
 }
@@ -246,8 +249,8 @@ body {
 .my-bgcolor-purple {
   background-color: var(--my-color-purple);
 }
-.my-bgcolor-pink {
-  background-color: var(--my-color-pink);
+.my-bgcolor-brown {
+  background-color: var(--my-color-brown);
 }
 
 .my-bgcolor-white-hover {
