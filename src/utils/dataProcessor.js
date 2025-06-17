@@ -464,7 +464,7 @@ export async function loadPublicElderlyWelfareInstitutionData(layer) {
               id: id,
               layerId: layerId,
               layerName: layer.layerName,
-              name: row[headerIndices.據點名稱],
+              name: row[headerIndices.機構名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
                 .trim(),
@@ -689,7 +689,6 @@ export async function loadCommunityIntegrationServiceCenterData(layer) {
             return null;
           }
 
-          // 序號	單位名稱	行政區	服務區域	服務地址/聯絡電話
           const propertyData = {
             序號: row[headerIndices.序號],
             單位名稱: row[headerIndices.單位名稱],
@@ -721,7 +720,7 @@ export async function loadCommunityIntegrationServiceCenterData(layer) {
               id: id,
               layerId: layerId,
               layerName: layer.layerName,
-              name: row[headerIndices.機構名稱],
+              name: row[headerIndices.單位名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
                 .trim(),
@@ -2133,7 +2132,7 @@ export async function loadConvenienceStoreData(layer) {
               id: id,
               layerId: layerId,
               layerName: layer.layerName,
-              name: row[headerIndices.分公司名稱],
+              name: row[headerIndices.公司名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
                 .trim(),
