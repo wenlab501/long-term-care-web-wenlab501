@@ -781,7 +781,7 @@
 
     <!-- 地圖底部控制項區域 -->
     <div
-      class="position-absolute map-bottom-controls d-flex align-items-center rounded-pill shadow-sm my-blur gap-2 p-2"
+      class="position-absolute map-bottom-controls d-flex align-items-center rounded-pill shadow my-blur gap-2 p-2 mb-3"
     >
       <div class="d-flex align-items-center">
         <div class="dropdown dropup">
@@ -840,7 +840,7 @@
 
   /* ✨ 地圖底部控制項樣式 (Map Bottom Controls Styles) */
   .map-bottom-controls {
-    bottom: 10px; /* 距離地圖容器底部 10px */
+    bottom: 0px; /* 距離地圖容器底部 10px */
     left: 50%; /* 水平置中 */
     transform: translateX(-50%); /* 完美水平置中 */
     z-index: 2000;

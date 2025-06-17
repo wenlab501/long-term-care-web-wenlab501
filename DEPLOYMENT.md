@@ -1,45 +1,75 @@
-# 部署說明
+# 臺北市長照資訊系統 - 部署指南
 
-## GitHub Pages 自動部署
+## 前置作業
+1. 確保已安裝 Node.js (建議版本 16 或以上)
+2. 確保已安裝 npm 和 git
+3. 確保已將專案推送到 GitHub
 
-本專案已設置 GitHub Actions 自動部署到 GitHub Pages。
+## 部署方式
 
-### 設置步驟
-
-1. **推送代碼到 GitHub**
-
-   ```bash
-   git add .
-   git commit -m "準備部署到 GitHub Pages"
-   git push origin main
-   ```
-
-2. **啟用 GitHub Pages**
-
-   - 進入 GitHub 儲存庫設置
-   - 點擊 "Pages" 分頁
-   - 在 "Source" 下選擇 "GitHub Actions"
-   - 儲存設置
-
-3. **檢查部署狀態**
-   - 在 "Actions" 分頁查看工作流程狀態
-   - 部署完成後，網站將在以下網址可用：
-     `https://kevin7261.github.io/long-term-care-web/`
-
-## 手動部署 (備選方案)
-
-如果需要手動部署：
-
+### 方法一：使用 npm scripts (推薦)
 ```bash
-# 建置專案
-npm run build
-
-# 使用 gh-pages 部署
 npm run deploy
 ```
 
-## 注意事項
+### 方法二：手動部署
+```bash
+npm run build
+npx gh-pages -d dist --no-history
+```
 
-- 確保 `vue.config.js` 中的 `publicPath` 設置正確
-- GitHub Actions 需要寫入權限才能部署到 Pages
-- 首次部署可能需要幾分鐘時間才能生效
+## GitHub Pages 設定
+1. 到 GitHub 專案的 Settings > Pages
+2. 選擇 Source: Deploy from a branch
+3. 選擇 Branch: gh-pages
+4. 選擇 Folder: / (root)
+5. 點擊 Save
+
+## 故障排除
+
+### 問題：部署後網頁沒有更新
+可能的原因和解決方案：
+
+1. **瀏覽器緩存問題**
+   - 按 Ctrl+F5 (Windows) 或 Cmd+Shift+R (Mac) 強制刷新
+   - 或使用無痕模式瀏覽
+
+2. **GitHub Pages 設定錯誤**
+   - 檢查 GitHub Settings > Pages 是否設定為 gh-pages 分支
+   - 確認不是設定為 GitHub Actions
+
+3. **部署衝突**
+   - 如果同時有 GitHub Actions 和 gh-pages 部署，請停用其中一個
+   - 建議使用 gh-pages 手動部署，停用 GitHub Actions
+
+4. **強制更新部署**
+   ```bash
+   # 先建置
+   npm run build
+
+   # 使用強制部署
+   npx gh-pages -d dist --no-history
+   ```
+
+5. **清理 gh-pages 分支**
+   ```bash
+   # 刪除本地 gh-pages 分支
+   git branch -D gh-pages
+
+   # 重新部署
+   npm run deploy
+   ```
+
+### 問題：GitHub Actions 部署失敗
+1. 檢查 `.github/workflows/deploy.yml` 設定
+2. 確認 GitHub 專案的 Settings > Actions > General > Workflow permissions 設定為 "Read and write permissions"
+
+## 檢查部署狀態
+- 網站網址: https://kevin7261.github.io/long-term-care-web/
+- 檢查 GitHub 專案的 Actions 頁面查看部署狀態
+- 檢查 Settings > Pages 頁面確認設定正確
+
+## 注意事項
+1. 每次部署前會自動執行 `npm run build`
+2. 部署使用 `--no-history` 參數以避免歷史記錄衝突
+3. 如果修改了 publicPath，記得更新 `vue.config.js` 中的設定
