@@ -399,7 +399,7 @@
     <!-- 📥 載入覆蓋層 (Loading Overlay) -->
     <!-- 在資料載入時顯示，提供視覺化的載入進度回饋 -->
     <LoadingOverlay
-      :isVisible="isAnyLatyerLoading"
+      :isVisible="isAnyLayerLoading"
       :loadingText="loadingText"
       :progress="loadingProgress"
       :showProgress="showLoadingProgress"
