@@ -148,8 +148,7 @@
     <div
       class="flex-grow-1 overflow-hidden"
       :style="{
-        'padding-bottom': `calc(80px + ${bottomSafeArea}px)`,
-        'margin-bottom': `-${bottomSafeArea}px`
+        'padding-bottom': `70px`,
       }"
     >
       <!-- 📋 圖層分頁內容 -->
@@ -170,7 +169,7 @@
 
     <!-- 📑 分頁導航 (Tab Navigation) - 固定在底部，動態適應瀏覽器界面 -->
     <div
-      class="position-fixed bottom-0 start-0 end-0 d-flex align-items-center justify-content-between my-bgcolor-gray-200 shadow-lg z-100 w-100"
+      class="position-fixed bottom-0 start-0 end-0 d-flex align-items-center justify-content-between my-bgcolor-gray-200 border-top z-100 w-100"
       :style="getBottomNavStyle"
     >
       <button
