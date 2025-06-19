@@ -332,8 +332,22 @@
         console.log('HomeView - After setting selectedFeature:', {
           storeSelectedFeature: dataStore.selectedFeature,
         });
-        // 自動切換到物件屬性分頁
-        activeRightTab.value = 'properties';
+
+        // 檢查當前是桌面版還是響應式版本
+        const isDesktop = window.innerWidth >= 1200; // xl breakpoint
+
+        if (isDesktop) {
+          // 桌面版：切換到右側屬性分頁
+          activeRightTab.value = 'properties';
+        } else {
+          // 響應式版本：切換到底部屬性分頁
+          activeLowerTab.value = 'properties';
+
+          // 如果底部面板高度太小，自動調整到合適的高度
+          if (mobileBottomViewHeight.value < 30) {
+            mobileBottomViewHeight.value = 40; // 設定為 40vh，提供足夠空間顯示屬性
+          }
+        }
       };
 
       /**

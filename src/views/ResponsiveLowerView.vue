@@ -74,25 +74,6 @@
 <template>
   <!-- 📱 響應式下半部面板組件 (Responsive Lower Panel Component) -->
   <div class="d-flex flex-column h-100 my-bgcolor-gray-200">
-    <!-- 📑 分頁導航 (Tab Navigation) -->
-    <div class="d-flex border-bottom">
-      <button
-        v-for="tab in availableTabs"
-        :key="tab.id"
-        class="btn rounded-0 border-0 flex-grow-1 p-3"
-        :class="{
-          'my-bgcolor-white': activeTab === tab.id,
-          'my-bgcolor-gray-100': activeTab !== tab.id,
-        }"
-        @click="switchTab(tab.id)"
-      >
-        <div class="d-flex align-items-center justify-content-center">
-          <i :class="tab.icon" class="me-2"></i>
-          <span class="my-title-sm-black">{{ tab.name }}</span>
-        </div>
-      </button>
-    </div>
-
     <!-- 📄 分頁內容區域 (Tab Content Area) -->
     <div class="flex-grow-1 overflow-hidden">
       <!-- 📋 圖層分頁內容 -->
@@ -109,6 +90,25 @@
       <div v-show="activeTab === 'properties'" class="h-100">
         <PropertiesTab @highlight-feature="$emit('highlight-feature', $event)" />
       </div>
+    </div>
+
+    <!-- 📑 分頁導航 (Tab Navigation) - 移到底部，符合手機介面習慣 -->
+    <div class="d-flex border-top">
+      <button
+        v-for="tab in availableTabs"
+        :key="tab.id"
+        class="btn rounded-0 border-0 flex-grow-1 p-3"
+        :class="{
+          'my-bgcolor-white': activeTab === tab.id,
+          'my-bgcolor-gray-100': activeTab !== tab.id,
+        }"
+        @click="switchTab(tab.id)"
+      >
+        <div class="d-flex flex-column align-items-center justify-content-center">
+          <i :class="tab.icon" class="mb-1"></i>
+          <span class="my-title-xs-black">{{ tab.name }}</span>
+        </div>
+      </button>
     </div>
   </div>
 </template>
