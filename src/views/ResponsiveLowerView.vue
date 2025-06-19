@@ -79,13 +79,9 @@
         const extraPadding = bottomSafeArea.value > 0 ? bottomSafeArea.value + 10 : 10;
 
         return {
-          'background-color': '#eeeeee',
-          'border-top': '1px solid #e0e0e0',
-          'z-index': '9999',
           'min-height': `${baseHeight}px`,
           'height': `${baseHeight + extraPadding}px`,
           'padding': `8px 4px ${extraPadding}px 4px`,
-          'box-shadow': '0 -2px 8px rgba(0, 0, 0, 0.1)',
         };
       });
 
@@ -174,23 +170,19 @@
 
     <!-- 📑 分頁導航 (Tab Navigation) - 固定在底部，動態適應瀏覽器界面 -->
     <div
-      class="position-fixed bottom-0 start-0 end-0 d-flex align-items-center justify-content-between w-100"
+      class="position-fixed bottom-0 start-0 end-0 d-flex align-items-center justify-content-between my-bgcolor-gray-200 shadow-lg z-100 w-100"
       :style="getBottomNavStyle"
     >
       <button
         v-for="tab in availableTabs"
         :key="tab.id"
-        class="rounded-3 border-0 flex-grow-1 mx-1"
+        class="d-flex rounded-3 border-0 flex-grow-1 py-2 mx-1"
         :class="{
           'my-btn-transparent': activeTab !== tab.id,
           'my-btn-blue': activeTab === tab.id,
         }"
         :style="{
           'min-height': '44px',
-          'display': 'flex !important',
-          'visibility': 'visible !important',
-          'opacity': '1 !important',
-          'z-index': '10000',
           'touch-action': 'manipulation',
           '-webkit-appearance': 'none !important',
         }"

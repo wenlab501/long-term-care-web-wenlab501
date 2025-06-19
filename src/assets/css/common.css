@@ -291,6 +291,12 @@ body {
   color: var(--my-color-gray-600);
 }
 
+.my-title-sm-white {
+  font-size: var(--my-font-size-sm);
+  color: var(--my-color-white);
+  font-weight: var(--my-font-weight-lg);
+}
+
 .my-title-sm-black {
   font-size: var(--my-font-size-sm);
   color: var(--my-color-black);
