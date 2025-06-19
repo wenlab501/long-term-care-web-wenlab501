@@ -51,7 +51,7 @@
       const availableTabs = computed(() => [
         { id: 'layers', name: '圖層', icon: 'fas fa-layer-group' },
         { id: 'table', name: '資料表', icon: 'fas fa-table' },
-        { id: 'properties', name: '屬性', icon: 'fas fa-info-circle' },
+        { id: 'properties', name: '屬性', icon: 'fa-solid fa-location-dot' },
       ]);
 
       /**
@@ -97,16 +97,16 @@
       <button
         v-for="tab in availableTabs"
         :key="tab.id"
-        class="btn rounded-0 border-0 flex-grow-1 p-3"
+        class="rounded-3 border-0 flex-grow-1 py-2 m-1 mb-2"
         :class="{
-          'my-bgcolor-white': activeTab === tab.id,
-          'my-bgcolor-gray-100': activeTab !== tab.id,
+          'my-btn-transparent': activeTab !== tab.id,
+          'my-btn-blue': activeTab === tab.id,
         }"
         @click="switchTab(tab.id)"
       >
         <div class="d-flex flex-column align-items-center justify-content-center">
-          <i :class="tab.icon" class="mb-1"></i>
-          <span class="my-title-xs-black">{{ tab.name }}</span>
+          <span class="my-font-size-sm"><i :class="tab.icon" class="mb-1"></i></span>
+          <span class="my-font-size-xs">{{ tab.name }}</span>
         </div>
       </button>
     </div>

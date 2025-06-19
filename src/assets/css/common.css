@@ -303,6 +303,13 @@ body {
   font-weight: var(--my-font-weight-lg);
 }
 
+.my-title-xs-white {
+  font-size: var(--my-font-size-xs);
+  color: var(--my-color-white);
+  font-weight: var(--my-font-weight-lg);
+}
+
+
 .my-title-xs-black {
   font-size: var(--my-font-size-xs);
   color: var(--my-color-black);
