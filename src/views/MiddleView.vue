@@ -254,6 +254,18 @@
   };
 
   /**
+   * 📏 刷新地圖尺寸 (Invalidate Map Size)
+   * 透過 mainContentRef 呼叫地圖尺寸重新計算功能
+   * 當容器大小變化但自動偵測失效時使用
+   */
+  const invalidateMapSize = () => {
+    if (mainContentRef.value) {
+      console.log('📏 MiddleView: 呼叫地圖尺寸刷新');
+      mainContentRef.value.invalidateMapSize();
+    }
+  };
+
+  /**
    * 📤 暴露方法給父組件使用 (Expose Methods to Parent Component)
    * 讓 HomeView 可以直接呼叫這些方法，實現組件間的方法調用
    */
@@ -261,6 +273,7 @@
     highlightFeature, // 高亮顯示功能
     fitToTainanBounds, // 地圖邊界適應
     resetMapTab, // 地圖視圖重設
+    invalidateMapSize, // 地圖尺寸刷新
     // 如果 HomeView 需要直接存取子組件，可以暴露 mainContentRef 和 bottomViewRef
     // mainContentRef,    // 主內容組件引用
     // bottomViewRef      // 底部視圖組件引用

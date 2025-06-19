@@ -253,8 +253,37 @@
        * 📏 處理瀏覽器視窗大小變化 (Handle Browser Window Resize)
        */
       const handleResize = () => {
+        const prevWidth = windowWidth.value;
+        const prevIsDesktop = prevWidth >= 1200;
+
         windowWidth.value = window.innerWidth;
         windowHeight.value = window.innerHeight;
+
+        const currentIsDesktop = window.innerWidth >= 1200;
+
+        // 檢查是否跨越了響應式斷點
+        if (prevIsDesktop !== currentIsDesktop) {
+          console.log(`🔄 HomeView: 響應式斷點切換 ${prevIsDesktop ? '桌面版→響應式' : '響應式→桌面版'}`);
+          handleScreenSizeChange();
+        } else {
+          // 同樣佈局模式下的大小變化，通知地圖重新計算尺寸
+          nextTick(() => {
+            setTimeout(() => {
+              if (currentIsDesktop && middlePanelRef.value) {
+                // 桌面版地圖尺寸調整
+                if (middlePanelRef.value.invalidateMapSize) {
+                  middlePanelRef.value.invalidateMapSize();
+                }
+              } else if (!currentIsDesktop && mobileUpperViewRef.value) {
+                // 響應式版本地圖尺寸調整
+                if (mobileUpperViewRef.value.invalidateMapSize) {
+                  mobileUpperViewRef.value.invalidateMapSize();
+                }
+              }
+            }, 100);
+          });
+        }
+
         nextTick(() => {
           // 只在 xl breakpoint 以上才計算 footer 高度
           if (appFooterRef.value && window.innerWidth >= 1200) {
@@ -462,19 +491,41 @@
 
       // 🔄 監聽螢幕大小變化，在桌面版和響應式版本切換時重新渲染地圖
       const handleScreenSizeChange = () => {
+        console.log('🔄 HomeView: 螢幕尺寸跨越斷點，重新初始化地圖');
+
         // 強制重新渲染響應式地圖
         mobileMapKey.value += 1;
 
-        // 也觸發桌面版地圖的重新渲染
+        // 延遲處理地圖尺寸重新計算，確保DOM完全更新
         nextTick(() => {
-          if (middlePanelRef.value) {
-            // 通知 MiddleView 重新渲染地圖
-            setTimeout(() => {
-              // 觸發地圖尺寸重新計算
-              const event = new Event('resize');
-              window.dispatchEvent(event);
-            }, 200);
-          }
+          setTimeout(() => {
+            const isDesktop = window.innerWidth >= 1200;
+
+            if (isDesktop) {
+              // 桌面版：處理 MiddleView 中的地圖
+              if (middlePanelRef.value) {
+                console.log('🖥️ HomeView: 切換到桌面版，處理 MiddleView 地圖');
+                // 通過 MiddleView 調用 UpperView 的地圖尺寸重新計算
+                if (middlePanelRef.value.invalidateMapSize) {
+                  middlePanelRef.value.invalidateMapSize();
+                }
+                // 觸發全域 resize 事件作為備用方案
+                setTimeout(() => {
+                  const event = new Event('resize');
+                  window.dispatchEvent(event);
+                }, 100);
+              }
+            } else {
+              // 響應式版本：處理 mobileUpperViewRef 中的地圖
+              if (mobileUpperViewRef.value) {
+                console.log('📱 HomeView: 切換到響應式版本，處理 UpperView 地圖');
+                // 直接調用 UpperView 的地圖尺寸重新計算
+                if (mobileUpperViewRef.value.invalidateMapSize) {
+                  mobileUpperViewRef.value.invalidateMapSize();
+                }
+              }
+            }
+          }, 300); // 增加延遲時間，確保佈局切換完成
         });
       };
 

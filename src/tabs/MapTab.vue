@@ -636,12 +636,37 @@
           nextTick(() => {
             // 等待 DOM 更新完成
             try {
+              // 檢查容器是否有效
+              if (mapContainer.value) {
+                const rect = mapContainer.value.getBoundingClientRect();
+                if (rect.width === 0 || rect.height === 0) {
+                  console.warn('🔄 地圖容器尺寸為零，嘗試重新初始化地圖');
+                  // 如果容器尺寸為零，嘗試重新初始化
+                  setTimeout(() => {
+                    if (mapContainer.value) {
+                      const newRect = mapContainer.value.getBoundingClientRect();
+                      if (newRect.width > 0 || newRect.height > 0) {
+                        mapInstance.invalidateSize();
+                        console.log('🗺️ 地圖尺寸已重新初始化');
+                      }
+                    }
+                  }, 100);
+                  return;
+                }
+              }
+
               mapInstance.invalidateSize(); // 刷新地圖尺寸
               console.log('🗺️ 地圖尺寸已刷新'); // 輸出成功訊息
             } catch (error) {
               console.error('❌ 刷新地圖尺寸時發生錯誤:', error); // 輸出錯誤訊息
             }
           });
+        } else if (!mapInstance) {
+          console.warn('🔄 地圖實例不存在，嘗試重新初始化');
+          // 如果地圖實例不存在，嘗試重新初始化
+          setTimeout(() => {
+            initMap();
+          }, 200);
         }
       };
 
