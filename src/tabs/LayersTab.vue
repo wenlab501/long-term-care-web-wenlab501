@@ -26,6 +26,7 @@
        * @param {string} layerId - 要切換的圖層 ID
        */
       const toggleLayer = (layerId) => {
+        console.log('🔘 LayersTab: 切換圖層', layerId);
         dataStore.toggleLayerVisibility(layerId);
       };
 
@@ -77,12 +78,11 @@
                     <input
                       type="checkbox"
                       :id="'switch-' + layer.layerId"
-                      :for="'switch-' + layer.layerId"
                       :checked="layer.visible"
                       :disabled="layer.isLoading"
                       @change="toggleLayer(layer.layerId)"
                     />
-                    <label for="switch"></label>
+                    <label :for="'switch-' + layer.layerId"></label>
                   </div>
                 </div>
                 <div v-if="layer.legendData && layer.visible" class="px-3 pb-2">

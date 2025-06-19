@@ -502,14 +502,17 @@ export const useDataStore = defineStore(
 
     // 控制圖層的顯示/隱藏，並在需要時自動載入資料
     const toggleLayerVisibility = async (layerId) => {
+      console.log('🔧 DataStore: toggleLayerVisibility 被調用', layerId);
       const layer = findLayerById(layerId);
       if (!layer) {
         console.error(`Layer with id "${layerId}" not found.`);
         return;
       }
 
+      console.log('🔧 DataStore: 找到圖層', layer.layerName, '當前狀態:', layer.visible);
       // 切換可見性狀態
       layer.visible = !layer.visible;
+      console.log('🔧 DataStore: 新狀態:', layer.visible);
 
       // 如果圖層被開啟且尚未載入，則載入資料
       if (layer.visible && !layer.isLoaded && !layer.isLoading) {
