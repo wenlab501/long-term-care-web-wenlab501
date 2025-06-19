@@ -7,6 +7,8 @@
   import LeftView from './LeftView.vue';
   import RightView from './RightView.vue';
   import MiddleView from './MiddleView.vue';
+  import UpperView from './UpperView.vue';
+  import ResponsiveLowerView from './ResponsiveLowerView.vue';
 
   export default {
     name: 'HomeView',
@@ -20,6 +22,8 @@
       LeftView, // 左側控制面板組件
       RightView, // 右側面板組件
       MiddleView, // 中間主要內容面板組件
+      UpperView, // 上半部區域組件
+      ResponsiveLowerView, // 下半部區域組件
     },
 
     /**
@@ -37,6 +41,8 @@
       // 📚 組件引用 (Component References)
       /** 🌟 中間面板組件引用 */
       const middlePanelRef = ref(null);
+      /** 📱 響應式上半部面板組件引用 */
+      const mobileUpperViewRef = ref(null);
       /** 🦶 頁腳元素引用 */
       const appFooterRef = ref(null);
 
@@ -47,6 +53,8 @@
       const activeBottomTab = ref('table');
       /** 📊 右側分頁狀態（屬性/分析） */
       const activeRightTab = ref('properties');
+      /** 📱 響應式下半部分頁狀態（行動版/平板版） */
+      const activeLowerTab = ref('layers');
 
       // 📏 面板大小狀態 (Panel Size States)
       // 使用百分比系統實現響應式佈局
@@ -248,8 +256,11 @@
         windowWidth.value = window.innerWidth;
         windowHeight.value = window.innerHeight;
         nextTick(() => {
-          if (appFooterRef.value) {
+          // 只在 xl breakpoint 以上才計算 footer 高度
+          if (appFooterRef.value && window.innerWidth >= 1200) {
             footerHeight.value = appFooterRef.value.offsetHeight;
+          } else {
+            footerHeight.value = 0;
           }
         });
       };
@@ -266,18 +277,33 @@
 
         // 初始化計算頁腳高度
         nextTick(() => {
-          if (appFooterRef.value) {
+          // 只在 xl breakpoint 以上才計算 footer 高度
+          if (appFooterRef.value && window.innerWidth >= 1200) {
             footerHeight.value = appFooterRef.value.offsetHeight;
+          } else {
+            footerHeight.value = 0;
           }
         });
-      });
 
-      /**
-       * 🗑️ 組件卸載事件 (Component Unmounted Event)
-       * 清理事件監聽器
-       */
-      onUnmounted(() => {
-        window.removeEventListener('resize', handleResize);
+        // 設置螢幕尺寸觀察器
+        if (window.ResizeObserver) {
+          screenSizeObserver = new ResizeObserver((entries) => {
+            for (let entry of entries) {
+              const { width } = entry.contentRect;
+              // 檢測是否跨越 xl breakpoint (1200px)
+              const isXlAndAbove = width >= 1200;
+              const wasXlAndAbove = entry.target.classList.contains('xl-and-above');
+
+              if (isXlAndAbove !== wasXlAndAbove) {
+                // 螢幕尺寸跨越了 xl breakpoint
+                entry.target.classList.toggle('xl-and-above', isXlAndAbove);
+                handleScreenSizeChange();
+              }
+            }
+          });
+
+          screenSizeObserver.observe(document.body);
+        }
       });
 
       // 📍 座標和標記更新函數 (Coordinate and Marker Update Functions)
@@ -325,13 +351,131 @@
 
         // 使用 nextTick 確保地圖組件已渲染完成
         nextTick(() => {
-          if (middlePanelRef.value) {
-            middlePanelRef.value.highlightFeature(highlightData);
+          // 檢查當前是桌面版還是響應式版本
+          const isDesktop = window.innerWidth >= 1200; // xl breakpoint
+
+          if (isDesktop) {
+            // 桌面版：使用 MiddleView
+            if (middlePanelRef.value) {
+              middlePanelRef.value.highlightFeature(highlightData);
+            } else {
+              console.error('❌ 無法高亮顯示: middlePanelRef 不可用');
+            }
           } else {
-            console.error('❌ 無法高亮顯示: middlePanelRef 不可用');
+            // 響應式版本：使用 UpperView
+            if (mobileUpperViewRef.value) {
+              mobileUpperViewRef.value.highlightFeature(highlightData);
+            } else {
+              console.error('❌ 無法高亮顯示: mobileUpperViewRef 不可用');
+            }
           }
         });
       };
+
+      // 📏 響應式垂直調整狀態
+      const mobileBottomViewHeight = ref(40); // vh 單位
+      const isVerticalDragging = ref(false);
+      const mobileMapKey = ref(0); // 強制重新渲染地圖的 key
+
+      /**
+       * 🔧 開始垂直調整大小 (Start Vertical Resize)
+       * 響應式布局中的垂直拖曳調整功能
+       * @param {MouseEvent} event - 滑鼠事件對象
+       */
+      const startVerticalResize = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        // 設定拖曳狀態
+        isVerticalDragging.value = true;
+        document.body.classList.add('my-no-select');
+
+        // 記錄初始位置和狀態
+        const startY = event.clientY;
+        const startBottomHeight = mobileBottomViewHeight.value;
+        const windowHeight = window.innerHeight;
+
+        console.log('🔧 HomeView - 開始垂直調整', {
+          startY,
+          startBottomHeight,
+          windowHeight,
+        });
+
+        /**
+         * 🖱️ 處理滑鼠移動事件
+         */
+        const handleMouseMove = (moveEvent) => {
+          moveEvent.preventDefault();
+          const deltaY = moveEvent.clientY - startY;
+
+          // 計算新的底部高度百分比
+          const deltaPercent = (deltaY / windowHeight) * 100;
+          let newHeight = startBottomHeight - deltaPercent;
+
+          // 限制在 0-100vh 範圍內，與桌面版一致
+          newHeight = Math.max(0, Math.min(100, newHeight));
+
+          mobileBottomViewHeight.value = Math.round(newHeight);
+        };
+
+        /**
+         * 🖱️ 處理滑鼠放開事件
+         */
+        const handleMouseUp = () => {
+          isVerticalDragging.value = false;
+          document.body.classList.remove('my-no-select');
+
+          document.removeEventListener('mousemove', handleMouseMove);
+          document.removeEventListener('mouseup', handleMouseUp);
+
+          console.log('🔧 HomeView - 垂直調整結束', {
+            finalHeight: mobileBottomViewHeight.value,
+          });
+        };
+
+        // 註冊全域事件監聽器
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+      };
+
+      // 🔄 監聽窗口大小變化並強制重新渲染響應式地圖
+      watch(windowHeight, () => {
+        // 延遲一點更新 key 來強制重新渲染地圖
+        setTimeout(() => {
+          mobileMapKey.value += 1;
+        }, 100);
+      });
+
+      // 🔄 監聽螢幕大小變化，在桌面版和響應式版本切換時重新渲染地圖
+      const handleScreenSizeChange = () => {
+        // 強制重新渲染響應式地圖
+        mobileMapKey.value += 1;
+
+        // 也觸發桌面版地圖的重新渲染
+        nextTick(() => {
+          if (middlePanelRef.value) {
+            // 通知 MiddleView 重新渲染地圖
+            setTimeout(() => {
+              // 觸發地圖尺寸重新計算
+              const event = new Event('resize');
+              window.dispatchEvent(event);
+            }, 200);
+          }
+        });
+      };
+
+      // 🔄 使用 ResizeObserver 監聽螢幕尺寸變化
+      let screenSizeObserver = null;
+
+      onUnmounted(() => {
+        // 清理事件監聽器
+        window.removeEventListener('resize', handleResize);
+
+        // 清理螢幕尺寸觀察器
+        if (screenSizeObserver) {
+          screenSizeObserver.disconnect();
+        }
+      });
 
       // 📤 返回響應式數據和函數給模板使用 (Return Reactive Data and Functions)
       return {
@@ -342,6 +486,7 @@
         activeUpperTab, // 主要分頁狀態
         activeBottomTab, // 底部分頁狀態
         activeRightTab, // 右側分頁狀態
+        activeLowerTab, // 響應式下半部分頁狀態
 
         // ⏳ 載入狀態
         isAnyLayerLoading, // 是否有圖層正在載入
@@ -376,11 +521,16 @@
 
         // 🔧 拖拽調整功能
         startResize, // 開始調整大小
+        startVerticalResize, // 開始垂直調整大小
         isSidePanelDragging, // 側邊面板拖曳狀態
+        isVerticalDragging, // 垂直拖曳狀態
+        mobileBottomViewHeight, // 響應式底部面板高度
+        mobileMapKey, // 響應式地圖重新渲染 key
         validatePanelSizes, // 驗證面板尺寸
 
         // 🛠️ 工具函數
         appFooterRef, // 頁腳引用
+        mobileUpperViewRef, // 響應式上半部面板引用
         calculatedMiddleViewHeight, // 計算的中間面板高度
         handleHighlight, // 處理高亮顯示
 
@@ -418,7 +568,8 @@
       <!-- 🏠 首頁內容區域 (Home Page Content Area) -->
       <!-- 空間分析平台的主要功能界面，使用響應式三面板佈局 -->
       <div v-if="$route.path === '/'" class="h-100 d-flex flex-column overflow-hidden">
-        <div class="d-flex flex-row overflow-hidden">
+        <!-- 🖥️ 桌面版佈局 (Desktop Layout - xl and above) -->
+        <div class="d-none d-xl-flex flex-row overflow-hidden h-100">
           <!-- 🎛️ 左側控制面板容器 (Left Control Panel Container) -->
           <!-- 包含圖層控制、資料載入等功能，支援動態寬度調整 -->
           <div
@@ -493,13 +644,69 @@
             />
           </div>
         </div>
+
+        <!-- 📱 行動版/平板版佈局 (Mobile/Tablet Layout - below xl) -->
+        <div class="d-flex d-xl-none flex-column overflow-hidden h-100">
+          <!-- 🌟 上半部區域 (Upper Area) - 只包含地圖和儀表板 -->
+          <div
+            class="flex-shrink-0 overflow-hidden d-flex flex-column"
+            :style="{ height: 100 - mobileBottomViewHeight + 'vh' }"
+            v-if="mobileBottomViewHeight < 100"
+          >
+            <UpperView
+              ref="mobileUpperViewRef"
+              :key="mobileMapKey"
+              :activeUpperTab="activeUpperTab"
+              :mainPanelWidth="100"
+              :contentHeight="(100 - mobileBottomViewHeight) * windowHeight * 0.01"
+              :showTainanLayer="showTainanLayer"
+              :selectedFilter="selectedFilter"
+              :zoomLevel="zoomLevel"
+              :isPanelDragging="isVerticalDragging"
+              :activeMarkers="activeMarkers"
+              @update:activeUpperTab="activeUpperTab = $event"
+              @update:zoomLevel="zoomLevel = $event"
+              @update:currentCoords="currentCoords = $event"
+              @update:activeMarkers="activeMarkers = $event"
+              @feature-selected="handleFeatureSelected"
+            />
+          </div>
+
+          <!-- 🔧 水平拖曳調整器 (Horizontal Resizer) -->
+          <div
+            class="my-resizer my-resizer-horizontal my-resizer-middle"
+            :class="{ 'my-dragging': isVerticalDragging }"
+            @mousedown="startVerticalResize"
+            title="拖曳調整底部面板高度"
+            v-if="mobileBottomViewHeight > 0 && mobileBottomViewHeight < 100"
+          ></div>
+
+          <!-- 📋 下半部區域 (Lower Area) - 包含所有其他 tabs -->
+          <div
+            class="flex-shrink-0 overflow-hidden"
+            :style="{ height: mobileBottomViewHeight + 'vh' }"
+            v-if="mobileBottomViewHeight > 0"
+          >
+            <ResponsiveLowerView
+              :activeTab="activeLowerTab"
+              :activeRightTab="activeRightTab"
+              :activeBottomTab="activeBottomTab"
+              @update:activeTab="activeLowerTab = $event"
+              @update:activeRightTab="activeRightTab = $event"
+              @update:activeBottomTab="activeBottomTab = $event"
+              @highlight-on-map="handleHighlight"
+              @highlight-feature="handleHighlight"
+            />
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- 🦶 頁腳區域 (Footer Area) -->
     <!-- 固定高度 footer，提供版權資訊和技術鳴謝 -->
+    <!-- 只在 xl breakpoint 以上顯示 -->
     <footer
-      class="d-flex justify-content-between my-app-footer bg-dark text-light p-2"
+      class="d-none d-xl-flex justify-content-between my-app-footer bg-dark text-light p-2"
       ref="appFooterRef"
     >
       <small>臺灣大學地理環境資源學系</small>

@@ -73,7 +73,7 @@
                     </span>
                   </div>
                   <!-- 切換圖層可見性 -->
-                  <div class="d-none d-lg-flex align-items-center justify-content-center px-3 py-2">
+                  <div class="d-flex align-items-center justify-content-center px-3 py-2">
                     <input
                       type="checkbox"
                       :id="'switch-' + layer.layerId"

@@ -128,6 +128,14 @@
           if (props.activeUpperTab === 'map' && MapTab.value) {
             // 🗺️ 重新計算地圖大小，適應新的容器尺寸
             MapTab.value.invalidateSize();
+
+            // 響應式布局中額外的地圖刷新
+            setTimeout(() => {
+              if (MapTab.value) {
+                MapTab.value.invalidateSize();
+                console.log('🗺️ UpperView: Extra map size invalidation for responsive layout');
+              }
+            }, 200);
           }
           // Dashboard現在是純文字統計，不需要重新計算圖表大小
         });

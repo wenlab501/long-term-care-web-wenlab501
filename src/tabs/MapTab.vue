@@ -46,6 +46,8 @@
 
       // 🎛️ 地圖控制狀態 (Map Control States)
       const isMapReady = ref(false); // 地圖是否已準備就緒的狀態標記
+      /** 🗺️ 動態地圖容器 ID（避免多實例衝突） */
+      const mapContainerId = ref(`leaflet-map-${Math.random().toString(36).substr(2, 9)}`);
 
       // 📊 計算屬性：檢查是否有任何圖層可見 (Computed Property: Check if Any Layer is Visible)
       const isAnyLayerVisible = computed(
@@ -758,6 +760,7 @@
       // 📤 返回組件公開的屬性和方法 (Return Component Public Properties and Methods)
       return {
         mapContainer, // 地圖容器 DOM 元素引用
+        mapContainerId, // 動態地圖容器 ID
         selectedBasemap: computed(() => defineStore.selectedBasemap), // 選定的底圖類型響應式變數
         changeBasemap, // 切換底圖函數
         getBasemapLabel, // 獲取底圖標籤函數
@@ -777,7 +780,7 @@
   <div id="map-container" class="h-100 w-100 position-relative">
     <!-- 🗺️ Leaflet 地圖容器 (Leaflet Map Container) -->
     <!-- 這是 Leaflet 地圖實際渲染的 DOM 元素 -->
-    <div id="leaflet-map" ref="mapContainer" class="h-100 w-100"></div>
+    <div :id="mapContainerId" ref="mapContainer" class="h-100 w-100"></div>
 
     <!-- 地圖底部控制項區域 -->
     <div
@@ -831,7 +834,7 @@
   }
 
   /* 🗺️ Leaflet 地圖容器樣式 (Leaflet Map Container Styles) */
-  #leaflet-map {
+  [id^='leaflet-map'] {
     /* 移除 min-height 限制，讓地圖能自由縮放 */
     width: 100% !important; /* 強制寬度100% */
     height: 100% !important; /* 強制高度100% */
