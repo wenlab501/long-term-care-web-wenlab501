@@ -291,6 +291,15 @@
           } else {
             footerHeight.value = 0;
           }
+
+          // 檢查響應式底部面板高度是否仍然符合最小要求
+          if (!currentIsDesktop) {
+            const minHeight = calculateMinBottomHeight();
+            if (mobileBottomViewHeight.value < minHeight) {
+              mobileBottomViewHeight.value = Math.round(minHeight);
+              console.log(`🔧 HomeView: 視窗大小變化，調整底部面板最小高度至 ${mobileBottomViewHeight.value}vh`);
+            }
+          }
         });
       };
 
@@ -416,14 +425,24 @@
       };
 
       // 📏 響應式垂直調整狀態
-      const mobileBottomViewHeight = ref(40); // vh 單位
+      /**
+       * 📏 計算底部面板最小高度百分比 (Calculate Minimum Bottom Panel Height Percentage)
+       * 確保底部導航按鈕始終可見
+       */
+      const calculateMinBottomHeight = () => {
+        const minNavigationHeight = 100; // px (基本高度 80px + 安全區域 20px)
+        const currentWindowHeight = window.innerHeight;
+        return Math.max(10, (minNavigationHeight / currentWindowHeight) * 100); // 最小 10vh，確保基本可用性
+      };
+
+      const mobileBottomViewHeight = ref(Math.max(40, calculateMinBottomHeight())); // vh 單位，確保不小於最小高度
       const isVerticalDragging = ref(false);
       const mobileMapKey = ref(0); // 強制重新渲染地圖的 key
 
       /**
        * 🔧 開始垂直調整大小 (Start Vertical Resize)
-       * 響應式布局中的垂直拖曳調整功能
-       * @param {MouseEvent} event - 滑鼠事件對象
+       * 響應式布局中的垂直拖曳調整功能，支援滑鼠和觸控操作
+       * @param {MouseEvent|TouchEvent} event - 滑鼠或觸控事件對象
        */
       const startVerticalResize = (event) => {
         event.preventDefault();
@@ -433,8 +452,12 @@
         isVerticalDragging.value = true;
         document.body.classList.add('my-no-select');
 
+        // 判斷是觸控還是滑鼠事件
+        const isTouch = event.type.startsWith('touch');
+        const clientY = isTouch ? event.touches[0].clientY : event.clientY;
+
         // 記錄初始位置和狀態
-        const startY = event.clientY;
+        const startY = clientY;
         const startBottomHeight = mobileBottomViewHeight.value;
         const windowHeight = window.innerHeight;
 
@@ -442,43 +465,64 @@
           startY,
           startBottomHeight,
           windowHeight,
+          isTouch,
         });
 
-        /**
-         * 🖱️ 處理滑鼠移動事件
+                /**
+         * 🖱️ 處理移動事件（滑鼠或觸控）
          */
-        const handleMouseMove = (moveEvent) => {
+        const handleMove = (moveEvent) => {
           moveEvent.preventDefault();
-          const deltaY = moveEvent.clientY - startY;
+
+          const currentY = moveEvent.type.startsWith('touch')
+            ? moveEvent.touches[0].clientY
+            : moveEvent.clientY;
+
+          const deltaY = currentY - startY;
 
           // 計算新的底部高度百分比
           const deltaPercent = (deltaY / windowHeight) * 100;
           let newHeight = startBottomHeight - deltaPercent;
 
-          // 限制在 0-100vh 範圍內，與桌面版一致
-          newHeight = Math.max(0, Math.min(100, newHeight));
+          // 使用動態計算的最小高度，確保底部按鈕始終可見
+          const minHeightPercent = calculateMinBottomHeight();
+
+          // 限制在最小高度到100vh範圍內，確保底部按鈕始終可見
+          newHeight = Math.max(minHeightPercent, Math.min(100, newHeight));
 
           mobileBottomViewHeight.value = Math.round(newHeight);
         };
 
         /**
-         * 🖱️ 處理滑鼠放開事件
+         * 🖱️ 處理結束事件（滑鼠放開或觸控結束）
          */
-        const handleMouseUp = () => {
+        const handleEnd = () => {
           isVerticalDragging.value = false;
           document.body.classList.remove('my-no-select');
 
-          document.removeEventListener('mousemove', handleMouseMove);
-          document.removeEventListener('mouseup', handleMouseUp);
+          // 移除滑鼠事件監聽器
+          document.removeEventListener('mousemove', handleMove);
+          document.removeEventListener('mouseup', handleEnd);
+
+          // 移除觸控事件監聽器
+          document.removeEventListener('touchmove', handleMove);
+          document.removeEventListener('touchend', handleEnd);
+          document.removeEventListener('touchcancel', handleEnd);
 
           console.log('🔧 HomeView - 垂直調整結束', {
             finalHeight: mobileBottomViewHeight.value,
           });
         };
 
-        // 註冊全域事件監聽器
-        document.addEventListener('mousemove', handleMouseMove);
-        document.addEventListener('mouseup', handleMouseUp);
+        // 註冊事件監聽器（同時支援滑鼠和觸控）
+        if (isTouch) {
+          document.addEventListener('touchmove', handleMove, { passive: false });
+          document.addEventListener('touchend', handleEnd);
+          document.addEventListener('touchcancel', handleEnd);
+        } else {
+          document.addEventListener('mousemove', handleMove);
+          document.addEventListener('mouseup', handleEnd);
+        }
       };
 
       // 🔄 監聽窗口大小變化並強制重新渲染響應式地圖
@@ -742,6 +786,7 @@
             class="my-resizer my-resizer-horizontal my-resizer-middle"
             :class="{ 'my-dragging': isVerticalDragging }"
             @mousedown="startVerticalResize"
+            @touchstart="startVerticalResize"
             title="拖曳調整底部面板高度"
             v-if="mobileBottomViewHeight > 0 && mobileBottomViewHeight < 100"
           ></div>
