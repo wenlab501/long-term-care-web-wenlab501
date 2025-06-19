@@ -81,21 +81,11 @@
         return {
           'background-color': '#eeeeee',
           'border-top': '1px solid #e0e0e0',
-          'position': 'fixed',
-          'bottom': '0',
-          'left': '0',
-          'right': '0',
           'z-index': '9999',
           'min-height': `${baseHeight}px`,
           'height': `${baseHeight + extraPadding}px`,
           'padding': `8px 4px ${extraPadding}px 4px`,
           'box-shadow': '0 -2px 8px rgba(0, 0, 0, 0.1)',
-          'display': 'flex',
-          'align-items': 'center',
-          'justify-content': 'space-between',
-          'width': '100%',
-          'box-sizing': 'border-box',
-          'flex-shrink': '0',
         };
       });
 
@@ -183,7 +173,10 @@
     </div>
 
     <!-- 📑 分頁導航 (Tab Navigation) - 固定在底部，動態適應瀏覽器界面 -->
-    <div :style="getBottomNavStyle">
+    <div
+      class="position-fixed bottom-0 start-0 end-0 d-flex align-items-center justify-content-between w-100"
+      :style="getBottomNavStyle"
+    >
       <button
         v-for="tab in availableTabs"
         :key="tab.id"
