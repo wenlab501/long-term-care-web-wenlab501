@@ -1196,6 +1196,15 @@
     cursor: crosshair !important;
   }
 
+  /* 🖱️ 點選模式下按鈕仍保持手型游標 (Buttons Keep Pointer Cursor in Click Mode) */
+  .click-mode-active .map-bottom-controls .btn {
+    cursor: pointer !important;
+  }
+
+  .click-mode-active .map-bottom-controls .dropdown-item {
+    cursor: pointer !important;
+  }
+
   /* 🎯 分析點圖標樣式 (Analysis Point Icon Styles) */
   :deep(.analysis-point-icon) {
     background: transparent !important;

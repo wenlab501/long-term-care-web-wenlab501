@@ -718,7 +718,7 @@ export const useDataStore = defineStore(
       analysisLayer.tableData = analysisCircles.map((feature) => ({
         '#': feature.properties.id,
         '名稱': feature.properties.name,
-        '範圍內點數': feature.properties.pointsInRange.length,
+        '範圍內點位數': feature.properties.pointsInRange.length,
         '範圍內面域數': feature.properties.polygonInRange.length,
       }));
     };
@@ -777,7 +777,7 @@ export const useDataStore = defineStore(
           // 添加 propertyData 供 PropertiesTab 使用
           propertyData: {
             名稱: featureName,
-            範圍內點數: pointsInRange.length,
+            範圍內點位數: pointsInRange.length,
             範圍內多邊形數: polygonInRange.length,
           }
         }
@@ -804,7 +804,7 @@ export const useDataStore = defineStore(
       // 更新圖層統計和表格數據
       updateAnalysisLayerData(analysisLayer);
 
-      // 🎯 輸出範圍內點物件的詳細信息
+      // 🎯 輸出範圍內點位物件的詳細信息
       // if (pointsInRange.length > 0) {
       //   console.log('🎯 範圍內的點物件:', pointsInRange);
       // }
