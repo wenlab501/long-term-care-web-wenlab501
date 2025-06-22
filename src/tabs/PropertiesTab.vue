@@ -84,12 +84,53 @@
       });
 
       /**
+       * 🏢 範圍內多邊形清單 (Polygon In Range List)
+       * 獲取分析圖層物件範圍內的多邊形清單
+       */
+      const polygonInRange = computed(() => {
+        if (!isAnalysisObject.value) return [];
+        return selectedFeature.value?.properties?.polygonInRange || [];
+      });
+
+      /**
+       * 📋 範圍內所有物件清單 (All Objects In Range List)
+       * 整合點物件和多邊形物件的統一清單
+       */
+      const allObjectsInRange = computed(() => {
+        const points = pointsInRange.value.map(obj => ({ ...obj, objectType: 'point' }));
+        const polygons = polygonInRange.value.map(obj => ({ ...obj, objectType: 'polygon' }));
+        return [...points, ...polygons];
+      });
+
+      /**
        * 📊 圖層統計 (Layer Statistics)
-       * 獲取範圍內各圖層的統計信息
+       * 獲取範圍內各圖層的統計信息（點物件）
        */
       const layerStats = computed(() => {
         if (!isAnalysisObject.value) return {};
         return selectedFeature.value?.properties?.layerStats || {};
+      });
+
+      /**
+       * 🏢 多邊形圖層統計 (Polygon Layer Statistics)
+       * 獲取範圍內各圖層的統計信息（多邊形物件）
+       */
+      const polygonStats = computed(() => {
+        if (!isAnalysisObject.value) return {};
+        return selectedFeature.value?.properties?.polygonStats || {};
+      });
+
+      /**
+       * 📊 整合統計 (Combined Statistics)
+       * 整合點物件和多邊形物件的統計
+       */
+      const combinedStats = computed(() => {
+        const combined = { ...layerStats.value };
+        Object.entries(polygonStats.value).forEach(([layerName, count]) => {
+          const key = `${layerName} (多邊形)`;
+          combined[key] = count;
+        });
+        return combined;
       });
 
       // 📤 返回響應式數據給模板使用
@@ -100,7 +141,11 @@
         hasProperties, // 是否有屬性
         isAnalysisObject, // 是否為分析圖層物件
         pointsInRange, // 範圍內點清單
-        layerStats, // 圖層統計
+        polygonInRange, // 範圍內多邊形清單
+        allObjectsInRange, // 範圍內所有物件清單
+        layerStats, // 點圖層統計
+        polygonStats, // 多邊形圖層統計
+        combinedStats, // 整合統計
       };
     },
 
@@ -134,12 +179,8 @@
           '中心緯度': '中心緯度',
           '中心經度': '中心經度',
           '分析半徑': '分析半徑',
-          '半徑': '半徑',
-          '覆蓋面積': '覆蓋面積',
-          '面積': '面積',
           '建立時間': '建立時間',
           '關聯分析點': '關聯分析點',
-          '狀態': '狀態',
         };
         return labelMap[key] || key;
       },
@@ -185,19 +226,16 @@
           </template>
           <div v-else class="">此物件沒有屬性資料</div>
 
-          <!-- 🎯 分析圖層專用：範圍內點清單 -->
-          <template v-if="isAnalysisObject && pointsInRange.length > 0">
+                    <!-- 🎯 分析圖層專用：範圍內物件清單 -->
+          <template v-if="isAnalysisObject && (pointsInRange.length > 0 || polygonInRange.length > 0)">
             <hr class="my-3">
-            <h6 class="mb-3 text-primary">
-              <i class="fas fa-list me-2"></i>範圍內點物件清單 ({{ pointsInRange.length }} 個)
-            </h6>
 
             <!-- 📊 各圖層統計摘要 -->
-            <div v-if="Object.keys(layerStats).length > 0" class="mb-3">
+            <div v-if="Object.keys(combinedStats).length > 0" class="mb-3">
               <div class="small text-muted mb-2">各圖層統計：</div>
               <div class="d-flex flex-wrap gap-1">
                 <span
-                  v-for="(count, layerName) in layerStats"
+                  v-for="(count, layerName) in combinedStats"
                   :key="layerName"
                   class="badge bg-secondary"
                 >
@@ -206,36 +244,75 @@
               </div>
             </div>
 
-            <!-- 📍 點物件詳細清單 -->
-            <div class="border rounded p-2" style="max-height: 300px; overflow-y: auto;">
-                            <div
-                v-for="(point, index) in pointsInRange"
-                :key="index"
-                class="pb-2 mb-2"
-                :class="{ 'border-bottom': index < pointsInRange.length - 1 }"
-              >
-                <div class="d-flex justify-content-between align-items-start">
-                  <div class="flex-grow-1">
-                    <div class="fw-semibold small">{{ point.name }}</div>
-                    <div class="text-muted small">{{ point.layerName }}</div>
-                    <div class="text-muted small">
-                      座標: {{ point.lat.toFixed(4) }}, {{ point.lng.toFixed(4) }}
+            <!-- 📍 點物件清單 -->
+            <template v-if="pointsInRange.length > 0">
+              <h6 class="mb-3 text-primary">
+                <i class="fas fa-map-marker-alt me-2"></i>範圍內點物件 ({{ pointsInRange.length }} 個)
+              </h6>
+              <div class="border rounded p-2 mb-3" style="max-height: 200px; overflow-y: auto;">
+                <div
+                  v-for="(point, index) in pointsInRange"
+                  :key="index"
+                  class="pb-2 mb-2"
+                  :class="{ 'border-bottom': index < pointsInRange.length - 1 }"
+                >
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="fw-semibold small">{{ point.properties.name || point.properties.id || '未命名' }}</div>
+                        <span class="badge bg-primary small">點</span>
+                      </div>
+                      <div class="text-muted small">{{ point.layerName }}</div>
+                      <div class="text-muted small">
+                        座標: {{ point.geometry.coordinates[1].toFixed(4) }}, {{ point.geometry.coordinates[0].toFixed(4) }}
+                      </div>
                     </div>
-                  </div>
-                  <div class="text-end">
-                    <span class="badge bg-info">{{ point.distance }}m</span>
+                    <div class="text-end">
+                      <span class="badge bg-info">{{ point.distance }}m</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </template>
+
+            <!-- 🏢 多邊形物件清單 -->
+            <template v-if="polygonInRange.length > 0">
+              <h6 class="mb-3 text-success">
+                <i class="fas fa-vector-square me-2"></i>範圍內多邊形物件 ({{ polygonInRange.length }} 個)
+              </h6>
+              <div class="border rounded p-2" style="max-height: 200px; overflow-y: auto;">
+                <div
+                  v-for="(polygon, index) in polygonInRange"
+                  :key="index"
+                  class="pb-2 mb-2"
+                  :class="{ 'border-bottom': index < polygonInRange.length - 1 }"
+                >
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="fw-semibold small">{{ polygon.properties.name || polygon.properties.id || polygon.properties.PTVNAME || '未命名' }}</div>
+                        <span class="badge bg-success small">多邊形</span>
+                      </div>
+                      <div class="text-muted small">{{ polygon.layerName }}</div>
+                      <div class="text-muted small">
+                        類型: {{ polygon.geometry.type }}
+                      </div>
+                    </div>
+                    <div class="text-end">
+                      <span class="badge bg-warning">重疊</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
           </template>
 
-          <!-- 🎯 分析圖層但無範圍內點物件 -->
-          <template v-else-if="isAnalysisObject && pointsInRange.length === 0">
+          <!-- 🎯 分析圖層但無範圍內物件 -->
+          <template v-else-if="isAnalysisObject && pointsInRange.length === 0 && polygonInRange.length === 0">
             <hr class="my-3">
             <div class="text-muted text-center py-3">
               <i class="fas fa-info-circle me-2"></i>
-              此分析範圍內沒有找到任何點物件
+              此分析範圍內沒有找到任何物件
             </div>
           </template>
         </div>

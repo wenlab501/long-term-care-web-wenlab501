@@ -30,38 +30,6 @@ export const useDataStore = defineStore(
   () => {
     const layers = ref([
       {
-        groupName: '數據分析',
-        groupLayers: [
-          {
-            layerId: 'analysis-layer',
-            layerName: '數據分析圖層',
-            visible: true, // 預設開啟
-            isLoading: false,
-            isLoaded: true, // 始終載入
-            type: 'analysis',
-            shape: 'mixed',
-            colorName: 'red',
-            geoJsonData: {
-              type: 'FeatureCollection',
-              features: []
-            },
-            summaryData: {
-              totalCount: 0,
-              type: '分析點',
-              description: '共 0 個分析點，每個點包含 2 公里分析範圍',
-              lastUpdated: new Date().toISOString(),
-              coverage: '0 平方公里'
-            },
-            tableData: [],
-            legendData: null,
-            loader: null, // 不需要載入器
-            fileName: null,
-            fieldName: null,
-            isAnalysisLayer: true, // 標記為分析圖層
-          },
-        ],
-      },
-      {
         groupName: '老人福利機構',
         groupLayers: [
           {
@@ -509,6 +477,38 @@ export const useDataStore = defineStore(
           },
         ],
       },
+      {
+        groupName: '數據分析',
+        groupLayers: [
+          {
+            layerId: 'analysis-layer',
+            layerName: '數據分析圖層',
+            visible: true, // 預設開啟
+            isLoading: false,
+            isLoaded: true, // 始終載入
+            type: 'analysis',
+            shape: 'mixed',
+            colorName: 'red',
+            geoJsonData: {
+              type: 'FeatureCollection',
+              features: []
+            },
+            summaryData: {
+              totalCount: 0,
+              type: '分析點',
+              description: '共 0 個分析點，每個點包含 2 公里分析範圍',
+              lastUpdated: new Date().toISOString(),
+              coverage: '0 平方公里'
+            },
+            tableData: [],
+            legendData: null,
+            loader: null, // 不需要載入器
+            fileName: null,
+            fieldName: null,
+            isAnalysisLayer: true, // 標記為分析圖層
+          },
+        ],
+      },
     ]);
 
     // 在新的分組結構中搜尋指定 ID 的圖層
@@ -622,16 +622,14 @@ export const useDataStore = defineStore(
               const distance = calculateDistance(centerLat, centerLng, lat, lng);
 
               if (distance <= radiusMeters) {
-                pointsInRange.push({
+                // 創建增強的 feature 物件，包含距離和圖層資訊
+                const enhancedFeature = {
+                  ...feature, // 保留原始 feature 的所有屬性
                   layerId: layer.layerId,
                   layerName: layer.layerName,
-                  featureId: feature.properties.id || feature.properties.name || '未知',
-                  name: feature.properties.name || feature.properties.id || '未命名',
-                  lat: lat,
-                  lng: lng,
-                  distance: Math.round(distance), // 四捨五入到公尺
-                  properties: feature.properties
-                });
+                  distance: Math.round(distance) // 添加距離資訊
+                };
+                pointsInRange.push(enhancedFeature);
               }
             }
           });
@@ -645,36 +643,81 @@ export const useDataStore = defineStore(
       return pointsInRange;
     };
 
+    const calculatePolygonInRange = (centerLat, centerLng, radiusMeters = 2000) => {
+      const polygonInRange = [];
+
+      // 獲取所有可見且已載入的區域類型圖層
+      const visiblePolygonLayers = getAllLayers().filter(layer =>
+        layer.visible &&
+        layer.isLoaded &&
+        layer.type === 'polygon' &&
+        !layer.isAnalysisLayer &&
+        layer.geoJsonData
+      );
+
+      console.log('🔍 檢查可見的多邊形圖層:', visiblePolygonLayers.map(l => l.layerName));
+
+      visiblePolygonLayers.forEach(layer => {
+        if (layer.geoJsonData && layer.geoJsonData.features) {
+          layer.geoJsonData.features.forEach(feature => {
+            if (feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon') {
+              // 檢查多邊形是否與圓圈有重疊
+              const hasOverlap = checkPolygonCircleOverlap(feature.geometry, centerLat, centerLng, radiusMeters);
+
+              if (hasOverlap) {
+                // 創建增強的 feature 物件，包含圖層資訊
+                const enhancedFeature = {
+                  ...feature, // 保留原始 feature 的所有屬性
+                  layerId: layer.layerId,
+                  layerName: layer.layerName,
+                  overlapType: 'intersects' // 標記為相交
+                };
+                polygonInRange.push(enhancedFeature);
+              }
+            }
+          });
+        }
+      });
+
+      console.log(`🎯 在 ${radiusMeters/1000}公里範圍內找到 ${polygonInRange.length} 個重疊多邊形`);
+      return polygonInRange;
+    };
+
+    // 檢查多邊形與圓圈是否重疊的函數
+    const checkPolygonCircleOverlap = (geometry, centerLat, centerLng, radiusMeters) => {
+      const coordinates = geometry.type === 'Polygon' ? [geometry.coordinates] : geometry.coordinates;
+
+      for (const polygon of coordinates) {
+        for (const ring of polygon) {
+          for (const [lng, lat] of ring) {
+            const distance = calculateDistance(centerLat, centerLng, lat, lng);
+            if (distance <= radiusMeters) {
+              return true; // 如果任何一個頂點在圓內，就認為有重疊
+            }
+          }
+        }
+      }
+
+      // 也可以檢查圓心是否在多邊形內，但這裡簡化處理
+      return false;
+    };
+
         // 分析圖層管理方法
     const updateAnalysisLayerData = (analysisLayer) => {
-      // 獲取所有分析點
-      const analysisPoints = analysisLayer.geoJsonData.features.filter(
-        f => f.properties.type === 'analysis-point'
+      // 獲取所有分析圓圈
+      const analysisCircles = analysisLayer.geoJsonData.features.filter(
+        f => f.properties.type === 'analysis-circle'
       );
 
       // 更新 summaryData
       analysisLayer.summaryData = {
-        totalCount: analysisPoints.length,
-        type: '分析點',
-        description: `共 ${analysisPoints.length} 個分析點，每個點包含 2 公里分析範圍`,
-        lastUpdated: new Date().toISOString(),
-        coverage: `${analysisPoints.length * 12.57} 平方公里（假設無重疊）` // 每個圓圈約 12.57 平方公里
+        totalCount: analysisCircles.length,
       };
 
       // 更新 tableData
-      analysisLayer.tableData = analysisPoints.map((feature, index) => ({
+      analysisLayer.tableData = analysisCircles.map((feature) => ({
         '#': feature.properties.id,
-        '編號': index + 1,
-        '名稱': feature.properties.name,
-        '緯度': feature.properties.lat.toFixed(6),
-        '經度': feature.properties.lng.toFixed(6),
-        '分析半徑': '2 公里',
-        '覆蓋面積': '12.57 平方公里',
-        '建立時間': new Date(feature.properties.id).toLocaleString('zh-TW'),
-        '狀態': '已建立',
-        '範圍內點數': feature.properties.pointsInRange ? feature.properties.pointsInRange.length : 0,
-        id: feature.properties.id,
-        layerId: 'analysis-layer'
+        '範圍內點數': feature.properties.pointsInRange.length,
       }));
     };
 
@@ -682,25 +725,36 @@ export const useDataStore = defineStore(
       const analysisLayer = findLayerById('analysis-layer');
       if (!analysisLayer) return;
 
-      const pointId = Date.now(); // 使用時間戳作為唯一ID
-      const pointNumber = analysisLayer.geoJsonData.features.filter(
-        f => f.properties.type === 'analysis-point'
+      const pointId = analysisLayer.geoJsonData.features.filter(
+        f => f.properties.type === 'point-analysis'
       ).length + 1;
 
       // 🎯 計算範圍內的點物件
       const pointsInRange = calculatePointsInRange(lat, lng, 2000);
 
+      // 🎯 計算範圍內的多邊形物件
+      const polygonInRange = calculatePolygonInRange(lat, lng, 2000);
+
       // 📊 統計各圖層的點數
       const layerStats = {};
-      pointsInRange.forEach(point => {
-        if (!layerStats[point.layerName]) {
-          layerStats[point.layerName] = 0;
+      pointsInRange.forEach(feature => {
+        if (!layerStats[feature.layerName]) {
+          layerStats[feature.layerName] = 0;
         }
-        layerStats[point.layerName]++;
+        layerStats[feature.layerName]++;
       });
 
-      // 創建分析點要素
-      const pointFeature = {
+      // 📊 統計各圖層的多邊形數
+      const polygonStats = {};
+      polygonInRange.forEach(feature => {
+        if (!polygonStats[feature.layerName]) {
+          polygonStats[feature.layerName] = 0;
+        }
+        polygonStats[feature.layerName]++;
+      });
+
+      // 創建圓圈要素（主要交互物件）
+      const circleFeature = {
         type: 'Feature',
         geometry: {
           type: 'Point',
@@ -709,83 +763,53 @@ export const useDataStore = defineStore(
         properties: {
           id: pointId,
           layerId: 'analysis-layer', // 添加圖層ID
-          type: 'analysis-point',
-          name: `分析點 ${pointNumber}`,
-          lat: lat,
-          lng: lng,
-          radius: 2000, // 2公里半徑
-          pointsInRange: pointsInRange, // 存儲範圍內的點物件清單
+          type: 'analysis-circle',
+          name: `分析範圍 ${pointId}`,
+          radius: 2000,
+          pointsInRange: pointsInRange, // 存儲範圍內的點物件
+          polygonInRange: polygonInRange, // 存儲範圍內的多邊形物件
           layerStats: layerStats, // 存儲各圖層統計
+          polygonStats: polygonStats, // 存儲各多邊形圖層統計
           // 添加 propertyData 供 PropertiesTab 使用
           propertyData: {
-            '分析點名稱': `分析點 ${pointNumber}`,
-            '緯度': lat.toFixed(6),
-            '經度': lng.toFixed(6),
-            '分析半徑': '2 公里',
-            '覆蓋面積': '12.57 平方公里',
             '範圍內總點數': pointsInRange.length,
-            ...Object.fromEntries(
-              Object.entries(layerStats).map(([layerName, count]) =>
-                [`${layerName}數量`, count]
-              )
-            ),
-            '建立時間': new Date().toLocaleString('zh-TW'),
-            '狀態': '已建立'
+            '範圍內總多邊形數': polygonInRange.length,
           }
         }
       };
 
-      // 創建圓圈要素
-      const circleFeature = {
+      // 創建分析點要素（僅用於顯示位置標記）
+      const pointFeature = {
         type: 'Feature',
         geometry: {
           type: 'Point',
           coordinates: [lng, lat]
         },
         properties: {
-          id: pointId + '_circle',
-          layerId: 'analysis-layer', // 添加圖層ID
-          type: 'analysis-circle',
-          parentId: pointId,
-          name: `分析範圍 ${pointNumber}`,
-          radius: 2000,
-          pointsInRange: pointsInRange, // 也在圓圈中存儲範圍內的點物件
-          // 添加 propertyData 供 PropertiesTab 使用
-          propertyData: {
-            '分析範圍名稱': `分析範圍 ${pointNumber}`,
-            '中心緯度': lat.toFixed(6),
-            '中心經度': lng.toFixed(6),
-            '半徑': '2 公里',
-            '面積': '12.57 平方公里',
-            '範圍內總點數': pointsInRange.length,
-            '關聯分析點': `分析點 ${pointNumber}`,
-          }
+          id: `${pointId}_analysis_point`,
+          layerId: 'analysis-layer',
+          type: 'point-analysis',
+          parentId: pointId
         }
       };
 
-      // 添加到分析圖層
+      // 添加到分析圖層（點在前，圓圈在後，這樣圓圈會在下層）
       analysisLayer.geoJsonData.features.push(pointFeature, circleFeature);
 
       // 更新圖層統計和表格數據
       updateAnalysisLayerData(analysisLayer);
 
-      console.log('📍 添加分析點到圖層系統:', {
-        lat,
-        lng,
-        pointId,
-        pointsInRange: pointsInRange.length,
-        layerStats
-      });
-
       // 🎯 輸出範圍內點物件的詳細信息
-      if (pointsInRange.length > 0) {
-        console.log('🎯 範圍內的點物件:', pointsInRange);
-      }
+      // if (pointsInRange.length > 0) {
+      //   console.log('🎯 範圍內的點物件:', pointsInRange);
+      // }
 
       return {
         pointId,
         pointsInRange,
-        layerStats
+        polygonInRange,
+        layerStats,
+        polygonStats
       };
     };
 
@@ -806,12 +830,12 @@ export const useDataStore = defineStore(
       const analysisLayer = findLayerById('analysis-layer');
       if (!analysisLayer || !analysisLayer.geoJsonData) return;
 
-      // 過濾掉指定的分析點和其對應的圓圈
+      // 過濾掉指定的分析圓圈和其對應的點
       analysisLayer.geoJsonData.features = analysisLayer.geoJsonData.features.filter(
         feature => {
-          const isTargetPoint = feature.properties.type === 'analysis-point' && feature.properties.id === pointId;
-          const isTargetCircle = feature.properties.type === 'analysis-circle' && feature.properties.parentId === pointId;
-          return !isTargetPoint && !isTargetCircle;
+          const isTargetCircle = feature.properties.type === 'analysis-circle' && feature.properties.id === pointId;
+          const isTargetPoint = feature.properties.type === 'point-analysis' && feature.properties.parentId === pointId;
+          return !isTargetCircle && !isTargetPoint;
         }
       );
 
@@ -832,8 +856,8 @@ export const useDataStore = defineStore(
       addAnalysisPoint, // 添加分析點
       clearAnalysisLayer, // 清除分析圖層
       deleteAnalysisPoint, // 刪除單個分析點
-      calculatePointsInRange, // 計算範圍內的點物件
-      calculateDistance, // 計算兩點間距離
+      calculatePointsInRange, // 計算範圍內的點
+      calculatePolygonInRange, // 計算範圍內的多邊形
       visibleLayers: computed(() => getAllLayers().filter((layer) => layer.visible)),
       loadingLayers: computed(() => getAllLayers().filter((layer) => layer.isLoading)),
     };
