@@ -252,13 +252,13 @@
           // 樣式設定函數
           style: (feature) => {
             // 只有polygon返回預設樣式物件
-            if (feature.properties.fillColor) {
+            if (layer.type == 'polygon') { //if (feature.properties.fillColor) {
               return {
                 fillColor: feature.properties.fillColor, // 填充顏色
                 weight: 1, // 邊框粗細
                 opacity: 1, // 邊框透明度
-                color: 'white', // 邊框顏色
-                fillOpacity: 0.6, // 填充透明度
+                color: feature.properties.color || 'white', // 邊框顏色
+                fillOpacity: feature.properties.fillColor ? 0.6 : 0, // 填充透明度
               };
             }
           },

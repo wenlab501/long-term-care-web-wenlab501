@@ -1815,8 +1815,8 @@ export async function loadPopulation3LevelsGeoJson(layer) {
     // ----------------------------
 
     // 您想使用的顏色數量
-    const numColors = 10;
-    const colors = d3.schemeRdBu[numColors];
+    const numColors = 5;
+    const colors = d3.range(numColors).map(i => d3.interpolateBlues(i / (numColors - 1)));
 
     // --- 關鍵修改從這裡開始 ---
 
@@ -1844,6 +1844,7 @@ export async function loadPopulation3LevelsGeoJson(layer) {
       feature.properties.layerName = layer.layerName;
       feature.properties.name = `${feature.properties.COUNTY}${feature.properties.TOWN}${feature.properties.VILLAGE}`;
       feature.properties.value = parseFloat(feature.properties[fieldName]);
+      feature.properties.color = 'var(--my-color-white)';
       feature.properties.fillColor = colorScale(feature.properties.value);
 
       const propertyData = {
@@ -1965,11 +1966,10 @@ export async function loadIncomeGeoJson(layer) {
     //   .interpolator(d3.interpolateYlGnBu); // [關鍵] 直接使用 D3 內建的顏色產生器
 
     const colorScale = d3
-      .scaleQuantize()
+      .scaleSequential()
       .domain([minValue, maxValue]) // 輸入範圍：[最小值, 最大值]
-      // [關鍵] 輸出範圍：直接從 D3 的色彩方案中取 5 個顏色
-      // d3.schemeRdBu 是 D3 內建的「紅-白-藍」發散型色彩方案
-      .range(d3.schemeRdBu[10]);
+      // [關鍵] 使用 D3 內建的藍色插值函數
+      .interpolator(d3.interpolateBlues);
 
     // ----------------------------
 
@@ -1979,6 +1979,7 @@ export async function loadIncomeGeoJson(layer) {
       feature.properties.layerName = layer.layerName;
       feature.properties.name = feature.properties.FULL;
       feature.properties.value = parseFloat(feature.properties[fieldName]);
+      feature.properties.color = 'var(--my-color-white)';
       feature.properties.fillColor = colorScale(feature.properties.value);
 
       const propertyData = {
@@ -2012,18 +2013,26 @@ export async function loadIncomeGeoJson(layer) {
       totalCount: geoJsonData.features.length,
     };
 
-    const legendData = colorScale.range().map((color) => {
-      // 1. 使用 invertExtent() 找出顏色對應的數值區間 [start, end]
-      const extent = colorScale.invertExtent(color);
+    // 為 scaleSequential 生成圖例
+    const numLegendSteps = 5;
+    const legendData = d3.range(numLegendSteps).map((i) => {
+      const t = i / (numLegendSteps - 1); // 0 到 1 的比例
+      const value = minValue + t * (maxValue - minValue); // 對應的數值
+      const color = colorScale(value); // 對應的顏色
 
-      // 2. 組合出標籤文字
-      const label = `${extent[0]} - ${extent[1]}`;
+      let label = '';
+      if (i === 0) {
+        label = `${Math.round(minValue)}`;
+      } else if (i === numLegendSteps - 1) {
+        label = `${Math.round(maxValue)}`;
+      } else {
+        label = `${Math.round(value)}`;
+      }
 
-      // 3. 回傳結構化的物件
       return {
         color: color,
         label: label,
-        extent: extent, // 也可以把原始區間放進來，以備不時之需
+        extent: [value, value], // 對於連續比例尺，每個點代表一個值
       };
     });
 
@@ -2196,6 +2205,7 @@ export async function loadMRTStationGeoJson(layer) {
       feature.properties.layerId = layerId;
       feature.properties.layerName = layer.layerName;
       feature.properties.name = feature.properties.NAME;
+      feature.properties.color = 'var(--my-color-white)';
       feature.properties.fillColor = null;
 
       const propertyData = {
@@ -2272,6 +2282,7 @@ export async function loadBusStopGeoJson(layer) {
       feature.properties.layerId = layerId;
       feature.properties.layerName = layer.layerName;
       feature.properties.name = feature.properties.BSM_CHINES;
+      feature.properties.color = 'var(--my-color-white)';
       feature.properties.fillColor = null;
 
       const propertyData = {
@@ -2348,6 +2359,7 @@ export async function loadTaipeiDistrictGeoJson(layer) {
       feature.properties.layerId = layerId;
       feature.properties.layerName = layer.layerName;
       feature.properties.name = feature.properties.PTNAME;
+      feature.properties.color = 'var(--my-color-red)';
       feature.properties.fillColor = null;
 
       const propertyData = {
