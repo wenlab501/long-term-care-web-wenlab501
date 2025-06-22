@@ -790,16 +790,9 @@
         }
       };
 
-
-
-      // 📍 添加分析點 (Add Analysis Point)
+      // 加入分析點
       const addAnalysisPoint = (lat, lng) => {
-        // 調用 dataStore 的方法添加分析點
         dataStore.addAnalysisPoint(lat, lng);
-
-        console.log('📍 添加分析點:', { lat, lng });
-
-        // 不自動停止點擊模式，讓用戶可以連續點擊
       };
 
       // 🖱️ 開始點擊模式 (Start Click Mode)
@@ -1078,22 +1071,22 @@
         </div>
       </div>
 
-      <!-- 在地圖上點選位置按鈕 -->
+      <!-- 點選分析位置 -->
       <button
         v-if="!isClickMode"
         class="btn rounded-pill border-0 my-btn-green my-font-size-xs text-nowrap"
         @click="startClickMode"
         title="在地圖上點選位置進行分析"
       >
-        <i class="fas fa-crosshairs me-1"></i>點選位置
+        點選分析位置
       </button>
       <button
         v-else
         class="btn rounded-pill border-0 my-btn-red my-font-size-xs text-nowrap"
         @click="stopClickMode"
-        title="取消點選模式"
+        title="取消地圖點選"
       >
-        <i class="fas fa-times me-1"></i>取消點選
+        取消地圖點選
       </button>
 
       <!-- 顯示全部 -->

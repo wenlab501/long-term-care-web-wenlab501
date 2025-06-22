@@ -759,7 +759,6 @@ export const useDataStore = defineStore(
             '面積': '12.57 平方公里',
             '範圍內總點數': pointsInRange.length,
             '關聯分析點': `分析點 ${pointNumber}`,
-            '狀態': '已建立'
           }
         }
       };

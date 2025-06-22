@@ -266,17 +266,6 @@
   };
 
   /**
-   * 🖱️ 開始地圖點擊模式 (Start Map Click Mode)
-   * 透過 mainContentRef 呼叫地圖點擊功能
-   */
-  const startMapClickMode = () => {
-    if (mainContentRef.value) {
-      console.log('🖱️ MiddleView: 開始地圖點擊模式');
-      mainContentRef.value.startMapClickMode();
-    }
-  };
-
-  /**
    * 🛑 停止地圖點擊模式 (Stop Map Click Mode)
    * 透過 mainContentRef 呼叫停止地圖點擊功能
    */
@@ -296,7 +285,6 @@
     fitToTainanBounds, // 地圖邊界適應
     resetMapTab, // 地圖視圖重設
     invalidateMapSize, // 地圖尺寸刷新
-    startMapClickMode, // 開始地圖點擊模式
     stopMapClickMode, // 停止地圖點擊模式
     // 如果 HomeView 需要直接存取子組件，可以暴露 mainContentRef 和 bottomViewRef
     // mainContentRef,    // 主內容組件引用
