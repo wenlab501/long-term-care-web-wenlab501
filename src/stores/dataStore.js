@@ -706,7 +706,7 @@ export const useDataStore = defineStore(
     const updateAnalysisLayerData = (analysisLayer) => {
       // 獲取所有分析圓圈
       const analysisCircles = analysisLayer.geoJsonData.features.filter(
-        f => f.properties.type === 'analysis-circle'
+        f => f.properties.type === 'circle-analysis'
       );
 
       // 更新 summaryData
@@ -717,7 +717,9 @@ export const useDataStore = defineStore(
       // 更新 tableData
       analysisLayer.tableData = analysisCircles.map((feature) => ({
         '#': feature.properties.id,
+        '名稱': feature.properties.name,
         '範圍內點數': feature.properties.pointsInRange.length,
+        '範圍內面域數': feature.properties.polygonInRange.length,
       }));
     };
 
@@ -753,6 +755,8 @@ export const useDataStore = defineStore(
         polygonStats[feature.layerName]++;
       });
 
+      const featureName = `分析範圍 ${pointId}`;
+
       // 創建圓圈要素（主要交互物件）
       const circleFeature = {
         type: 'Feature',
@@ -763,8 +767,8 @@ export const useDataStore = defineStore(
         properties: {
           id: pointId,
           layerId: 'analysis-layer', // 添加圖層ID
-          type: 'analysis-circle',
-          name: `分析範圍 ${pointId}`,
+          type: 'circle-analysis',
+          name: featureName,
           radius: 2000,
           pointsInRange: pointsInRange, // 存儲範圍內的點物件
           polygonInRange: polygonInRange, // 存儲範圍內的多邊形物件
@@ -772,8 +776,9 @@ export const useDataStore = defineStore(
           polygonStats: polygonStats, // 存儲各多邊形圖層統計
           // 添加 propertyData 供 PropertiesTab 使用
           propertyData: {
-            '範圍內總點數': pointsInRange.length,
-            '範圍內總多邊形數': polygonInRange.length,
+            名稱: featureName,
+            範圍內點數: pointsInRange.length,
+            範圍內多邊形數: polygonInRange.length,
           }
         }
       };
@@ -833,7 +838,7 @@ export const useDataStore = defineStore(
       // 過濾掉指定的分析圓圈和其對應的點
       analysisLayer.geoJsonData.features = analysisLayer.geoJsonData.features.filter(
         feature => {
-          const isTargetCircle = feature.properties.type === 'analysis-circle' && feature.properties.id === pointId;
+          const isTargetCircle = feature.properties.type === 'circle-analysis' && feature.properties.id === pointId;
           const isTargetPoint = feature.properties.type === 'point-analysis' && feature.properties.parentId === pointId;
           return !isTargetCircle && !isTargetPoint;
         }

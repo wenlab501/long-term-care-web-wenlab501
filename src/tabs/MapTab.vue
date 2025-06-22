@@ -200,52 +200,30 @@
             // 分析圖層的特殊處理
             if (layer.isAnalysisLayer) {
               if (feature.properties.type === 'point-analysis') {
-                // 分析點：紅色十字標記
-                                const icon = L.divIcon({
-                  html: `<div
-                    style="
-                       width: 20px;
-                       height: 20px;
-                       position: relative;
-                     ">
-                     <div style="
-                       position: absolute;
-                       top: 50%;
-                       left: 50%;
-                       transform: translate(-50%, -50%);
-                       width: 14px;
-                       height: 3px;
-                       background-color: #dc3545;
-                       box-shadow: 0 0 4px rgba(220, 53, 69, 0.8);
-                     "></div>
-                     <div style="
-                       position: absolute;
-                       top: 50%;
-                       left: 50%;
-                       transform: translate(-50%, -50%);
-                       width: 3px;
-                       height: 14px;
-                       background-color: #dc3545;
-                       box-shadow: 0 0 4px rgba(220, 53, 69, 0.8);
-                     "></div>
-                     </div>`,
-                  className: 'custom-crosshair-icon analysis-point-icon',
-                  iconSize: [20, 20],
-                  iconAnchor: [10, 10],
-                  popupAnchor: [0, -15], // 調整 popup 位置避免遮擋
+                // 分析點：紅色加號標記
+                const icon = L.divIcon({
+                  html: `
+                  <div class="d-flex align-items-center justify-content-center my-color-red my-font-size-sm">
+                    <i class="fas fa-plus"></i>
+                  </div>
+                  `,
+                  className: 'analysis-point-icon',
+                  iconSize: [16, 16],
+                  iconAnchor: [8, 8],
+                  popupAnchor: [0, -8],
                 });
                 const marker = L.marker(latlng, { icon });
 
                 return marker;
-              } else if (feature.properties.type === 'analysis-circle') {
+              } else if (feature.properties.type === 'circle-analysis') {
                 // 分析圓圈：2公里半徑
                 const circle = L.circle(latlng, {
                   radius: feature.properties.radius,
-                  color: '#dc3545',
-                  weight: 2,
+                  color: 'var(--my-color-red)',
+                  weight: 1,
                   opacity: 0.8,
-                  fillColor: '#dc3545',
-                  fillOpacity: 0.1
+                  fillColor: 'var(--my-color-red)',
+                  fillOpacity: 0.2
                 });
 
                 return circle;
@@ -257,12 +235,12 @@
                 class="rounded-circle"
                 style="
                    background-color: var(--my-color-${colorName});
-                   width: 8x;
+                   width: 8px;
                    height: 8px;
                    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
                  ">
                  </div>`, // HTML 內容：圓形標記
-                className: 'custom-marker-icon', // CSS 類名
+                className: '', // 移除不必要的 CSS 類名
                 iconSize: [8, 8], // 圖標尺寸
                 iconAnchor: [4, 4], // 圖標錨點
                 popupAnchor: [0, -4], // 彈窗錨點
@@ -273,7 +251,7 @@
           },
           // 樣式設定函數
           style: (feature) => {
-            // 返回預設樣式物件
+            // 只有polygon返回預設樣式物件
             if (feature.properties.fillColor) {
               return {
                 fillColor: feature.properties.fillColor, // 填充顏色
@@ -281,13 +259,6 @@
                 opacity: 1, // 邊框透明度
                 color: 'white', // 邊框顏色
                 fillOpacity: 0.6, // 填充透明度
-              };
-            } else {
-              return {
-                weight: 1, // 邊框粗細
-                opacity: 1, // 邊框透明度
-                color: 'red', // 邊框顏色
-                fillOpacity: 0, // 填充透明度
               };
             }
           },
@@ -349,26 +320,25 @@
                   if (feature.properties.type === 'point-analysis') {
                     // 分析點不需要懸停效果，直接返回
                     return;
-                  } else if (feature.properties.type === 'analysis-circle') {
+                  } else if (feature.properties.type === 'circle-analysis') {
                     // 分析圓圈懸停效果
                     if (!this._originalStyle) {
                       this._originalStyle = {
-                        weight: this.options.weight || 2,
-                        color: this.options.color || '#dc3545',
-                        fillOpacity: this.options.fillOpacity || 0.1,
+                        weight: this.options.weight,
+                        color: this.options.color,
+                        fillOpacity: this.options.fillOpacity,
                       };
                     }
                     this.setStyle({
-                      weight: 3,
-                      color: '#dc3545',
-                      fillOpacity: 0.2,
+                      weight: 2,
+                      fillOpacity: 0.4,
                     });
                   }
                 } else if (type === 'point') {
                   // 一般點類型處理
                   const element = this.getElement();
                   if (element) {
-                    const innerIconDiv = element.querySelector('.custom-marker-icon > div');
+                    const innerIconDiv = element.querySelector('div');
                     if (innerIconDiv) {
                       innerIconDiv.style.transition = 'transform 0.04s ease-in-out';
                       innerIconDiv.style.transform = 'scale(1.6)';
@@ -378,9 +348,9 @@
                   // 多邊形類型處理
                   if (!this._originalStyle) {
                     this._originalStyle = {
-                      weight: this.options.weight || 1,
-                      color: this.options.color || 'white',
-                      fillOpacity: this.options.fillOpacity || 0.6,
+                      weight: this.options.weight,
+                      color: this.options.color,
+                      fillOpacity: this.options.fillOpacity,
                     };
                   }
                   this.setStyle({
@@ -409,7 +379,7 @@
                     if (feature.properties.type === 'point-analysis') {
                       // 分析點不需要恢復效果，直接返回
                       return;
-                    } else if (feature.properties.type === 'analysis-circle') {
+                    } else if (feature.properties.type === 'circle-analysis') {
                       // 分析圓圈恢復
                       if (this._originalStyle) {
                         this.setStyle(this._originalStyle);
@@ -419,7 +389,7 @@
                     // 一般點類型處理
                     const element = this.getElement();
                     if (element) {
-                      const innerIconDiv = element.querySelector('.custom-marker-icon > div');
+                      const innerIconDiv = element.querySelector('div');
                       if (innerIconDiv) {
                         innerIconDiv.style.transform = '';
                       }
@@ -455,7 +425,7 @@
               contextmenu: function (e) {
                 // 只有分析圖層的圓圈才顯示右鍵菜單
                 if ((layer.isAnalysisLayer || feature.properties.layerId === 'analysis-layer') &&
-                    feature.properties.type === 'analysis-circle') {
+                    feature.properties.type === 'circle-analysis') {
                   showAnalysisContextMenu(e.originalEvent, feature);
                 }
               },
@@ -481,7 +451,7 @@
                   if (feature.properties.type === 'point-analysis') {
                     // 分析點不需要特殊處理
                     return;
-                  } else if (feature.properties.type === 'analysis-circle') {
+                  } else if (feature.properties.type === 'circle-analysis') {
                     // 分析圓圈重設
                     if (layer._originalStyle) {
                       layer.setStyle(layer._originalStyle);
@@ -491,7 +461,7 @@
                   // 一般點類型處理
                   const element = layer.getElement();
                   if (element) {
-                    const innerIconDiv = element.querySelector('.custom-marker-icon > div');
+                    const innerIconDiv = element.querySelector('div');
                     if (innerIconDiv) {
                       innerIconDiv.style.transform = '';
                     }
@@ -708,8 +678,8 @@
               // 點要素處理
               const element = targetLayer.getElement(); // 獲取 DOM 元素
               if (element) {
-                // 找到自訂圖標內部的樣式 div
-                const innerIconDiv = element.querySelector('.custom-marker-icon > div');
+                // 找到圖標內部的樣式 div
+                const innerIconDiv = element.querySelector('div');
                 if (innerIconDiv) {
                   innerIconDiv.style.transition = 'transform 0.04s ease-in-out'; // 設定過渡動畫
                   innerIconDiv.style.transform = 'scale(1.6)'; // 放大效果
@@ -899,7 +869,7 @@
         if (!selectedAnalysisFeature.value) return;
 
         const feature = selectedAnalysisFeature.value;
-        const pointId = feature.properties.type === 'analysis-circle'
+        const pointId = feature.properties.type === 'circle-analysis'
           ? feature.properties.id
           : feature.properties.parentId;
 
@@ -1165,63 +1135,48 @@
   /* 🗺️ 地圖容器樣式 (Map Container Styles) */
   #map-container {
     background-color: transparent; /* 預設透明，讓底圖顯示，空白地圖時由 JS 動態設定為白色 */
-    /* 移除 min-height 限制，讓地圖能自由縮放 */
-    position: relative; /* 確保子元素定位正確 */
-    overflow: hidden; /* 防止內容溢出 */
     z-index: 0; /* 確保地圖在左側面板陰影下方 */
   }
 
   /* 🗺️ Leaflet 地圖容器樣式 (Leaflet Map Container Styles) */
   [id^='leaflet-map'] {
-    /* 移除 min-height 限制，讓地圖能自由縮放 */
-    width: 100% !important; /* 強制寬度100% */
-    height: 100% !important; /* 強制高度100% */
-    position: relative; /* 確保正確的定位上下文 */
+    width: 100% !important;
+    height: 100% !important;
   }
 
   /* ✨ 地圖底部控制項樣式 (Map Bottom Controls Styles) */
   .map-bottom-controls {
-    bottom: 0px; /* 距離地圖容器底部 10px */
-    left: 50%; /* 水平置中 */
-    transform: translateX(-50%); /* 完美水平置中 */
+    bottom: 0px;
+    left: 50%;
+    transform: translateX(-50%);
     z-index: 2000;
   }
 
   /* 🖱️ 右鍵菜單樣式 (Context Menu Styles) */
   .context-menu {
-    background: white;
-    border: 1px solid #ddd;
+    background: var(--my-color-white);
+    border: 1px solid var(--my-color-gray-300);
     border-radius: 6px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     padding: 4px 0;
     min-width: 140px;
-    font-size: 14px;
+    font-size: var(--my-font-size-sm);
   }
 
   .context-menu-item {
     padding: 8px 16px;
     cursor: pointer;
-    color: #333;
+    color: var(--my-color-gray-800);
     transition: background-color 0.2s ease;
   }
 
   .context-menu-item:hover {
-    background-color: #f8f9fa;
+    background-color: var(--my-color-gray-50);
   }
 
   .context-menu-item i {
-    color: #dc3545;
+    color: var(--my-color-red);
     width: 16px;
-  }
-
-  .context-menu-overlay {
-    background: transparent;
-  }
-
-  /* 🎯 十字標記樣式 (Crosshair Icon Styles) */
-  .custom-crosshair-icon {
-    background: transparent !important;
-    border: none !important;
   }
 
   /* 🎯 點擊模式下的游標強制設定 (Click Mode Cursor Override) */
