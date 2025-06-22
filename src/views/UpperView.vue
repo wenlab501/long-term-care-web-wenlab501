@@ -194,6 +194,28 @@
         }
       };
 
+      /**
+       * 🖱️ 開始地圖點擊模式 (Start Map Click Mode)
+       * 啟動地圖點擊模式，用於數據分析功能
+       */
+      const startMapClickMode = () => {
+        if (props.activeUpperTab === 'map' && MapTab.value) {
+          console.log('🖱️ UpperView: 開始地圖點擊模式');
+          MapTab.value.startClickMode();
+        }
+      };
+
+      /**
+       * 🛑 停止地圖點擊模式 (Stop Map Click Mode)
+       * 停止地圖點擊模式
+       */
+      const stopMapClickMode = () => {
+        if (props.activeUpperTab === 'map' && MapTab.value) {
+          console.log('🛑 UpperView: 停止地圖點擊模式');
+          MapTab.value.stopClickMode();
+        }
+      };
+
       // 📤 返回響應式數據和函數給模板和父組件使用
       return {
         MapTab, // 地圖組件引用
@@ -203,6 +225,8 @@
         resetView, // 重設視圖功能
         fitToTainanBounds, // 適應邊界功能
         invalidateMapSize, // 刷新地圖尺寸功能
+        startMapClickMode, // 開始地圖點擊模式
+        stopMapClickMode, // 停止地圖點擊模式
       };
     },
   };

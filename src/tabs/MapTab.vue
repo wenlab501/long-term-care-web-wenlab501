@@ -43,6 +43,13 @@
       let mapInstance = null; // 地圖實例，使用普通變數而非 ref 避免響應式開銷
       let currentTileLayer = null; // 當前底圖圖層實例
       let layerGroups = {}; // 存放所有圖層群組的物件
+      let isClickMode = ref(false); // 是否處於點擊模式
+
+      // 🖱️ 右鍵菜單相關變數 (Context Menu Related Variables)
+      const contextMenu = ref(null); // 右鍵菜單 DOM 引用
+      const showContextMenu = ref(false); // 是否顯示右鍵菜單
+      const contextMenuPosition = ref({ x: 0, y: 0 }); // 右鍵菜單位置
+      const selectedAnalysisFeature = ref(null); // 選中的分析要素
 
       // 🎛️ 地圖控制狀態 (Map Control States)
       const isMapReady = ref(false); // 地圖是否已準備就緒的狀態標記
@@ -80,13 +87,19 @@
           mapInstance.on('zoomend', handleZoomEnd); // 縮放結束事件
           mapInstance.on('moveend', handleMoveEnd); // 移動結束事件
 
-          // 綁定地圖點擊事件 - 點擊空白處清除選取
+          // 綁定地圖點擊事件 - 點擊空白處清除選取或添加分析點
           mapInstance.on('click', function (e) {
-            if (!e.originalEvent.target.closest('.leaflet-interactive')) {
+            if (isClickMode.value) {
+              // 如果處於點擊模式，添加分析點
+              addAnalysisPoint(e.latlng.lat, e.latlng.lng);
+            } else if (!e.originalEvent.target.closest('.leaflet-interactive')) {
+              // 否則清除選取
               dataStore.setSelectedFeature(null);
               resetAllLayerStyles();
             }
           });
+
+          // 數據分析圖層現在通過圖層系統管理，不需要單獨創建
 
           // 設定地圖準備就緒狀態
           isMapReady.value = true; // 標記地圖已準備就緒
@@ -171,9 +184,40 @@
         const geoJsonLayer = L.geoJSON(layer.geoJsonData, {
           // 點要素轉換函數
           pointToLayer: (feature, latlng) => {
-            if (type === 'point') {
-              // 如果是點類型
-              // 創建自訂圖標
+            // 分析圖層的特殊處理
+            if (layer.isAnalysisLayer) {
+              if (feature.properties.type === 'analysis-point') {
+                // 分析點：紅色圓點
+                const icon = L.divIcon({
+                  html: `<div
+                    class="rounded-circle"
+                    style="
+                       background-color: #dc3545;
+                       width: 12px;
+                       height: 12px;
+                       border: 2px solid white;
+                       box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+                     ">
+                     </div>`,
+                  className: 'custom-marker-icon',
+                  iconSize: [12, 12],
+                  iconAnchor: [6, 6],
+                  popupAnchor: [0, -6],
+                });
+                return L.marker(latlng, { icon });
+              } else if (feature.properties.type === 'analysis-circle') {
+                // 分析圓圈：2公里半徑
+                return L.circle(latlng, {
+                  radius: feature.properties.radius,
+                  color: '#dc3545',
+                  weight: 2,
+                  opacity: 0.8,
+                  fillColor: '#dc3545',
+                  fillOpacity: 0.1
+                });
+              }
+            } else if (type === 'point') {
+              // 一般點類型
               const icon = L.divIcon({
                 html: `<div
                 class="rounded-circle"
@@ -245,21 +289,47 @@
             layer.on({
               // 滑鼠懸停事件
               mouseover: function () {
-                if (type === 'point') {
-                  // 點類型處理
-                  const element = this.getElement(); // 獲取 DOM 元素
+                // 分析圖層的特殊處理
+                if (layer.isAnalysisLayer || feature.properties.layerId === 'analysis-layer') {
+                  if (feature.properties.type === 'analysis-point') {
+                    // 分析點懸停效果
+                    const element = this.getElement();
+                    if (element) {
+                      const innerIconDiv = element.querySelector('.custom-marker-icon > div');
+                      if (innerIconDiv) {
+                        innerIconDiv.style.transition = 'transform 0.04s ease-in-out';
+                        innerIconDiv.style.transform = 'scale(1.6)';
+                      }
+                      element.style.zIndex = 1000;
+                    }
+                  } else if (feature.properties.type === 'analysis-circle') {
+                    // 分析圓圈懸停效果
+                    if (!this._originalStyle) {
+                      this._originalStyle = {
+                        weight: this.options.weight || 2,
+                        color: this.options.color || '#dc3545',
+                        fillOpacity: this.options.fillOpacity || 0.1,
+                      };
+                    }
+                    this.setStyle({
+                      weight: 3,
+                      color: '#dc3545',
+                      fillOpacity: 0.2,
+                    });
+                  }
+                } else if (type === 'point') {
+                  // 一般點類型處理
+                  const element = this.getElement();
                   if (element) {
-                    // 找到自訂圖標內部的樣式 div
                     const innerIconDiv = element.querySelector('.custom-marker-icon > div');
                     if (innerIconDiv) {
-                      innerIconDiv.style.transition = 'transform 0.04s ease-in-out'; // 設定過渡動畫
-                      innerIconDiv.style.transform = 'scale(1.6)'; // 放大效果
+                      innerIconDiv.style.transition = 'transform 0.04s ease-in-out';
+                      innerIconDiv.style.transform = 'scale(1.6)';
                     }
-                    // 設定最高層級確保圖標在最上方
                     element.style.zIndex = 1000;
                   }
                 } else if (type === 'polygon' && feature.properties.fillColor !== null) {
-                  // 多邊形類型處理 - 保存原始樣式
+                  // 多邊形類型處理
                   if (!this._originalStyle) {
                     this._originalStyle = {
                       weight: this.options.weight || 1,
@@ -268,11 +338,11 @@
                     };
                   }
                   this.setStyle({
-                    weight: 4, // 增加邊框粗細
-                    color: 'white', // 設定邊框顏色
-                    fillOpacity: 0.8, // 增加填充透明度
+                    weight: 4,
+                    color: 'white',
+                    fillOpacity: 0.8,
                   });
-                  this.bringToFront(); // 將圖層移到最前方
+                  this.bringToFront();
                 }
               },
               // 滑鼠離開事件
@@ -283,24 +353,40 @@
                   dataStore.selectedFeature.properties.id === feature.properties.id;
 
                 if (!isSelected) {
-                  if (type === 'point') {
-                    // 點類型處理
-                    const element = this.getElement(); // 獲取 DOM 元素
+                  // 分析圖層的特殊處理
+                  if (layer.isAnalysisLayer || feature.properties.layerId === 'analysis-layer') {
+                    if (feature.properties.type === 'analysis-point') {
+                      // 分析點恢復
+                      const element = this.getElement();
+                      if (element) {
+                        const innerIconDiv = element.querySelector('.custom-marker-icon > div');
+                        if (innerIconDiv) {
+                          innerIconDiv.style.transform = '';
+                        }
+                        element.style.zIndex = '';
+                      }
+                    } else if (feature.properties.type === 'analysis-circle') {
+                      // 分析圓圈恢復
+                      if (this._originalStyle) {
+                        this.setStyle(this._originalStyle);
+                      }
+                    }
+                  } else if (type === 'point') {
+                    // 一般點類型處理
+                    const element = this.getElement();
                     if (element) {
-                      // 重設內部 div 的樣式
                       const innerIconDiv = element.querySelector('.custom-marker-icon > div');
                       if (innerIconDiv) {
-                        innerIconDiv.style.transform = ''; // 清除變形效果
+                        innerIconDiv.style.transform = '';
                       }
-                      // 清除層級設定
                       element.style.zIndex = '';
                     }
                   } else if (type === 'polygon') {
-                    // 多邊形類型處理 - 恢復原始樣式
+                    // 多邊形類型處理
                     if (this._originalStyle) {
                       this.setStyle(this._originalStyle);
                     } else {
-                      geoJsonLayer.resetStyle(this); // 重設為預設樣式
+                      geoJsonLayer.resetStyle(this);
                     }
                   }
                 }
@@ -309,6 +395,14 @@
               click: function () {
                 dataStore.setSelectedFeature(feature); // 設定選中的要素到資料存儲
                 emit('feature-selected', feature); // 發送要素選中事件
+              },
+              // 右鍵點擊事件
+              contextmenu: function (e) {
+                // 只有分析圖層的圓圈才顯示右鍵菜單
+                if ((layer.isAnalysisLayer || feature.properties.layerId === 'analysis-layer') &&
+                    (feature.properties.type === 'analysis-circle' || feature.properties.type === 'analysis-point')) {
+                  showAnalysisContextMenu(e.originalEvent, feature);
+                }
               },
             });
           },
@@ -324,10 +418,29 @@
             layerGroup.eachLayer((layer) => {
               const feature = layer.feature;
               if (feature) {
-                const type = dataStore.findLayerById(feature.properties.layerId)?.type;
+                const layerData = dataStore.findLayerById(feature.properties.layerId);
+                const type = layerData?.type;
 
-                if (type === 'point') {
-                  // 點類型處理
+                // 分析圖層的特殊處理
+                if (layerData?.isAnalysisLayer || feature.properties.layerId === 'analysis-layer') {
+                  if (feature.properties.type === 'analysis-point') {
+                    // 分析點重設
+                    const element = layer.getElement();
+                    if (element) {
+                      const innerIconDiv = element.querySelector('.custom-marker-icon > div');
+                      if (innerIconDiv) {
+                        innerIconDiv.style.transform = '';
+                      }
+                      element.style.zIndex = '';
+                    }
+                  } else if (feature.properties.type === 'analysis-circle') {
+                    // 分析圓圈重設
+                    if (layer._originalStyle) {
+                      layer.setStyle(layer._originalStyle);
+                    }
+                  }
+                } else if (type === 'point') {
+                  // 一般點類型處理
                   const element = layer.getElement();
                   if (element) {
                     const innerIconDiv = element.querySelector('.custom-marker-icon > div');
@@ -359,7 +472,7 @@
         const storeLayers = dataStore.getAllLayers();
         // 獲取當前地圖上的圖層 ID 列表
         const currentLayerIds = Object.keys(layerGroups);
-        // 篩選出可見且有資料的圖層
+        // 篩選出可見且有資料的圖層（分析圖層總是有空的 features 數組）
         const visibleLayers = storeLayers.filter((l) => l.visible && l.geoJsonData);
 
         // 移除所有現有圖層
@@ -371,11 +484,18 @@
           }
         });
 
+                // 分離分析圖層和其他圖層，確保分析圖層在最前面
+        const analysisLayers = visibleLayers.filter(l => l.isAnalysisLayer);
+        const otherLayers = visibleLayers.filter(l => !l.isAnalysisLayer);
+
         // 按照順序重新添加圖層（反轉順序確保正確的層疊順序）
-        const reversedLayers = [...visibleLayers].reverse();
+        const reversedOtherLayers = [...otherLayers].reverse();
+
+        // 先添加其他圖層，再添加分析圖層（確保分析圖層在最上面）
+        const layersToAdd = [...reversedOtherLayers, ...analysisLayers];
 
         // 遍歷每個可見圖層
-        reversedLayers.forEach((layer) => {
+        layersToAdd.forEach((layer) => {
           const { layerId } = layer; // 獲取圖層 ID
 
           try {
@@ -670,6 +790,84 @@
         }
       };
 
+
+
+      // 📍 添加分析點 (Add Analysis Point)
+      const addAnalysisPoint = (lat, lng) => {
+        // 調用 dataStore 的方法添加分析點
+        dataStore.addAnalysisPoint(lat, lng);
+
+        console.log('📍 添加分析點:', { lat, lng });
+
+        // 不自動停止點擊模式，讓用戶可以連續點擊
+      };
+
+      // 🖱️ 開始點擊模式 (Start Click Mode)
+      const startClickMode = () => {
+        isClickMode.value = true;
+        if (mapInstance) {
+          mapInstance.getContainer().style.cursor = 'crosshair';
+        }
+        console.log('🖱️ 開始地圖點擊模式');
+      };
+
+      // 🛑 停止點擊模式 (Stop Click Mode)
+      const stopClickMode = () => {
+        isClickMode.value = false;
+        if (mapInstance) {
+          mapInstance.getContainer().style.cursor = '';
+        }
+        console.log('🛑 停止地圖點擊模式');
+      };
+
+      // 🗑️ 清除分析圖層 (Clear Analysis Layer)
+      const clearAnalysisLayer = () => {
+        // 調用 dataStore 的方法清除分析圖層
+        dataStore.clearAnalysisLayer();
+        console.log('🗑️ 清除分析圖層');
+      };
+
+      // 🖱️ 顯示右鍵菜單 (Show Context Menu)
+      const showAnalysisContextMenu = (event, feature) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        selectedAnalysisFeature.value = feature;
+        contextMenuPosition.value = {
+          x: event.pageX || event.clientX,
+          y: event.pageY || event.clientY
+        };
+        showContextMenu.value = true;
+
+        console.log('🖱️ 顯示分析要素右鍵菜單:', feature.properties.name);
+      };
+
+      // 🗑️ 刪除單個分析點 (Delete Single Analysis Point)
+      const deleteAnalysisPoint = () => {
+        if (!selectedAnalysisFeature.value) return;
+
+        const feature = selectedAnalysisFeature.value;
+        const pointId = feature.properties.type === 'analysis-point'
+          ? feature.properties.id
+          : feature.properties.parentId;
+
+        if (!pointId) return;
+
+        // 調用 dataStore 的新方法刪除指定分析點
+        dataStore.deleteAnalysisPoint(pointId);
+
+        // 隱藏右鍵菜單
+        hideContextMenu();
+
+        console.log('🗑️ 刪除分析點:', pointId);
+      };
+
+      // 🚫 隱藏右鍵菜單 (Hide Context Menu)
+      const hideContextMenu = () => {
+        showContextMenu.value = false;
+        selectedAnalysisFeature.value = null;
+      };
+
       // 📏 設置 ResizeObserver 監聽容器大小變化 (Setup ResizeObserver)
       let resizeObserver = null; // 宣告 ResizeObserver 實例變數
       const setupResizeObserver = () => {
@@ -742,6 +940,9 @@
             setTimeout(setupResizeObserver, 500); // 延遲 500ms 設置尺寸觀察器
           }, 100); // 延遲 100ms
         });
+
+        // 🖱️ 添加全域點擊事件監聽器，用於隱藏右鍵菜單
+        document.addEventListener('click', hideContextMenu);
       });
 
       // 🧹 生命週期：組件卸載 (Lifecycle: Component Unmounted)
@@ -767,6 +968,9 @@
         layerGroups = {}; // 清空圖層群組物件
         currentTileLayer = null; // 清空當前底圖圖層引用
         isMapReady.value = false; // 重設地圖準備狀態
+
+        // 🖱️ 移除全域點擊事件監聽器
+        document.removeEventListener('click', hideContextMenu);
       });
 
       // 👀 監聽器：監聽資料存儲中的圖層變化 (Watcher: Watch Data Store Layers)
@@ -782,6 +986,8 @@
         }
       );
 
+
+
       // 📤 返回組件公開的屬性和方法 (Return Component Public Properties and Methods)
       return {
         mapContainer, // 地圖容器 DOM 元素引用
@@ -794,7 +1000,18 @@
         highlightFeature, // 高亮顯示特定要素函數
         resetView, // 重設地圖視圖函數
         invalidateSize, // 刷新地圖尺寸函數
+        startClickMode, // 開始點擊模式函數
+        stopClickMode, // 停止點擊模式函數
+        clearAnalysisLayer, // 清除分析圖層函數
+        isClickMode, // 點擊模式狀態
         defineStore, // 定義存儲實例
+        // 右鍵菜單相關
+        contextMenu, // 右鍵菜單 DOM 引用
+        showContextMenu, // 是否顯示右鍵菜單
+        contextMenuPosition, // 右鍵菜單位置
+        selectedAnalysisFeature, // 選中的分析要素
+        deleteAnalysisPoint, // 刪除分析點函數
+        hideContextMenu, // 隱藏右鍵菜單函數
       };
     },
   };
@@ -806,6 +1023,32 @@
     <!-- 🗺️ Leaflet 地圖容器 (Leaflet Map Container) -->
     <!-- 這是 Leaflet 地圖實際渲染的 DOM 元素 -->
     <div :id="mapContainerId" ref="mapContainer" class="h-100 w-100"></div>
+
+    <!-- 🖱️ 右鍵菜單 (Context Menu) -->
+    <div
+      v-if="showContextMenu"
+      ref="contextMenu"
+      class="context-menu position-fixed"
+      :style="{
+        left: contextMenuPosition.x + 'px',
+        top: contextMenuPosition.y + 'px',
+        zIndex: 10000
+      }"
+      @click.stop
+    >
+      <div class="context-menu-item d-flex align-items-center" @click="deleteAnalysisPoint">
+        <i class="fas fa-trash-alt me-2"></i>
+        刪除分析點
+      </div>
+    </div>
+
+    <!-- 🚫 點擊遮罩，用於隱藏右鍵菜單 (Click Overlay to Hide Context Menu) -->
+    <div
+      v-if="showContextMenu"
+      class="context-menu-overlay position-fixed w-100 h-100"
+      style="top: 0; left: 0; z-index: 9999;"
+      @click="hideContextMenu"
+    ></div>
 
     <!-- 地圖底部控制項區域 -->
     <div
@@ -834,6 +1077,24 @@
           </ul>
         </div>
       </div>
+
+      <!-- 在地圖上點選位置按鈕 -->
+      <button
+        v-if="!isClickMode"
+        class="btn rounded-pill border-0 my-btn-green my-font-size-xs text-nowrap"
+        @click="startClickMode"
+        title="在地圖上點選位置進行分析"
+      >
+        <i class="fas fa-crosshairs me-1"></i>點選位置
+      </button>
+      <button
+        v-else
+        class="btn rounded-pill border-0 my-btn-red my-font-size-xs text-nowrap"
+        @click="stopClickMode"
+        title="取消點選模式"
+      >
+        <i class="fas fa-times me-1"></i>取消點選
+      </button>
 
       <!-- 顯示全部 -->
       <button
@@ -872,5 +1133,36 @@
     left: 50%; /* 水平置中 */
     transform: translateX(-50%); /* 完美水平置中 */
     z-index: 2000;
+  }
+
+  /* 🖱️ 右鍵菜單樣式 (Context Menu Styles) */
+  .context-menu {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 4px 0;
+    min-width: 140px;
+    font-size: 14px;
+  }
+
+  .context-menu-item {
+    padding: 8px 16px;
+    cursor: pointer;
+    color: #333;
+    transition: background-color 0.2s ease;
+  }
+
+  .context-menu-item:hover {
+    background-color: #f8f9fa;
+  }
+
+  .context-menu-item i {
+    color: #dc3545;
+    width: 16px;
+  }
+
+  .context-menu-overlay {
+    background: transparent;
   }
 </style>

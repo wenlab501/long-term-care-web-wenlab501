@@ -61,9 +61,35 @@
        */
       const hasProperties = computed(() => {
         return (
-          !!selectedFeature.value?.properties &&
-          Object.keys(selectedFeature.value.properties).length > 0
+          !!selectedFeature.value?.properties?.propertyData &&
+          Object.keys(selectedFeature.value.properties.propertyData).length > 0
         );
+      });
+
+      /**
+       * 🎯 是否為分析圖層物件 (Is Analysis Layer Object)
+       * 檢查選中物件是否為分析圖層的物件
+       */
+      const isAnalysisObject = computed(() => {
+        return selectedFeature.value?.properties?.layerId === 'analysis-layer';
+      });
+
+      /**
+       * 📍 範圍內點清單 (Points In Range List)
+       * 獲取分析圖層物件範圍內的點清單
+       */
+      const pointsInRange = computed(() => {
+        if (!isAnalysisObject.value) return [];
+        return selectedFeature.value?.properties?.pointsInRange || [];
+      });
+
+      /**
+       * 📊 圖層統計 (Layer Statistics)
+       * 獲取範圍內各圖層的統計信息
+       */
+      const layerStats = computed(() => {
+        if (!isAnalysisObject.value) return {};
+        return selectedFeature.value?.properties?.layerStats || {};
       });
 
       // 📤 返回響應式數據給模板使用
@@ -72,6 +98,9 @@
         selectedLayer, // 選中圖層
         layerName, // 圖層名稱
         hasProperties, // 是否有屬性
+        isAnalysisObject, // 是否為分析圖層物件
+        pointsInRange, // 範圍內點清單
+        layerStats, // 圖層統計
       };
     },
 
@@ -97,6 +126,20 @@
           area: '面積',
           population: '人口',
           density: '密度',
+          // 分析圖層專用標籤
+          '分析點名稱': '分析點名稱',
+          '分析範圍名稱': '分析範圍名稱',
+          '緯度': '緯度',
+          '經度': '經度',
+          '中心緯度': '中心緯度',
+          '中心經度': '中心經度',
+          '分析半徑': '分析半徑',
+          '半徑': '半徑',
+          '覆蓋面積': '覆蓋面積',
+          '面積': '面積',
+          '建立時間': '建立時間',
+          '關聯分析點': '關聯分析點',
+          '狀態': '狀態',
         };
         return labelMap[key] || key;
       },
@@ -141,6 +184,60 @@
             />
           </template>
           <div v-else class="">此物件沒有屬性資料</div>
+
+          <!-- 🎯 分析圖層專用：範圍內點清單 -->
+          <template v-if="isAnalysisObject && pointsInRange.length > 0">
+            <hr class="my-3">
+            <h6 class="mb-3 text-primary">
+              <i class="fas fa-list me-2"></i>範圍內點物件清單 ({{ pointsInRange.length }} 個)
+            </h6>
+
+            <!-- 📊 各圖層統計摘要 -->
+            <div v-if="Object.keys(layerStats).length > 0" class="mb-3">
+              <div class="small text-muted mb-2">各圖層統計：</div>
+              <div class="d-flex flex-wrap gap-1">
+                <span
+                  v-for="(count, layerName) in layerStats"
+                  :key="layerName"
+                  class="badge bg-secondary"
+                >
+                  {{ layerName }}: {{ count }}
+                </span>
+              </div>
+            </div>
+
+            <!-- 📍 點物件詳細清單 -->
+            <div class="border rounded p-2" style="max-height: 300px; overflow-y: auto;">
+                            <div
+                v-for="(point, index) in pointsInRange"
+                :key="index"
+                class="pb-2 mb-2"
+                :class="{ 'border-bottom': index < pointsInRange.length - 1 }"
+              >
+                <div class="d-flex justify-content-between align-items-start">
+                  <div class="flex-grow-1">
+                    <div class="fw-semibold small">{{ point.name }}</div>
+                    <div class="text-muted small">{{ point.layerName }}</div>
+                    <div class="text-muted small">
+                      座標: {{ point.lat.toFixed(4) }}, {{ point.lng.toFixed(4) }}
+                    </div>
+                  </div>
+                  <div class="text-end">
+                    <span class="badge bg-info">{{ point.distance }}m</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <!-- 🎯 分析圖層但無範圍內點物件 -->
+          <template v-else-if="isAnalysisObject && pointsInRange.length === 0">
+            <hr class="my-3">
+            <div class="text-muted text-center py-3">
+              <i class="fas fa-info-circle me-2"></i>
+              此分析範圍內沒有找到任何點物件
+            </div>
+          </template>
         </div>
       </div>
     </div>
