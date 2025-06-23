@@ -1116,7 +1116,7 @@
     <div
       v-if="showContextMenu"
       ref="contextMenu"
-      class="context-menu position-fixed"
+      class="position-fixed rounded my-bgcolor-white my-font-size-sm shadow-sm"
       :style="{
         left: contextMenuPosition.x + 'px',
         top: contextMenuPosition.y + 'px',
@@ -1124,9 +1124,9 @@
       }"
       @click.stop
     >
-      <div class="context-menu-item d-flex align-items-center" @click="deleteAnalysisPoint">
-        <i class="fas fa-trash-alt me-2"></i>
-        刪除分析點
+      <div class="context-menu-item d-flex align-items-center my-bgcolor-white-hover my-title-sm-black px-3 py-2 my-2" @click="deleteAnalysisPoint">
+        <span class="my-color-red"><i class="fas fa-trash-alt me-2"></i></span>
+        刪除此分析點
       </div>
     </div>
 
@@ -1168,7 +1168,7 @@
 
       <!-- 顯示全部 -->
       <button
-        class="btn rounded-pill border-0 my-btn-white my-font-size-xs text-nowrap"
+        class="btn rounded-pill border-0 my-btn-white my-font-size-xs text-nowrap my-cursor-pointer"
         @click="showAllFeatures"
         :disabled="!isAnyLayerVisible"
         title="顯示圖面所有資料範圍"
@@ -1178,7 +1178,7 @@
 
       <!-- 顯示全市 -->
       <button
-        class="btn rounded-pill border-0 my-btn-white my-font-size-xs text-nowrap"
+        class="btn rounded-pill border-0 my-btn-white my-font-size-xs text-nowrap my-cursor-pointer"
         @click="showFullCity"
         title="回到預設地圖範圍"
       >
@@ -1188,7 +1188,7 @@
       <!-- 點選分析位置 -->
       <button
         v-if="!isClickMode"
-        class="btn rounded-pill border-0 my-btn-green my-font-size-xs text-nowrap"
+        class="btn rounded-pill border-0 my-btn-green my-font-size-xs text-nowrap my-cursor-pointer"
         @click="startClickMode"
         title="在地圖上點選位置進行分析"
       >
@@ -1196,7 +1196,7 @@
       </button>
       <button
         v-else
-        class="btn rounded-pill border-0 my-btn-red my-font-size-xs text-nowrap"
+        class="btn rounded-pill border-0 my-btn-red my-font-size-xs text-nowrap my-cursor-pointer"
         @click="stopClickMode"
         title="取消地圖點選"
       >
@@ -1225,59 +1225,6 @@
     left: 50%;
     transform: translateX(-50%);
     z-index: 2000;
-  }
-
-  /* 🖱️ 右鍵菜單樣式 (Context Menu Styles) */
-  .context-menu {
-    background: var(--my-color-white);
-    border: 1px solid var(--my-color-gray-300);
-    border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    padding: 4px 0;
-    min-width: 140px;
-    font-size: var(--my-font-size-sm);
-  }
-
-  .context-menu-item {
-    padding: 8px 16px;
-    cursor: pointer;
-    color: var(--my-color-gray-800);
-    transition: background-color 0.2s ease;
-  }
-
-  .context-menu-item:hover {
-    background-color: var(--my-color-gray-50);
-  }
-
-  .context-menu-item i {
-    color: var(--my-color-red);
-    width: 16px;
-  }
-
-  /* 🎯 點擊模式下的游標強制設定 (Click Mode Cursor Override) */
-  .click-mode-active {
-    cursor: crosshair !important;
-  }
-
-  .click-mode-active * {
-    cursor: crosshair !important;
-  }
-
-  .click-mode-active .leaflet-interactive {
-    cursor: crosshair !important;
-  }
-
-  .click-mode-active .leaflet-clickable {
-    cursor: crosshair !important;
-  }
-
-  /* 🖱️ 點選模式下按鈕仍保持手型游標 (Buttons Keep Pointer Cursor in Click Mode) */
-  .click-mode-active .map-bottom-controls .btn {
-    cursor: pointer !important;
-  }
-
-  .click-mode-active .map-bottom-controls .dropdown-item {
-    cursor: pointer !important;
   }
 
   /* 🎯 分析點圖標樣式 (Analysis Point Icon Styles) */
