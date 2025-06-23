@@ -49,9 +49,6 @@
       return;
     }
 
-    // 限制最多只顯示 5 個 bar
-    const limitedDistrictCount = districtCount.slice(0, 5);
-
     // 清除之前的圖表
     d3.select(chartContainer.value).selectAll('*').remove();
 
@@ -61,7 +58,7 @@
     const width = containerWidth - margin.left - margin.right;
     const barHeight = 8;
     const barSpacing = 24;
-    const height = limitedDistrictCount.length * barSpacing;
+    const height = districtCount.length * barSpacing;
 
     // 創建 SVG
     const svg = d3
@@ -75,7 +72,7 @@
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
     // 設定比例尺
-    const maxCount = d3.max(limitedDistrictCount, d => d.count);
+    const maxCount = d3.max(districtCount, d => d.count);
     const xScale = d3
       .scaleLinear()
       .domain([0, maxCount])
@@ -146,7 +143,7 @@
 
     // 添加長條
     g.selectAll('.bar')
-      .data(limitedDistrictCount)
+      .data(districtCount)
       .enter()
       .append('rect')
       .attr('class', 'bar')
@@ -158,7 +155,7 @@
 
     // 添加數值標籤
     g.selectAll('.label')
-      .data(limitedDistrictCount)
+      .data(districtCount)
       .enter()
       .append('text')
       .attr('class', 'label my-font-size-xs')
@@ -170,7 +167,7 @@
 
     // 添加區域名稱標籤
     g.selectAll('.district-label')
-      .data(limitedDistrictCount)
+      .data(districtCount)
       .enter()
       .append('text')
       .attr('class', 'district-label my-font-size-xs')
@@ -332,7 +329,7 @@
                 </div>
                 <div class="col-6" v-if="currentLayerSummary.districtCount">
                   <div class="text-center">
-                    <div class="my-title-xl-black">{{ Math.min(currentLayerSummary.districtCount.length, 5) }}</div>
+                    <div class="my-title-xl-black">{{ currentLayerSummary.districtCount.length }}</div>
                     <div class="my-title-sm-gray">行政區數量</div>
                   </div>
                 </div>

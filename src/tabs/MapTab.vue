@@ -494,23 +494,37 @@
         const currentLayerIds = Object.keys(layerGroups);
         // 篩選出可見且有資料的圖層（分析圖層總是有空的 features 數組）
         const visibleLayers = storeLayers.filter((l) => l.visible && l.geoJsonData);
+        const visibleLayerIds = visibleLayers.map(l => l.layerId);
 
-        // 移除所有現有圖層
-        currentLayerIds.forEach((layerId) => {
+        // 找出新增的圖層（不在當前地圖上但在可見列表中的圖層）
+        const newLayerIds = visibleLayerIds.filter(id => !currentLayerIds.includes(id));
+        // 找出需要移除的圖層（在當前地圖上但不在可見列表中的圖層）
+        const layersToRemove = currentLayerIds.filter(id => !visibleLayerIds.includes(id));
+
+        console.log(`🔄 圖層同步: 新增 ${newLayerIds.length} 個, 移除 ${layersToRemove.length} 個`);
+
+        // 只移除不可見的圖層，避免不必要的重新渲染
+        layersToRemove.forEach((layerId) => {
           if (layerGroups[layerId]) {
-            // 如果圖層群組存在
-            mapInstance.removeLayer(layerGroups[layerId]); // 從地圖中移除
-            delete layerGroups[layerId]; // 從群組物件中刪除
+            mapInstance.removeLayer(layerGroups[layerId]);
+            delete layerGroups[layerId];
+            console.log(`🗺️ 移除圖層: ${layerId}`);
           }
         });
 
-                                // 分離分析圖層和其他圖層，確保分析圖層在最底層
+        // 分離分析圖層和其他圖層，確保分析圖層在最底層
         const analysisLayers = visibleLayers.filter(l => l.isAnalysisLayer);
         const otherLayers = visibleLayers.filter(l => !l.isAnalysisLayer);
 
-        // 1. 先加入分析圖層（最底層）
+        // 用於收集新添加的非分析圖層，以便後續自動縮放
+        const newAddedLayers = [];
+
+        // 1. 處理分析圖層（最底層）
         analysisLayers.forEach((layer) => {
           const { layerId } = layer;
+          // 如果圖層已存在，跳過
+          if (layerGroups[layerId]) return;
+
           try {
             const newLayer = createFeatureLayer(layer);
             if (newLayer) {
@@ -524,20 +538,52 @@
           }
         });
 
-        // 2. 再按順序加入其他圖層
+        // 2. 處理其他圖層
         otherLayers.forEach((layer) => {
           const { layerId } = layer;
+          // 如果圖層已存在，跳過
+          if (layerGroups[layerId]) return;
+
           try {
             const newLayer = createFeatureLayer(layer);
             if (newLayer) {
               newLayer.addTo(mapInstance);
               layerGroups[layerId] = newLayer;
-              console.log(`🗺️ 圖層 "${layer.layerName}" 已添加到地圖 (順序: ${otherLayers.indexOf(layer) + 2})`);
+
+              // 如果是新添加的圖層，收集起來用於自動縮放
+              if (newLayerIds.includes(layerId)) {
+                newAddedLayers.push(newLayer);
+              }
+
+              console.log(`🗺️ 圖層 "${layer.layerName}" 已添加到地圖`);
             }
           } catch (error) {
             console.error(`添加圖層 "${layer.layerName}" 時發生錯誤:`, error);
           }
         });
+
+        // 只有在有新添加的非分析圖層時才自動縮放
+        if (newAddedLayers.length > 0) {
+          const bounds = new L.LatLngBounds();
+          let hasValidBounds = false;
+
+          newAddedLayers.forEach((layer) => {
+            if (layer && layer.getBounds) {
+              const layerBounds = layer.getBounds();
+              if (layerBounds.isValid()) {
+                bounds.extend(layerBounds);
+                hasValidBounds = true;
+              }
+            }
+          });
+
+          if (hasValidBounds) {
+            setTimeout(() => {
+              mapInstance.fitBounds(bounds, { padding: [50, 50] });
+              console.log(`🎯 自動縮放到新添加的 ${newAddedLayers.length} 個圖層範圍`);
+            }, 200); // 稍微延遲確保圖層完全載入
+          }
+        }
 
         // 計算並更新標記總數
         const totalMarkers = Object.values(layerGroups).reduce(
@@ -549,7 +595,7 @@
         console.log(`🗺️ 圖層同步完成，共 ${visibleLayers.length} 個可見圖層`); // 輸出同步完成訊息
       };
 
-      // 🔍 顯示全部要素函數 (Show All Features Function)
+      // 🔍 顯示全部要素函數 (Show All Features Function) - 顯示圖面所有資料
       const showAllFeatures = () => {
         // 檢查地圖實例、準備狀態和圖層可見性
         if (!mapInstance || !isMapReady.value || !isAnyLayerVisible.value) return;
@@ -575,6 +621,24 @@
         if (hasValidBounds) {
           mapInstance.fitBounds(bounds, { padding: [50, 50] }); // 設定地圖視圖並添加內邊距
         }
+      };
+
+      // 🌍 顯示全市函數 (Show Full City Function) - 回到預設地圖範圍
+      const showFullCity = () => {
+        // 檢查地圖實例和準備狀態
+        if (!mapInstance || !isMapReady.value) return;
+
+        // 使用固定的台北市預設範圍，不依賴當前存儲的值
+        const defaultCenter = [25.051474, 121.557989]; // 台北市中心
+        const defaultZoom = 11; // 適合台北市的縮放等級
+
+        console.log(`🌍 顯示全市: 中心點 ${defaultCenter}, 縮放等級 ${defaultZoom}`);
+
+        // 回到預設的地圖中心和縮放等級
+        mapInstance.setView(defaultCenter, defaultZoom);
+
+        // 同時更新 defineStore 中的值，保持一致性
+        defineStore.setMapView(defaultCenter, defaultZoom);
       };
 
       // 🎯 高亮顯示特定要素函數 (Highlight Specific Feature Function)
@@ -1021,6 +1085,7 @@
         changeBasemap, // 切換底圖函數
         getBasemapLabel, // 獲取底圖標籤函數
         showAllFeatures, // 顯示全部要素函數
+        showFullCity, // 顯示全市函數
         isAnyLayerVisible, // 檢查是否有可見圖層的計算屬性
         highlightFeature, // 高亮顯示特定要素函數
         resetView, // 重設地圖視圖函數
@@ -1126,9 +1191,18 @@
         class="btn rounded-pill border-0 my-btn-blue my-font-size-xs text-nowrap"
         @click="showAllFeatures"
         :disabled="!isAnyLayerVisible"
-        title="顯示全部資料範圍"
+        title="顯示圖面所有資料範圍"
       >
         顯示全部
+      </button>
+
+      <!-- 顯示全市 -->
+      <button
+        class="btn rounded-pill border-0 my-btn-blue my-font-size-xs text-nowrap"
+        @click="showFullCity"
+        title="回到預設地圖範圍"
+      >
+        顯示全市
       </button>
     </div>
   </div>
