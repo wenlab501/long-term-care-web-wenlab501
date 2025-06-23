@@ -109,9 +109,24 @@ export async function loadCommunityCareCenterData(layer) {
       ...feature.properties.tableData,
     }));
 
+    // 統計各行政區的數量
+    const districtCounts = {};
+    geoJsonData.features.forEach(feature => {
+      const district = feature.properties.propertyData.行政區;
+      if (district) {
+        districtCounts[district] = (districtCounts[district] || 0) + 1;
+      }
+    });
+
+    // 轉換為陣列格式並排序
+    const districtCount = Object.entries(districtCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count); // 按數量降序排列
+
     // 包含摘要資訊
     const summaryData = {
       totalCount: geoJsonData.features.length,
+      districtCount: districtCount,
     };
 
     return {
@@ -232,9 +247,24 @@ export async function loadCLevelUnitData(layer) {
       ...feature.properties.tableData,
     }));
 
+    // 統計各行政區的數量
+    const districtCounts = {};
+    geoJsonData.features.forEach(feature => {
+      const district = feature.properties.propertyData.行政區;
+      if (district) {
+        districtCounts[district] = (districtCounts[district] || 0) + 1;
+      }
+    });
+
+    // 轉換為陣列格式並排序
+    const districtCount = Object.entries(districtCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count); // 按數量降序排列
+
     // 包含摘要資訊
     const summaryData = {
       totalCount: geoJsonData.features.length,
+      districtCount: districtCount,
     };
 
     return {
@@ -353,9 +383,24 @@ export async function loadRespiteCareCPlusUnitData(layer) {
       ...feature.properties.tableData,
     }));
 
+    // 統計各行政區的數量
+    const districtCounts = {};
+    geoJsonData.features.forEach(feature => {
+      const district = feature.properties.propertyData.行政區;
+      if (district) {
+        districtCounts[district] = (districtCounts[district] || 0) + 1;
+      }
+    });
+
+    // 轉換為陣列格式並排序
+    const districtCount = Object.entries(districtCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count); // 按數量降序排列
+
     // 包含摘要資訊
     const summaryData = {
       totalCount: geoJsonData.features.length,
+      districtCount: districtCount,
     };
 
     return {
@@ -482,9 +527,29 @@ export async function loadPublicElderlyWelfareInstitutionData(layer) {
       ...feature.properties.tableData,
     }));
 
+    // 統計各行政區的數量 - 從地址中提取行政區
+    const districtCounts = {};
+    geoJsonData.features.forEach(feature => {
+      const address = feature.properties.propertyData.地址;
+      if (address) {
+        // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
+        const districtMatch = address.match(/臺北市([^市]+區)/);
+        if (districtMatch) {
+          const district = districtMatch[1];
+          districtCounts[district] = (districtCounts[district] || 0) + 1;
+        }
+      }
+    });
+
+    // 轉換為陣列格式並排序
+    const districtCount = Object.entries(districtCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count); // 按數量降序排列
+
     // 包含摘要資訊
     const summaryData = {
       totalCount: geoJsonData.features.length,
+      districtCount: districtCount,
     };
 
     return {
@@ -617,9 +682,24 @@ export async function loadElderlyWelfareInstitutionData(layer) {
       ...feature.properties.tableData,
     }));
 
+    // 統計各行政區的數量
+    const districtCounts = {};
+    geoJsonData.features.forEach(feature => {
+      const district = feature.properties.propertyData.區域別;
+      if (district) {
+        districtCounts[district] = (districtCounts[district] || 0) + 1;
+      }
+    });
+
+    // 轉換為陣列格式並排序
+    const districtCount = Object.entries(districtCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count); // 按數量降序排列
+
     // 包含摘要資訊
     const summaryData = {
       totalCount: geoJsonData.features.length,
+      districtCount: districtCount,
     };
 
     return {
@@ -738,9 +818,24 @@ export async function loadCommunityIntegrationServiceCenterData(layer) {
       ...feature.properties.tableData,
     }));
 
+    // 統計各行政區的數量
+    const districtCounts = {};
+    geoJsonData.features.forEach(feature => {
+      const district = feature.properties.propertyData.行政區;
+      if (district) {
+        districtCounts[district] = (districtCounts[district] || 0) + 1;
+      }
+    });
+
+    // 轉換為陣列格式並排序
+    const districtCount = Object.entries(districtCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count); // 按數量降序排列
+
     // 包含摘要資訊
     const summaryData = {
       totalCount: geoJsonData.features.length,
+      districtCount: districtCount,
     };
 
     return {
@@ -859,9 +954,29 @@ export async function loadGeneralNursingHomeData(layer) {
       ...feature.properties.tableData,
     }));
 
+    // 統計各行政區的數量 - 從地址中提取行政區
+    const districtCounts = {};
+    geoJsonData.features.forEach(feature => {
+      const address = feature.properties.propertyData.地址;
+      if (address) {
+        // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
+        const districtMatch = address.match(/臺北市([^市]+區)/);
+        if (districtMatch) {
+          const district = districtMatch[1];
+          districtCounts[district] = (districtCounts[district] || 0) + 1;
+        }
+      }
+    });
+
+    // 轉換為陣列格式並排序
+    const districtCount = Object.entries(districtCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count); // 按數量降序排列
+
     // 包含摘要資訊
     const summaryData = {
       totalCount: geoJsonData.features.length,
+      districtCount: districtCount,
     };
 
     return {
@@ -983,9 +1098,29 @@ export async function loadResidentialLongTermCareData(layer) {
       ...feature.properties.tableData,
     }));
 
+    // 統計各行政區的數量 - 從地址中提取行政區
+    const districtCounts = {};
+    geoJsonData.features.forEach(feature => {
+      const address = feature.properties.propertyData.地址;
+      if (address) {
+        // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
+        const districtMatch = address.match(/臺北市([^市]+區)/);
+        if (districtMatch) {
+          const district = districtMatch[1];
+          districtCounts[district] = (districtCounts[district] || 0) + 1;
+        }
+      }
+    });
+
+    // 轉換為陣列格式並排序
+    const districtCount = Object.entries(districtCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count); // 按數量降序排列
+
     // 包含摘要資訊
     const summaryData = {
       totalCount: geoJsonData.features.length,
+      districtCount: districtCount,
     };
 
     return {
@@ -1110,9 +1245,24 @@ export async function load66Data(layer) {
       ...feature.properties.tableData,
     }));
 
+    // 統計各行政區的數量
+    const districtCounts = {};
+    geoJsonData.features.forEach(feature => {
+      const district = feature.properties.propertyData.服務區別;
+      if (district) {
+        districtCounts[district] = (districtCounts[district] || 0) + 1;
+      }
+    });
+
+    // 轉換為陣列格式並排序
+    const districtCount = Object.entries(districtCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count); // 按數量降序排列
+
     // 包含摘要資訊
     const summaryData = {
       totalCount: geoJsonData.features.length,
+      districtCount: districtCount,
     };
 
     return {
@@ -1237,9 +1387,24 @@ export async function load142Data(layer) {
       ...feature.properties.tableData,
     }));
 
+    // 統計各行政區的數量
+    const districtCounts = {};
+    geoJsonData.features.forEach(feature => {
+      const district = feature.properties.propertyData.服務區別;
+      if (district) {
+        districtCounts[district] = (districtCounts[district] || 0) + 1;
+      }
+    });
+
+    // 轉換為陣列格式並排序
+    const districtCount = Object.entries(districtCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count); // 按數量降序排列
+
     // 包含摘要資訊
     const summaryData = {
       totalCount: geoJsonData.features.length,
+      districtCount: districtCount,
     };
 
     return {
@@ -1364,9 +1529,24 @@ export async function load25Data(layer) {
       ...feature.properties.tableData,
     }));
 
+    // 統計各行政區的數量
+    const districtCounts = {};
+    geoJsonData.features.forEach(feature => {
+      const district = feature.properties.propertyData.服務區別;
+      if (district) {
+        districtCounts[district] = (districtCounts[district] || 0) + 1;
+      }
+    });
+
+    // 轉換為陣列格式並排序
+    const districtCount = Object.entries(districtCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count); // 按數量降序排列
+
     // 包含摘要資訊
     const summaryData = {
       totalCount: geoJsonData.features.length,
+      districtCount: districtCount,
     };
 
     return {
@@ -1501,9 +1681,24 @@ export async function load41Data(layer) {
       ...feature.properties.tableData,
     }));
 
+    // 統計各行政區的數量
+    const districtCounts = {};
+    geoJsonData.features.forEach(feature => {
+      const district = feature.properties.propertyData.服務區別;
+      if (district) {
+        districtCounts[district] = (districtCounts[district] || 0) + 1;
+      }
+    });
+
+    // 轉換為陣列格式並排序
+    const districtCount = Object.entries(districtCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count); // 按數量降序排列
+
     // 包含摘要資訊
     const summaryData = {
       totalCount: geoJsonData.features.length,
+      districtCount: districtCount,
     };
 
     return {
@@ -1622,9 +1817,24 @@ export async function loadHospitalClinicData(layer) {
       ...feature.properties.tableData,
     }));
 
+    // 統計各行政區的數量
+    const districtCounts = {};
+    geoJsonData.features.forEach(feature => {
+      const district = feature.properties.propertyData.鄉鎮市區;
+      if (district) {
+        districtCounts[district] = (districtCounts[district] || 0) + 1;
+      }
+    });
+
+    // 轉換為陣列格式並排序
+    const districtCount = Object.entries(districtCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count); // 按數量降序排列
+
     // 包含摘要資訊
     const summaryData = {
       totalCount: geoJsonData.features.length,
+      districtCount: districtCount,
     };
 
     return {
@@ -1761,9 +1971,29 @@ export async function loadHealthcareFacilityPharmacyData(layer) {
       ...feature.properties.tableData,
     }));
 
+    // 統計各行政區的數量 - 從地址中提取行政區
+    const districtCounts = {};
+    geoJsonData.features.forEach(feature => {
+      const address = feature.properties.propertyData.地址;
+      if (address) {
+        // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
+        const districtMatch = address.match(/臺北市([^市]+區)/);
+        if (districtMatch) {
+          const district = districtMatch[1];
+          districtCounts[district] = (districtCounts[district] || 0) + 1;
+        }
+      }
+    });
+
+    // 轉換為陣列格式並排序
+    const districtCount = Object.entries(districtCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count); // 按數量降序排列
+
     // 包含摘要資訊
     const summaryData = {
       totalCount: geoJsonData.features.length,
+      districtCount: districtCount,
     };
 
     return {
@@ -2159,9 +2389,29 @@ export async function loadConvenienceStoreData(layer) {
       ...feature.properties.tableData,
     }));
 
+    // 統計各行政區的數量 - 從地址中提取行政區
+    const districtCounts = {};
+    geoJsonData.features.forEach(feature => {
+      const address = feature.properties.propertyData.分公司地址;
+      if (address) {
+        // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
+        const districtMatch = address.match(/臺北市([^市]+區)/);
+        if (districtMatch) {
+          const district = districtMatch[1];
+          districtCounts[district] = (districtCounts[district] || 0) + 1;
+        }
+      }
+    });
+
+    // 轉換為陣列格式並排序
+    const districtCount = Object.entries(districtCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count); // 按數量降序排列
+
     // 包含摘要資訊
     const summaryData = {
       totalCount: geoJsonData.features.length,
+      districtCount: districtCount,
     };
 
     return {

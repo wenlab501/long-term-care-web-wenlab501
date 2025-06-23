@@ -130,7 +130,7 @@
       <!-- 📊 圖層摘要資料 -->
       <div class="card-body">
         <div v-if="currentLayerSummary">
-          <pre class="json-display p-3 rounded">{{
+          <pre class="p-3">{{
             JSON.stringify(currentLayerSummary, null, 2)
           }}</pre>
         </div>
@@ -150,13 +150,4 @@
   </div>
 </template>
 
-<style scoped>
-  .json-display {
-    font-family: 'Courier New', monospace;
-    white-space: pre-wrap;
-    word-break: break-word;
-    max-height: 400px;
-    overflow-y: auto;
-    border: 1px solid var(--my-color-gray-300);
-  }
-</style>
+<style scoped></style>
