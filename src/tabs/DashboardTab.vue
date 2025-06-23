@@ -1,10 +1,12 @@
 <script setup>
-  import { ref, computed, watch, onMounted } from 'vue';
+  import { ref, computed, watch, onMounted, nextTick, onUnmounted } from 'vue';
   import { useDataStore } from '@/stores/dataStore.js';
+  import * as d3 from 'd3';
 
   const dataStore = useDataStore();
 
   const activeLayerTab = ref(null); /** 📑 當前作用中的圖層分頁 */
+  const chartContainer = ref(null); /** 📊 圖表容器參考 */
 
   // 獲取所有開啟且有資料的圖層
   const visibleLayers = computed(() => {
@@ -37,6 +39,144 @@
     const layer = visibleLayers.value.find((l) => l.layerId === activeLayerTab.value);
     return layer ? layer.layerName || '未知圖層' : '無開啟圖層';
   });
+
+  /**
+   * 📊 繪製橫向長條圖 (Draw Horizontal Bar Chart)
+   * @param {Array} districtCount - 行政區統計數據
+   */
+  const drawHorizontalBarChart = (districtCount) => {
+    if (!chartContainer.value || !districtCount || districtCount.length === 0) {
+      return;
+    }
+
+    // 清除之前的圖表
+    d3.select(chartContainer.value).selectAll('*').remove();
+
+    // 設定圖表尺寸和邊距
+    const margin = { top: 0, right: 48, bottom: 16, left: 48 };
+    const containerWidth = chartContainer.value.clientWidth;
+    const width = containerWidth - margin.left - margin.right;
+    const barHeight = 8;
+    const barSpacing = 24;
+    const height = districtCount.length * barSpacing;
+
+    // 創建 SVG
+    const svg = d3
+      .select(chartContainer.value)
+      .append('svg')
+      .attr('width', containerWidth)
+      .attr('height', height + margin.top + margin.bottom);
+
+    const g = svg
+      .append('g')
+      .attr('transform', `translate(${margin.left},${margin.top})`);
+
+    // 設定比例尺
+    const maxCount = d3.max(districtCount, d => d.count);
+    const xScale = d3
+      .scaleLinear()
+      .domain([0, maxCount])
+      .range([0, width]);
+
+                /**
+     * 計算刻度系統 - 所有刻度都是5的倍數，且等間隔分布
+     */
+    const calculateTickSystem = (dataMaxValue) => {
+      // Step 1: 決定刻度間隔（必須是5的倍數）
+      let interval;
+      if (dataMaxValue >= 50) {
+        interval = 20; // 大數據：每20一個刻度 (0, 20, 40, 60...)
+      } else if (dataMaxValue >= 20) {
+        interval = 10; // 中數據：每10一個刻度 (0, 10, 20, 30...)
+      } else {
+        interval = 5;  // 小數據：每5一個刻度 (0, 5, 10, 15...)
+      }
+
+             // Step 2: 計算圖表的最大刻度值（不超過實際最大值一個間距）
+       const chartMaxValue = Math.ceil(dataMaxValue / interval) * interval;
+
+      // Step 3: 生成所有刻度點
+      const ticks = [];
+      for (let i = 0; i <= chartMaxValue; i += interval) {
+        ticks.push(i);
+      }
+
+      return {
+        ticks: ticks,           // 刻度陣列 [0, 5, 10, 15...]
+        maxValue: chartMaxValue, // 圖表最大值
+        interval: interval       // 刻度間隔
+      };
+    };
+
+    // 計算刻度系統
+    const tickSystem = calculateTickSystem(maxCount);
+    const tickValues = tickSystem.ticks;
+
+    // 更新 X 軸比例尺的範圍
+    xScale.domain([0, tickSystem.maxValue]);
+
+    g.selectAll('.grid-line')
+      .data(tickValues)
+      .enter()
+      .append('line')
+      .attr('class', 'grid-line')
+      .attr('x1', d => xScale(d))
+      .attr('x2', d => xScale(d))
+      .attr('y1', 0)
+      .attr('y2', height)
+      .attr('stroke', 'var(--my-color-gray-400)')
+      .attr('stroke-dasharray', '2,2')
+      .attr('stroke-width', 1);
+
+    // 添加長條
+    g.selectAll('.bar')
+      .data(districtCount)
+      .enter()
+      .append('rect')
+      .attr('class', 'bar')
+      .attr('x', 0)
+      .attr('y', (d, i) => i * barSpacing + (barSpacing - barHeight) / 2)
+      .attr('width', d => xScale(d.count))
+      .attr('height', barHeight)
+      .attr('fill', 'var(--my-color-blue)');
+
+    // 添加數值標籤
+    g.selectAll('.label')
+      .data(districtCount)
+      .enter()
+      .append('text')
+      .attr('class', 'label my-font-size-xs')
+      .attr('x', d => xScale(d.count) + 5)
+      .attr('y', (d, i) => i * barSpacing + barSpacing / 2)
+      .attr('dy', '0.35em')
+      .attr('fill', 'var(--my-color-black)')
+      .text(d => d.count);
+
+    // 添加區域名稱標籤
+    g.selectAll('.district-label')
+      .data(districtCount)
+      .enter()
+      .append('text')
+      .attr('class', 'district-label my-font-size-xs')
+      .attr('x', -5)
+      .attr('y', (d, i) => i * barSpacing + barSpacing / 2)
+      .attr('dy', '0.35em')
+      .attr('fill', 'var(--my-color-black)')
+      .style('text-anchor', 'end')
+      .text(d => d.name);
+
+    // 添加 X 軸數字標籤
+    g.selectAll('.x-axis-label')
+      .data(tickValues)
+      .enter()
+      .append('text')
+      .attr('class', 'x-axis-label my-font-size-xs')
+      .attr('x', d => xScale(d))
+      .attr('y', height + 15)
+      .attr('fill', 'var(--my-color-gray-600)')
+      .style('text-anchor', 'middle')
+      .text(d => d);
+  };
 
   // 記錄上一次的圖層列表用於比較
   const previousLayers = ref([]);
@@ -82,6 +222,21 @@
   );
 
   /**
+   * 👀 監聽當前圖層摘要變化，更新圖表
+   */
+  watch(
+    () => currentLayerSummary.value,
+    (newSummary) => {
+      if (newSummary && newSummary.districtCount) {
+        nextTick(() => {
+          drawHorizontalBarChart(newSummary.districtCount);
+        });
+      }
+    },
+    { immediate: true }
+  );
+
+  /**
    * 🚀 組件掛載事件 (Component Mounted Event)
    */
   onMounted(() => {
@@ -91,6 +246,24 @@
     if (visibleLayers.value.length > 0 && !activeLayerTab.value) {
       activeLayerTab.value = visibleLayers.value[0].layerId;
     }
+  });
+
+  // 監聽窗口大小變化，重新繪製圖表
+  const handleResize = () => {
+    if (currentLayerSummary.value && currentLayerSummary.value.districtCount) {
+      nextTick(() => {
+        drawHorizontalBarChart(currentLayerSummary.value.districtCount);
+      });
+    }
+  };
+
+  onMounted(() => {
+    window.addEventListener('resize', handleResize);
+  });
+
+  // 組件卸載時移除事件監聽
+  onUnmounted(() => {
+    window.removeEventListener('resize', handleResize);
   });
 </script>
 
@@ -121,23 +294,47 @@
     </div>
 
     <!-- 有開啟圖層時的內容 -->
-    <div v-if="visibleLayers.length > 0" class="flex-grow-1 overflow-hidden my-bgcolor-white p-3">
+    <div v-if="visibleLayers.length > 0" class="flex-grow-1 overflow-auto my-bgcolor-white p-3">
       <!-- 📊 當前圖層資訊 -->
       <div class="mb-4">
-        {{ currentLayerName }}
+        <h5 class="my-title-md-black">{{ currentLayerName }}</h5>
       </div>
 
       <!-- 📊 圖層摘要資料 -->
-      <div class="card-body">
-        <div v-if="currentLayerSummary">
-          <pre class="p-3">{{
-            JSON.stringify(currentLayerSummary, null, 2)
-          }}</pre>
+      <div v-if="currentLayerSummary">
+        <div class="row">
+          <!-- 基本統計信息 -->
+          <div class="col-12 col-xl-6">
+            <div class="rounded-4 my-bgcolor-gray-100 p-4 mb-3">
+              <h6 class="mb-3">基本統計</h6>
+              <div class="row">
+                <div class="col-6">
+                  <div class="text-center">
+                    <div class="my-title-xl-black">{{ currentLayerSummary.totalCount }}</div>
+                    <div class="my-title-sm-black">總數量</div>
+                  </div>
+                </div>
+                <div class="col-6" v-if="currentLayerSummary.districtCount">
+                  <div class="text-center">
+                    <div class="my-title-xl-black">{{ currentLayerSummary.districtCount.length }}</div>
+                    <div class="my-title-sm-black">涵蓋行政區</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 行政區分布圖表 -->
+          <div class="col-12 col-xl-6" v-if="currentLayerSummary.districtCount && currentLayerSummary.districtCount.length > 0">
+            <div class="rounded-4 my-bgcolor-gray-100 p-4 mb-3">
+              <h6 class="mb-2">行政區分布</h6>
+              <div ref="chartContainer" class="w-100"></div>
+            </div>
+          </div>
         </div>
-        <div v-else class="text-center py-5">
-          <h5>沒有摘要資料</h5>
-          <p>此圖層沒有可用的摘要資訊</p>
-        </div>
+      </div>
+      <div v-else class="text-center py-5">
+        <div class="my-title-md-gray">此圖層沒有可用的摘要資訊</div>
       </div>
     </div>
 
