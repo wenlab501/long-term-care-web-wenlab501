@@ -233,7 +233,7 @@
               <hr class="my-3">
 
               <div class="my-title-xs-gray mb-3">
-                範圍內點物件 ({{ pointsInRange.length }})
+                範圍內點物件 {{ pointsInRange.length }}
               </div>
               <DetailItem
                 v-for="(point, index) in pointsInRange"
@@ -248,7 +248,7 @@
               <hr class="my-3">
 
               <div class="my-title-xs-gray mb-3">
-                範圍內點物件 ({{ pointsInRange.length }})
+                範圍內面域物件 {{ polygonInRange.length }}
               </div>
               <DetailItem
                 v-for="(polygon, index) in polygonInRange"

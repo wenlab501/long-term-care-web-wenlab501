@@ -332,7 +332,7 @@
                 </div>
                 <div class="col-6" v-if="currentLayerSummary.districtCount">
                   <div class="text-center">
-                    <div class="my-title-xl-black">{{ currentLayerSummary.districtCount.length }}</div>
+                    <div class="my-title-xl-black">{{ Math.min(currentLayerSummary.districtCount.length, 5) }}</div>
                     <div class="my-title-sm-gray">行政區數量</div>
                   </div>
                 </div>
