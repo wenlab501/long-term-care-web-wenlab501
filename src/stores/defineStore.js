@@ -70,8 +70,13 @@ export const useDefineStore = defineStore('define', {
         url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
       },
       {
-        label: '空白地圖',
+        label: '白色地圖',
         value: 'blank',
+        url: '',
+      },
+      {
+        label: '黑色底圖',
+        value: 'black',
         url: '',
       },
     ],

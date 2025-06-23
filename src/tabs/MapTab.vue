@@ -178,6 +178,9 @@
           if (defineStore.selectedBasemap === 'blank') {
             // 空白地圖時設為白色背景
             mapContainerElement.style.backgroundColor = 'var(--my-color-white)';
+          } else if (defineStore.selectedBasemap === 'black') {
+            // 全黑底圖時設為黑色背景
+            mapContainerElement.style.backgroundColor = 'var(--my-color-gray-800)';
           } else {
             // 其他底圖時設為透明，讓底圖顯示
             mapContainerElement.style.backgroundColor = 'transparent';
