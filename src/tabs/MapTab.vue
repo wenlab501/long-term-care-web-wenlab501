@@ -1168,6 +1168,25 @@
         </div>
       </div>
 
+      <!-- 顯示全部 -->
+      <button
+        class="btn rounded-pill border-0 my-btn-white my-font-size-xs text-nowrap"
+        @click="showAllFeatures"
+        :disabled="!isAnyLayerVisible"
+        title="顯示圖面所有資料範圍"
+      >
+        顯示全部
+      </button>
+
+      <!-- 顯示全市 -->
+      <button
+        class="btn rounded-pill border-0 my-btn-white my-font-size-xs text-nowrap"
+        @click="showFullCity"
+        title="回到預設地圖範圍"
+      >
+        顯示全市
+      </button>
+
       <!-- 點選分析位置 -->
       <button
         v-if="!isClickMode"
@@ -1184,25 +1203,6 @@
         title="取消地圖點選"
       >
         取消地圖點選
-      </button>
-
-      <!-- 顯示全部 -->
-      <button
-        class="btn rounded-pill border-0 my-btn-blue my-font-size-xs text-nowrap"
-        @click="showAllFeatures"
-        :disabled="!isAnyLayerVisible"
-        title="顯示圖面所有資料範圍"
-      >
-        顯示全部
-      </button>
-
-      <!-- 顯示全市 -->
-      <button
-        class="btn rounded-pill border-0 my-btn-blue my-font-size-xs text-nowrap"
-        @click="showFullCity"
-        title="回到預設地圖範圍"
-      >
-        顯示全市
       </button>
     </div>
   </div>
