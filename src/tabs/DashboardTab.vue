@@ -311,13 +311,13 @@
                 <div class="col-6">
                   <div class="text-center">
                     <div class="my-title-xl-black">{{ currentLayerSummary.totalCount }}</div>
-                    <div class="my-title-sm-black">總數量</div>
+                    <div class="my-title-sm-gray">總數量</div>
                   </div>
                 </div>
                 <div class="col-6" v-if="currentLayerSummary.districtCount">
                   <div class="text-center">
                     <div class="my-title-xl-black">{{ currentLayerSummary.districtCount.length }}</div>
-                    <div class="my-title-sm-black">涵蓋行政區</div>
+                    <div class="my-title-sm-gray">行政區數量</div>
                   </div>
                 </div>
               </div>
@@ -327,7 +327,7 @@
           <!-- 行政區分布圖表 -->
           <div class="col-12 col-xl-6" v-if="currentLayerSummary.districtCount && currentLayerSummary.districtCount.length > 0">
             <div class="rounded-4 my-bgcolor-gray-100 p-4 mb-3">
-              <h6 class="mb-2">行政區分布</h6>
+              <h6 class="mb-3">行政區分布</h6>
               <div ref="chartContainer" class="w-100"></div>
             </div>
           </div>
