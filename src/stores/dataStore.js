@@ -798,8 +798,8 @@ export const useDataStore = defineStore(
         }
       };
 
-      // 添加到分析圖層（點在前，圓圈在後，這樣圓圈會在下層）
-      analysisLayer.geoJsonData.features.push(pointFeature, circleFeature);
+      // 添加到分析圖層（圓圈在前，點在後，這樣圓圈會在下層，點在上層）
+      analysisLayer.geoJsonData.features.push(circleFeature, pointFeature);
 
       // 更新圖層統計和表格數據
       updateAnalysisLayerData(analysisLayer);

@@ -503,7 +503,7 @@
 
         console.log(`🔄 圖層同步: 新增 ${newLayerIds.length} 個, 移除 ${layersToRemove.length} 個`);
 
-        // 只移除不可見的圖層，避免不必要的重新渲染
+                // 只移除不可見的圖層，避免不必要的重新渲染
         layersToRemove.forEach((layerId) => {
           if (layerGroups[layerId]) {
             mapInstance.removeLayer(layerGroups[layerId]);
@@ -512,46 +512,44 @@
           }
         });
 
-        // 分離分析圖層和其他圖層，確保分析圖層在最底層
-        const analysisLayers = visibleLayers.filter(l => l.isAnalysisLayer);
-        const otherLayers = visibleLayers.filter(l => !l.isAnalysisLayer);
+        // 檢查是否有分析圖層需要更新
+        const hasAnalysisLayerUpdate = visibleLayers.some(layer => layer.isAnalysisLayer);
 
-        // 用於收集新添加的非分析圖層，以便後續自動縮放
+        // 如果有分析圖層更新，需要重新渲染所有圖層以保持正確順序
+        if (hasAnalysisLayerUpdate) {
+          // 移除所有現有圖層
+          Object.keys(layerGroups).forEach((layerId) => {
+            if (layerGroups[layerId]) {
+              mapInstance.removeLayer(layerGroups[layerId]);
+              delete layerGroups[layerId];
+            }
+          });
+        }
+
+        // 用於收集新添加的圖層，以便後續自動縮放
         const newAddedLayers = [];
 
-        // 1. 處理分析圖層（最底層）
-        analysisLayers.forEach((layer) => {
+        // 按照 layers 的反轉順序處理所有可見圖層（這樣第一個圖層會在最底層）
+        visibleLayers.slice().reverse().forEach((layer) => {
           const { layerId } = layer;
-          // 如果圖層已存在，跳過
-          if (layerGroups[layerId]) return;
+
+          // 如果有分析圖層更新，所有圖層都需要重新創建
+          // 否則只有不存在的圖層才創建
+          const shouldCreateLayer = hasAnalysisLayerUpdate || !layerGroups[layerId];
+
+          if (!shouldCreateLayer) return;
 
           try {
             const newLayer = createFeatureLayer(layer);
             if (newLayer) {
-              newLayer.isAnalysisLayer = true;
-              newLayer.addTo(mapInstance);
-              layerGroups[layerId] = newLayer;
-              console.log(`🗺️ 分析圖層 "${layer.layerName}" 已添加到地圖 (底層)`);
-            }
-          } catch (error) {
-            console.error(`添加分析圖層 "${layer.layerName}" 時發生錯誤:`, error);
-          }
-        });
-
-        // 2. 處理其他圖層
-        otherLayers.forEach((layer) => {
-          const { layerId } = layer;
-          // 如果圖層已存在，跳過
-          if (layerGroups[layerId]) return;
-
-          try {
-            const newLayer = createFeatureLayer(layer);
-            if (newLayer) {
+              if (layer.isAnalysisLayer) {
+                newLayer.isAnalysisLayer = true;
+              }
               newLayer.addTo(mapInstance);
               layerGroups[layerId] = newLayer;
 
-              // 如果是新添加的圖層，收集起來用於自動縮放
-              if (newLayerIds.includes(layerId)) {
+              // 如果是新添加的圖層，收集起來用於自動縮放（分析圖層不需要縮放）
+              if (newLayerIds.includes(layerId) && !layer.isAnalysisLayer) {
                 newAddedLayers.push(newLayer);
               }
 
