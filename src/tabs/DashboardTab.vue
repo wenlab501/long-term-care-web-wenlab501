@@ -49,6 +49,9 @@
       return;
     }
 
+    // 限制最多只顯示 5 個 bar
+    const limitedDistrictCount = districtCount.slice(0, 5);
+
     // 清除之前的圖表
     d3.select(chartContainer.value).selectAll('*').remove();
 
@@ -58,7 +61,7 @@
     const width = containerWidth - margin.left - margin.right;
     const barHeight = 8;
     const barSpacing = 24;
-    const height = districtCount.length * barSpacing;
+    const height = limitedDistrictCount.length * barSpacing;
 
     // 創建 SVG
     const svg = d3
@@ -72,37 +75,50 @@
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
     // 設定比例尺
-    const maxCount = d3.max(districtCount, d => d.count);
+    const maxCount = d3.max(limitedDistrictCount, d => d.count);
     const xScale = d3
       .scaleLinear()
       .domain([0, maxCount])
       .range([0, width]);
 
                 /**
-     * 計算刻度系統 - 所有刻度都是5的倍數，且等間隔分布
+     * 計算刻度系統 - 所有刻度都是5的倍數，且等間隔分布，最多5個刻度
      */
     const calculateTickSystem = (dataMaxValue) => {
-      // Step 1: 決定刻度間隔（必須是5的倍數）
+      // Step 1: 決定刻度間隔（必須是5的倍數），確保刻度數量不超過5個
       let interval;
-      if (dataMaxValue >= 50) {
-        interval = 20; // 大數據：每20一個刻度 (0, 20, 40, 60...)
-      } else if (dataMaxValue >= 20) {
-        interval = 10; // 中數據：每10一個刻度 (0, 10, 20, 30...)
+
+      // 計算需要的間隔，使刻度數量不超過5個（包含0）
+      const maxTicks = 5;
+      const minInterval = Math.ceil(dataMaxValue / (maxTicks - 1));
+
+      // 找到最小的5的倍數間隔
+      if (minInterval <= 5) {
+        interval = 5;
+      } else if (minInterval <= 10) {
+        interval = 10;
+      } else if (minInterval <= 20) {
+        interval = 20;
+      } else if (minInterval <= 50) {
+        interval = 50;
+      } else if (minInterval <= 100) {
+        interval = 100;
       } else {
-        interval = 5;  // 小數據：每5一個刻度 (0, 5, 10, 15...)
+        // 對於更大的數值，找到最接近的5的倍數
+        interval = Math.ceil(minInterval / 5) * 5;
       }
 
-             // Step 2: 計算圖表的最大刻度值（不超過實際最大值一個間距）
-       const chartMaxValue = Math.ceil(dataMaxValue / interval) * interval;
+      // Step 2: 計算圖表的最大刻度值
+      const chartMaxValue = Math.ceil(dataMaxValue / interval) * interval;
 
-      // Step 3: 生成所有刻度點
+      // Step 3: 生成刻度點，確保不超過5個
       const ticks = [];
-      for (let i = 0; i <= chartMaxValue; i += interval) {
+      for (let i = 0; i <= chartMaxValue && ticks.length < maxTicks; i += interval) {
         ticks.push(i);
       }
 
       return {
-        ticks: ticks,           // 刻度陣列 [0, 5, 10, 15...]
+        ticks: ticks,           // 刻度陣列 [0, 5, 10, 15...]，最多5個
         maxValue: chartMaxValue, // 圖表最大值
         interval: interval       // 刻度間隔
       };
@@ -130,7 +146,7 @@
 
     // 添加長條
     g.selectAll('.bar')
-      .data(districtCount)
+      .data(limitedDistrictCount)
       .enter()
       .append('rect')
       .attr('class', 'bar')
@@ -142,7 +158,7 @@
 
     // 添加數值標籤
     g.selectAll('.label')
-      .data(districtCount)
+      .data(limitedDistrictCount)
       .enter()
       .append('text')
       .attr('class', 'label my-font-size-xs')
@@ -154,7 +170,7 @@
 
     // 添加區域名稱標籤
     g.selectAll('.district-label')
-      .data(districtCount)
+      .data(limitedDistrictCount)
       .enter()
       .append('text')
       .attr('class', 'district-label my-font-size-xs')

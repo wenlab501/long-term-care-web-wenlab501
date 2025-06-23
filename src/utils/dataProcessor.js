@@ -109,12 +109,17 @@ export async function loadCommunityCareCenterData(layer) {
       ...feature.properties.tableData,
     }));
 
-    // 統計各行政區的數量
+    // 統計各行政區的數量 - 從地址中提取行政區
     const districtCounts = {};
     geoJsonData.features.forEach(feature => {
-      const district = feature.properties.propertyData.行政區;
-      if (district) {
-        districtCounts[district] = (districtCounts[district] || 0) + 1;
+      const address = feature.properties.propertyData.據點地址;
+      if (address) {
+        // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
+        const districtMatch = address.match(/臺北市([^市]*?區)/);
+        if (districtMatch) {
+          const district = districtMatch[1];
+          districtCounts[district] = (districtCounts[district] || 0) + 1;
+        }
       }
     });
 
@@ -247,12 +252,17 @@ export async function loadCLevelUnitData(layer) {
       ...feature.properties.tableData,
     }));
 
-    // 統計各行政區的數量
+    // 統計各行政區的數量 - 從地址中提取行政區
     const districtCounts = {};
     geoJsonData.features.forEach(feature => {
-      const district = feature.properties.propertyData.行政區;
-      if (district) {
-        districtCounts[district] = (districtCounts[district] || 0) + 1;
+      const address = feature.properties.propertyData.據點地址;
+      if (address) {
+        // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
+        const districtMatch = address.match(/臺北市([^市]*?區)/);
+        if (districtMatch) {
+          const district = districtMatch[1];
+          districtCounts[district] = (districtCounts[district] || 0) + 1;
+        }
       }
     });
 
@@ -383,12 +393,17 @@ export async function loadRespiteCareCPlusUnitData(layer) {
       ...feature.properties.tableData,
     }));
 
-    // 統計各行政區的數量
+    // 統計各行政區的數量 - 從地址中提取行政區
     const districtCounts = {};
     geoJsonData.features.forEach(feature => {
-      const district = feature.properties.propertyData.行政區;
-      if (district) {
-        districtCounts[district] = (districtCounts[district] || 0) + 1;
+      const address = feature.properties.propertyData.據點地址;
+      if (address) {
+        // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
+        const districtMatch = address.match(/臺北市([^市]*?區)/);
+        if (districtMatch) {
+          const district = districtMatch[1];
+          districtCounts[district] = (districtCounts[district] || 0) + 1;
+        }
       }
     });
 
@@ -533,7 +548,7 @@ export async function loadPublicElderlyWelfareInstitutionData(layer) {
       const address = feature.properties.propertyData.地址;
       if (address) {
         // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
-        const districtMatch = address.match(/臺北市([^市]+區)/);
+        const districtMatch = address.match(/臺北市([^市]*?區)/);
         if (districtMatch) {
           const district = districtMatch[1];
           districtCounts[district] = (districtCounts[district] || 0) + 1;
@@ -682,12 +697,17 @@ export async function loadElderlyWelfareInstitutionData(layer) {
       ...feature.properties.tableData,
     }));
 
-    // 統計各行政區的數量
+    // 統計各行政區的數量 - 從地址中提取行政區
     const districtCounts = {};
     geoJsonData.features.forEach(feature => {
-      const district = feature.properties.propertyData.區域別;
-      if (district) {
-        districtCounts[district] = (districtCounts[district] || 0) + 1;
+      const address = feature.properties.propertyData.地址;
+      if (address) {
+        // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
+        const districtMatch = address.match(/臺北市([^市]*?區)/);
+        if (districtMatch) {
+          const district = districtMatch[1];
+          districtCounts[district] = (districtCounts[district] || 0) + 1;
+        }
       }
     });
 
@@ -818,12 +838,17 @@ export async function loadCommunityIntegrationServiceCenterData(layer) {
       ...feature.properties.tableData,
     }));
 
-    // 統計各行政區的數量
+    // 統計各行政區的數量 - 從地址中提取行政區
     const districtCounts = {};
     geoJsonData.features.forEach(feature => {
-      const district = feature.properties.propertyData.行政區;
-      if (district) {
-        districtCounts[district] = (districtCounts[district] || 0) + 1;
+      const address = feature.properties.propertyData.服務地址_聯絡電話;
+      if (address) {
+        // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
+        const districtMatch = address.match(/臺北市([^市]*?區)/);
+        if (districtMatch) {
+          const district = districtMatch[1];
+          districtCounts[district] = (districtCounts[district] || 0) + 1;
+        }
       }
     });
 
@@ -960,7 +985,7 @@ export async function loadGeneralNursingHomeData(layer) {
       const address = feature.properties.propertyData.地址;
       if (address) {
         // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
-        const districtMatch = address.match(/臺北市([^市]+區)/);
+        const districtMatch = address.match(/臺北市([^市]*?區)/);
         if (districtMatch) {
           const district = districtMatch[1];
           districtCounts[district] = (districtCounts[district] || 0) + 1;
@@ -1104,7 +1129,7 @@ export async function loadResidentialLongTermCareData(layer) {
       const address = feature.properties.propertyData.地址;
       if (address) {
         // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
-        const districtMatch = address.match(/臺北市([^市]+區)/);
+        const districtMatch = address.match(/臺北市([^市]*?區)/);
         if (districtMatch) {
           const district = districtMatch[1];
           districtCounts[district] = (districtCounts[district] || 0) + 1;
@@ -1245,12 +1270,17 @@ export async function load66Data(layer) {
       ...feature.properties.tableData,
     }));
 
-    // 統計各行政區的數量
+    // 統計各行政區的數量 - 從地址中提取行政區
     const districtCounts = {};
     geoJsonData.features.forEach(feature => {
-      const district = feature.properties.propertyData.服務區別;
-      if (district) {
-        districtCounts[district] = (districtCounts[district] || 0) + 1;
+      const address = feature.properties.propertyData.機構服務地址;
+      if (address) {
+        // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
+        const districtMatch = address.match(/臺北市([^市]*?區)/);
+        if (districtMatch) {
+          const district = districtMatch[1];
+          districtCounts[district] = (districtCounts[district] || 0) + 1;
+        }
       }
     });
 
@@ -1387,12 +1417,17 @@ export async function load142Data(layer) {
       ...feature.properties.tableData,
     }));
 
-    // 統計各行政區的數量
+    // 統計各行政區的數量 - 從地址中提取行政區
     const districtCounts = {};
     geoJsonData.features.forEach(feature => {
-      const district = feature.properties.propertyData.服務區別;
-      if (district) {
-        districtCounts[district] = (districtCounts[district] || 0) + 1;
+      const address = feature.properties.propertyData.機構服務地址;
+      if (address) {
+        // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
+        const districtMatch = address.match(/臺北市([^市]*?區)/);
+        if (districtMatch) {
+          const district = districtMatch[1];
+          districtCounts[district] = (districtCounts[district] || 0) + 1;
+        }
       }
     });
 
@@ -1529,12 +1564,17 @@ export async function load25Data(layer) {
       ...feature.properties.tableData,
     }));
 
-    // 統計各行政區的數量
+    // 統計各行政區的數量 - 從地址中提取行政區
     const districtCounts = {};
     geoJsonData.features.forEach(feature => {
-      const district = feature.properties.propertyData.服務區別;
-      if (district) {
-        districtCounts[district] = (districtCounts[district] || 0) + 1;
+      const address = feature.properties.propertyData.機構服務地址;
+      if (address) {
+        // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
+        const districtMatch = address.match(/臺北市([^市]*?區)/);
+        if (districtMatch) {
+          const district = districtMatch[1];
+          districtCounts[district] = (districtCounts[district] || 0) + 1;
+        }
       }
     });
 
@@ -1681,12 +1721,17 @@ export async function load41Data(layer) {
       ...feature.properties.tableData,
     }));
 
-    // 統計各行政區的數量
+    // 統計各行政區的數量 - 從地址中提取行政區
     const districtCounts = {};
     geoJsonData.features.forEach(feature => {
-      const district = feature.properties.propertyData.服務區別;
-      if (district) {
-        districtCounts[district] = (districtCounts[district] || 0) + 1;
+      const address = feature.properties.propertyData.機構服務地址;
+      if (address) {
+        // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
+        const districtMatch = address.match(/臺北市([^市]*?區)/);
+        if (districtMatch) {
+          const district = districtMatch[1];
+          districtCounts[district] = (districtCounts[district] || 0) + 1;
+        }
       }
     });
 
@@ -1977,7 +2022,7 @@ export async function loadHealthcareFacilityPharmacyData(layer) {
       const address = feature.properties.propertyData.地址;
       if (address) {
         // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
-        const districtMatch = address.match(/臺北市([^市]+區)/);
+        const districtMatch = address.match(/臺北市([^市]*?區)/);
         if (districtMatch) {
           const district = districtMatch[1];
           districtCounts[district] = (districtCounts[district] || 0) + 1;
@@ -2395,7 +2440,7 @@ export async function loadConvenienceStoreData(layer) {
       const address = feature.properties.propertyData.分公司地址;
       if (address) {
         // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
-        const districtMatch = address.match(/臺北市([^市]+區)/);
+        const districtMatch = address.match(/臺北市([^市]*?區)/);
         if (districtMatch) {
           const district = districtMatch[1];
           districtCounts[district] = (districtCounts[district] || 0) + 1;
