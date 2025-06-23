@@ -96,26 +96,21 @@
         (newTab, oldTab) => {
           console.log('🔄 UpperView: Tab changed from', oldTab, 'to', newTab);
 
-          nextTick(() => {
-            if (newTab === 'map' && MapTab.value) {
-              console.log('🗺️ UpperView: Updating map after tab switch');
-              // 🗺️ 刷新地圖大小，解決容器變化導致的顯示問題
-              MapTab.value.invalidateSize();
-
-              // 如果是從其他分頁切換到地圖，延遲一點再刷新確保DOM完全渲染
-              setTimeout(() => {
-                if (MapTab.value) {
-                  MapTab.value.invalidateSize();
-                  // 強制重新載入圖層，解決分頁切換後圖層消失的問題
-                  MapTab.value.invalidateSize();
-                  console.log(
-                    '🗺️ UpperView: Map size invalidated and layers force updated after tab switch'
-                  );
-                }
-              }, 100);
-            }
-            // Dashboard現在是純文字統計，不需要刷新圖表
-          });
+          // 使用 v-show 後組件不會被銷毀，只需要在切換到地圖時刷新尺寸
+          if (newTab === 'map' && oldTab && oldTab !== 'map') {
+            nextTick(() => {
+              if (MapTab.value) {
+                console.log('🗺️ UpperView: Refreshing map size after showing map tab');
+                // 延遲執行，確保容器從隱藏狀態變為可見後再刷新尺寸
+                setTimeout(() => {
+                  if (MapTab.value && props.activeUpperTab === 'map') {
+                    MapTab.value.invalidateSize();
+                    console.log('🗺️ UpperView: Map size refreshed successfully');
+                  }
+                }, 100); // 減少延遲時間，因為現在不需要等待組件重新創建
+              }
+            });
+          }
         }
       );
 
@@ -241,7 +236,7 @@
       </div>
 
       <!-- 地圖分頁內容-->
-      <div v-if="activeUpperTab === 'map'" class="h-100">
+      <div v-show="activeUpperTab === 'map'" class="h-100">
         <MapTab
           ref="MapTab"
           :showTainanLayer="showTainanLayer"
@@ -257,7 +252,7 @@
 
       <!-- 儀表板分頁內容 -->
       <div
-        v-if="activeUpperTab === 'dashboard'"
+        v-show="activeUpperTab === 'dashboard'"
         ref="dashboardContainerRef"
         class="h-100 overflow-auto pt-5"
       >

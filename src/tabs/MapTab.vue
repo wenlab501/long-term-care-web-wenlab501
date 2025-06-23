@@ -829,14 +829,6 @@
         }
       };
 
-      // 🔄 重設視圖函數 (Reset View Function)
-      const resetView = () => {
-        // 檢查地圖實例和準備狀態
-        if (mapInstance && isMapReady.value) {
-          mapInstance.setView([22.9908, 120.2133], 10); // 重設地圖視圖到台南市中心，縮放等級 10
-        }
-      };
-
       // 🔄 刷新地圖尺寸函數 (Invalidate Map Size Function)
       const invalidateSize = () => {
         // 檢查地圖實例和準備狀態
@@ -957,6 +949,8 @@
 
       // 📏 設置 ResizeObserver 監聽容器大小變化 (Setup ResizeObserver)
       let resizeObserver = null; // 宣告 ResizeObserver 實例變數
+      let resizeTimeout = null; // 防抖計時器
+
       const setupResizeObserver = () => {
         // 檢查容器存在且瀏覽器支援 ResizeObserver
         if (mapContainer.value && window.ResizeObserver) {
@@ -965,10 +959,18 @@
             for (let entry of entries) {
               // 遍歷所有變化的元素
               console.log('🔄 地圖容器大小變化:', entry.contentRect); // 輸出容器尺寸變化資訊
-              // 延遲執行，確保 DOM 更新完成
-              setTimeout(() => {
-                invalidateSize(); // 刷新地圖尺寸
-              }, 100); // 延遲 100ms
+
+              // 使用防抖機制，避免短時間內多次觸發
+              if (resizeTimeout) {
+                clearTimeout(resizeTimeout);
+              }
+
+              resizeTimeout = setTimeout(() => {
+                if (mapInstance && isMapReady.value) {
+                  invalidateSize(); // 刷新地圖尺寸
+                }
+                resizeTimeout = null;
+              }, 150); // 延遲 150ms，與 UpperView 的延遲保持一致
             }
           });
           resizeObserver.observe(mapContainer.value); // 開始觀察地圖容器
@@ -1034,7 +1036,12 @@
 
       // 🧹 生命週期：組件卸載 (Lifecycle: Component Unmounted)
       onUnmounted(() => {
-        // 清理 ResizeObserver
+        // 清理 ResizeObserver 和相關計時器
+        if (resizeTimeout) {
+          clearTimeout(resizeTimeout);
+          resizeTimeout = null;
+        }
+
         if (resizeObserver) {
           // 如果 ResizeObserver 存在
           resizeObserver.disconnect(); // 停止觀察
@@ -1086,7 +1093,6 @@
         showFullCity, // 顯示全市函數
         isAnyLayerVisible, // 檢查是否有可見圖層的計算屬性
         highlightFeature, // 高亮顯示特定要素函數
-        resetView, // 重設地圖視圖函數
         invalidateSize, // 刷新地圖尺寸函數
         startClickMode, // 開始點擊模式函數
         stopClickMode, // 停止點擊模式函數
