@@ -21,6 +21,7 @@ import {
   loadConvenienceStoreData,
   loadMRTStationGeoJson,
   loadBusStopGeoJson,
+  loadLanduseGeoJson,
   loadTaipeiDistrictGeoJson,
 } from '../utils/dataProcessor.js';
 
@@ -458,6 +459,23 @@ export const useDataStore = defineStore(
       {
         groupName: '基礎地理資料',
         groupLayers: [
+          {
+            layerId: '土地利用',
+            layerName: '土地利用',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            type: 'polygon',
+            shape: null,
+            colorName: 'brown',
+            geoJsonData: null,
+            summaryData: null,
+            tableData: null,
+            legendData: null,
+            loader: loadLanduseGeoJson,
+            fileName: 'Landuse2.geojson',
+            fieldName: 'A0A14_CNT',
+          },
           {
             layerId: '行政區界',
             layerName: '行政區界',

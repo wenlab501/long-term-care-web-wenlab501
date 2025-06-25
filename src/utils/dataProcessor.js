@@ -2624,6 +2624,113 @@ export async function loadBusStopGeoJson(layer) {
   }
 }
 
+// 土地利用
+export async function loadLanduseGeoJson(layer) {
+  try {
+    const layerId = layer.layerId;
+    const fieldName = layer.fieldName;
+
+    const filePath = `/long-term-care-web/data/geojson/${layer.fileName}`;
+    const a = fieldName || null;
+    console.log(a);
+
+    const response = await fetch(filePath);
+
+    if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const geoJsonData = await response.json();
+
+    // ----------------------------
+    // --- 開始修改區域 (僅新增以下兩段程式) ---
+
+    // 1. 定義一個顏色陣列
+    const colorPalette = [
+      'rgba(239, 138, 98, 0.7)',
+      'rgba(179, 226, 205, 0.7)',
+      'rgba(253, 205, 172, 0.7)',
+      'rgba(204, 235, 197, 0.7)',
+      'rgba(188, 128, 189, 0.7)',
+      'rgba(252, 205, 229, 0.7)',
+      'rgba(217, 217, 217, 0.7)',
+      'rgba(141, 160, 203, 0.7)',
+    ];
+
+    // 2. 取得所有不重複且排序後的 NEWLAYER 值
+    const sortedUniqueValues = Array.from(
+      new Set(geoJsonData.features.map(f => f.properties.NEWLAYER))
+    ).sort((a, b) => Number(a) - Number(b));
+
+    // --- 結束修改區域 ---
+    // ----------------------------
+
+
+    geoJsonData.features.forEach((feature, index) => {
+      feature.properties.id = index + 1;
+      feature.properties.layerId = layerId;
+      feature.properties.layerName = layer.layerName;
+      feature.properties.name = feature.properties.ZONE;
+
+      // --- 修改此行 ---
+      // feature.properties.fillColor = null; // 這是原始的行
+      const valueIndex = sortedUniqueValues.indexOf(feature.properties.NEWLAYER);
+      const color = colorPalette[valueIndex % colorPalette.length];
+      feature.properties.color = color;
+      feature.properties.fillColor = color;
+      // --- 修改結束 ---
+
+      const propertyData = {
+        NEWLAYER: feature.properties.NEWLAYER,
+        ...feature.properties,
+      };
+
+      const popupData = {
+        NEWLAYER: feature.properties.NEWLAYER,
+      };
+
+      const tableData = {
+        '#': feature.properties.id,
+        color: layer.color,
+        name: feature.properties.name,
+        NEWLAYER: feature.properties.NEWLAYER,
+      };
+
+      feature.properties.propertyData = propertyData;
+      feature.properties.popupData = popupData;
+      feature.properties.tableData = tableData;
+    });
+
+    // 包含為表格量身打造的數據陣列
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
+
+    // 包含摘要資訊
+    const summaryData = {
+      totalCount: geoJsonData.features.length,
+    };
+
+    // 維持不變，以符合最少改動原則
+    const legendData = null;
+
+    return {
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
+      tableData, // 包含為表格量身打造的數據陣列
+      summaryData, // 包含摘要資訊
+      legendData, // 包含圖例資訊 (維持 null)
+    };
+  } catch (error) {
+    console.error('❌ GeoJSON 數據載入或處理失敗:', error);
+    throw error;
+  }
+}
+
 // 臺北市區界圖
 export async function loadTaipeiDistrictGeoJson(layer) {
   try {
