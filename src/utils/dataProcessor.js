@@ -2056,11 +2056,11 @@ export async function loadHealthcareFacilityPharmacyData(layer) {
 export async function loadPopulation3LevelsGeoJson(layer) {
   try {
     const layerId = layer.layerId;
-    const fieldName = layer.fieldName;
+    const fieldName = layer.fieldName; // fieldName 現在代表「人口數」
 
     const filePath = `/long-term-care-web/data/geojson/${layer.fileName}`;
-    const a = fieldName || null;
-    console.log(a);
+
+    // 省略 console.log(a)
 
     const response = await fetch(filePath);
 
@@ -2075,121 +2075,151 @@ export async function loadPopulation3LevelsGeoJson(layer) {
 
     const geoJsonData = await response.json();
 
-    // ----------------------------
+    // ▼▼▼▼▼ 步驟 1: 預先處理數據，計算面積與人口密度 ▼▼▼▼▼
+    // 我們先遍歷一次所有 features，把面積和人口密度（作為新的 value）加上去
+    geoJsonData.features.forEach(feature => {
+      const properties = feature.properties;
 
+      // 計算面積 (km²)
+      const earthRadiusKm = 6371;
+      const areaInSqKm = d3.geoArea(feature) * Math.pow(earthRadiusKm, 2);
+      properties.area = areaInSqKm;
+
+      // 取得人口數
+      const population = parseFloat(properties[fieldName]);
+
+      // 計算人口密度 (人/km²)
+      // 避免除以 0 或無效數字
+      let density = 0;
+      if (areaInSqKm > 0 && !isNaN(population) && population > 0) {
+        density = population / areaInSqKm;
+      }
+
+      // 將 feature 的核心 value 設為人口密度
+      properties.value = density;
+    });
+    // ▲▲▲▲▲ 步驟 1: 結束 ▲▲▲▲▲
+
+
+    // ▼▼▼▼▼ 步驟 2: 根據「人口密度」計算顏色範圍 ▼▼▼▼▼
     let minValue = 0;
     let maxValue = 0;
 
-    const values = geoJsonData.features
-      .map((f) => parseFloat(f.properties[fieldName]))
-      .filter((v) => !isNaN(v));
+    // 從剛剛算好的人口密度 (feature.properties.value) 中取得最大最小值
+    const densityValues = geoJsonData.features
+      .map((f) => f.properties.value)
+      .filter((v) => !isNaN(v) && isFinite(v)); // isFinite 可以過濾掉 Infinity
 
-    minValue = d3.min(values);
-    maxValue = d3.max(values);
+    if (densityValues.length > 0) {
+        minValue = d3.min(densityValues);
+        maxValue = d3.max(densityValues);
+    }
+    // ▲▲▲▲▲ 步驟 2: 結束 ▲▲▲▲▲
+
 
     // ----------------------------
-
-    // 您想使用的顏色數量
+    // 建立顏色比例尺 (這部分邏輯不變，但 domain 的依據已變為密度)
     const numColors = 5;
     const colors = d3.range(numColors).map(i => d3.interpolateBlues(i / (numColors - 1)));
 
-    // --- 關鍵修改從這裡開始 ---
-
-    // 1. 動態計算並產生 9 個 (numColors - 1)「整數」的間隔點
-    const step = (maxValue - minValue) / numColors; // 每個區間的約略寬度
+    const step = (maxValue - minValue) / numColors;
     const thresholds = d3.range(1, numColors).map((i) => {
-      // d3.range(1, 10) 會產生 [1, 2, 3, 4, 5, 6, 7, 8, 9]
-      // 我們用 Math.round() 來確保每個間隔點都是整數
       return Math.round(minValue + i * step);
     });
 
-    // 此時 thresholds 可能會是像 [50, 100, 150, 200, 250, 300, 350, 400, 450] 這樣的整數陣列
-
-    // 2. 使用 d3.scaleThreshold 並傳入我們計算好的間隔點
     const colorScale = d3
       .scaleThreshold()
-      .domain(thresholds) // 輸入範圍：您定義的整數門檻
-      .range(colors); // 輸出範圍：10 個顏色
+      .domain(thresholds)
+      .range(colors);
 
     // ----------------------------
 
+    // ▼▼▼▼▼ 步驟 3: 賦予顏色並整理最終輸出資料 ▼▼▼▼▼
     geoJsonData.features.forEach((feature, index) => {
-      feature.properties.id = index + 1;
-      feature.properties.layerId = layerId;
-      feature.properties.layerName = layer.layerName;
-      feature.properties.name = `${feature.properties.COUNTY}${feature.properties.TOWN}${feature.properties.VILLAGE}`;
-      feature.properties.value = parseFloat(feature.properties[fieldName]);
-      feature.properties.color = 'var(--my-color-white)';
-      feature.properties.fillColor = colorScale(feature.properties.value);
+      const properties = feature.properties;
+
+      properties.id = index + 1;
+      properties.layerId = layerId;
+      properties.layerName = layer.layerName;
+      properties.name = `${properties.COUNTY}${properties.TOWN}${properties.VILLAGE}`;
+
+      // 注意：properties.value 已經是人口密度了，這裡不需要再計算
+
+      properties.color = 'var(--my-color-white)';
+      properties.fillColor = colorScale(properties.value);
 
       const propertyData = {
-        里名: feature.properties.name,
-        ...feature.properties,
+        里名: properties.name,
+        人口密度: `${properties.value.toFixed(1)} 人/km²`,
+        [fieldName]: properties[fieldName], // 原始人口數
+        '面積(km²)': properties.area.toFixed(3),
+        ...properties, // 包含所有原始屬性
       };
 
       const popupData = {
-        里名: feature.properties.name,
+        里名: properties.name,
+        人口密度: `${properties.value.toFixed(1)} 人/km²`,
       };
 
       const tableData = {
-        '#': feature.properties.id,
-        color: colorScale(feature.properties.value),
-        里名: feature.properties.name,
-        [fieldName]: feature.properties[fieldName],
+        '#': properties.id,
+        color: colorScale(properties.value),
+        里名: properties.name,
+        [fieldName]: properties[fieldName], // 顯示原始人口數
+        '人口密度 (人/km²)': properties.value.toFixed(1), // 新增密度欄位
       };
 
-      feature.properties.propertyData = propertyData;
-      feature.properties.popupData = popupData;
-      feature.properties.tableData = tableData;
+      properties.propertyData = propertyData;
+      properties.popupData = popupData;
+      properties.tableData = tableData;
     });
+    // ▲▲▲▲▲ 步驟 3: 結束 ▲▲▲▲▲
 
-    // 包含為表格量身打造的數據陣列
+    // ----------------------------
+
     const tableData = geoJsonData.features.map((feature) => ({
       ...feature.properties.tableData,
     }));
 
-    // 包含摘要資訊
     const summaryData = {
       totalCount: geoJsonData.features.length,
     };
 
+    // ▼▼▼▼▼ 步驟 4: 更新圖例以反映人口密度 ▼▼▼▼▼
     const legendData = colors.map((color, index) => {
       let label = '';
       let extent = [];
-
-      // 判斷式：我們針對第一筆、最後一筆、以及中間的資料，給予不同的標籤格式
+      const format = (d) => Math.round(d).toLocaleString(); // 讓數字加上千分位，更易讀
 
       if (index === 0) {
-        // 【修正第一筆】顯示為 "< [第一個門檻值]"
         const upperBound = thresholds[0];
-        label = `< ${Math.round(upperBound)}`;
-        extent = [null, upperBound]; // 範圍的起始值用 null 表示
+        label = `< ${format(upperBound)}`;
+        extent = [null, upperBound];
       } else if (index === colors.length - 1) {
-        // 【修正最後一筆】顯示為 "> [最後一個門檻值]"
         const lowerBound = thresholds[thresholds.length - 1];
-        label = `> ${Math.round(lowerBound)}`;
-        extent = [lowerBound, null]; // 範圍的結束值用 null 表示
+        label = `> ${format(lowerBound)}`;
+        extent = [lowerBound, null];
       } else {
-        // 【中間項目】維持原本的 "起始 - 結束" 格式
         const lowerBound = thresholds[index - 1];
         const upperBound = thresholds[index];
-        label = `${Math.round(lowerBound)} - ${Math.round(upperBound)}`;
+        label = `${format(lowerBound)} - ${format(upperBound)}`;
         extent = [lowerBound, upperBound];
       }
 
-      // 回傳結構化的物件
       return {
         color: color,
-        label: label,
+        // 在圖例標籤後方加上單位
+        label: `${label} (人/km²)`,
         extent: extent,
       };
     });
+    // ▲▲▲▲▲ 步驟 4: 結束 ▲▲▲▲▲
 
     return {
-      geoJsonData, // 包含原始且完整的 GeoJSON 數據
-      tableData, // 包含為表格量身打造的數據陣列
-      summaryData, // 包含摘要資訊
-      legendData, // 包含圖例資訊
+      geoJsonData,
+      tableData,
+      summaryData,
+      legendData,
     };
   } catch (error) {
     console.error('❌ GeoJSON 數據載入或處理失敗:', error);

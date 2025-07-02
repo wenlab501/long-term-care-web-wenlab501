@@ -678,7 +678,7 @@
       <!-- 空間分析平台的主要功能界面，使用響應式三面板佈局 -->
       <div v-if="$route.path === '/'" class="h-100 d-flex flex-column overflow-hidden">
         <!-- 🖥️ 桌面版佈局 (Desktop Layout - xl and above) -->
-        <div class="d-flex _d-none _d-xl-flex flex-row overflow-hidden h-100">
+        <div class="d-none d-xl-flex flex-row overflow-hidden h-100">
           <!-- 🎛️ 左側控制面板容器 (Left Control Panel Container) -->
           <!-- 包含圖層控制、資料載入等功能，支援動態寬度調整 -->
           <div
@@ -755,7 +755,7 @@
         </div>
 
         <!-- 📱 行動版/平板版佈局 (Mobile/Tablet Layout - below xl) -->
-        <div class="d-none _d-flex _d-xl-none flex-column overflow-hidden h-100">
+        <div class="d-flex d-xl-none flex-column overflow-hidden h-100">
           <!-- 🌟 上半部區域 (Upper Area) - 只包含地圖和儀表板 -->
           <div
             class="flex-shrink-0 overflow-hidden d-flex flex-column"
