@@ -1151,7 +1151,7 @@
       <div class="d-flex align-items-center">
         <div class="dropdown dropup">
           <button
-            class="btn rounded-pill border-0 my-btn-white my-font-size-xs text-nowrap"
+            class="btn rounded-pill border-0 my-btn-transparent my-font-size-xs text-nowrap"
             type="button"
             data-bs-toggle="dropdown"
             aria-expanded="false"
@@ -1174,7 +1174,7 @@
 
       <!-- 顯示全部 -->
       <button
-        class="btn rounded-pill border-0 my-btn-white my-font-size-xs text-nowrap my-cursor-pointer"
+        class="btn rounded-pill border-0 my-btn-transparent my-font-size-xs text-nowrap my-cursor-pointer"
         @click="showAllFeatures"
         :disabled="!isAnyLayerVisible"
         title="顯示圖面所有資料範圍"
@@ -1184,7 +1184,7 @@
 
       <!-- 顯示全市 -->
       <button
-        class="btn rounded-pill border-0 my-btn-white my-font-size-xs text-nowrap my-cursor-pointer"
+        class="btn rounded-pill border-0 my-btn-transparent my-font-size-xs text-nowrap my-cursor-pointer"
         @click="showFullCity"
         title="回到預設地圖範圍"
       >

@@ -54,7 +54,7 @@
     >
       <!-- ⏳ 載入動畫圓環 (Loading Animation Spinner) -->
       <!-- Bootstrap 提供的圓形載入動畫，表示系統正在處理請求 -->
-      <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem" role="status">
+      <div class="spinner-border text-primary mb-3" style="width: 2rem; height: 2rem" role="status">
         <!-- 🔍 無障礙輔助文字 (Screen Reader Text) -->
         <!-- 為螢幕閱讀器提供的載入狀態說明 -->
         <span class="visually-hidden">載入中...</span>
@@ -62,7 +62,7 @@
 
       <!-- 📝 主要載入文字 (Primary Loading Text) -->
       <!-- 顯示當前載入的主要操作或狀態描述 -->
-      <div class="my-title-xl-black">{{ loadingText }}</div>
+      <div class="my-title-lg-black">{{ loadingText }}</div>
 
       <!-- 📊 載入進度條區域 (Loading Progress Area) -->
       <!-- 當需要顯示具體進度時，提供視覺化的進度條 -->

@@ -1,5 +1,99 @@
 import * as d3 from 'd3';
 
+// 土地利用顏色分類函數
+function getColorForZone(zone) {
+  const zoneLower = zone.toLowerCase();
+
+  // 住宅區系列 - 橙色系
+  if (zoneLower.includes('住') || zoneLower.includes('宅')) {
+    if (zoneLower.includes('住1') || zoneLower.includes('第一類')) return 'rgba(255, 178, 102, 0.8)';
+    if (zoneLower.includes('住2')) return 'rgba(255, 152, 51, 0.8)';
+    if (zoneLower.includes('住3')) return 'rgba(255, 128, 25, 0.8)';
+    if (zoneLower.includes('住4')) return 'rgba(230, 108, 15, 0.8)';
+    if (zoneLower.includes('住6')) return 'rgba(204, 85, 0, 0.8)';
+    if (zoneLower.includes('住商')) return 'rgba(255, 204, 153, 0.8)';
+    if (zoneLower.includes('第二類')) return 'rgba(255, 152, 51, 0.8)';
+    if (zoneLower.includes('第三類')) return 'rgba(255, 128, 25, 0.8)';
+    return 'rgba(255, 178, 102, 0.8)'; // 預設住宅區顏色
+  }
+
+  // 商業區系列 - 藍色系
+  if (zoneLower.includes('商')) {
+    if (zoneLower.includes('商1')) return 'rgba(102, 178, 255, 0.8)';
+    if (zoneLower.includes('商2')) return 'rgba(51, 152, 255, 0.8)';
+    if (zoneLower.includes('商3')) return 'rgba(25, 128, 255, 0.8)';
+    if (zoneLower.includes('商4')) return 'rgba(15, 108, 230, 0.8)';
+    if (zoneLower.includes('商特')) return 'rgba(153, 204, 255, 0.8)';
+    return 'rgba(102, 178, 255, 0.8)'; // 預設商業區顏色
+  }
+
+  // 工業區系列 - 灰色系
+  if (zoneLower.includes('工')) {
+    if (zoneLower.includes('工2')) return 'rgba(150, 150, 150, 0.8)';
+    if (zoneLower.includes('工3')) return 'rgba(120, 120, 120, 0.8)';
+    return 'rgba(180, 180, 180, 0.8)'; // 預設工業區顏色
+  }
+
+  // 綠地/公園系列 - 綠色系
+  if (zoneLower.includes('公園') || zoneLower.includes('綠地') || zoneLower.includes('風景') ||
+      zoneLower.includes('保護') || zoneLower.includes('國家公園')) {
+    if (zoneLower.includes('公園綠地')) return 'rgba(102, 204, 102, 0.8)';
+    if (zoneLower.includes('風景')) return 'rgba(76, 175, 76, 0.8)';
+    if (zoneLower.includes('保護')) return 'rgba(51, 153, 51, 0.8)';
+    if (zoneLower.includes('國家公園')) return 'rgba(25, 128, 25, 0.8)';
+    return 'rgba(102, 204, 102, 0.8)';
+  }
+
+  // 交通系列 - 深藍/紫色系
+  if (zoneLower.includes('交通') || zoneLower.includes('停車') || zoneLower.includes('鐵路') ||
+      zoneLower.includes('機場') || zoneLower.includes('高速公路')) {
+    if (zoneLower.includes('停車')) return 'rgba(153, 102, 204, 0.8)';
+    if (zoneLower.includes('交通')) return 'rgba(128, 77, 179, 0.8)';
+    if (zoneLower.includes('鐵路')) return 'rgba(102, 51, 153, 0.8)';
+    if (zoneLower.includes('機場')) return 'rgba(77, 26, 128, 0.8)';
+    if (zoneLower.includes('高速公路')) return 'rgba(51, 0, 102, 0.8)';
+    return 'rgba(128, 77, 179, 0.8)';
+  }
+
+  // 公共設施系列 - 黃色系
+  if (zoneLower.includes('學校') || zoneLower.includes('機關') || zoneLower.includes('醫院') ||
+      zoneLower.includes('市場') || zoneLower.includes('廣場')) {
+    if (zoneLower.includes('學校')) return 'rgba(255, 204, 102, 0.8)';
+    if (zoneLower.includes('機關')) return 'rgba(255, 187, 51, 0.8)';
+    if (zoneLower.includes('醫院')) return 'rgba(255, 170, 0, 0.8)';
+    if (zoneLower.includes('市場')) return 'rgba(230, 153, 0, 0.8)';
+    if (zoneLower.includes('廣場')) return 'rgba(204, 136, 0, 0.8)';
+    return 'rgba(255, 204, 102, 0.8)';
+  }
+
+  // 特殊用地系列 - 紅色系
+  if (zoneLower.includes('墓地') || zoneLower.includes('古蹟') || zoneLower.includes('娛樂')) {
+    if (zoneLower.includes('墓地')) return 'rgba(179, 77, 77, 0.8)';
+    if (zoneLower.includes('古蹟')) return 'rgba(153, 51, 51, 0.8)';
+    if (zoneLower.includes('娛樂')) return 'rgba(204, 102, 102, 0.8)';
+    return 'rgba(179, 77, 77, 0.8)';
+  }
+
+  // 水利/環保系列 - 青色系
+  if (zoneLower.includes('行水') || zoneLower.includes('堤防') || zoneLower.includes('污水') ||
+      zoneLower.includes('垃圾') || zoneLower.includes('自來水')) {
+    return 'rgba(102, 204, 204, 0.8)';
+  }
+
+  // 能源系列 - 紫紅色系
+  if (zoneLower.includes('加油') || zoneLower.includes('儲油') || zoneLower.includes('變電') || zoneLower.includes('煤氣')) {
+    return 'rgba(204, 102, 153, 0.8)';
+  }
+
+  // 農業區 - 淺綠色
+  if (zoneLower.includes('農業')) {
+    return 'rgba(153, 255, 153, 0.8)';
+  }
+
+  // 其他/未分類 - 淺灰色
+  return 'rgba(200, 200, 200, 0.8)';
+}
+
 // 社區照顧關懷據點
 export async function loadCommunityCareCenterData(layer) {
   try {
@@ -2677,27 +2771,13 @@ export async function loadLanduseGeoJson(layer) {
 
     const geoJsonData = await response.json();
 
-    // ----------------------------
-    // --- 開始修改區域 (僅新增以下兩段程式) ---
+        // ----------------------------
 
-    // 1. 定義一個顏色陣列
-    const colorPalette = [
-      'rgba(239, 138, 98, 0.7)',
-      'rgba(179, 226, 205, 0.7)',
-      'rgba(253, 205, 172, 0.7)',
-      'rgba(204, 235, 197, 0.7)',
-      'rgba(188, 128, 189, 0.7)',
-      'rgba(252, 205, 229, 0.7)',
-      'rgba(217, 217, 217, 0.7)',
-      'rgba(141, 160, 203, 0.7)',
-    ];
-
-    // 2. 取得所有不重複且排序後的 NEWLAYER 值
+    // 取得所有不重複且排序後的 NEWLAYER 值
     const sortedUniqueValues = Array.from(
       new Set(geoJsonData.features.map(f => f.properties.NEWLAYER))
     ).sort((a, b) => Number(a) - Number(b));
 
-    // --- 結束修改區域 ---
     // ----------------------------
 
 
@@ -2707,13 +2787,10 @@ export async function loadLanduseGeoJson(layer) {
       feature.properties.layerName = layer.layerName;
       feature.properties.name = feature.properties.ZONE;
 
-      // --- 修改此行 ---
-      // feature.properties.fillColor = null; // 這是原始的行
-      const valueIndex = sortedUniqueValues.indexOf(feature.properties.NEWLAYER);
-      const color = colorPalette[valueIndex % colorPalette.length];
+      // 根據土地利用類型分配顏色
+      const color = getColorForZone(feature.properties.ZONE);
       feature.properties.color = color;
       feature.properties.fillColor = color;
-      // --- 修改結束 ---
 
       const propertyData = {
         NEWLAYER: feature.properties.NEWLAYER,
@@ -2726,8 +2803,9 @@ export async function loadLanduseGeoJson(layer) {
 
       const tableData = {
         '#': feature.properties.id,
-        color: layer.color,
+        color: color,
         name: feature.properties.name,
+        ZONE: feature.properties.ZONE,
         NEWLAYER: feature.properties.NEWLAYER,
       };
 
@@ -2746,14 +2824,33 @@ export async function loadLanduseGeoJson(layer) {
       totalCount: geoJsonData.features.length,
     };
 
-    // 維持不變，以符合最少改動原則
-    const legendData = null;
+    // 創建 NEWLAYER 到 ZONE 名稱的映射
+    const layerToZoneMap = {};
+    geoJsonData.features.forEach(feature => {
+      const layer = feature.properties.NEWLAYER;
+      const zone = feature.properties.ZONE;
+      if (!layerToZoneMap[layer]) {
+        layerToZoneMap[layer] = zone;
+      }
+    });
+
+        // 創建圖例數據
+    const legendData = sortedUniqueValues.map((value) => {
+      const zoneName = layerToZoneMap[value] || value; // 如果找不到對應的 ZONE，就使用 NEWLAYER 值
+      const color = getColorForZone(zoneName);
+
+      return {
+        color: color,
+        label: `${zoneName} (${value})`,
+        extent: [value, value], // 對於分類數據，每個值對應一個範圍
+      };
+    });
 
     return {
       geoJsonData, // 包含原始且完整的 GeoJSON 數據
       tableData, // 包含為表格量身打造的數據陣列
       summaryData, // 包含摘要資訊
-      legendData, // 包含圖例資訊 (維持 null)
+      legendData, // 包含圖例資訊
     };
   } catch (error) {
     console.error('❌ GeoJSON 數據載入或處理失敗:', error);
