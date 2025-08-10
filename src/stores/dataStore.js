@@ -5,7 +5,7 @@ import {
   loadCommunityCareCenterData,
   loadCLevelUnitData,
   loadRespiteCareCPlusUnitData,
-  loadPublicElderlyWelfareInstitutionData,
+  //loadPublicElderlyWelfareInstitutionData,
   loadElderlyWelfareInstitutionData,
   loadCommunityIntegrationServiceCenterData,
   loadGeneralNursingHomeData,
@@ -31,63 +31,222 @@ export const useDataStore = defineStore(
   () => {
     const layers = ref([
       {
-        groupName: '老人福利機構',
+        groupName: '居家式長照機構',
         groupLayers: [
           {
-            layerId: '公辦民營老人福利機構',
-            layerName: '公辦民營老人福利機構',
+            layerId: '居家服務機構',
+            layerName: '居家服務機構',
             visible: false,
             isLoading: false,
             isLoaded: false,
             type: 'point',
             shape: 'circle',
-            colorName: 'orange',
+            colorName: 'gray-400',
             geoJsonData: null,
             summaryData: null,
             tableData: null,
             legendData: null,
-            loader: loadPublicElderlyWelfareInstitutionData,
-            fileName: '臺北市公辦民營老人福利機構一覽表_coord.csv',
+            loader: null,
+            fileName: '',
             fieldName: null,
           },
           {
-            layerId: '老人福利機構',
-            layerName: '老人福利機構',
+            layerId: '居家護理所',
+            layerName: '居家護理所',
             visible: false,
             isLoading: false,
             isLoaded: false,
             type: 'point',
             shape: 'circle',
-            colorName: 'orange',
+            colorName: 'gray-400',
             geoJsonData: null,
             summaryData: null,
             tableData: null,
             legendData: null,
-            loader: loadElderlyWelfareInstitutionData,
-            fileName: '台北市政府社會局/臺北市老人福利機構名冊1140201_coord.csv',
+            loader: null,
+            fileName: '',
             fieldName: null,
           },
           {
-            layerId: '一般護理之家',
-            layerName: '一般護理之家',
+            layerId: '居家物理治療所',
+            layerName: '居家物理治療所',
             visible: false,
             isLoading: false,
             isLoaded: false,
             type: 'point',
             shape: 'circle',
-            colorName: 'orange',
+            colorName: 'gray-400',
             geoJsonData: null,
             summaryData: null,
             tableData: null,
             legendData: null,
-            loader: loadGeneralNursingHomeData,
-            fileName: '台北市政府衛生局/臺北市立案一般護理之家一覽表_coord.csv',
+            loader: null,
+            fileName: '',
+            fieldName: null,
+          },
+          {
+            layerId: '居家職能治療所',
+            layerName: '居家職能治療所',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            type: 'point',
+            shape: 'circle',
+            colorName: 'gray-400',
+            geoJsonData: null,
+            summaryData: null,
+            tableData: null,
+            legendData: null,
+            loader: null,
+            fileName: '',
+            fieldName: null,
+          },
+          {
+            layerId: '居家呼吸照護所',
+            layerName: '居家呼吸照護所',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            type: 'point',
+            shape: 'circle',
+            colorName: 'gray-400',
+            geoJsonData: null,
+            summaryData: null,
+            tableData: null,
+            legendData: null,
+            loader: null,
+            fileName: '',
+            fieldName: null,
+          },
+          {
+            layerId: '居家語言治療所',
+            layerName: '居家語言治療所',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            type: 'point',
+            shape: 'circle',
+            colorName: 'gray-400',
+            geoJsonData: null,
+            summaryData: null,
+            tableData: null,
+            legendData: null,
+            loader: null,
+            fileName: '',
+            fieldName: null,
+          },
+          {
+            layerId: '心理諮商所',
+            layerName: '心理諮商所',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            type: 'point',
+            shape: 'circle',
+            colorName: 'gray-400',
+            geoJsonData: null,
+            summaryData: null,
+            tableData: null,
+            legendData: null,
+            loader: null,
+            fileName: '',
+            fieldName: null,
+          },
+          {
+            layerId: '居家式喘息(GA09)及居家式短照(SC09)服務單位',
+            layerName: '[不確定] 居家式喘息(GA09)及居家式短照(SC09)服務單位',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            type: 'point',
+            shape: 'circle',
+            colorName: 'red',
+            geoJsonData: null,
+            summaryData: null,
+            tableData: null,
+            legendData: null,
+            loader: load142Data,
+            fileName:
+              '台北市政府衛生局/臺北市政府衛生局長照2.0居家式喘息(GA09)及居家式短照(SC09)服務單位一覽表_142_coord.csv',
             fieldName: null,
           },
         ],
       },
       {
-        groupName: '社區式長照',
+        groupName: '社區式長照機構 - 日間照顧',
+        groupLayers: [
+          {
+            layerId: '小規模多機能服務',
+            layerName: '小規模多機能服務',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            type: 'point',
+            shape: 'circle',
+            colorName: 'gray-400',
+            geoJsonData: null,
+            summaryData: null,
+            tableData: null,
+            legendData: null,
+            loader: null,
+            fileName: '',
+            fieldName: null,
+          },
+          {
+            layerId: '團體家屋',
+            layerName: '團體家屋',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            type: 'point',
+            shape: 'circle',
+            colorName: 'gray-400',
+            geoJsonData: null,
+            summaryData: null,
+            tableData: null,
+            legendData: null,
+            loader: null,
+            fileName: '',
+            fieldName: null,
+          },
+          {
+            layerId: '家庭托顧',
+            layerName: '家庭托顧',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            type: 'point',
+            shape: 'circle',
+            colorName: 'gray-400',
+            geoJsonData: null,
+            summaryData: null,
+            tableData: null,
+            legendData: null,
+            loader: null,
+            fileName: '',
+            fieldName: null,
+          },
+          {
+            layerId: '交通接送',
+            layerName: '交通接送',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            type: 'point',
+            shape: 'circle',
+            colorName: 'gray-400',
+            geoJsonData: null,
+            summaryData: null,
+            tableData: null,
+            legendData: null,
+            loader: null,
+            fileName: '',
+            fieldName: null,
+          },
+        ],
+      },
+      {
+        groupName: '社區式長照機構 - 社區據點',
         groupLayers: [
           {
             layerId: '社區照顧關懷據點',
@@ -97,7 +256,7 @@ export const useDataStore = defineStore(
             isLoaded: false,
             type: 'point',
             shape: 'circle',
-            colorName: 'orange',
+            colorName: 'green',
             geoJsonData: null,
             summaryData: null,
             tableData: null,
@@ -107,31 +266,14 @@ export const useDataStore = defineStore(
             fieldName: null,
           },
           {
-            layerId: '社區整體照顧服務體系C級單位',
-            layerName: '社區整體照顧服務體系C級單位',
-            visible: false,
-            isLoading: false,
-            isLoaded: false,
-            type: 'point',
-            shape: 'circle',
-            colorName: 'orange',
-            geoJsonData: null,
-            summaryData: null,
-            tableData: null,
-            legendData: null,
-            loader: loadCLevelUnitData,
-            fileName: '台北市政府社會局/114年臺北市社區整體照顧服務體系C級單位一覽表_coord.csv',
-            fieldName: null,
-          },
-          {
             layerId: '社區照顧關懷據點辦理社區喘息服務(C+單位)',
-            layerName: '社區照顧關懷據點辦理社區喘息服務(C+單位)',
+            layerName: '[不確定] 社區照顧關懷據點辦理社區喘息服務(C+單位)',
             visible: false,
             isLoading: false,
             isLoaded: false,
             type: 'point',
             shape: 'circle',
-            colorName: 'orange',
+            colorName: 'red',
             geoJsonData: null,
             summaryData: null,
             tableData: null,
@@ -142,14 +284,152 @@ export const useDataStore = defineStore(
             fieldName: null,
           },
           {
-            layerId: '社區整合型服務中心(A單位)',
-            layerName: '社區整合型服務中心(A單位)',
+            layerId: '失智社區服務據點',
+            layerName: '失智社區服務據點',
             visible: false,
             isLoading: false,
             isLoaded: false,
             type: 'point',
             shape: 'circle',
-            colorName: 'orange',
+            colorName: 'gray-400',
+            geoJsonData: null,
+            summaryData: null,
+            tableData: null,
+            legendData: null,
+            loader: null,
+            fileName: '',
+            fieldName: null,
+          },
+          {
+            layerId: '家庭照顧者支持服務據點',
+            layerName: '家庭照顧者支持服務據點',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            type: 'point',
+            shape: 'circle',
+            colorName: 'gray-400',
+            geoJsonData: null,
+            summaryData: null,
+            tableData: null,
+            legendData: null,
+            loader: null,
+            fileName: '',
+            fieldName: null,
+          },
+          {
+            layerId: '社區照顧關懷據點暨C級巷弄長照站',
+            layerName: '社區照顧關懷據點暨C級巷弄長照站',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            type: 'point',
+            shape: 'circle',
+            colorName: 'gray-400',
+            geoJsonData: null,
+            summaryData: null,
+            tableData: null,
+            legendData: null,
+            loader: null,
+            fileName: null,
+            fieldName: null,
+          },
+          {
+            layerId: '醫事C級巷弄長照站',
+            layerName: '醫事C級巷弄長照站',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            type: 'point',
+            shape: 'circle',
+            colorName: 'gray-400',
+            geoJsonData: null,
+            summaryData: null,
+            tableData: null,
+            legendData: null,
+            loader: null,
+            fileName: '',
+            fieldName: null,
+          },
+          {
+            layerId: '社區整體照顧服務體系C級單位',
+            layerName: '[不確定] 社區整體照顧服務體系C級單位',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            type: 'point',
+            shape: 'circle',
+            colorName: 'red',
+            geoJsonData: null,
+            summaryData: null,
+            tableData: null,
+            legendData: null,
+            loader: loadCLevelUnitData,
+            fileName: '台北市政府社會局/114年臺北市社區整體照顧服務體系C級單位一覽表_coord.csv',
+            fieldName: null,
+          },
+          {
+            layerId: '巷弄長照站喘息(C+)(GA07)及巷弄長照站短照(SC07)服務單位',
+            layerName: '[不確定] 巷弄長照站喘息(C+)(GA07)及巷弄長照站短照(SC07)服務單位',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            type: 'point',
+            shape: 'circle',
+            colorName: 'red',
+            geoJsonData: null,
+            summaryData: null,
+            tableData: null,
+            legendData: null,
+            loader: load25Data,
+            fileName:
+              '台北市政府衛生局/臺北市政府衛生局長照2.0巷弄長照站喘息(C+)(GA07)及巷弄長照站短照(SC07)服務 單位一覽表_25_coord.csv',
+            fieldName: null,
+          },
+          {
+            layerId: '社區式喘息(GA03/GA04/GA06)及社區式短照(SC03/SC04/SC06)服務單位',
+            layerName: '[不確定] 社區式喘息(GA03/GA04/GA06)及社區式短照(SC03/SC04/SC06)服務單位',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            type: 'point',
+            shape: 'circle',
+            colorName: 'red',
+            geoJsonData: null,
+            summaryData: null,
+            tableData: null,
+            legendData: null,
+            loader: load41Data,
+            fileName:
+              '台北市政府衛生局/臺北市政府衛生局長照2.0社區式喘息(GA03_GA04_GA06)及社區式短照(SC03_SC04_SC06)服務單位一覽表_41_coord.csv',
+            fieldName: null,
+          },
+          {
+            layerId: '原住民族文化健康站',
+            layerName: '原住民族文化健康站',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            type: 'point',
+            shape: 'circle',
+            colorName: 'gray-400',
+            geoJsonData: null,
+            summaryData: null,
+            tableData: null,
+            legendData: null,
+            loader: null,
+            fileName: '',
+            fieldName: null,
+          },
+          {
+            layerId: '社區整合型服務中心(A單位)',
+            layerName: '[不確定] 社區整合型服務中心(A單位)',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            type: 'point',
+            shape: 'circle',
+            colorName: 'red',
             geoJsonData: null,
             summaryData: null,
             tableData: null,
@@ -161,7 +441,160 @@ export const useDataStore = defineStore(
         ],
       },
       {
-        groupName: '住宿式長照',
+        groupName: '機構式長照機構 - 老人福利機構',
+        groupLayers: [
+          {
+            layerId: '安養機構',
+            layerName: '安養機構',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            type: 'point',
+            shape: 'circle',
+            colorName: 'green',
+            geoJsonData: null,
+            summaryData: null,
+            tableData: null,
+            legendData: null,
+            loader: loadElderlyWelfareInstitutionData,
+            fileName: '台北市政府社會局/臺北市老人福利機構名冊1140201_coord_安養.csv',
+            fieldName: null,
+          },
+          {
+            layerId: '養護機構',
+            layerName: '養護機構',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            type: 'point',
+            shape: 'circle',
+            colorName: 'green',
+            geoJsonData: null,
+            summaryData: null,
+            tableData: null,
+            legendData: null,
+            loader: loadElderlyWelfareInstitutionData,
+            fileName: '台北市政府社會局/臺北市老人福利機構名冊1140201_coord_養護.csv',
+            fieldName: null,
+          },
+          {
+            layerId: '長期照顧機構',
+            layerName: '長期照顧機構',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            type: 'point',
+            shape: 'circle',
+            colorName: 'green',
+            geoJsonData: null,
+            summaryData: null,
+            tableData: null,
+            legendData: null,
+            loader: loadElderlyWelfareInstitutionData,
+            fileName: '台北市政府社會局/臺北市老人福利機構名冊1140201_coord_長照.csv',
+            fieldName: null,
+          },
+          {
+            layerId: '失智照顧機構',
+            layerName: '失智照顧機構',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            type: 'point',
+            shape: 'circle',
+            colorName: 'gray-400',
+            geoJsonData: null,
+            summaryData: null,
+            tableData: null,
+            legendData: null,
+            loader: null,
+            fileName: '',
+            fieldName: null,
+          },
+          /*
+          {
+            layerId: '公辦民營老人福利機構',
+            layerName: '公辦民營老人福利機構',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            type: 'point',
+            shape: 'circle',
+            colorName: 'red',
+            geoJsonData: null,
+            summaryData: null,
+            tableData: null,
+            legendData: null,
+            loader: loadPublicElderlyWelfareInstitutionData,
+            fileName: '臺北市公辦民營老人福利機構一覽表_coord.csv',
+            fieldName: null,
+          },
+          */
+        ],
+      },
+      {
+        groupName: '機構式長照機構 - 護理之家',
+        groupLayers: [
+          {
+            layerId: '一般護理之家',
+            layerName: '一般護理之家',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            type: 'point',
+            shape: 'circle',
+            colorName: 'green',
+            geoJsonData: null,
+            summaryData: null,
+            tableData: null,
+            legendData: null,
+            loader: loadGeneralNursingHomeData,
+            fileName: '台北市政府衛生局/臺北市立案一般護理之家一覽表_coord.csv',
+            fieldName: null,
+          },
+        ],
+      },
+      {
+        groupName: '機構式長照機構 - 法人長照機構',
+        groupLayers: [
+          {
+            layerId: '社團法人長照機構',
+            layerName: '社團法人長照機構',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            type: 'point',
+            shape: 'circle',
+            colorName: 'gray-400',
+            geoJsonData: null,
+            summaryData: null,
+            tableData: null,
+            legendData: null,
+            loader: null,
+            fileName: '',
+            fieldName: null,
+          },
+          {
+            layerId: '財團法人長照機構',
+            layerName: '財團法人長照機構',
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            type: 'point',
+            shape: 'circle',
+            colorName: 'gray-400',
+            geoJsonData: null,
+            summaryData: null,
+            tableData: null,
+            legendData: null,
+            loader: null,
+            fileName: '',
+            fieldName: null,
+          },
+        ],
+      },
+      {
+        groupName: '[不確定] 其他長照機構',
         groupLayers: [
           {
             layerId: '住宿式長照機構',
@@ -180,29 +613,6 @@ export const useDataStore = defineStore(
             fileName: '台北市政府衛生局/臺北市立案住宿式長照機構一覽表_coord.csv',
             fieldName: null,
           },
-        ],
-      },
-      {
-        groupName: '喘息服務',
-        groupLayers: [
-          {
-            layerId: '社區式喘息(GA03/GA04/GA06)及社區式短照(SC03/SC04/SC06)服務單位',
-            layerName: '社區式喘息(GA03/GA04/GA06)及社區式短照(SC03/SC04/SC06)服務單位',
-            visible: false,
-            isLoading: false,
-            isLoaded: false,
-            type: 'point',
-            shape: 'circle',
-            colorName: 'orange',
-            geoJsonData: null,
-            summaryData: null,
-            tableData: null,
-            legendData: null,
-            loader: load41Data,
-            fileName:
-              '台北市政府衛生局/臺北市政府衛生局長照2.0社區式喘息(GA03_GA04_GA06)及社區式短照(SC03_SC04_SC06)服務單位一覽表_41_coord.csv',
-            fieldName: null,
-          },
           {
             layerId: '住宿式喘息(GA05)及住宿式短照(SC05)服務單位',
             layerName: '住宿式喘息(GA05)及住宿式短照(SC05)服務單位',
@@ -219,42 +629,6 @@ export const useDataStore = defineStore(
             loader: load66Data,
             fileName:
               '台北市政府衛生局/臺北市政府衛生局長照2.0住宿式喘息(GA05)及住宿式短照(SC05)服務單位一覽表_66_coord.csv',
-            fieldName: null,
-          },
-          {
-            layerId: '巷弄長照站喘息(C+)(GA07)及巷弄長照站短照(SC07)服務單位',
-            layerName: '巷弄長照站喘息(C+)(GA07)及巷弄長照站短照(SC07)服務單位',
-            visible: false,
-            isLoading: false,
-            isLoaded: false,
-            type: 'point',
-            shape: 'circle',
-            colorName: 'orange',
-            geoJsonData: null,
-            summaryData: null,
-            tableData: null,
-            legendData: null,
-            loader: load25Data,
-            fileName:
-              '台北市政府衛生局/臺北市政府衛生局長照2.0巷弄長照站喘息(C+)(GA07)及巷弄長照站短照(SC07)服務 單位一覽表_25_coord.csv',
-            fieldName: null,
-          },
-          {
-            layerId: '居家式喘息(GA09)及居家式短照(SC09)服務單位',
-            layerName: '居家式喘息(GA09)及居家式短照(SC09)服務單位',
-            visible: false,
-            isLoading: false,
-            isLoaded: false,
-            type: 'point',
-            shape: 'circle',
-            colorName: 'orange',
-            geoJsonData: null,
-            summaryData: null,
-            tableData: null,
-            legendData: null,
-            loader: load142Data,
-            fileName:
-              '台北市政府衛生局/臺北市政府衛生局長照2.0居家式喘息(GA09)及居家式短照(SC09)服務單位一覽表_142_coord.csv',
             fieldName: null,
           },
         ],
@@ -509,14 +883,14 @@ export const useDataStore = defineStore(
             colorName: 'red',
             geoJsonData: {
               type: 'FeatureCollection',
-              features: []
+              features: [],
             },
             summaryData: {
               totalCount: 0,
               type: '分析點',
               description: '共 0 個分析點，每個點包含 2 公里分析範圍',
               lastUpdated: new Date().toISOString(),
-              coverage: '0 平方公里'
+              coverage: '0 平方公里',
             },
             tableData: [],
             legendData: null,
@@ -607,13 +981,15 @@ export const useDataStore = defineStore(
     // 使用 Haversine 公式計算地球表面兩點間的距離（公尺）
     const calculateDistance = (lat1, lng1, lat2, lng2) => {
       const R = 6371000; // 地球半徑（公尺）
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLng = (lng2 - lng1) * Math.PI / 180;
+      const dLat = ((lat2 - lat1) * Math.PI) / 180;
+      const dLng = ((lng2 - lng1) * Math.PI) / 180;
       const a =
-        Math.sin(dLat/2) * Math.sin(dLat/2) +
-        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-        Math.sin(dLng/2) * Math.sin(dLng/2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos((lat1 * Math.PI) / 180) *
+          Math.cos((lat2 * Math.PI) / 180) *
+          Math.sin(dLng / 2) *
+          Math.sin(dLng / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
       return R * c; // 距離（公尺）
     };
 
@@ -622,19 +998,23 @@ export const useDataStore = defineStore(
       const pointsInRange = [];
 
       // 獲取所有可見且已載入的點類型圖層
-      const visiblePointLayers = getAllLayers().filter(layer =>
-        layer.visible &&
-        layer.isLoaded &&
-        layer.type === 'point' &&
-        !layer.isAnalysisLayer &&
-        layer.geoJsonData
+      const visiblePointLayers = getAllLayers().filter(
+        (layer) =>
+          layer.visible &&
+          layer.isLoaded &&
+          layer.type === 'point' &&
+          !layer.isAnalysisLayer &&
+          layer.geoJsonData
       );
 
-      console.log('🔍 檢查可見的點圖層:', visiblePointLayers.map(l => l.layerName));
+      console.log(
+        '🔍 檢查可見的點圖層:',
+        visiblePointLayers.map((l) => l.layerName)
+      );
 
-      visiblePointLayers.forEach(layer => {
+      visiblePointLayers.forEach((layer) => {
         if (layer.geoJsonData && layer.geoJsonData.features) {
-          layer.geoJsonData.features.forEach(feature => {
+          layer.geoJsonData.features.forEach((feature) => {
             if (feature.geometry.type === 'Point') {
               const [lng, lat] = feature.geometry.coordinates;
               const distance = calculateDistance(centerLat, centerLng, lat, lng);
@@ -645,7 +1025,7 @@ export const useDataStore = defineStore(
                   ...feature, // 保留原始 feature 的所有屬性
                   layerId: layer.layerId,
                   layerName: layer.layerName,
-                  distance: Math.round(distance) // 添加距離資訊
+                  distance: Math.round(distance), // 添加距離資訊
                 };
                 pointsInRange.push(enhancedFeature);
               }
@@ -657,7 +1037,7 @@ export const useDataStore = defineStore(
       // 按距離排序
       pointsInRange.sort((a, b) => a.distance - b.distance);
 
-      console.log(`🎯 在 ${radiusMeters/1000}公里範圍內找到 ${pointsInRange.length} 個點物件`);
+      console.log(`🎯 在 ${radiusMeters / 1000}公里範圍內找到 ${pointsInRange.length} 個點物件`);
       return pointsInRange;
     };
 
@@ -665,22 +1045,31 @@ export const useDataStore = defineStore(
       const polygonInRange = [];
 
       // 獲取所有可見且已載入的區域類型圖層
-      const visiblePolygonLayers = getAllLayers().filter(layer =>
-        layer.visible &&
-        layer.isLoaded &&
-        layer.type === 'polygon' &&
-        !layer.isAnalysisLayer &&
-        layer.geoJsonData
+      const visiblePolygonLayers = getAllLayers().filter(
+        (layer) =>
+          layer.visible &&
+          layer.isLoaded &&
+          layer.type === 'polygon' &&
+          !layer.isAnalysisLayer &&
+          layer.geoJsonData
       );
 
-      console.log('🔍 檢查可見的多邊形圖層:', visiblePolygonLayers.map(l => l.layerName));
+      console.log(
+        '🔍 檢查可見的多邊形圖層:',
+        visiblePolygonLayers.map((l) => l.layerName)
+      );
 
-      visiblePolygonLayers.forEach(layer => {
+      visiblePolygonLayers.forEach((layer) => {
         if (layer.geoJsonData && layer.geoJsonData.features) {
-          layer.geoJsonData.features.forEach(feature => {
+          layer.geoJsonData.features.forEach((feature) => {
             if (feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon') {
               // 檢查多邊形是否與圓圈有重疊
-              const hasOverlap = checkPolygonCircleOverlap(feature.geometry, centerLat, centerLng, radiusMeters);
+              const hasOverlap = checkPolygonCircleOverlap(
+                feature.geometry,
+                centerLat,
+                centerLng,
+                radiusMeters
+              );
 
               if (hasOverlap) {
                 // 創建增強的 feature 物件，包含圖層資訊
@@ -688,7 +1077,7 @@ export const useDataStore = defineStore(
                   ...feature, // 保留原始 feature 的所有屬性
                   layerId: layer.layerId,
                   layerName: layer.layerName,
-                  overlapType: 'intersects' // 標記為相交
+                  overlapType: 'intersects', // 標記為相交
                 };
                 polygonInRange.push(enhancedFeature);
               }
@@ -697,13 +1086,16 @@ export const useDataStore = defineStore(
         }
       });
 
-      console.log(`🎯 在 ${radiusMeters/1000}公里範圍內找到 ${polygonInRange.length} 個重疊多邊形`);
+      console.log(
+        `🎯 在 ${radiusMeters / 1000}公里範圍內找到 ${polygonInRange.length} 個重疊多邊形`
+      );
       return polygonInRange;
     };
 
     // 檢查多邊形與圓圈是否重疊的函數
     const checkPolygonCircleOverlap = (geometry, centerLat, centerLng, radiusMeters) => {
-      const coordinates = geometry.type === 'Polygon' ? [geometry.coordinates] : geometry.coordinates;
+      const coordinates =
+        geometry.type === 'Polygon' ? [geometry.coordinates] : geometry.coordinates;
 
       for (const polygon of coordinates) {
         for (const ring of polygon) {
@@ -720,11 +1112,11 @@ export const useDataStore = defineStore(
       return false;
     };
 
-        // 分析圖層管理方法
+    // 分析圖層管理方法
     const updateAnalysisLayerData = (analysisLayer) => {
       // 獲取所有分析圓圈
       const analysisCircles = analysisLayer.geoJsonData.features.filter(
-        f => f.properties.type === 'circle-analysis'
+        (f) => f.properties.type === 'circle-analysis'
       );
 
       // 更新 summaryData
@@ -735,9 +1127,9 @@ export const useDataStore = defineStore(
       // 更新 tableData
       analysisLayer.tableData = analysisCircles.map((feature) => ({
         '#': feature.properties.id,
-        '名稱': feature.properties.name,
-        '範圍內點位數': feature.properties.pointsInRange.length,
-        '範圍內面域數': feature.properties.polygonInRange.length,
+        名稱: feature.properties.name,
+        範圍內點位數: feature.properties.pointsInRange.length,
+        範圍內面域數: feature.properties.polygonInRange.length,
       }));
     };
 
@@ -745,9 +1137,9 @@ export const useDataStore = defineStore(
       const analysisLayer = findLayerById('analysis-layer');
       if (!analysisLayer) return;
 
-      const pointId = analysisLayer.geoJsonData.features.filter(
-        f => f.properties.type === 'point-analysis'
-      ).length + 1;
+      const pointId =
+        analysisLayer.geoJsonData.features.filter((f) => f.properties.type === 'point-analysis')
+          .length + 1;
 
       // 🎯 計算範圍內的點物件
       const pointsInRange = calculatePointsInRange(lat, lng, 2000);
@@ -757,7 +1149,7 @@ export const useDataStore = defineStore(
 
       // 📊 統計各圖層的點數
       const layerStats = {};
-      pointsInRange.forEach(feature => {
+      pointsInRange.forEach((feature) => {
         if (!layerStats[feature.layerName]) {
           layerStats[feature.layerName] = 0;
         }
@@ -766,7 +1158,7 @@ export const useDataStore = defineStore(
 
       // 📊 統計各圖層的多邊形數
       const polygonStats = {};
-      polygonInRange.forEach(feature => {
+      polygonInRange.forEach((feature) => {
         if (!polygonStats[feature.layerName]) {
           polygonStats[feature.layerName] = 0;
         }
@@ -780,7 +1172,7 @@ export const useDataStore = defineStore(
         type: 'Feature',
         geometry: {
           type: 'Point',
-          coordinates: [lng, lat]
+          coordinates: [lng, lat],
         },
         properties: {
           id: pointId,
@@ -797,8 +1189,8 @@ export const useDataStore = defineStore(
             名稱: featureName,
             範圍內點位數: pointsInRange.length,
             範圍內多邊形數: polygonInRange.length,
-          }
-        }
+          },
+        },
       };
 
       // 創建分析點要素（僅用於顯示位置標記）
@@ -806,14 +1198,14 @@ export const useDataStore = defineStore(
         type: 'Feature',
         geometry: {
           type: 'Point',
-          coordinates: [lng, lat]
+          coordinates: [lng, lat],
         },
         properties: {
           id: `${pointId}_analysis_point`,
           layerId: 'analysis-layer',
           type: 'point-analysis',
-          parentId: pointId
-        }
+          parentId: pointId,
+        },
       };
 
       // 添加到分析圖層（圓圈在前，點在後，這樣圓圈會在下層，點在上層）
@@ -832,7 +1224,7 @@ export const useDataStore = defineStore(
         pointsInRange,
         polygonInRange,
         layerStats,
-        polygonStats
+        polygonStats,
       };
     };
 
@@ -854,13 +1246,13 @@ export const useDataStore = defineStore(
       if (!analysisLayer || !analysisLayer.geoJsonData) return;
 
       // 過濾掉指定的分析圓圈和其對應的點
-      analysisLayer.geoJsonData.features = analysisLayer.geoJsonData.features.filter(
-        feature => {
-          const isTargetCircle = feature.properties.type === 'circle-analysis' && feature.properties.id === pointId;
-          const isTargetPoint = feature.properties.type === 'point-analysis' && feature.properties.parentId === pointId;
-          return !isTargetCircle && !isTargetPoint;
-        }
-      );
+      analysisLayer.geoJsonData.features = analysisLayer.geoJsonData.features.filter((feature) => {
+        const isTargetCircle =
+          feature.properties.type === 'circle-analysis' && feature.properties.id === pointId;
+        const isTargetPoint =
+          feature.properties.type === 'point-analysis' && feature.properties.parentId === pointId;
+        return !isTargetCircle && !isTargetPoint;
+      });
 
       // 更新圖層統計和表格數據
       updateAnalysisLayerData(analysisLayer);
