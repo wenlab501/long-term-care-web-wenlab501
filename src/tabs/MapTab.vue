@@ -1045,6 +1045,11 @@
 
       // 開始點擊模式
       const startClickMode = () => {
+        // 🔄 互斥邏輯：關閉等時圈點擊模式
+        if (isIsochroneClickMode.value) {
+          stopIsochroneClickMode();
+        }
+
         isClickMode.value = true;
         if (mapInstance) {
           const mapContainer = mapInstance.getContainer();
@@ -1052,7 +1057,7 @@
           // 為所有子元素設定十字游標
           mapContainer.classList.add('click-mode-active');
         }
-        console.log('🖱️ 開始地圖點擊模式');
+        console.log('🖱️ 開始數據分析點擊模式（自動關閉等時圈分析模式）');
       };
 
       // 停止點擊模式
@@ -1069,6 +1074,11 @@
 
       // 開始等時圈點擊模式
       const startIsochroneClickMode = () => {
+        // 🔄 互斥邏輯：關閉數據分析點擊模式
+        if (isClickMode.value) {
+          stopClickMode();
+        }
+
         isIsochroneClickMode.value = true;
         if (mapInstance) {
           const mapContainer = mapInstance.getContainer();
@@ -1076,7 +1086,7 @@
           // 為所有子元素設定十字游標
           mapContainer.classList.add('isochrone-click-mode-active');
         }
-        console.log('🖱️ 開始等時圈分析點擊模式');
+        console.log('🖱️ 開始等時圈分析點擊模式（自動關閉數據分析模式）');
       };
 
       // 停止等時圈點擊模式
