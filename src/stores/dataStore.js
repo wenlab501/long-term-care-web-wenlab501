@@ -894,6 +894,59 @@ export const useDataStore = defineStore(
             fieldName: null,
             isAnalysisLayer: true, // 標記為分析圖層
           },
+          // 🚗 等時圈分析圖層 - 基於真實交通網路的可達性分析
+          {
+            /**
+             * 等時圈分析圖層配置
+             *
+             * @description 此圖層提供基於真實交通網路的等時圈分析功能，
+             * 使用 OpenRouteService API 計算從指定起點在指定時間內可到達的所有區域，
+             * 並分析範圍內的長照設施和相關統計數據。
+             *
+             * 功能特色：
+             * - 🌐 調用 ORS API 獲取真實的等時圈多邊形
+             * - 🎯 精確計算等時圈範圍內的設施數量
+             * - 🔄 API 失敗時提供圓圈分析回退方案
+             * - 📊 生成詳細的統計報告和表格數據
+             * - 🎨 支援多邊形和圓圈兩種視覺表示方式
+             */
+            layerId: 'isochrone-analysis-layer',
+            layerName: '等時圈分析圖層',
+            visible: true, // 預設開啟，讓使用者可以立即使用
+            isLoading: false, // 初始無加載狀態
+            isLoaded: true, // 標記為已載入（分析圖層總是可用的）
+            type: 'isochrone-analysis', // 特殊圖層類型
+            shape: 'mixed', // 混合形狀：包含點標記和多邊形/圓圈
+            colorName: 'blue', // 藍色主題，與數據分析圖層的紅色區分
+
+            // GeoJSON 數據容器，存儲所有等時圈分析結果
+            geoJsonData: {
+              type: 'FeatureCollection',
+              features: [], // 初始為空，分析點會動態添加到此陣列
+            },
+
+            // 摘要統計數據（顯示在圖層面板中）
+            summaryData: {
+              totalCount: 0, // 總等時圈分析數量
+              type: '等時分析點', // 分析類型描述
+              description: '共 0 個等時分析點，每個點包含等時圈分析範圍', // 詳細描述
+              lastUpdated: new Date().toISOString(), // 最後更新時間
+              coverage: '0 平方公里', // 覆蓋範圍（暫未實現）
+            },
+
+            tableData: [], // 表格數據（用於 DataTableTab 顯示）
+            legendData: null, // 圖例數據（等時圈分析不需要圖例）
+            loader: null, // 不需要數據載入器（分析是即時生成的）
+            fileName: null, // 不對應實體檔案
+            fieldName: null, // 不需要欄位映射
+
+            // 🔍 特殊標記：標識此圖層為等時圈分析圖層
+            // 此標記用於：
+            // 1. 在圖層過濾時排除此圖層
+            // 2. 在事件處理中識別分析圖層
+            // 3. 在視覺渲染中應用特殊樣式
+            isIsochroneAnalysisLayer: true,
+          },
         ],
       },
     ]);
@@ -934,7 +987,13 @@ export const useDataStore = defineStore(
       console.log('🔧 DataStore: 新狀態:', layer.visible);
 
       // 如果圖層被開啟且尚未載入，則載入資料（分析圖層除外）
-      if (layer.visible && !layer.isLoaded && !layer.isLoading && !layer.isAnalysisLayer) {
+      if (
+        layer.visible &&
+        !layer.isLoaded &&
+        !layer.isLoading &&
+        !layer.isAnalysisLayer &&
+        !layer.isIsochroneAnalysisLayer
+      ) {
         try {
           layer.isLoading = true;
           const result = await layer.loader(layer);
@@ -999,6 +1058,7 @@ export const useDataStore = defineStore(
           layer.isLoaded &&
           layer.type === 'point' &&
           !layer.isAnalysisLayer &&
+          !layer.isIsochroneAnalysisLayer &&
           layer.geoJsonData
       );
 
@@ -1046,6 +1106,7 @@ export const useDataStore = defineStore(
           layer.isLoaded &&
           layer.type === 'polygon' &&
           !layer.isAnalysisLayer &&
+          !layer.isIsochroneAnalysisLayer &&
           layer.geoJsonData
       );
 
@@ -1125,6 +1186,60 @@ export const useDataStore = defineStore(
         名稱: feature.properties.name,
         範圍內點位數: feature.properties.pointsInRange.length,
         範圍內面域數: feature.properties.polygonInRange.length,
+      }));
+    };
+
+    // 等時圈分析圖層管理方法
+    /**
+     * 更新等時圈分析圖層的統計數據和表格數據
+     *
+     * @description 此函數負責更新等時圈分析圖層的所有統計資訊，
+     * 包括摘要數據（summaryData）和表格數據（tableData）。
+     * 支援兩種類型的等時圈要素：真實的多邊形和回退的圓圈。
+     *
+     * @param {Object} isochroneLayer - 等時圈分析圖層物件
+     *
+     * @note 此函數會在以下情況被調用：
+     * 1. 新增等時圈分析點後
+     * 2. 刪除等時圈分析點後
+     * 3. 清空等時圈分析圖層後
+     *
+     * @example
+     * const isochroneLayer = findLayerById('isochrone-analysis-layer');
+     * updateIsochroneAnalysisLayerData(isochroneLayer);
+     */
+    const updateIsochroneAnalysisLayerData = (isochroneLayer) => {
+      // 獲取所有等時圈分析要素（包括多邊形和圓圈兩種類型）
+      const isochroneFeatures = isochroneLayer.geoJsonData.features.filter(
+        (f) =>
+          f.properties.type === 'isochrone-circle-analysis' || // 回退模式的圓圈
+          f.properties.type === 'isochrone-polygon-analysis' // API 模式的多邊形
+      );
+
+      // 更新摘要統計數據
+      isochroneLayer.summaryData = {
+        totalCount: isochroneFeatures.length, // 總等時圈分析數量
+      };
+
+      // 更新表格顯示數據（用於 DataTableTab）
+      isochroneLayer.tableData = isochroneFeatures.map((feature) => ({
+        '#': feature.properties.id, // 分析編號
+        名稱: feature.properties.name, // 分析名稱
+        // 根據要素類型顯示不同的標籤
+        類型:
+          feature.properties.type === 'isochrone-polygon-analysis'
+            ? '等時圈多邊形' // 來自 ORS API 的真實等時圈
+            : '預估圓圈', // 回退模式的圓圈分析
+        // 顯示車程時間或預估標籤
+        車程時間: feature.properties.travelTime ? `${feature.properties.travelTime}分鐘` : '預估',
+        // 範圍內的點設施數量
+        範圍內點位數: feature.properties.pointsInRange
+          ? feature.properties.pointsInRange.length
+          : 0,
+        // 範圍內的多邊形區域數量
+        範圍內面域數: feature.properties.polygonInRange
+          ? feature.properties.polygonInRange.length
+          : 0,
       }));
     };
 
@@ -1223,6 +1338,697 @@ export const useDataStore = defineStore(
       };
     };
 
+    // 🌐 調用 OpenRouteService API 獲取等時圈數據
+    /**
+     * 從 OpenRouteService API 獲取等時圈（Isochrone）數據
+     *
+     * @description 此函數向 ORS API 發送請求，獲取從指定起點在指定時間內可到達的所有區域
+     * 等時圈是指從某一點出發，在相同時間內可以到達的所有地點連成的邊界線
+     *
+     * @param {number} lat - 起點緯度（WGS84 坐標系）
+     * @param {number} lng - 起點經度（WGS84 坐標系）
+     * @param {number} travelTimeMinutes - 旅行時間（分鐘），默認為 10 分鐘
+     *
+     * @returns {Promise<Object>} 返回 GeoJSON 格式的等時圈數據
+     * @throws {Error} 當 API 調用失敗時拋出錯誤
+     *
+     * @example
+     * // 獲取台北 101 周邊 15 分鐘車程的等時圈
+     * const isochrone = await fetchIsochroneData(25.034, 121.565, 15);
+     */
+    const fetchIsochroneData = async (lat, lng, travelTimeMinutes = 10) => {
+      // OpenRouteService API 金鑰（免費額度：每日 2000 次請求）
+      const apiKey = '5b3ce3597851110001cf6248cd3e1a052bec45bc8410b037091bb766';
+
+      // ORS API 要求坐標格式為 [經度, 緯度]（與常見的 [緯度, 經度] 相反）
+      const startPoint = [lng, lat];
+
+      try {
+        // 向 ORS Isochrones API 發送 POST 請求
+        const response = await fetch('https://api.openrouteservice.org/v2/isochrones/driving-car', {
+          method: 'POST',
+          headers: {
+            // API 身份驗證標頭
+            Authorization: apiKey,
+            // 指定請求內容類型為 JSON
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            // 起點坐標陣列（可以同時計算多個起點，這裡只有一個）
+            locations: [startPoint],
+            // 時間範圍陣列，單位為秒（可以同時計算多個時間範圍）
+            range: [travelTimeMinutes * 60],
+            // 範圍類型：'time' 表示時間等時圈，'distance' 表示距離等時圈
+            range_type: 'time',
+          }),
+        });
+
+        // 檢查 HTTP 響應狀態
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // 解析 JSON 響應數據
+        const data = await response.json();
+
+        // 返回的數據格式為 GeoJSON FeatureCollection
+        // 包含一個或多個 Polygon 要素，代表等時圈區域
+        return data;
+      } catch (error) {
+        console.error('獲取等時圈數據失敗:', error);
+        throw error;
+      }
+    };
+
+    // 🎯 計算等時圈多邊形範圍內的點物件
+    /**
+     * 計算等時圈多邊形範圍內的所有點物件（長照設施等）
+     *
+     * @description 此函數遍歷所有可見的點圖層，檢查每個點是否位於等時圈多邊形內部
+     * 使用射線投射算法（Ray Casting Algorithm）判斷點是否在多邊形內
+     *
+     * @param {Object} isochroneData - 來自 ORS API 的等時圈 GeoJSON 數據
+     * @param {number} centerLat - 等時圈中心點緯度（用於計算距離）
+     * @param {number} centerLng - 等時圈中心點經度（用於計算距離）
+     *
+     * @returns {Array} 包含所有在等時圈內的點物件陣列，每個物件包含：
+     *   - 原始 GeoJSON feature 數據
+     *   - layerId: 圖層 ID
+     *   - layerName: 圖層名稱
+     *   - distance: 與中心點的直線距離（公尺）
+     *
+     * @example
+     * const pointsInRange = calculatePointsInIsochronePolygon(isochroneData, 25.034, 121.565);
+     * console.log(`找到 ${pointsInRange.length} 個設施`);
+     */
+    const calculatePointsInIsochronePolygon = (isochroneData, centerLat, centerLng) => {
+      const pointsInRange = [];
+
+      // 檢查等時圈數據是否有效
+      if (!isochroneData.features || isochroneData.features.length === 0) {
+        console.warn('等時圈數據無效或為空');
+        return pointsInRange;
+      }
+
+      // 取得第一個（通常也是唯一的）等時圈多邊形
+      const isochronePolygon = isochroneData.features[0];
+
+      // 獲取所有符合條件的點圖層：
+      // 1. 必須是可見的 (visible = true)
+      // 2. 必須已載入數據 (isLoaded = true)
+      // 3. 必須是點類型 (type = 'point')
+      // 4. 排除分析圖層（避免計算分析點本身）
+      // 5. 必須有實際的 GeoJSON 數據
+      const visiblePointLayers = getAllLayers().filter(
+        (layer) =>
+          layer.visible &&
+          layer.isLoaded &&
+          layer.type === 'point' &&
+          !layer.isAnalysisLayer &&
+          !layer.isIsochroneAnalysisLayer &&
+          layer.geoJsonData
+      );
+
+      console.log(
+        '🔍 檢查等時圈範圍內的點圖層:',
+        visiblePointLayers.map((l) => l.layerName)
+      );
+
+      // 🚨 診斷：如果沒有找到符合條件的點圖層，提供詳細的診斷資訊
+      if (visiblePointLayers.length === 0) {
+        console.warn('⚠️ 沒有找到符合條件的點圖層進行等時圈分析！');
+
+        // 檢查所有點圖層的狀態
+        const allPointLayers = getAllLayers().filter((layer) => layer.type === 'point');
+        console.log('📊 所有點圖層狀態診斷:');
+        allPointLayers.forEach((layer) => {
+          const status = [];
+          if (!layer.visible) status.push('不可見');
+          if (!layer.isLoaded) status.push('未載入');
+          if (!layer.geoJsonData) status.push('無數據');
+
+          console.log(
+            `  - ${layer.layerName}: ${status.length > 0 ? status.join(', ') : '✅ 符合條件'}`
+          );
+        });
+
+        console.log('💡 解決方案：');
+        console.log('   1. 在左側圖層面板中開啟需要分析的點圖層（如醫院、診所等）');
+        console.log('   2. 等待圖層載入完成後再進行等時圈分析');
+        console.log('   3. 或者可以考慮自動載入相關圖層');
+
+        return pointsInRange;
+      }
+
+      // 遍歷每個符合條件的圖層
+      visiblePointLayers.forEach((layer) => {
+        if (layer.geoJsonData && layer.geoJsonData.features) {
+          // 遍歷圖層中的每個地理要素
+          layer.geoJsonData.features.forEach((feature) => {
+            // 只處理點類型的要素
+            if (feature.geometry.type === 'Point') {
+              // 取得點的坐標 [經度, 緯度]
+              const [lng, lat] = feature.geometry.coordinates;
+
+              // 使用點在多邊形內判斷算法檢查此點是否在等時圈內
+              if (isPointInPolygon([lng, lat], isochronePolygon.geometry)) {
+                // 計算點與等時圈中心的直線距離（雖然不是實際行車距離，但可作為參考）
+                const distance = calculateDistance(centerLat, centerLng, lat, lng);
+
+                // 創建增強的要素物件，包含原始數據和額外資訊
+                const enhancedFeature = {
+                  ...feature, // 保留原始 GeoJSON feature 的所有屬性
+                  layerId: layer.layerId, // 添加圖層 ID
+                  layerName: layer.layerName, // 添加圖層名稱（供顯示用）
+                  distance: Math.round(distance), // 添加與中心點的距離（四捨五入到公尺）
+                };
+                pointsInRange.push(enhancedFeature);
+              }
+            }
+          });
+        }
+      });
+
+      // 按與中心點的距離排序（最近的在前面）
+      pointsInRange.sort((a, b) => a.distance - b.distance);
+
+      console.log(`🎯 在等時圈範圍內找到 ${pointsInRange.length} 個點物件`);
+      return pointsInRange;
+    };
+
+    // 🎯 計算等時圈多邊形範圍內的多邊形物件
+    /**
+     * 計算與等時圈多邊形有重疊的所有多邊形物件（如行政區界、統計區域等）
+     *
+     * @description 此函數檢查所有可見的多邊形圖層，找出與等時圈有交集的多邊形
+     * 使用簡化的重疊檢測算法：檢查多邊形頂點是否有任何一個落在等時圈內
+     *
+     * @param {Object} isochroneData - 來自 ORS API 的等時圈 GeoJSON 數據
+     *
+     * @returns {Array} 包含所有與等時圈重疊的多邊形物件陣列，每個物件包含：
+     *   - 原始 GeoJSON feature 數據
+     *   - layerId: 圖層 ID
+     *   - layerName: 圖層名稱
+     *   - overlapType: 重疊類型（'intersects'）
+     *
+     * @example
+     * const overlappingPolygons = calculatePolygonInIsochronePolygon(isochroneData);
+     * console.log(`找到 ${overlappingPolygons.length} 個重疊的行政區`);
+     */
+    const calculatePolygonInIsochronePolygon = (isochroneData) => {
+      const polygonInRange = [];
+
+      // 檢查等時圈數據是否有效
+      if (!isochroneData.features || isochroneData.features.length === 0) {
+        console.warn('等時圈數據無效或為空，無法計算多邊形重疊');
+        return polygonInRange;
+      }
+
+      // 取得第一個等時圈多邊形
+      const isochronePolygon = isochroneData.features[0];
+
+      // 獲取所有符合條件的多邊形圖層：
+      // 1. 必須是可見的 (visible = true)
+      // 2. 必須已載入數據 (isLoaded = true)
+      // 3. 必須是多邊形類型 (type = 'polygon')
+      // 4. 排除分析圖層（避免與分析多邊形本身比較）
+      // 5. 必須有實際的 GeoJSON 數據
+      const visiblePolygonLayers = getAllLayers().filter(
+        (layer) =>
+          layer.visible &&
+          layer.isLoaded &&
+          layer.type === 'polygon' &&
+          !layer.isAnalysisLayer &&
+          !layer.isIsochroneAnalysisLayer &&
+          layer.geoJsonData
+      );
+
+      // 遍歷每個符合條件的多邊形圖層
+      visiblePolygonLayers.forEach((layer) => {
+        if (layer.geoJsonData && layer.geoJsonData.features) {
+          // 遍歷圖層中的每個地理要素
+          layer.geoJsonData.features.forEach((feature) => {
+            // 只處理 Polygon 和 MultiPolygon 類型的要素
+            if (feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon') {
+              // 檢查此多邊形是否與等時圈有重疊
+              const hasOverlap = checkPolygonIsochroneOverlap(
+                feature.geometry,
+                isochronePolygon.geometry
+              );
+
+              if (hasOverlap) {
+                // 創建增強的要素物件，包含重疊資訊
+                const enhancedFeature = {
+                  ...feature, // 保留原始 GeoJSON feature 的所有屬性
+                  layerId: layer.layerId, // 添加圖層 ID
+                  layerName: layer.layerName, // 添加圖層名稱
+                  overlapType: 'intersects', // 標記重疊類型
+                };
+                polygonInRange.push(enhancedFeature);
+              }
+            }
+          });
+        }
+      });
+
+      console.log(`🎯 在等時圈範圍內找到 ${polygonInRange.length} 個重疊多邊形`);
+      return polygonInRange;
+    };
+
+    // 檢查點是否在多邊形內（射線投射算法）
+    /**
+     * 使用射線投射算法（Ray Casting Algorithm）判斷點是否在多邊形內部
+     *
+     * @description 此算法的基本原理：
+     * 1. 從測試點向任意方向（通常是水平向右）發射一條射線
+     * 2. 計算射線與多邊形邊界的交點數量
+     * 3. 如果交點數量為奇數，則點在多邊形內；偶數則在外
+     *
+     * @param {Array} point - 測試點坐標 [經度, 緯度]
+     * @param {Object} polygon - GeoJSON 多邊形幾何物件
+     *
+     * @returns {boolean} true 表示點在多邊形內，false 表示在外
+     *
+     * @example
+     * const isInside = isPointInPolygon([121.565, 25.034], polygonGeometry);
+     * console.log(isInside ? '在多邊形內' : '在多邊形外');
+     *
+     * @note 此實現為簡化版本，僅處理多邊形的外環，未考慮內環（洞）
+     */
+    const isPointInPolygon = (point, polygon) => {
+      const [x, y] = point; // 測試點的 x, y 坐標
+      let coordinates;
+
+      // 根據多邊形類型獲取坐標陣列
+      if (polygon.type === 'Polygon') {
+        // 單一多邊形：取外環坐標（第一個陣列）
+        coordinates = polygon.coordinates[0];
+      } else if (polygon.type === 'MultiPolygon') {
+        // 多重多邊形：取第一個多邊形的外環坐標
+        coordinates = polygon.coordinates[0][0];
+      } else {
+        // 不支援的幾何類型
+        console.warn(`不支援的多邊形類型: ${polygon.type}`);
+        return false;
+      }
+
+      let inside = false; // 初始假設點在多邊形外
+
+      // 遍歷多邊形的每條邊
+      for (let i = 0, j = coordinates.length - 1; i < coordinates.length; j = i++) {
+        const [xi, yi] = coordinates[i]; // 當前頂點
+        const [xj, yj] = coordinates[j]; // 前一個頂點
+
+        // 檢查射線是否與此邊相交
+        // 條件：
+        // 1. 邊的兩個端點 y 坐標一個在測試點上方，一個在下方
+        // 2. 交點的 x 坐標在測試點右側
+        if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
+          inside = !inside; // 每次相交都切換內外狀態
+        }
+      }
+
+      return inside;
+    };
+
+    // 檢查多邊形與等時圈是否重疊（簡化版本）
+    /**
+     * 檢查兩個多邊形是否有重疊或相交
+     *
+     * @description 此函數使用簡化的重疊檢測算法：
+     * 檢查測試多邊形的所有頂點，如果有任何一個頂點落在等時圈多邊形內，
+     * 就認為兩個多邊形有重疊。這是一個快速但不完美的方法。
+     *
+     * @param {Object} polygon - 要檢測的多邊形幾何物件
+     * @param {Object} isochronePolygon - 等時圈多邊形幾何物件
+     *
+     * @returns {boolean} true 表示有重疊，false 表示無重疊
+     *
+     * @note 限制：
+     * 1. 此方法只檢查頂點，可能遺漏某些邊緣相交的情況
+     * 2. 不處理一個多邊形完全包含另一個的情況
+     * 3. 完整的多邊形相交算法會更複雜，需要考慮所有邊的交點
+     *
+     * @example
+     * const hasOverlap = checkPolygonIsochroneOverlap(districtGeometry, isochroneGeometry);
+     * if (hasOverlap) console.log('行政區與等時圈有重疊');
+     */
+    const checkPolygonIsochroneOverlap = (polygon, isochronePolygon) => {
+      let coordinates;
+
+      // 根據多邊形類型獲取坐標陣列
+      if (polygon.type === 'Polygon') {
+        // 單一多邊形：取外環坐標
+        coordinates = polygon.coordinates[0];
+      } else if (polygon.type === 'MultiPolygon') {
+        // 多重多邊形：取第一個多邊形的外環坐標
+        coordinates = polygon.coordinates[0][0];
+      } else {
+        // 不支援的幾何類型
+        console.warn(`不支援的多邊形類型用於重疊檢測: ${polygon.type}`);
+        return false;
+      }
+
+      // 遍歷多邊形的所有頂點
+      for (const [lng, lat] of coordinates) {
+        // 如果任何一個頂點在等時圈內，就認為有重疊
+        if (isPointInPolygon([lng, lat], isochronePolygon)) {
+          return true;
+        }
+      }
+
+      // 所有頂點都在等時圈外，認為無重疊
+      // 注意：這可能會遺漏某些邊緣相交的情況
+      return false;
+    };
+
+    /**
+     * 自動載入重要的長照設施圖層用於等時圈分析
+     *
+     * @description 為了確保等時圈分析能夠計算到範圍內的設施，
+     * 此函數會自動載入一些重要的長照相關圖層
+     *
+     * @returns {Promise<void>} 完成所有圖層載入的 Promise
+     */
+    const autoLoadImportantLayersForAnalysis = async () => {
+      // 定義重要的長照設施圖層 ID（按重要性排序）
+      const importantLayerIds = [
+        '醫院',
+        '診所',
+        '藥局',
+        '社區照顧關懷據點',
+        '社區整合型服務中心(A單位)',
+        '一般護理之家',
+        '住宿式長照機構',
+      ];
+
+      const layersToLoad = [];
+
+      // 檢查哪些重要圖層需要載入
+      importantLayerIds.forEach((layerId) => {
+        const layer = findLayerById(layerId);
+        if (layer && !layer.isLoaded && !layer.isLoading) {
+          layersToLoad.push(layer);
+        }
+      });
+
+      if (layersToLoad.length > 0) {
+        console.log(
+          `🚀 自動載入 ${layersToLoad.length} 個重要圖層用於等時圈分析:`,
+          layersToLoad.map((l) => l.layerName)
+        );
+
+        // 並行載入所有圖層
+        const loadPromises = layersToLoad.map(async (layer) => {
+          try {
+            layer.isLoading = true;
+            layer.visible = true; // 設為可見
+
+            if (layer.loader) {
+              const data = await layer.loader(layer.fileName);
+              layer.geoJsonData = data.geoJsonData;
+              layer.summaryData = data.summaryData;
+              layer.tableData = data.tableData;
+              layer.legendData = data.legendData;
+              layer.isLoaded = true;
+              console.log(`✅ 已載入圖層: ${layer.layerName}`);
+            }
+          } catch (error) {
+            console.error(`❌ 載入圖層失敗: ${layer.layerName}`, error);
+          } finally {
+            layer.isLoading = false;
+          }
+        });
+
+        await Promise.all(loadPromises);
+        console.log('🎉 重要圖層載入完成，可以進行等時圈分析');
+      } else {
+        console.log('✅ 重要圖層已經載入，無需額外載入');
+      }
+    };
+
+    /**
+     * 添加等時圈分析點 - 核心功能函數
+     *
+     * @description 這是等時圈分析功能的主要入口點。此函數會：
+     * 1. 調用 OpenRouteService API 獲取真實的等時圈數據
+     * 2. 計算等時圈範圍內的所有長照設施和相關區域
+     * 3. 創建可視化的等時圈多邊形和分析點
+     * 4. 生成統計數據和報告
+     * 5. 在 API 失敗時提供回退方案
+     *
+     * @param {number} lat - 分析起點的緯度（WGS84 坐標系）
+     * @param {number} lng - 分析起點的經度（WGS84 坐標系）
+     * @param {number} travelTimeMinutes - 等時圈時間範圍（分鐘），預設 10 分鐘
+     *
+     * @returns {Promise<Object>} 分析結果物件，包含：
+     *   - pointId: 分析點編號
+     *   - pointsInRange: 範圍內的點設施陣列
+     *   - polygonInRange: 範圍內的多邊形區域陣列
+     *   - layerStats: 各圖層的統計數據
+     *   - polygonStats: 多邊形圖層的統計數據
+     *   - isochroneData: 原始等時圈 API 數據
+     *
+     * @throws {Error} 當 API 調用失敗且回退方案也失敗時拋出錯誤
+     *
+     * @example
+     * // 在台北 101 創建 15 分鐘車程的等時圈分析
+     * const result = await addIsochroneAnalysisPoint(25.034, 121.565, 15);
+     * console.log(`找到 ${result.pointsInRange.length} 個長照設施`);
+     */
+    const addIsochroneAnalysisPoint = async (lat, lng, travelTimeMinutes = 10) => {
+      // 獲取等時圈分析圖層實例
+      const isochroneLayer = findLayerById('isochrone-analysis-layer');
+      if (!isochroneLayer) {
+        console.error('找不到等時圈分析圖層');
+        return;
+      }
+
+      // 🚀 自動載入重要的長照設施圖層
+      await autoLoadImportantLayersForAnalysis();
+
+      // 計算新的分析點編號（基於現有分析點數量）
+      const pointId =
+        isochroneLayer.geoJsonData.features.filter(
+          (f) => f.properties.type === 'isochrone-point-analysis'
+        ).length + 1;
+
+      try {
+        // 🚀 第一階段：調用 OpenRouteService API 獲取等時圈數據
+        isochroneLayer.isLoading = true; // 設置圖層加載狀態，用於 UI 顯示
+        console.log(`🌐 正在獲取 ${travelTimeMinutes} 分鐘車程的等時圈數據...`);
+
+        // 調用 ORS API 獲取實際的等時圈多邊形
+        const isochroneData = await fetchIsochroneData(lat, lng, travelTimeMinutes);
+
+        // 🎯 第二階段：基於等時圈多邊形計算範圍內的設施和區域
+        const pointsInRange = calculatePointsInIsochronePolygon(isochroneData, lat, lng);
+        const polygonInRange = calculatePolygonInIsochronePolygon(isochroneData);
+
+        // 📊 第三階段：統計各圖層的設施數量
+        const layerStats = {};
+        pointsInRange.forEach((feature) => {
+          if (!layerStats[feature.layerName]) {
+            layerStats[feature.layerName] = 0;
+          }
+          layerStats[feature.layerName]++;
+        });
+
+        // 📊 統計各多邊形圖層的重疊數量
+        const polygonStats = {};
+        polygonInRange.forEach((feature) => {
+          if (!polygonStats[feature.layerName]) {
+            polygonStats[feature.layerName] = 0;
+          }
+          polygonStats[feature.layerName]++;
+        });
+
+        // 🏷️ 第四階段：創建分析結果的顯示名稱
+        const featureName = `等時分析範圍 ${pointId} (${travelTimeMinutes}分鐘車程)`;
+
+        // 🗺️ 第五階段：創建等時圈多邊形要素（用於地圖顯示）
+        const isochronePolygonFeature = {
+          type: 'Feature',
+          geometry: isochroneData.features[0].geometry, // 直接使用 ORS API 返回的多邊形幾何
+          properties: {
+            id: pointId, // 唯一識別編號
+            layerId: 'isochrone-analysis-layer', // 所屬圖層
+            type: 'isochrone-polygon-analysis', // 要素類型標記
+            name: featureName, // 顯示名稱
+            travelTime: travelTimeMinutes, // 旅行時間
+            pointsInRange: pointsInRange, // 範圍內的點設施
+            polygonInRange: polygonInRange, // 範圍內的多邊形區域
+            layerStats: layerStats, // 圖層統計
+            polygonStats: polygonStats, // 多邊形統計
+            // 為屬性面板準備的格式化數據
+            propertyData: {
+              名稱: featureName,
+              車程時間: `${travelTimeMinutes} 分鐘`,
+              範圍內點位數: pointsInRange.length,
+              範圍內多邊形數: polygonInRange.length,
+            },
+          },
+        };
+
+        // 📍 創建等時圈分析點要素（用於標記分析起點）
+        const pointFeature = {
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [lng, lat], // 分析起點坐標
+          },
+          properties: {
+            id: `${pointId}_isochrone_analysis_point`, // 唯一識別編號
+            layerId: 'isochrone-analysis-layer',
+            type: 'isochrone-point-analysis', // 點標記類型
+            parentId: pointId, // 關聯的多邊形 ID
+          },
+        };
+
+        // 🔄 第六階段：將新創建的要素添加到圖層
+        isochroneLayer.geoJsonData.features.push(isochronePolygonFeature, pointFeature);
+
+        // 📊 更新圖層統計和表格數據
+        updateIsochroneAnalysisLayerData(isochroneLayer);
+
+        console.log(`✅ 成功創建等時圈分析 ${pointId}，包含 ${pointsInRange.length} 個點位`);
+
+        // 返回完整的分析結果
+        return {
+          pointId,
+          pointsInRange,
+          polygonInRange,
+          layerStats,
+          polygonStats,
+          isochroneData,
+        };
+      } catch (error) {
+        console.error('創建等時圈分析失敗:', error);
+        // 🔄 錯誤處理：API 失敗時回退到簡單圓圈分析
+        console.log('🔄 回退到簡單圓圈分析模式');
+        return addSimpleIsochroneAnalysisPoint(lat, lng, pointId);
+      } finally {
+        // 🧹 清理：無論成功或失敗都要清除加載狀態
+        isochroneLayer.isLoading = false;
+      }
+    };
+
+    // 🔄 回退方案：簡單圓圈分析（當 API 失敗時使用）
+    /**
+     * 簡單圓圈分析 - API 失敗時的回退方案
+     *
+     * @description 當 OpenRouteService API 調用失敗時（如網路錯誤、API 限制等），
+     * 使用此函數提供基本的分析功能。以指定半徑的圓圈代替等時圈多邊形，
+     * 雖然不如真實等時圈精確，但仍能提供基本的距離分析。
+     *
+     * @param {number} lat - 分析起點緯度
+     * @param {number} lng - 分析起點經度
+     * @param {number} pointId - 分析點編號
+     *
+     * @returns {Object} 簡化的分析結果物件
+     *
+     * @note 使用固定的 3 公里半徑作為預估等時圈範圍
+     * 這個距離大約對應 10-15 分鐘的車程（視交通狀況而定）
+     */
+    const addSimpleIsochroneAnalysisPoint = (lat, lng, pointId) => {
+      const isochroneLayer = findLayerById('isochrone-analysis-layer');
+      if (!isochroneLayer) {
+        console.error('回退方案：找不到等時圈分析圖層');
+        return;
+      }
+
+      // 使用原有的圓圈範圍計算函數，半徑設為 3 公里
+      const FALLBACK_RADIUS = 3000; // 3 公里，作為等時圈的粗略估計
+
+      console.log('🔄 回退模式：使用圓圈分析計算範圍內設施');
+      const pointsInRange = calculatePointsInRange(lat, lng, FALLBACK_RADIUS);
+      const polygonInRange = calculatePolygonInRange(lat, lng, FALLBACK_RADIUS);
+
+      console.log(
+        `🔄 回退模式結果：找到 ${pointsInRange.length} 個點設施，${polygonInRange.length} 個多邊形區域`
+      );
+
+      // 統計各圖層的設施數量
+      const layerStats = {};
+      pointsInRange.forEach((feature) => {
+        if (!layerStats[feature.layerName]) {
+          layerStats[feature.layerName] = 0;
+        }
+        layerStats[feature.layerName]++;
+      });
+
+      // 統計各多邊形圖層的重疊數量
+      const polygonStats = {};
+      polygonInRange.forEach((feature) => {
+        if (!polygonStats[feature.layerName]) {
+          polygonStats[feature.layerName] = 0;
+        }
+        polygonStats[feature.layerName]++;
+      });
+
+      // 創建回退模式的顯示名稱
+      const featureName = `等時分析範圍 ${pointId} (預估範圍)`;
+
+      // 創建圓圈要素（回退模式下的視覺表示）
+      const circleFeature = {
+        type: 'Feature',
+        geometry: {
+          type: 'Point', // 使用點幾何，在渲染時轉換為圓圈
+          coordinates: [lng, lat],
+        },
+        properties: {
+          id: pointId,
+          layerId: 'isochrone-analysis-layer',
+          type: 'isochrone-circle-analysis', // 標記為圓圈類型（非多邊形）
+          name: featureName,
+          radius: FALLBACK_RADIUS, // 圓圈半徑
+          pointsInRange: pointsInRange,
+          polygonInRange: polygonInRange,
+          layerStats: layerStats,
+          polygonStats: polygonStats,
+          // 屬性面板數據（簡化版）
+          propertyData: {
+            名稱: featureName,
+            範圍內點位數: pointsInRange.length,
+            範圍內多邊形數: polygonInRange.length,
+          },
+        },
+      };
+
+      // 創建分析點標記
+      const pointFeature = {
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: [lng, lat],
+        },
+        properties: {
+          id: `${pointId}_isochrone_analysis_point`,
+          layerId: 'isochrone-analysis-layer',
+          type: 'isochrone-point-analysis',
+          parentId: pointId,
+        },
+      };
+
+      // 添加要素到圖層
+      isochroneLayer.geoJsonData.features.push(circleFeature, pointFeature);
+
+      // 更新圖層統計
+      updateIsochroneAnalysisLayerData(isochroneLayer);
+
+      console.log(
+        `🔄 回退方案：創建 ${FALLBACK_RADIUS / 1000}km 圓圈分析，包含 ${pointsInRange.length} 個點位`
+      );
+
+      return {
+        pointId,
+        pointsInRange,
+        polygonInRange,
+        layerStats,
+        polygonStats,
+      };
+    };
+
     const clearAnalysisLayer = () => {
       const analysisLayer = findLayerById('analysis-layer');
       if (analysisLayer) {
@@ -1232,6 +2038,34 @@ export const useDataStore = defineStore(
         updateAnalysisLayerData(analysisLayer);
 
         console.log('🗑️ 清除分析圖層數據');
+      }
+    };
+
+    /**
+     * 清除等時圈分析圖層的所有數據
+     *
+     * @description 此函數會移除等時圈分析圖層中的所有分析結果，
+     * 包括等時圈多邊形、分析點標記和相關統計數據。
+     * 通常在使用者需要重新開始分析或清空地圖時調用。
+     *
+     * @note 此操作無法撤銷，清除後需要重新創建分析點
+     *
+     * @example
+     * // 清除所有等時圈分析
+     * clearIsochroneAnalysisLayer();
+     */
+    const clearIsochroneAnalysisLayer = () => {
+      const isochroneLayer = findLayerById('isochrone-analysis-layer');
+      if (isochroneLayer) {
+        // 清空圖層中的所有要素
+        isochroneLayer.geoJsonData.features = [];
+
+        // 重新計算並更新圖層統計和表格數據
+        updateIsochroneAnalysisLayerData(isochroneLayer);
+
+        console.log('🗑️ 清除等時圈分析圖層數據');
+      } else {
+        console.warn('找不到等時圈分析圖層，無法執行清除操作');
       }
     };
 
@@ -1255,6 +2089,62 @@ export const useDataStore = defineStore(
       console.log('🗑️ 刪除分析點:', pointId);
     };
 
+    // 🗑️ 刪除單個等時圈分析點 (Delete Single Isochrone Analysis Point)
+    /**
+     * 刪除指定的等時圈分析點及其相關要素
+     *
+     * @description 此函數會移除指定編號的等時圈分析結果，包括：
+     * 1. 等時圈多邊形或圓圈（分析範圍的視覺表示）
+     * 2. 分析點標記（藍色加號圖標）
+     * 3. 更新相關的統計數據和表格數據
+     *
+     * @param {number|string} pointId - 要刪除的分析點編號
+     *
+     * @note 此操作會同時處理兩種類型的等時圈要素：
+     * - isochrone-polygon-analysis: 來自 ORS API 的真實等時圈多邊形
+     * - isochrone-circle-analysis: 回退模式的圓圈分析
+     *
+     * @example
+     * // 刪除編號為 3 的等時圈分析
+     * deleteIsochroneAnalysisPoint(3);
+     */
+    const deleteIsochroneAnalysisPoint = (pointId) => {
+      const isochroneLayer = findLayerById('isochrone-analysis-layer');
+      if (!isochroneLayer || !isochroneLayer.geoJsonData) {
+        console.warn('找不到等時圈分析圖層或其數據，無法執行刪除操作');
+        return;
+      }
+
+      // 過濾並移除指定的等時圈分析要素
+      // 需要移除三種相關的要素：
+      isochroneLayer.geoJsonData.features = isochroneLayer.geoJsonData.features.filter(
+        (feature) => {
+          // 1. 回退模式的圓圈分析
+          const isTargetCircle =
+            feature.properties.type === 'isochrone-circle-analysis' &&
+            feature.properties.id === pointId;
+
+          // 2. API 模式的多邊形分析
+          const isTargetPolygon =
+            feature.properties.type === 'isochrone-polygon-analysis' &&
+            feature.properties.id === pointId;
+
+          // 3. 分析點標記（藍色加號）
+          const isTargetPoint =
+            feature.properties.type === 'isochrone-point-analysis' &&
+            feature.properties.parentId === pointId;
+
+          // 保留不匹配的要素（即刪除匹配的要素）
+          return !isTargetCircle && !isTargetPolygon && !isTargetPoint;
+        }
+      );
+
+      // 重新計算並更新圖層統計和表格數據
+      updateIsochroneAnalysisLayerData(isochroneLayer);
+
+      console.log('🗑️ 刪除等時圈分析點:', pointId);
+    };
+
     return {
       layers,
       findLayerById, // 根據 ID 尋找圖層
@@ -1266,6 +2156,9 @@ export const useDataStore = defineStore(
       addAnalysisPoint, // 添加分析點
       clearAnalysisLayer, // 清除分析圖層
       deleteAnalysisPoint, // 刪除單個分析點
+      addIsochroneAnalysisPoint, // 添加等時圈分析點
+      clearIsochroneAnalysisLayer, // 清除等時圈分析圖層
+      deleteIsochroneAnalysisPoint, // 刪除單個等時圈分析點
       calculatePointsInRange, // 計算範圍內的點
       calculatePolygonInRange, // 計算範圍內的多邊形
       visibleLayers: computed(() => getAllLayers().filter((layer) => layer.visible)),

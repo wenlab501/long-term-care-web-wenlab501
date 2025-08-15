@@ -44,6 +44,7 @@
       let currentTileLayer = null; // 當前底圖圖層實例
       let layerGroups = {}; // 存放所有圖層群組的物件
       let isClickMode = ref(false); // 是否處於點擊模式
+      let isIsochroneClickMode = ref(false); // 是否處於等時圈點擊模式
 
       // 🖱️ 右鍵菜單相關變數 (Context Menu Related Variables)
       const contextMenu = ref(null); // 右鍵菜單 DOM 引用
@@ -90,9 +91,14 @@
           // 綁定地圖點擊事件 - 點擊空白處清除選取或添加分析點
           mapInstance.on('click', function (e) {
             if (isClickMode.value) {
-              // 如果處於點擊模式，添加分析點並阻止其他事件
+              // 如果處於數據分析點擊模式，添加分析點並阻止其他事件
               e.originalEvent.stopPropagation();
               addAnalysisPoint(e.latlng.lat, e.latlng.lng);
+              return false; // 阻止事件繼續傳播
+            } else if (isIsochroneClickMode.value) {
+              // 如果處於等時圈分析點擊模式，添加等時圈分析點並阻止其他事件
+              e.originalEvent.stopPropagation();
+              addIsochroneAnalysisPoint(e.latlng.lat, e.latlng.lng);
               return false; // 阻止事件繼續傳播
             } else if (!e.originalEvent.target.closest('.leaflet-interactive')) {
               // 否則清除選取
@@ -114,6 +120,10 @@
             const mapContainer = mapInstance.getContainer();
             mapContainer.style.cursor = 'crosshair';
             mapContainer.classList.add('click-mode-active');
+          } else if (isIsochroneClickMode.value) {
+            const mapContainer = mapInstance.getContainer();
+            mapContainer.style.cursor = 'crosshair';
+            mapContainer.classList.add('isochrone-click-mode-active');
           }
 
           console.log('[MapTab] 地圖創建成功'); // 輸出成功訊息
@@ -226,7 +236,37 @@
                   weight: 1,
                   opacity: 0.8,
                   fillColor: 'var(--my-color-red)',
-                  fillOpacity: 0.2
+                  fillOpacity: 0.2,
+                });
+
+                return circle;
+              }
+            } else if (layer.isIsochroneAnalysisLayer) {
+              if (feature.properties.type === 'isochrone-point-analysis') {
+                // 等時圈分析點：藍色加號標記
+                const icon = L.divIcon({
+                  html: `
+                  <div class="d-flex align-items-center justify-content-center my-color-blue my-font-size-sm">
+                    <i class="fas fa-plus"></i>
+                  </div>
+                  `,
+                  className: 'isochrone-analysis-point-icon',
+                  iconSize: [16, 16],
+                  iconAnchor: [8, 8],
+                  popupAnchor: [0, -8],
+                });
+                const marker = L.marker(latlng, { icon });
+
+                return marker;
+              } else if (feature.properties.type === 'isochrone-circle-analysis') {
+                // 等時圈分析圓圈：藍色圓圈（回退模式）
+                const circle = L.circle(latlng, {
+                  radius: feature.properties.radius,
+                  color: 'var(--my-color-blue)',
+                  weight: 1,
+                  opacity: 0.8,
+                  fillColor: 'var(--my-color-blue)',
+                  fillOpacity: 0.2,
                 });
 
                 return circle;
@@ -254,8 +294,22 @@
           },
           // 樣式設定函數
           style: (feature) => {
+            // 等時圈多邊形的特殊樣式處理
+            if (
+              layer.isIsochroneAnalysisLayer &&
+              feature.properties.type === 'isochrone-polygon-analysis'
+            ) {
+              return {
+                color: 'var(--my-color-blue)',
+                weight: 2,
+                opacity: 0.8,
+                fillColor: 'var(--my-color-blue)',
+                fillOpacity: 0.3,
+              };
+            }
             // 只有polygon返回預設樣式物件
-            if (layer.type == 'polygon') { //if (feature.properties.fillColor) {
+            if (layer.type == 'polygon') {
+              //if (feature.properties.fillColor) {
               return {
                 fillColor: feature.properties.fillColor, // 填充顏色
                 weight: 1, // 邊框粗細
@@ -288,18 +342,37 @@
 
             // 為分析圖層設定特殊的 popup 配置
             if (layer.isAnalysisLayer) {
-              layer.bindPopup(`
+              layer.bindPopup(
+                `
                 <div class="">
                   <div class="my-title-xs-gray pb-2">${layerName}</div>
                   <div class="my-content-sm-black">${feature.properties.name}</div>
                 </div>
-              `, {
-                className: 'analysis-popup',
-                offset: [0, -5], // 調整偏移量
-                closeButton: true,
-                autoClose: false,
-                closeOnClick: false
-              });
+              `,
+                {
+                  className: 'analysis-popup',
+                  offset: [0, -5], // 調整偏移量
+                  closeButton: true,
+                  autoClose: false,
+                  closeOnClick: false,
+                }
+              );
+            } else if (layer.isIsochroneAnalysisLayer) {
+              layer.bindPopup(
+                `
+                <div class="">
+                  <div class="my-title-xs-gray pb-2">${layerName}</div>
+                  <div class="my-content-sm-black">${feature.properties.name}</div>
+                </div>
+              `,
+                {
+                  className: 'isochrone-analysis-popup',
+                  offset: [0, -5], // 調整偏移量
+                  closeButton: true,
+                  autoClose: false,
+                  closeOnClick: false,
+                }
+              );
             } else {
               layer.bindPopup(`
                 <div class="">
@@ -314,7 +387,7 @@
               // 滑鼠懸停事件
               mouseover: function () {
                 // 如果處於點擊模式，禁用 hover 效果
-                if (isClickMode.value) {
+                if (isClickMode.value || isIsochroneClickMode.value) {
                   return;
                 }
 
@@ -335,6 +408,40 @@
                     this.setStyle({
                       weight: 2,
                       fillOpacity: 0.4,
+                    });
+                  }
+                } else if (
+                  layer.isIsochroneAnalysisLayer ||
+                  feature.properties.layerId === 'isochrone-analysis-layer'
+                ) {
+                  if (feature.properties.type === 'isochrone-point-analysis') {
+                    // 等時圈分析點不需要懸停效果，直接返回
+                    return;
+                  } else if (feature.properties.type === 'isochrone-circle-analysis') {
+                    // 等時圈分析圓圈懸停效果
+                    if (!this._originalStyle) {
+                      this._originalStyle = {
+                        weight: this.options.weight,
+                        color: this.options.color,
+                        fillOpacity: this.options.fillOpacity,
+                      };
+                    }
+                    this.setStyle({
+                      weight: 2,
+                      fillOpacity: 0.4,
+                    });
+                  } else if (feature.properties.type === 'isochrone-polygon-analysis') {
+                    // 等時圈多邊形懸停效果
+                    if (!this._originalStyle) {
+                      this._originalStyle = {
+                        weight: this.options.weight,
+                        color: this.options.color,
+                        fillOpacity: this.options.fillOpacity,
+                      };
+                    }
+                    this.setStyle({
+                      weight: 3,
+                      fillOpacity: 0.5,
                     });
                   }
                 } else if (type === 'point') {
@@ -367,7 +474,7 @@
               // 滑鼠離開事件
               mouseout: function () {
                 // 如果處於點擊模式，禁用 hover 效果
-                if (isClickMode.value) {
+                if (isClickMode.value || isIsochroneClickMode.value) {
                   return;
                 }
 
@@ -384,6 +491,24 @@
                       return;
                     } else if (feature.properties.type === 'circle-analysis') {
                       // 分析圓圈恢復
+                      if (this._originalStyle) {
+                        this.setStyle(this._originalStyle);
+                      }
+                    }
+                  } else if (
+                    layer.isIsochroneAnalysisLayer ||
+                    feature.properties.layerId === 'isochrone-analysis-layer'
+                  ) {
+                    if (feature.properties.type === 'isochrone-point-analysis') {
+                      // 等時圈分析點不需要恢復效果，直接返回
+                      return;
+                    } else if (feature.properties.type === 'isochrone-circle-analysis') {
+                      // 等時圈分析圓圈恢復
+                      if (this._originalStyle) {
+                        this.setStyle(this._originalStyle);
+                      }
+                    } else if (feature.properties.type === 'isochrone-polygon-analysis') {
+                      // 等時圈多邊形恢復
                       if (this._originalStyle) {
                         this.setStyle(this._originalStyle);
                       }
@@ -409,27 +534,58 @@
               },
               // 點擊事件
               click: function (e) {
-                // 如果處於點擊模式，阻止圖層選擇並添加分析點
+                // 如果處於數據分析點擊模式，阻止圖層選擇並添加分析點
                 if (isClickMode.value) {
                   e.originalEvent.stopPropagation();
                   addAnalysisPoint(e.latlng.lat, e.latlng.lng);
                   return false;
                 }
 
+                // 如果處於等時圈分析點擊模式，阻止圖層選擇並添加等時圈分析點
+                if (isIsochroneClickMode.value) {
+                  e.originalEvent.stopPropagation();
+                  addIsochroneAnalysisPoint(e.latlng.lat, e.latlng.lng);
+                  return false;
+                }
+
                 // 分析點不參與選擇，直接返回
-                if ((layer.isAnalysisLayer || feature.properties.layerId === 'analysis-layer') &&
-                    feature.properties.type === 'point-analysis') {
+                if (
+                  (layer.isAnalysisLayer || feature.properties.layerId === 'analysis-layer') &&
+                  feature.properties.type === 'point-analysis'
+                ) {
                   return;
                 }
+
+                // 等時圈分析點不參與選擇，直接返回
+                if (
+                  (layer.isIsochroneAnalysisLayer ||
+                    feature.properties.layerId === 'isochrone-analysis-layer') &&
+                  feature.properties.type === 'isochrone-point-analysis'
+                ) {
+                  return;
+                }
+
                 dataStore.setSelectedFeature(feature); // 設定選中的要素到資料存儲
                 emit('feature-selected', feature); // 發送要素選中事件
               },
               // 右鍵點擊事件
               contextmenu: function (e) {
                 // 只有分析圖層的圓圈才顯示右鍵菜單
-                if ((layer.isAnalysisLayer || feature.properties.layerId === 'analysis-layer') &&
-                    feature.properties.type === 'circle-analysis') {
+                if (
+                  (layer.isAnalysisLayer || feature.properties.layerId === 'analysis-layer') &&
+                  feature.properties.type === 'circle-analysis'
+                ) {
                   showAnalysisContextMenu(e.originalEvent, feature);
+                }
+
+                // 只有等時圈分析圖層的圓圈或多邊形才顯示右鍵菜單
+                if (
+                  (layer.isIsochroneAnalysisLayer ||
+                    feature.properties.layerId === 'isochrone-analysis-layer') &&
+                  (feature.properties.type === 'isochrone-circle-analysis' ||
+                    feature.properties.type === 'isochrone-polygon-analysis')
+                ) {
+                  showIsochroneAnalysisContextMenu(e.originalEvent, feature);
                 }
               },
             });
@@ -494,16 +650,16 @@
         const currentLayerIds = Object.keys(layerGroups);
         // 篩選出可見且有資料的圖層（分析圖層總是有空的 features 數組）
         const visibleLayers = storeLayers.filter((l) => l.visible && l.geoJsonData);
-        const visibleLayerIds = visibleLayers.map(l => l.layerId);
+        const visibleLayerIds = visibleLayers.map((l) => l.layerId);
 
         // 找出新增的圖層（不在當前地圖上但在可見列表中的圖層）
-        const newLayerIds = visibleLayerIds.filter(id => !currentLayerIds.includes(id));
+        const newLayerIds = visibleLayerIds.filter((id) => !currentLayerIds.includes(id));
         // 找出需要移除的圖層（在當前地圖上但不在可見列表中的圖層）
-        const layersToRemove = currentLayerIds.filter(id => !visibleLayerIds.includes(id));
+        const layersToRemove = currentLayerIds.filter((id) => !visibleLayerIds.includes(id));
 
         console.log(`🔄 圖層同步: 新增 ${newLayerIds.length} 個, 移除 ${layersToRemove.length} 個`);
 
-                // 只移除不可見的圖層，避免不必要的重新渲染
+        // 只移除不可見的圖層，避免不必要的重新渲染
         layersToRemove.forEach((layerId) => {
           if (layerGroups[layerId]) {
             mapInstance.removeLayer(layerGroups[layerId]);
@@ -513,7 +669,7 @@
         });
 
         // 檢查是否有分析圖層需要更新
-        const hasAnalysisLayerUpdate = visibleLayers.some(layer => layer.isAnalysisLayer);
+        const hasAnalysisLayerUpdate = visibleLayers.some((layer) => layer.isAnalysisLayer);
 
         // 如果有分析圖層更新，需要重新渲染所有圖層以保持正確順序
         if (hasAnalysisLayerUpdate) {
@@ -530,35 +686,38 @@
         const newAddedLayers = [];
 
         // 按照 layers 的反轉順序處理所有可見圖層（這樣第一個圖層會在最底層）
-        visibleLayers.slice().reverse().forEach((layer) => {
-          const { layerId } = layer;
+        visibleLayers
+          .slice()
+          .reverse()
+          .forEach((layer) => {
+            const { layerId } = layer;
 
-          // 如果有分析圖層更新，所有圖層都需要重新創建
-          // 否則只有不存在的圖層才創建
-          const shouldCreateLayer = hasAnalysisLayerUpdate || !layerGroups[layerId];
+            // 如果有分析圖層更新，所有圖層都需要重新創建
+            // 否則只有不存在的圖層才創建
+            const shouldCreateLayer = hasAnalysisLayerUpdate || !layerGroups[layerId];
 
-          if (!shouldCreateLayer) return;
+            if (!shouldCreateLayer) return;
 
-          try {
-            const newLayer = createFeatureLayer(layer);
-            if (newLayer) {
-              if (layer.isAnalysisLayer) {
-                newLayer.isAnalysisLayer = true;
+            try {
+              const newLayer = createFeatureLayer(layer);
+              if (newLayer) {
+                if (layer.isAnalysisLayer) {
+                  newLayer.isAnalysisLayer = true;
+                }
+                newLayer.addTo(mapInstance);
+                layerGroups[layerId] = newLayer;
+
+                // 如果是新添加的圖層，收集起來用於自動縮放（分析圖層不需要縮放）
+                if (newLayerIds.includes(layerId) && !layer.isAnalysisLayer) {
+                  newAddedLayers.push(newLayer);
+                }
+
+                console.log(`🗺️ 圖層 "${layer.layerName}" 已添加到地圖`);
               }
-              newLayer.addTo(mapInstance);
-              layerGroups[layerId] = newLayer;
-
-              // 如果是新添加的圖層，收集起來用於自動縮放（分析圖層不需要縮放）
-              if (newLayerIds.includes(layerId) && !layer.isAnalysisLayer) {
-                newAddedLayers.push(newLayer);
-              }
-
-              console.log(`🗺️ 圖層 "${layer.layerName}" 已添加到地圖`);
+            } catch (error) {
+              console.error(`添加圖層 "${layer.layerName}" 時發生錯誤:`, error);
             }
-          } catch (error) {
-            console.error(`添加圖層 "${layer.layerName}" 時發生錯誤:`, error);
-          }
-        });
+          });
 
         // 只有在有新添加的非分析圖層時才自動縮放
         if (newAddedLayers.length > 0) {
@@ -875,6 +1034,15 @@
         dataStore.addAnalysisPoint(lat, lng);
       };
 
+      // 加入等時圈分析點
+      const addIsochroneAnalysisPoint = async (lat, lng) => {
+        try {
+          await dataStore.addIsochroneAnalysisPoint(lat, lng);
+        } catch (error) {
+          console.error('添加等時圈分析點失敗:', error);
+        }
+      };
+
       // 開始點擊模式
       const startClickMode = () => {
         isClickMode.value = true;
@@ -899,6 +1067,30 @@
         console.log('🛑 停止地圖點擊模式');
       };
 
+      // 開始等時圈點擊模式
+      const startIsochroneClickMode = () => {
+        isIsochroneClickMode.value = true;
+        if (mapInstance) {
+          const mapContainer = mapInstance.getContainer();
+          mapContainer.style.cursor = 'crosshair';
+          // 為所有子元素設定十字游標
+          mapContainer.classList.add('isochrone-click-mode-active');
+        }
+        console.log('🖱️ 開始等時圈分析點擊模式');
+      };
+
+      // 停止等時圈點擊模式
+      const stopIsochroneClickMode = () => {
+        isIsochroneClickMode.value = false;
+        if (mapInstance) {
+          const mapContainer = mapInstance.getContainer();
+          mapContainer.style.cursor = '';
+          // 移除十字游標類別
+          mapContainer.classList.remove('isochrone-click-mode-active');
+        }
+        console.log('🛑 停止等時圈分析點擊模式');
+      };
+
       // 🗑️ 清除分析圖層 (Clear Analysis Layer)
       const clearAnalysisLayer = () => {
         // 調用 dataStore 的方法清除分析圖層
@@ -914,11 +1106,26 @@
         selectedAnalysisFeature.value = feature;
         contextMenuPosition.value = {
           x: event.pageX || event.clientX,
-          y: event.pageY || event.clientY
+          y: event.pageY || event.clientY,
         };
         showContextMenu.value = true;
 
         console.log('🖱️ 顯示分析要素右鍵菜單:', feature.properties.name);
+      };
+
+      // 🖱️ 顯示等時圈分析右鍵菜單 (Show Isochrone Analysis Context Menu)
+      const showIsochroneAnalysisContextMenu = (event, feature) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        selectedAnalysisFeature.value = feature;
+        contextMenuPosition.value = {
+          x: event.pageX || event.clientX,
+          y: event.pageY || event.clientY,
+        };
+        showContextMenu.value = true;
+
+        console.log('🖱️ 顯示等時圈分析要素右鍵菜單:', feature.properties.name);
       };
 
       // 🗑️ 刪除單個分析點 (Delete Single Analysis Point)
@@ -926,19 +1133,32 @@
         if (!selectedAnalysisFeature.value) return;
 
         const feature = selectedAnalysisFeature.value;
-        const pointId = feature.properties.type === 'circle-analysis'
-          ? feature.properties.id
-          : feature.properties.parentId;
+        const layerId = feature.properties.layerId;
+
+        let pointId;
+        if (feature.properties.type === 'circle-analysis') {
+          pointId = feature.properties.id;
+        } else if (feature.properties.type === 'isochrone-circle-analysis') {
+          pointId = feature.properties.id;
+        } else if (feature.properties.type === 'isochrone-polygon-analysis') {
+          pointId = feature.properties.id;
+        } else {
+          pointId = feature.properties.parentId;
+        }
 
         if (!pointId) return;
 
-        // 調用 dataStore 的新方法刪除指定分析點
-        dataStore.deleteAnalysisPoint(pointId);
+        // 根據圖層類型調用對應的刪除方法
+        if (layerId === 'analysis-layer') {
+          dataStore.deleteAnalysisPoint(pointId);
+          console.log('🗑️ 刪除分析點:', pointId);
+        } else if (layerId === 'isochrone-analysis-layer') {
+          dataStore.deleteIsochroneAnalysisPoint(pointId);
+          console.log('🗑️ 刪除等時圈分析點:', pointId);
+        }
 
         // 隱藏右鍵菜單
         hideContextMenu();
-
-        console.log('🗑️ 刪除分析點:', pointId);
       };
 
       // 🚫 隱藏右鍵菜單 (Hide Context Menu)
@@ -1080,8 +1300,6 @@
         }
       );
 
-
-
       // 📤 返回組件公開的屬性和方法 (Return Component Public Properties and Methods)
       return {
         mapContainer, // 地圖容器 DOM 元素引用
@@ -1096,8 +1314,11 @@
         invalidateSize, // 刷新地圖尺寸函數
         startClickMode, // 開始點擊模式函數
         stopClickMode, // 停止點擊模式函數
+        startIsochroneClickMode, // 開始等時圈點擊模式函數
+        stopIsochroneClickMode, // 停止等時圈點擊模式函數
         clearAnalysisLayer, // 清除分析圖層函數
         isClickMode, // 點擊模式狀態
+        isIsochroneClickMode, // 等時圈點擊模式狀態
         defineStore, // 定義存儲實例
         // 右鍵菜單相關
         contextMenu, // 右鍵菜單 DOM 引用
@@ -1113,7 +1334,14 @@
 
 <template>
   <!-- 🗺️ 地圖主容器 (Main Map Container) -->
-  <div id="map-container" class="h-100 w-100 position-relative" :class="{ 'click-mode-active': isClickMode }">
+  <div
+    id="map-container"
+    class="h-100 w-100 position-relative"
+    :class="{
+      'click-mode-active': isClickMode,
+      'isochrone-click-mode-active': isIsochroneClickMode,
+    }"
+  >
     <!-- 🗺️ Leaflet 地圖容器 (Leaflet Map Container) -->
     <!-- 這是 Leaflet 地圖實際渲染的 DOM 元素 -->
     <div :id="mapContainerId" ref="mapContainer" class="h-100 w-100"></div>
@@ -1126,11 +1354,14 @@
       :style="{
         left: contextMenuPosition.x + 'px',
         top: contextMenuPosition.y + 'px',
-        zIndex: 10000
+        zIndex: 10000,
       }"
       @click.stop
     >
-      <div class="context-menu-item d-flex align-items-center my-bgcolor-white-hover my-title-sm-black px-3 py-2 my-2" @click="deleteAnalysisPoint">
+      <div
+        class="context-menu-item d-flex align-items-center my-bgcolor-white-hover my-title-sm-black px-3 py-2 my-2"
+        @click="deleteAnalysisPoint"
+      >
         <span class="my-color-red"><i class="fas fa-trash-alt me-2"></i></span>
         刪除此分析點
       </div>
@@ -1140,7 +1371,7 @@
     <div
       v-if="showContextMenu"
       class="context-menu-overlay position-fixed w-100 h-100"
-      style="top: 0; left: 0; z-index: 9999;"
+      style="top: 0; left: 0; z-index: 9999"
       @click="hideContextMenu"
     ></div>
 
@@ -1191,14 +1422,14 @@
         顯示全市
       </button>
 
-      <!-- 點選分析位置 -->
+      <!-- 點選數據分析位置 -->
       <button
         v-if="!isClickMode"
         class="btn rounded-pill border-0 my-btn-green my-font-size-xs text-nowrap my-cursor-pointer"
         @click="startClickMode"
-        title="在地圖上點選位置進行分析"
+        title="在地圖上點選位置進行數據分析"
       >
-        點選分析位置
+        點選數據分析位置
       </button>
       <button
         v-else
@@ -1207,6 +1438,24 @@
         title="取消地圖點選"
       >
         取消地圖點選
+      </button>
+
+      <!-- 點選等時分析位置 -->
+      <button
+        v-if="!isIsochroneClickMode"
+        class="btn rounded-pill border-0 my-btn-blue my-font-size-xs text-nowrap my-cursor-pointer"
+        @click="startIsochroneClickMode"
+        title="在地圖上點選位置進行等時圈分析"
+      >
+        點選等時分析位置
+      </button>
+      <button
+        v-else
+        class="btn rounded-pill border-0 my-btn-red my-font-size-xs text-nowrap my-cursor-pointer"
+        @click="stopIsochroneClickMode"
+        title="取消等時圈分析點選"
+      >
+        取消等時圈點選
       </button>
     </div>
   </div>
@@ -1237,5 +1486,23 @@
   :deep(.analysis-point-icon) {
     background: transparent !important;
     border: none !important;
+  }
+
+  /* 🎯 等時圈分析點圖標樣式 (Isochrone Analysis Point Icon Styles) */
+  :deep(.isochrone-analysis-point-icon) {
+    background: transparent !important;
+    border: none !important;
+  }
+
+  /* 🖱️ 點擊模式樣式 (Click Mode Styles) */
+  .click-mode-active,
+  .click-mode-active * {
+    cursor: crosshair !important;
+  }
+
+  /* 🖱️ 等時圈點擊模式樣式 (Isochrone Click Mode Styles) */
+  .isochrone-click-mode-active,
+  .isochrone-click-mode-active * {
+    cursor: crosshair !important;
   }
 </style>

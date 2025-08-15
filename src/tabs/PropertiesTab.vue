@@ -75,20 +75,28 @@
       });
 
       /**
+       * 🚗 是否為等時圈分析圖層物件 (Is Isochrone Analysis Layer Object)
+       * 檢查選中物件是否為等時圈分析圖層的物件
+       */
+      const isIsochroneAnalysisObject = computed(() => {
+        return selectedFeature.value?.properties?.layerId === 'isochrone-analysis-layer';
+      });
+
+      /**
        * 📍 範圍內點位清單 (Points In Range List)
-       * 獲取分析圖層物件範圍內的點清單
+       * 獲取分析圖層物件範圍內的點清單（支援數據分析和等時圈分析）
        */
       const pointsInRange = computed(() => {
-        if (!isAnalysisObject.value) return [];
+        if (!isAnalysisObject.value && !isIsochroneAnalysisObject.value) return [];
         return selectedFeature.value?.properties?.pointsInRange || [];
       });
 
       /**
        * 🏢 範圍內多邊形清單 (Polygon In Range List)
-       * 獲取分析圖層物件範圍內的多邊形清單
+       * 獲取分析圖層物件範圍內的多邊形清單（支援數據分析和等時圈分析）
        */
       const polygonInRange = computed(() => {
-        if (!isAnalysisObject.value) return [];
+        if (!isAnalysisObject.value && !isIsochroneAnalysisObject.value) return [];
         return selectedFeature.value?.properties?.polygonInRange || [];
       });
 
@@ -97,26 +105,26 @@
        * 整合點物件和多邊形物件的統一清單
        */
       const allObjectsInRange = computed(() => {
-        const points = pointsInRange.value.map(obj => ({ ...obj, objectType: 'point' }));
-        const polygons = polygonInRange.value.map(obj => ({ ...obj, objectType: 'polygon' }));
+        const points = pointsInRange.value.map((obj) => ({ ...obj, objectType: 'point' }));
+        const polygons = polygonInRange.value.map((obj) => ({ ...obj, objectType: 'polygon' }));
         return [...points, ...polygons];
       });
 
       /**
        * 📊 圖層統計 (Layer Statistics)
-       * 獲取範圍內各圖層的統計信息（點物件）
+       * 獲取範圍內各圖層的統計信息（點物件）（支援數據分析和等時圈分析）
        */
       const layerStats = computed(() => {
-        if (!isAnalysisObject.value) return {};
+        if (!isAnalysisObject.value && !isIsochroneAnalysisObject.value) return {};
         return selectedFeature.value?.properties?.layerStats || {};
       });
 
       /**
        * 🏢 多邊形圖層統計 (Polygon Layer Statistics)
-       * 獲取範圍內各圖層的統計信息（多邊形物件）
+       * 獲取範圍內各圖層的統計信息（多邊形物件）（支援數據分析和等時圈分析）
        */
       const polygonStats = computed(() => {
-        if (!isAnalysisObject.value) return {};
+        if (!isAnalysisObject.value && !isIsochroneAnalysisObject.value) return {};
         return selectedFeature.value?.properties?.polygonStats || {};
       });
 
@@ -140,6 +148,7 @@
         layerName, // 圖層名稱
         hasProperties, // 是否有屬性
         isAnalysisObject, // 是否為分析圖層物件
+        isIsochroneAnalysisObject, // 是否為等時圈分析圖層物件
         pointsInRange, // 範圍內點位清單
         polygonInRange, // 範圍內多邊形清單
         allObjectsInRange, // 範圍內所有物件清單
@@ -172,15 +181,15 @@
           population: '人口',
           density: '密度',
           // 分析圖層專用標籤
-          '分析點名稱': '分析點名稱',
-          '分析範圍名稱': '分析範圍名稱',
-          '緯度': '緯度',
-          '經度': '經度',
-          '中心緯度': '中心緯度',
-          '中心經度': '中心經度',
-          '分析半徑': '分析半徑',
-          '建立時間': '建立時間',
-          '關聯分析點': '關聯分析點',
+          分析點名稱: '分析點名稱',
+          分析範圍名稱: '分析範圍名稱',
+          緯度: '緯度',
+          經度: '經度',
+          中心緯度: '中心緯度',
+          中心經度: '中心經度',
+          分析半徑: '分析半徑',
+          建立時間: '建立時間',
+          關聯分析點: '關聯分析點',
         };
         return labelMap[key] || key;
       },
@@ -225,16 +234,18 @@
             />
           </template>
 
-          <!-- 🎯 分析圖層專用：範圍內物件清單 -->
-          <template v-if="isAnalysisObject && (pointsInRange.length > 0 || polygonInRange.length > 0)">
-
+          <!-- 🎯 分析圖層專用：範圍內物件清單（支援數據分析和等時圈分析） -->
+          <template
+            v-if="
+              (isAnalysisObject || isIsochroneAnalysisObject) &&
+              (pointsInRange.length > 0 || polygonInRange.length > 0)
+            "
+          >
             <!-- 📍 點物件清單 -->
             <template v-if="pointsInRange.length > 0">
-              <hr class="my-3">
+              <hr class="my-3" />
 
-              <div class="my-title-xs-gray mb-3">
-                範圍內點物件 {{ pointsInRange.length }}
-              </div>
+              <div class="my-title-xs-gray mb-3">範圍內點物件 {{ pointsInRange.length }}</div>
               <DetailItem
                 v-for="(point, index) in pointsInRange"
                 :key="index"
@@ -245,11 +256,9 @@
 
             <!-- 🏢 多邊形物件清單 -->
             <template v-if="polygonInRange.length > 0">
-              <hr class="my-3">
+              <hr class="my-3" />
 
-              <div class="my-title-xs-gray mb-3">
-                範圍內面域物件 {{ polygonInRange.length }}
-              </div>
+              <div class="my-title-xs-gray mb-3">範圍內面域物件 {{ polygonInRange.length }}</div>
               <DetailItem
                 v-for="(polygon, index) in polygonInRange"
                 :key="index"
