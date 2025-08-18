@@ -1365,23 +1365,27 @@ export const useDataStore = defineStore(
 
       try {
         // 向 ORS Isochrones API 發送 POST 請求
-        const response = await fetch('https://api.openrouteservice.org/v2/isochrones/driving-car', {
-          method: 'POST',
-          headers: {
-            // API 身份驗證標頭
-            Authorization: apiKey,
-            // 指定請求內容類型為 JSON
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            // 起點坐標陣列（可以同時計算多個起點，這裡只有一個）
-            locations: [startPoint],
-            // 時間範圍陣列，單位為秒（可以同時計算多個時間範圍）
-            range: [travelTimeMinutes * 60],
-            // 範圍類型：'time' 表示時間等時圈，'distance' 表示距離等時圈
-            range_type: 'time',
-          }),
-        });
+        // https://openrouteservice.org/dev/#/api-docs/v2/isochrones/{profile}/post
+        const response = await fetch(
+          'https://api.openrouteservice.org/v2/isochrones/driving-car', // driving-car // cycling-electric
+          {
+            method: 'POST',
+            headers: {
+              // API 身份驗證標頭
+              Authorization: apiKey,
+              // 指定請求內容類型為 JSON
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              // 起點坐標陣列（可以同時計算多個起點，這裡只有一個）
+              locations: [startPoint],
+              // 時間範圍陣列，單位為秒（可以同時計算多個時間範圍）
+              range: [travelTimeMinutes * 60],
+              // 範圍類型：'time' 表示時間等時圈，'distance' 表示距離等時圈
+              range_type: 'time',
+            }),
+          }
+        );
 
         // 檢查 HTTP 響應狀態
         if (!response.ok) {
