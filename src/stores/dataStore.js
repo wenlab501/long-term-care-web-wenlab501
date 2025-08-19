@@ -875,7 +875,7 @@ export const useDataStore = defineStore(
             isLoaded: true, // 始終載入
             type: 'analysis',
             shape: 'mixed',
-            colorName: 'red',
+            colorName: 'green',
             geoJsonData: {
               type: 'FeatureCollection',
               features: [],
@@ -946,6 +946,60 @@ export const useDataStore = defineStore(
             // 2. 在事件處理中識別分析圖層
             // 3. 在視覺渲染中應用特殊樣式
             isIsochroneAnalysisLayer: true,
+          },
+          // 🗺️ 路徑規劃圖層 - 多點路徑規劃功能
+          {
+            /**
+             * 路徑規劃圖層配置
+             *
+             * @description 此圖層提供多點路徑規劃功能，
+             * 使用者可以在地圖上點選多個路徑規劃點，
+             * 系統將記錄這些點位並提供路徑規劃相關功能。
+             *
+             * 功能特色：
+             * - 🎯 支援多點路徑規劃點選
+             * - 📍 無數量限制的路徑點添加
+             * - 🎨 清晰的路徑點視覺化
+             * - 🔄 靈活的路徑點管理
+             * - 📊 路徑點統計和列表顯示
+             */
+            layerId: 'route-planning-layer',
+            layerName: '路徑規劃圖層',
+            visible: true, // 預設開啟
+            isLoading: false, // 初始無加載狀態
+            isLoaded: true, // 標記為已載入（路徑規劃圖層總是可用的）
+            type: 'route-planning', // 特殊圖層類型
+            shape: 'point', // 點狀圖層：路徑規劃點
+            colorName: 'orange', // 橘色主題，與其他分析圖層區分
+
+            // GeoJSON 數據容器，存儲所有路徑規劃點
+            geoJsonData: {
+              type: 'FeatureCollection',
+              features: [], // 初始為空，路徑點會動態添加到此陣列
+            },
+
+            // 摘要統計數據（顯示在圖層面板中）
+            summaryData: {
+              totalCount: 0, // 總路徑規劃點數量
+              type: '路徑規劃點', // 類型描述
+              description: '共 0 個路徑規劃點，點選完成後可進行路徑規劃', // 詳細描述
+              lastUpdated: new Date().toISOString(), // 最後更新時間
+              coverage: '0 個路徑點', // 覆蓋範圍描述
+            },
+
+            tableData: [], // 表格數據（用於 DataTableTab 顯示）
+            legendData: null, // 圖例數據（路徑規劃不需要圖例）
+            loader: null, // 不需要數據載入器（路徑點是即時生成的）
+            fileName: null, // 不對應實體檔案
+            fieldName: null, // 不需要欄位映射
+
+            // 🔍 特殊標記：標識此圖層為路徑規劃圖層
+            // 此標記用於：
+            // 1. 在圖層過濾時排除此圖層
+            // 2. 在事件處理中識別路徑規劃圖層
+            // 3. 在視覺渲染中應用特殊樣式
+            // 4. 在點擊模式中識別路徑規劃模式
+            isRoutePlanningLayer: true,
           },
         ],
       },
@@ -2149,6 +2203,245 @@ export const useDataStore = defineStore(
       console.log('🗑️ 刪除等時圈分析點:', pointId);
     };
 
+    // 🗺️ ============ 路徑規劃圖層相關函數 (Route Planning Layer Functions) ============
+
+    /**
+     * 更新路徑規劃圖層的統計數據和表格數據
+     *
+     * @description 計算路徑規劃圖層中的路徑點數量，更新摘要統計和表格顯示數據。
+     * 路徑規劃在點選完成前被視為一筆資料，表格只顯示一筆記錄包含所有路徑點。
+     * 這個函數會在以下情況被調用：
+     * 1. 添加新的路徑規劃點後
+     * 2. 刪除路徑規劃點後
+     * 3. 清空路徑規劃圖層後
+     *
+     * @param {Object} routePlanningLayer - 路徑規劃圖層物件
+     *
+     * @example
+     * const routeLayer = findLayerById('route-planning-layer');
+     * updateRoutePlanningLayerData(routeLayer);
+     */
+    const updateRoutePlanningLayerData = (routePlanningLayer) => {
+      // 獲取所有路徑規劃點（過濾出 route-planning-point 類型的要素）
+      const routePoints = routePlanningLayer.geoJsonData.features.filter(
+        (f) => f.properties.type === 'route-planning-point'
+      );
+
+      // 更新摘要統計數據
+      if (routePoints.length > 0) {
+        routePlanningLayer.summaryData = {
+          totalCount: 1, // 表格只顯示一筆資料
+          type: '路徑規劃',
+          description: `正在規劃路徑，已選擇 ${routePoints.length} 個路徑點`,
+          lastUpdated: new Date().toISOString(),
+          coverage: `${routePoints.length} 個路徑點`,
+        };
+
+        // 更新表格數據（只顯示一筆記錄，包含所有路徑點信息）
+        const firstPoint = routePoints[0];
+        const lastPoint = routePoints[routePoints.length - 1];
+        routePlanningLayer.tableData = [
+          {
+            '#': 1, // 序號固定為1
+            名稱: `路徑規劃 (${routePoints.length}個點)`, // 顯示包含的點數
+            類型: '路徑規劃', // 固定類型
+            起點: `${firstPoint.properties.name}`, // 起點名稱
+            終點: routePoints.length > 1 ? `${lastPoint.properties.name}` : '同起點', // 終點名稱
+            路徑點數: routePoints.length, // 路徑點總數
+            建立時間: new Date(firstPoint.properties.createdAt).toLocaleString('zh-TW'), // 建立時間
+            狀態: '規劃中', // 當前狀態
+          },
+        ];
+      } else {
+        routePlanningLayer.summaryData = {
+          totalCount: 0, // 沒有路徑點時
+          type: '路徑規劃',
+          description: '尚未選擇路徑點，點選地圖開始規劃路徑',
+          lastUpdated: new Date().toISOString(),
+          coverage: '0 個路徑點',
+        };
+
+        routePlanningLayer.tableData = [];
+      }
+    };
+
+    /**
+     * 添加路徑規劃點到地圖
+     *
+     * @description 在指定的經緯度位置添加一個路徑規劃點。
+     * 路徑規劃點將按添加順序進行編號，支援無限數量的路徑點添加。
+     *
+     * @param {number} lat - 緯度
+     * @param {number} lng - 經度
+     * @returns {string|null} - 成功時返回路徑點ID，失敗時返回null
+     *
+     * @example
+     * // 添加路徑規劃點
+     * const pointId = addRoutePlanningPoint(25.0330, 121.5654);
+     * if (pointId) {
+     *   console.log('成功添加路徑點:', pointId);
+     * }
+     */
+    const addRoutePlanningPoint = (lat, lng) => {
+      // 獲取路徑規劃圖層實例
+      const routePlanningLayer = findLayerById('route-planning-layer');
+      if (!routePlanningLayer) {
+        console.error('找不到路徑規劃圖層');
+        return null;
+      }
+
+      // 計算當前路徑點數量，用於生成順序編號
+      const currentPoints = routePlanningLayer.geoJsonData.features.filter(
+        (f) => f.properties.type === 'route-planning-point'
+      );
+      const nextOrder = currentPoints.length + 1;
+
+      // 生成唯一的路徑點ID
+      const pointId = `route_point_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+      // 生成路徑點名稱
+      const pointName = `路徑點 ${nextOrder}`;
+
+      // 創建路徑規劃點的 GeoJSON 要素
+      const routePlanningPointFeature = {
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: [lng, lat], // GeoJSON 格式：[經度, 緯度]
+        },
+        properties: {
+          id: pointId, // 唯一識別編號
+          layerId: 'route-planning-layer', // 所屬圖層
+          type: 'route-planning-point', // 要素類型標記
+          name: pointName, // 顯示名稱
+          order: nextOrder, // 路徑點順序
+          latitude: lat, // 緯度（便於存取）
+          longitude: lng, // 經度（便於存取）
+          createdAt: new Date().toISOString(), // 建立時間
+        },
+      };
+
+      // 將新的路徑點添加到圖層數據中
+      routePlanningLayer.geoJsonData.features.push(routePlanningPointFeature);
+
+      // 更新圖層統計和表格數據
+      updateRoutePlanningLayerData(routePlanningLayer);
+
+      console.log(
+        `🗺️ 添加路徑規劃點 ${nextOrder}:`,
+        pointName,
+        `(${lat.toFixed(6)}, ${lng.toFixed(6)})`
+      );
+
+      return pointId;
+    };
+
+    /**
+     * 清空路徑規劃圖層中的所有路徑點
+     *
+     * @description 移除路徑規劃圖層中的所有路徑規劃點，重置圖層狀態。
+     * 這個函數通常在用戶想要重新開始路徑規劃時使用。
+     *
+     * @example
+     * // 清空所有路徑規劃點
+     * clearRoutePlanningLayer();
+     */
+    const clearRoutePlanningLayer = () => {
+      // 獲取路徑規劃圖層實例
+      const routePlanningLayer = findLayerById('route-planning-layer');
+      if (routePlanningLayer) {
+        // 清空圖層中的所有要素
+        routePlanningLayer.geoJsonData.features = [];
+
+        // 重新計算並更新圖層統計和表格數據
+        updateRoutePlanningLayerData(routePlanningLayer);
+
+        console.log('🗑️ 已清空路徑規劃圖層');
+      }
+    };
+
+    /**
+     * 刪除指定的路徑規劃點
+     *
+     * @description 根據點ID刪除特定的路徑規劃點，並重新整理剩餘路徑點的順序編號。
+     *
+     * @param {string} pointId - 要刪除的路徑點ID
+     *
+     * @example
+     * // 刪除特定的路徑規劃點
+     * deleteRoutePlanningPoint('route_point_1234567890_abc123');
+     */
+    const deleteRoutePlanningPoint = (pointId) => {
+      // 獲取路徑規劃圖層實例
+      const routePlanningLayer = findLayerById('route-planning-layer');
+      if (!routePlanningLayer || !routePlanningLayer.geoJsonData) {
+        console.warn('找不到路徑規劃圖層或其數據，無法執行刪除操作');
+        return;
+      }
+
+      // 過濾並移除指定的路徑規劃點
+      const originalCount = routePlanningLayer.geoJsonData.features.length;
+      routePlanningLayer.geoJsonData.features = routePlanningLayer.geoJsonData.features.filter(
+        (feature) => feature.properties.id !== pointId
+      );
+
+      // 檢查是否成功刪除
+      const newCount = routePlanningLayer.geoJsonData.features.length;
+      if (originalCount === newCount) {
+        console.warn('找不到指定的路徑規劃點:', pointId);
+        return;
+      }
+
+      // 重新整理剩餘路徑點的順序編號
+      const remainingPoints = routePlanningLayer.geoJsonData.features.filter(
+        (f) => f.properties.type === 'route-planning-point'
+      );
+
+      remainingPoints.forEach((point, index) => {
+        const newOrder = index + 1;
+        point.properties.order = newOrder;
+        point.properties.name = `路徑點 ${newOrder}`;
+      });
+
+      // 重新計算並更新圖層統計和表格數據
+      updateRoutePlanningLayerData(routePlanningLayer);
+
+      console.log('🗑️ 刪除路徑規劃點:', pointId);
+    };
+
+    /**
+     * 獲取所有路徑規劃點的坐標列表
+     *
+     * @description 返回當前所有路徑規劃點的坐標陣列，按順序排列，
+     * 可用於後續的路徑規劃API調用。
+     *
+     * @returns {Array<Array<number>>} - 坐標陣列，格式為 [[lng, lat], [lng, lat], ...]
+     *
+     * @example
+     * // 獲取路徑點坐標用於路徑規劃
+     * const coordinates = getRoutePlanningCoordinates();
+     * console.log('路徑點坐標:', coordinates);
+     * // 輸出: [[121.5654, 25.0330], [121.5700, 25.0350], ...]
+     */
+    const getRoutePlanningCoordinates = () => {
+      const routePlanningLayer = findLayerById('route-planning-layer');
+      if (!routePlanningLayer) {
+        console.warn('找不到路徑規劃圖層');
+        return [];
+      }
+
+      // 獲取所有路徑規劃點，並按順序排序
+      const routePoints = routePlanningLayer.geoJsonData.features
+        .filter((f) => f.properties.type === 'route-planning-point')
+        .sort((a, b) => a.properties.order - b.properties.order);
+
+      // 提取坐標陣列
+      const coordinates = routePoints.map((point) => point.geometry.coordinates);
+
+      console.log(`📍 獲取 ${coordinates.length} 個路徑點坐標`);
+      return coordinates;
+    };
+
     return {
       layers,
       findLayerById, // 根據 ID 尋找圖層
@@ -2163,6 +2456,10 @@ export const useDataStore = defineStore(
       addIsochroneAnalysisPoint, // 添加等時圈分析點
       clearIsochroneAnalysisLayer, // 清除等時圈分析圖層
       deleteIsochroneAnalysisPoint, // 刪除單個等時圈分析點
+      addRoutePlanningPoint, // 添加路徑規劃點
+      clearRoutePlanningLayer, // 清除路徑規劃圖層
+      deleteRoutePlanningPoint, // 刪除單個路徑規劃點
+      getRoutePlanningCoordinates, // 獲取路徑規劃點坐標
       calculatePointsInRange, // 計算範圍內的點
       calculatePolygonInRange, // 計算範圍內的多邊形
       visibleLayers: computed(() => getAllLayers().filter((layer) => layer.visible)),

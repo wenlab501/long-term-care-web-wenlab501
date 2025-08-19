@@ -45,6 +45,7 @@
       let layerGroups = {}; // 存放所有圖層群組的物件
       let isClickMode = ref(false); // 是否處於點擊模式
       let isIsochroneClickMode = ref(false); // 是否處於等時圈點擊模式
+      let isRoutePlanningClickMode = ref(false); // 是否處於路徑規劃點擊模式
 
       // 🖱️ 右鍵菜單相關變數 (Context Menu Related Variables)
       const contextMenu = ref(null); // 右鍵菜單 DOM 引用
@@ -100,6 +101,11 @@
               e.originalEvent.stopPropagation();
               addIsochroneAnalysisPoint(e.latlng.lat, e.latlng.lng);
               return false; // 阻止事件繼續傳播
+            } else if (isRoutePlanningClickMode.value) {
+              // 如果處於路徑規劃點擊模式，添加路徑規劃點並阻止其他事件
+              e.originalEvent.stopPropagation();
+              addRoutePlanningPoint(e.latlng.lat, e.latlng.lng);
+              return false; // 阻止事件繼續傳播
             } else if (!e.originalEvent.target.closest('.leaflet-interactive')) {
               // 否則清除選取
               dataStore.setSelectedFeature(null);
@@ -124,6 +130,10 @@
             const mapContainer = mapInstance.getContainer();
             mapContainer.style.cursor = 'crosshair';
             mapContainer.classList.add('isochrone-click-mode-active');
+          } else if (isRoutePlanningClickMode.value) {
+            const mapContainer = mapInstance.getContainer();
+            mapContainer.style.cursor = 'crosshair';
+            mapContainer.classList.add('route-planning-click-mode-active');
           }
 
           console.log('[MapTab] 地圖創建成功'); // 輸出成功訊息
@@ -213,10 +223,10 @@
             // 分析圖層的特殊處理
             if (layer.isAnalysisLayer) {
               if (feature.properties.type === 'point-analysis') {
-                // 分析點：紅色加號標記
+                // 分析點：綠色加號標記
                 const icon = L.divIcon({
                   html: `
-                  <div class="d-flex align-items-center justify-content-center my-color-red my-font-size-sm">
+                  <div class="d-flex align-items-center justify-content-center my-color-green my-font-size-sm">
                     <i class="fas fa-plus"></i>
                   </div>
                   `,
@@ -232,10 +242,10 @@
                 // 分析圓圈：2公里半徑
                 const circle = L.circle(latlng, {
                   radius: feature.properties.radius,
-                  color: 'var(--my-color-red)',
+                  color: 'var(--my-color-green)',
                   weight: 1,
                   opacity: 0.8,
-                  fillColor: 'var(--my-color-red)',
+                  fillColor: 'var(--my-color-green)',
                   fillOpacity: 0.2,
                 });
 
@@ -270,6 +280,26 @@
                 });
 
                 return circle;
+              }
+            } else if (layer.isRoutePlanningLayer) {
+              if (feature.properties.type === 'route-planning-point') {
+                // 路徑規劃點：橘色數字標記
+                const order = feature.properties.order || 1;
+                const icon = L.divIcon({
+                  html: `
+                  <div class="d-flex align-items-center justify-content-center my-color-white my-font-size-xs fw-bold"
+                       style="background: var(--my-color-orange); border-radius: 50%; width: 20px; height: 20px; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                    ${order}
+                  </div>
+                  `,
+                  className: 'route-planning-point-icon',
+                  iconSize: [24, 24],
+                  iconAnchor: [12, 12],
+                  popupAnchor: [0, -12],
+                });
+                const marker = L.marker(latlng, { icon });
+
+                return marker;
               }
             } else if (type === 'point') {
               // 一般點類型
@@ -373,6 +403,23 @@
                   closeOnClick: false,
                 }
               );
+            } else if (layer.isRoutePlanningLayer) {
+              layer.bindPopup(
+                `
+                <div class="">
+                  <div class="my-title-xs-gray pb-2">${layerName}</div>
+                  <div class="my-content-sm-black">${feature.properties.name}</div>
+                  <div class="my-content-xs-gray pt-1">順序: ${feature.properties.order}</div>
+                </div>
+              `,
+                {
+                  className: 'route-planning-popup',
+                  offset: [0, -5], // 調整偏移量
+                  closeButton: true,
+                  autoClose: false,
+                  closeOnClick: false,
+                }
+              );
             } else {
               layer.bindPopup(`
                 <div class="">
@@ -387,7 +434,11 @@
               // 滑鼠懸停事件
               mouseover: function () {
                 // 如果處於點擊模式，禁用 hover 效果
-                if (isClickMode.value || isIsochroneClickMode.value) {
+                if (
+                  isClickMode.value ||
+                  isIsochroneClickMode.value ||
+                  isRoutePlanningClickMode.value
+                ) {
                   return;
                 }
 
@@ -474,7 +525,11 @@
               // 滑鼠離開事件
               mouseout: function () {
                 // 如果處於點擊模式，禁用 hover 效果
-                if (isClickMode.value || isIsochroneClickMode.value) {
+                if (
+                  isClickMode.value ||
+                  isIsochroneClickMode.value ||
+                  isRoutePlanningClickMode.value
+                ) {
                   return;
                 }
 
@@ -545,6 +600,13 @@
                 if (isIsochroneClickMode.value) {
                   e.originalEvent.stopPropagation();
                   addIsochroneAnalysisPoint(e.latlng.lat, e.latlng.lng);
+                  return false;
+                }
+
+                // 如果處於路徑規劃點擊模式，阻止圖層選擇並添加路徑規劃點
+                if (isRoutePlanningClickMode.value) {
+                  e.originalEvent.stopPropagation();
+                  addRoutePlanningPoint(e.latlng.lat, e.latlng.lng);
                   return false;
                 }
 
@@ -1045,9 +1107,12 @@
 
       // 開始點擊模式
       const startClickMode = () => {
-        // 🔄 互斥邏輯：關閉等時圈點擊模式
+        // 🔄 互斥邏輯：關閉其他點擊模式
         if (isIsochroneClickMode.value) {
           stopIsochroneClickMode();
+        }
+        if (isRoutePlanningClickMode.value) {
+          finishRoutePlanningClickMode();
         }
 
         isClickMode.value = true;
@@ -1074,9 +1139,12 @@
 
       // 開始等時圈點擊模式
       const startIsochroneClickMode = () => {
-        // 🔄 互斥邏輯：關閉數據分析點擊模式
+        // 🔄 互斥邏輯：關閉其他點擊模式
         if (isClickMode.value) {
           stopClickMode();
+        }
+        if (isRoutePlanningClickMode.value) {
+          finishRoutePlanningClickMode();
         }
 
         isIsochroneClickMode.value = true;
@@ -1099,6 +1167,65 @@
           mapContainer.classList.remove('isochrone-click-mode-active');
         }
         console.log('🛑 停止等時圈分析點擊模式');
+      };
+
+      // 🗺️ ============ 路徑規劃點擊模式相關函數 (Route Planning Click Mode Functions) ============
+
+      // 添加路徑規劃點
+      const addRoutePlanningPoint = async (lat, lng) => {
+        try {
+          const pointId = dataStore.addRoutePlanningPoint(lat, lng);
+          if (pointId) {
+            console.log('🗺️ 成功添加路徑規劃點:', pointId);
+          }
+        } catch (error) {
+          console.error('添加路徑規劃點失敗:', error);
+        }
+      };
+
+      // 開始路徑規劃點擊模式
+      const startRoutePlanningClickMode = () => {
+        // 🔄 互斥邏輯：關閉其他點擊模式
+        if (isClickMode.value) {
+          stopClickMode();
+        }
+        if (isIsochroneClickMode.value) {
+          stopIsochroneClickMode();
+        }
+
+        isRoutePlanningClickMode.value = true;
+        if (mapInstance) {
+          const mapContainer = mapInstance.getContainer();
+          mapContainer.style.cursor = 'crosshair';
+          // 為所有子元素設定十字游標
+          mapContainer.classList.add('route-planning-click-mode-active');
+        }
+        console.log('🖱️ 開始路徑規劃點擊模式（自動關閉其他分析模式）');
+      };
+
+      // 完成路徑規劃點選（替代停止函數）
+      const finishRoutePlanningClickMode = () => {
+        isRoutePlanningClickMode.value = false;
+        if (mapInstance) {
+          const mapContainer = mapInstance.getContainer();
+          mapContainer.style.cursor = '';
+          // 移除十字游標類別
+          mapContainer.classList.remove('route-planning-click-mode-active');
+        }
+
+        // 獲取當前路徑規劃點數量
+        const coordinates = dataStore.getRoutePlanningCoordinates();
+        console.log(`🛑 完成路徑規劃點選，共選擇了 ${coordinates.length} 個路徑點`);
+
+        // 可以在這裡添加後續的路徑規劃邏輯
+        if (coordinates.length >= 2) {
+          console.log('📍 路徑規劃點坐標:', coordinates);
+          // TODO: 在這裡可以調用路徑規劃 API
+        } else if (coordinates.length === 1) {
+          console.log('⚠️ 路徑規劃至少需要2個點，目前只有1個點');
+        } else {
+          console.log('⚠️ 沒有選擇任何路徑規劃點');
+        }
       };
 
       // 🗑️ 清除分析圖層 (Clear Analysis Layer)
@@ -1326,9 +1453,12 @@
         stopClickMode, // 停止點擊模式函數
         startIsochroneClickMode, // 開始等時圈點擊模式函數
         stopIsochroneClickMode, // 停止等時圈點擊模式函數
+        startRoutePlanningClickMode, // 開始路徑規劃點擊模式函數
+        finishRoutePlanningClickMode, // 完成路徑規劃點選函數
         clearAnalysisLayer, // 清除分析圖層函數
         isClickMode, // 點擊模式狀態
         isIsochroneClickMode, // 等時圈點擊模式狀態
+        isRoutePlanningClickMode, // 路徑規劃點擊模式狀態
         defineStore, // 定義存儲實例
         // 右鍵菜單相關
         contextMenu, // 右鍵菜單 DOM 引用
@@ -1350,6 +1480,7 @@
     :class="{
       'click-mode-active': isClickMode,
       'isochrone-click-mode-active': isIsochroneClickMode,
+      'route-planning-click-mode-active': isRoutePlanningClickMode,
     }"
   >
     <!-- 🗺️ Leaflet 地圖容器 (Leaflet Map Container) -->
@@ -1467,6 +1598,24 @@
       >
         取消等時圈點選
       </button>
+
+      <!-- 點選路徑規劃點 -->
+      <button
+        v-if="!isRoutePlanningClickMode"
+        class="btn rounded-pill border-0 my-btn-orange my-font-size-xs text-nowrap my-cursor-pointer"
+        @click="startRoutePlanningClickMode"
+        title="在地圖上點選多個位置進行路徑規劃"
+      >
+        點選路徑規劃點
+      </button>
+      <button
+        v-else
+        class="btn rounded-pill border-0 my-btn-red my-font-size-xs text-nowrap my-cursor-pointer"
+        @click="finishRoutePlanningClickMode"
+        title="完成路徑規劃點選"
+      >
+        路徑規劃點選完成
+      </button>
     </div>
   </div>
 </template>
@@ -1504,6 +1653,12 @@
     border: none !important;
   }
 
+  /* 🗺️ 路徑規劃點圖標樣式 (Route Planning Point Icon Styles) */
+  :deep(.route-planning-point-icon) {
+    background: transparent !important;
+    border: none !important;
+  }
+
   /* 🖱️ 點擊模式樣式 (Click Mode Styles) */
   .click-mode-active,
   .click-mode-active * {
@@ -1513,6 +1668,12 @@
   /* 🖱️ 等時圈點擊模式樣式 (Isochrone Click Mode Styles) */
   .isochrone-click-mode-active,
   .isochrone-click-mode-active * {
+    cursor: crosshair !important;
+  }
+
+  /* 🗺️ 路徑規劃點擊模式樣式 (Route Planning Click Mode Styles) */
+  .route-planning-click-mode-active,
+  .route-planning-click-mode-active * {
     cursor: crosshair !important;
   }
 </style>

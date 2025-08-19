@@ -315,7 +315,6 @@ body {
   font-weight: var(--my-font-weight-lg);
 }
 
-
 .my-title-xs-black {
   font-size: var(--my-font-size-xs);
   color: var(--my-color-black);
@@ -409,6 +408,22 @@ body {
 }
 
 .my-btn-blue:disabled {
+  color: var(--my-color-gray-600);
+  background-color: var(--my-color-gray-200);
+}
+
+.my-btn-orange {
+  color: var(--my-color-white);
+  background-color: var(--my-color-orange);
+}
+
+.my-btn-orange:hover,
+.my-btn-orange:active {
+  color: var(--my-color-white);
+  background-color: var(--my-color-orange-hover);
+}
+
+.my-btn-orange:disabled {
   color: var(--my-color-gray-600);
   background-color: var(--my-color-gray-200);
 }
