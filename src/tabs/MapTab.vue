@@ -285,14 +285,25 @@
               if (feature.properties.type === 'route-planning-point') {
                 // 路徑規劃點：橘色數字標記
                 const order = feature.properties.order || 1;
+                const isCompleted = feature.properties.status === 'completed';
+
+                // 根據完成狀態選擇不同的樣式
+                const backgroundColor = isCompleted
+                  ? 'var(--my-color-gray-500)'
+                  : 'var(--my-color-orange)';
+                const borderColor = isCompleted ? 'var(--my-color-gray-400)' : 'white';
+                const textColor = isCompleted
+                  ? 'var(--my-color-gray-200)'
+                  : 'var(--my-color-white)';
+
                 const icon = L.divIcon({
                   html: `
-                  <div class="d-flex align-items-center justify-content-center my-color-white my-font-size-xs fw-bold"
-                       style="background: var(--my-color-orange); border-radius: 50%; width: 20px; height: 20px; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                  <div class="d-flex align-items-center justify-content-center my-font-size-xs fw-bold"
+                       style="background: ${backgroundColor}; color: ${textColor}; border-radius: 50%; width: 20px; height: 20px; border: 2px solid ${borderColor}; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
                     ${order}
                   </div>
                   `,
-                  className: 'route-planning-point-icon',
+                  className: `route-planning-point-icon ${isCompleted ? 'completed' : 'active'}`,
                   iconSize: [24, 24],
                   iconAnchor: [12, 12],
                   popupAnchor: [0, -12],
@@ -324,6 +335,17 @@
           },
           // 樣式設定函數
           style: (feature) => {
+            // 路徑規劃路線的特殊樣式處理
+            if (layer.isRoutePlanningLayer && feature.properties.type === 'route-line') {
+              return {
+                color: 'var(--my-color-orange)', // 橘色路線
+                weight: 4, // 路線粗細
+                opacity: 0.8, // 路線透明度
+                lineCap: 'round', // 線條端點樣式
+                lineJoin: 'round', // 線條連接樣式
+                dashArray: null, // 實線
+              };
+            }
             // 等時圈多邊形的特殊樣式處理
             if (
               layer.isIsochroneAnalysisLayer &&
@@ -404,22 +426,57 @@
                 }
               );
             } else if (layer.isRoutePlanningLayer) {
-              layer.bindPopup(
+              // 根據要素類型設定不同的彈出視窗
+              if (feature.properties.type === 'route-planning-point') {
+                // 路徑規劃點的彈出視窗
+                const isCompleted = feature.properties.status === 'completed';
+                const popupContent = isCompleted
+                  ? `
+                  <div class="">
+                    <div class="my-title-xs-gray pb-2">${layerName}</div>
+                    <div class="my-content-sm-black">${feature.properties.name}</div>
+                    <div class="my-content-xs-gray pt-1">順序: ${feature.properties.order}</div>
+                    <div class="my-content-xs-gray">所屬路線: 路線 ${feature.properties.routeNumber}</div>
+                    <div class="my-content-xs-gray">狀態: 已完成</div>
+                  </div>
                 `
-                <div class="">
-                  <div class="my-title-xs-gray pb-2">${layerName}</div>
-                  <div class="my-content-sm-black">${feature.properties.name}</div>
-                  <div class="my-content-xs-gray pt-1">順序: ${feature.properties.order}</div>
-                </div>
-              `,
-                {
-                  className: 'route-planning-popup',
-                  offset: [0, -5], // 調整偏移量
+                  : `
+                  <div class="">
+                    <div class="my-title-xs-gray pb-2">${layerName}</div>
+                    <div class="my-content-sm-black">${feature.properties.name}</div>
+                    <div class="my-content-xs-gray pt-1">順序: ${feature.properties.order}</div>
+                    <div class="my-content-xs-gray">狀態: 規劃中</div>
+                  </div>
+                `;
+
+                layer.bindPopup(popupContent, {
+                  className: `route-planning-popup ${isCompleted ? 'completed' : 'active'}`,
+                  offset: [0, -5],
                   closeButton: true,
                   autoClose: false,
                   closeOnClick: false,
-                }
-              );
+                });
+              } else if (feature.properties.type === 'route-line') {
+                // 路徑規劃路線的彈出視窗
+                layer.bindPopup(
+                  `
+                  <div class="">
+                    <div class="my-title-xs-gray pb-2">${layerName}</div>
+                    <div class="my-content-sm-black">${feature.properties.name}</div>
+                    <div class="my-content-xs-gray pt-1">總距離: ${feature.properties.distance} 公里</div>
+                    <div class="my-content-xs-gray">預估時間: ${feature.properties.duration} 分鐘</div>
+                    <div class="my-content-xs-gray">路徑點數: ${feature.properties.waypoints} 個</div>
+                  </div>
+                `,
+                  {
+                    className: 'route-planning-popup route-line-popup',
+                    offset: [0, -5],
+                    closeButton: true,
+                    autoClose: false,
+                    closeOnClick: false,
+                  }
+                );
+              }
             } else {
               layer.bindPopup(`
                 <div class="">
@@ -495,6 +552,29 @@
                       fillOpacity: 0.5,
                     });
                   }
+                } else if (
+                  layer.isRoutePlanningLayer ||
+                  feature.properties.layerId === 'route-planning-layer'
+                ) {
+                  if (feature.properties.type === 'route-planning-point') {
+                    // 路徑規劃點不需要懸停效果，直接返回
+                    return;
+                  } else if (feature.properties.type === 'route-line') {
+                    // 路徑規劃路線懸停效果
+                    if (!this._originalStyle) {
+                      this._originalStyle = {
+                        weight: this.options.weight,
+                        color: this.options.color,
+                        opacity: this.options.opacity,
+                      };
+                    }
+                    this.setStyle({
+                      weight: 6, // 加粗路線
+                      opacity: 1.0, // 增加透明度
+                      color: 'var(--my-color-orange-hover)', // 使用深橘色
+                    });
+                    this.bringToFront(); // 置於最前層
+                  }
                 } else if (type === 'point') {
                   // 一般點類型處理
                   const element = this.getElement();
@@ -564,6 +644,19 @@
                       }
                     } else if (feature.properties.type === 'isochrone-polygon-analysis') {
                       // 等時圈多邊形恢復
+                      if (this._originalStyle) {
+                        this.setStyle(this._originalStyle);
+                      }
+                    }
+                  } else if (
+                    layer.isRoutePlanningLayer ||
+                    feature.properties.layerId === 'route-planning-layer'
+                  ) {
+                    if (feature.properties.type === 'route-planning-point') {
+                      // 路徑規劃點不需要恢復效果，直接返回
+                      return;
+                    } else if (feature.properties.type === 'route-line') {
+                      // 路徑規劃路線恢復
                       if (this._originalStyle) {
                         this.setStyle(this._originalStyle);
                       }
@@ -1204,7 +1297,7 @@
       };
 
       // 完成路徑規劃點選（替代停止函數）
-      const finishRoutePlanningClickMode = () => {
+      const finishRoutePlanningClickMode = async () => {
         isRoutePlanningClickMode.value = false;
         if (mapInstance) {
           const mapContainer = mapInstance.getContainer();
@@ -1217,14 +1310,38 @@
         const coordinates = dataStore.getRoutePlanningCoordinates();
         console.log(`🛑 完成路徑規劃點選，共選擇了 ${coordinates.length} 個路徑點`);
 
-        // 可以在這裡添加後續的路徑規劃邏輯
+        // 執行路徑規劃計算
         if (coordinates.length >= 2) {
           console.log('📍 路徑規劃點坐標:', coordinates);
-          // TODO: 在這裡可以調用路徑規劃 API
+          console.log('🚀 開始計算最佳路線...');
+
+          try {
+            // 調用路徑規劃 API 並繪製路線
+            const routeResult = await dataStore.calculateAndDrawRoute('driving-car');
+
+            if (routeResult) {
+              console.log('✅ 路徑規劃成功完成！');
+              console.log(`📏 路線總距離: ${routeResult.distance} 公里`);
+              console.log(`⏱️ 預估行車時間: ${routeResult.duration} 分鐘`);
+              console.log(`🚗 交通方式: 駕車`);
+
+              // 路徑規劃完成，不顯示彈窗，只在控制台記錄
+              console.log(`🎉 路線 ${routeResult.routeNumber || '新增'} 已保存完成`);
+              console.log(`📍 可以繼續添加下一條路線`);
+            } else {
+              console.warn('⚠️ 路徑規劃計算失敗');
+              alert('路徑規劃失敗，請檢查路徑點是否有效或網路連線。');
+            }
+          } catch (error) {
+            console.error('❌ 路徑規劃過程中發生錯誤:', error);
+            alert(`路徑規劃失敗: ${error.message}`);
+          }
         } else if (coordinates.length === 1) {
           console.log('⚠️ 路徑規劃至少需要2個點，目前只有1個點');
+          alert('路徑規劃至少需要2個路徑點，請添加更多路徑點。');
         } else {
           console.log('⚠️ 沒有選擇任何路徑規劃點');
+          alert('請先在地圖上選擇路徑點。');
         }
       };
 

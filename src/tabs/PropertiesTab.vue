@@ -83,6 +83,80 @@
       });
 
       /**
+       * 🛣️ 是否為路徑規劃圖層物件 (Is Route Planning Layer Object)
+       * 檢查選中物件是否為路徑規劃圖層的物件
+       */
+      const isRoutePlanningObject = computed(() => {
+        return selectedFeature.value?.properties?.layerId === 'route-planning-layer';
+      });
+
+      /**
+       * 🛣️ 是否為路徑規劃路線 (Is Route Planning Line)
+       * 檢查選中物件是否為路徑規劃路線
+       */
+      const isRoutePlanningLine = computed(() => {
+        return (
+          isRoutePlanningObject.value && selectedFeature.value?.properties?.type === 'route-line'
+        );
+      });
+
+      /**
+       * 📍 是否為路徑規劃點 (Is Route Planning Point)
+       * 檢查選中物件是否為路徑規劃點
+       */
+      const isRoutePlanningPoint = computed(() => {
+        return (
+          isRoutePlanningObject.value &&
+          selectedFeature.value?.properties?.type === 'route-planning-point'
+        );
+      });
+
+      /**
+       * 📍 路徑規劃路線詳細信息 (Route Planning Line Details)
+       * 獲取路徑規劃路線的詳細信息，包括關聯的路徑點
+       */
+      const routePlanningDetails = computed(() => {
+        if (!isRoutePlanningLine.value) return null;
+
+        const routeFeature = selectedFeature.value;
+        const routeId = routeFeature.properties.id;
+        const routeNumber = routeFeature.properties.routeNumber;
+
+        // 從圖層中找到關聯的路徑點
+        const routePlanningLayer = dataStore.findLayerById('route-planning-layer');
+        if (!routePlanningLayer) return null;
+
+        const relatedPoints = routePlanningLayer.geoJsonData.features
+          .filter(
+            (f) => f.properties.type === 'route-planning-point' && f.properties.routeId === routeId
+          )
+          .sort((a, b) => a.properties.order - b.properties.order);
+
+        return {
+          routeInfo: {
+            id: routeId,
+            name: routeFeature.properties.name,
+            routeNumber: routeNumber,
+            distance: routeFeature.properties.distance,
+            duration: routeFeature.properties.duration,
+            profile: routeFeature.properties.profile,
+            waypoints: routeFeature.properties.waypoints,
+            startPointName: routeFeature.properties.startPointName,
+            endPointName: routeFeature.properties.endPointName,
+            createdAt: routeFeature.properties.createdAt,
+          },
+          routePoints: relatedPoints.map((point) => ({
+            order: point.properties.order,
+            name: point.properties.name,
+            latitude: point.properties.latitude,
+            longitude: point.properties.longitude,
+            coordinates: point.geometry.coordinates,
+            createdAt: point.properties.createdAt,
+          })),
+        };
+      });
+
+      /**
        * 📍 範圍內點位清單 (Points In Range List)
        * 獲取分析圖層物件範圍內的點清單（支援數據分析和等時圈分析）
        */
@@ -141,6 +215,22 @@
         return combined;
       });
 
+      /**
+       * 🕐 格式化日期時間 (Format Date Time)
+       * 將 ISO 字串轉換為本地化的日期時間格式
+       * @param {string} isoString - ISO 格式的日期時間字串
+       * @returns {string} - 格式化後的日期時間字串
+       */
+      const formatDateTime = (isoString) => {
+        if (!isoString) return 'N/A';
+        try {
+          return new Date(isoString).toLocaleString('zh-TW');
+        } catch (error) {
+          console.warn('日期格式化失敗:', error);
+          return isoString;
+        }
+      };
+
       // 📤 返回響應式數據給模板使用
       return {
         selectedFeature, // 選中物件
@@ -149,12 +239,17 @@
         hasProperties, // 是否有屬性
         isAnalysisObject, // 是否為分析圖層物件
         isIsochroneAnalysisObject, // 是否為等時圈分析圖層物件
+        isRoutePlanningObject, // 是否為路徑規劃圖層物件
+        isRoutePlanningLine, // 是否為路徑規劃路線
+        isRoutePlanningPoint, // 是否為路徑規劃點
+        routePlanningDetails, // 路徑規劃路線詳細信息
         pointsInRange, // 範圍內點位清單
         polygonInRange, // 範圍內多邊形清單
         allObjectsInRange, // 範圍內所有物件清單
         layerStats, // 點圖層統計
         polygonStats, // 多邊形圖層統計
         combinedStats, // 整合統計
+        formatDateTime, // 日期時間格式化函數
       };
     },
 
@@ -266,6 +361,117 @@
                 :value="polygon.properties.name"
               />
             </template>
+          </template>
+
+          <!-- 🛣️ 路徑規劃路線專用：路線詳細信息 -->
+          <template v-if="isRoutePlanningLine && routePlanningDetails">
+            <hr class="my-3" />
+
+            <!-- 路線基本信息 -->
+            <div class="my-title-xs-gray mb-3">路線信息</div>
+            <DetailItem label="路線名稱" :value="routePlanningDetails.routeInfo.name" />
+            <DetailItem
+              label="路線編號"
+              :value="`路線 ${routePlanningDetails.routeInfo.routeNumber}`"
+            />
+            <DetailItem label="總距離" :value="`${routePlanningDetails.routeInfo.distance} 公里`" />
+            <DetailItem
+              label="預估時間"
+              :value="`${routePlanningDetails.routeInfo.duration} 分鐘`"
+            />
+            <DetailItem
+              label="交通方式"
+              :value="
+                routePlanningDetails.routeInfo.profile === 'driving-car'
+                  ? '駕車'
+                  : routePlanningDetails.routeInfo.profile
+              "
+            />
+            <DetailItem
+              label="路徑點數"
+              :value="`${routePlanningDetails.routeInfo.waypoints} 個`"
+            />
+            <DetailItem label="起點" :value="routePlanningDetails.routeInfo.startPointName" />
+            <DetailItem label="終點" :value="routePlanningDetails.routeInfo.endPointName" />
+            <DetailItem
+              label="建立時間"
+              :value="formatDateTime(routePlanningDetails.routeInfo.createdAt)"
+            />
+
+            <!-- 路徑點詳細清單 -->
+            <template v-if="routePlanningDetails.routePoints.length > 0">
+              <hr class="my-3" />
+
+              <div class="my-title-xs-gray mb-3">
+                路徑點詳細 {{ routePlanningDetails.routePoints.length }}
+              </div>
+
+              <div
+                v-for="(point, index) in routePlanningDetails.routePoints"
+                :key="index"
+                class="mb-3 p-2 border rounded"
+              >
+                <div class="my-content-sm-black fw-bold mb-2">{{ point.name }}</div>
+                <DetailItem label="順序" :value="`第 ${point.order} 個路徑點`" />
+                <DetailItem label="緯度" :value="point.latitude.toFixed(6)" />
+                <DetailItem label="經度" :value="point.longitude.toFixed(6)" />
+                <DetailItem
+                  label="坐標"
+                  :value="`[${point.coordinates[0].toFixed(6)}, ${point.coordinates[1].toFixed(6)}]`"
+                />
+                <DetailItem label="建立時間" :value="formatDateTime(point.createdAt)" />
+              </div>
+            </template>
+          </template>
+
+          <!-- 📍 路徑規劃點專用：路徑點詳細信息 -->
+          <template v-if="isRoutePlanningPoint">
+            <hr class="my-3" />
+
+            <!-- 路徑點基本信息 -->
+            <div class="my-title-xs-gray mb-3">路徑點信息</div>
+            <DetailItem label="點名稱" :value="selectedFeature.properties.name" />
+            <DetailItem label="順序" :value="`第 ${selectedFeature.properties.order} 個路徑點`" />
+            <DetailItem
+              label="狀態"
+              :value="selectedFeature.properties.status === 'completed' ? '已完成' : '規劃中'"
+            />
+
+            <!-- 已完成路徑點的額外信息 -->
+            <template v-if="selectedFeature.properties.status === 'completed'">
+              <DetailItem
+                label="所屬路線"
+                :value="`路線 ${selectedFeature.properties.routeNumber}`"
+              />
+              <DetailItem label="路線ID" :value="selectedFeature.properties.routeId" />
+            </template>
+
+            <!-- 坐標信息 -->
+            <hr class="my-3" />
+            <div class="my-title-xs-gray mb-3">坐標信息</div>
+            <DetailItem
+              label="緯度"
+              :value="selectedFeature.properties.latitude?.toFixed(6) || 'N/A'"
+            />
+            <DetailItem
+              label="經度"
+              :value="selectedFeature.properties.longitude?.toFixed(6) || 'N/A'"
+            />
+            <DetailItem
+              label="GeoJSON坐標"
+              :value="`[${selectedFeature.geometry.coordinates[0].toFixed(6)}, ${selectedFeature.geometry.coordinates[1].toFixed(6)}]`"
+            />
+
+            <!-- 其他屬性 -->
+            <hr class="my-3" />
+            <div class="my-title-xs-gray mb-3">其他屬性</div>
+            <DetailItem label="要素ID" :value="selectedFeature.properties.id" />
+            <DetailItem label="圖層ID" :value="selectedFeature.properties.layerId" />
+            <DetailItem label="要素類型" :value="selectedFeature.properties.type" />
+            <DetailItem
+              label="建立時間"
+              :value="formatDateTime(selectedFeature.properties.createdAt)"
+            />
           </template>
         </div>
       </div>

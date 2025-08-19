@@ -2222,47 +2222,100 @@ export const useDataStore = defineStore(
      * updateRoutePlanningLayerData(routeLayer);
      */
     const updateRoutePlanningLayerData = (routePlanningLayer) => {
-      // 獲取所有路徑規劃點（過濾出 route-planning-point 類型的要素）
-      const routePoints = routePlanningLayer.geoJsonData.features.filter(
-        (f) => f.properties.type === 'route-planning-point'
+      // 獲取已完成的路線
+      const completedRoutes = routePlanningLayer.geoJsonData.features.filter(
+        (f) => f.properties.type === 'route-line'
       );
 
-      // 更新摘要統計數據
-      if (routePoints.length > 0) {
-        routePlanningLayer.summaryData = {
-          totalCount: 1, // 表格只顯示一筆資料
-          type: '路徑規劃',
-          description: `正在規劃路徑，已選擇 ${routePoints.length} 個路徑點`,
-          lastUpdated: new Date().toISOString(),
-          coverage: `${routePoints.length} 個路徑點`,
-        };
+      // 獲取當前正在規劃的路徑點（排除已完成的）
+      const currentRoutePoints = routePlanningLayer.geoJsonData.features.filter(
+        (f) => f.properties.type === 'route-planning-point' && f.properties.status !== 'completed'
+      );
 
-        // 更新表格數據（只顯示一筆記錄，包含所有路徑點信息）
-        const firstPoint = routePoints[0];
-        const lastPoint = routePoints[routePoints.length - 1];
-        routePlanningLayer.tableData = [
-          {
-            '#': 1, // 序號固定為1
-            名稱: `路徑規劃 (${routePoints.length}個點)`, // 顯示包含的點數
-            類型: '路徑規劃', // 固定類型
-            起點: `${firstPoint.properties.name}`, // 起點名稱
-            終點: routePoints.length > 1 ? `${lastPoint.properties.name}` : '同起點', // 終點名稱
-            路徑點數: routePoints.length, // 路徑點總數
-            建立時間: new Date(firstPoint.properties.createdAt).toLocaleString('zh-TW'), // 建立時間
-            狀態: '規劃中', // 當前狀態
-          },
-        ];
+      // 計算總數量：已完成路線數 + (如果有正在規劃的點則+1)
+      const totalCount = completedRoutes.length + (currentRoutePoints.length > 0 ? 1 : 0);
+
+      // 更新摘要數據
+      if (completedRoutes.length > 0 || currentRoutePoints.length > 0) {
+        const totalDistance = completedRoutes.reduce(
+          (sum, route) => sum + (route.properties.distance || 0),
+          0
+        );
+        const totalDuration = completedRoutes.reduce(
+          (sum, route) => sum + (route.properties.duration || 0),
+          0
+        );
+
+        let description = '';
+        if (completedRoutes.length > 0 && currentRoutePoints.length > 0) {
+          description = `已完成 ${completedRoutes.length} 條路線，正在規劃第 ${completedRoutes.length + 1} 條路線（已選擇 ${currentRoutePoints.length} 個路徑點）`;
+        } else if (completedRoutes.length > 0) {
+          description = `已完成 ${completedRoutes.length} 條路線，總距離 ${totalDistance.toFixed(2)} 公里，總時間 ${totalDuration} 分鐘`;
+        } else {
+          description = `正在規劃第 1 條路線，已選擇 ${currentRoutePoints.length} 個路徑點`;
+        }
+
+        routePlanningLayer.summaryData = {
+          totalCount: totalCount,
+          type: '路徑規劃',
+          description: description,
+          lastUpdated: new Date().toISOString(),
+          coverage:
+            completedRoutes.length > 0
+              ? `${totalDistance.toFixed(2)} 公里`
+              : `${currentRoutePoints.length} 個路徑點`,
+        };
       } else {
         routePlanningLayer.summaryData = {
-          totalCount: 0, // 沒有路徑點時
+          totalCount: 0,
           type: '路徑規劃',
-          description: '尚未選擇路徑點，點選地圖開始規劃路徑',
+          description: '尚未開始路徑規劃，點選地圖開始規劃路徑',
           lastUpdated: new Date().toISOString(),
-          coverage: '0 個路徑點',
+          coverage: '0 條路線',
         };
-
-        routePlanningLayer.tableData = [];
       }
+
+      // 更新表格數據
+      const tableData = [];
+
+      // 添加已完成的路線
+      completedRoutes.forEach((route, index) => {
+        tableData.push({
+          '#': index + 1,
+          id: route.properties.id, // 🔥 添加正確的 feature ID 用於高亮顯示
+          名稱: route.properties.name || `路線 ${index + 1}`,
+          類型: '已完成路線',
+          起點: route.properties.startPointName || '起點',
+          終點: route.properties.endPointName || '終點',
+          路徑點數: route.properties.waypoints || 0,
+          總距離: `${route.properties.distance} 公里`,
+          預估時間: `${route.properties.duration} 分鐘`,
+          建立時間: new Date(route.properties.createdAt).toLocaleString('zh-TW'),
+          狀態: '已完成',
+        });
+      });
+
+      // 如果有正在規劃的路徑點，添加到表格
+      if (currentRoutePoints.length > 0) {
+        const firstPoint = currentRoutePoints[0];
+        const lastPoint = currentRoutePoints[currentRoutePoints.length - 1];
+
+        tableData.push({
+          '#': completedRoutes.length + 1,
+          id: firstPoint.properties.id, // 🔥 使用第一個路徑點的 ID 作為規劃中路線的代表
+          名稱: `路線 ${completedRoutes.length + 1}`,
+          類型: '規劃中',
+          起點: `${firstPoint.properties.name}`,
+          終點: currentRoutePoints.length > 1 ? `${lastPoint.properties.name}` : '同起點',
+          路徑點數: currentRoutePoints.length,
+          總距離: '-',
+          預估時間: '-',
+          建立時間: new Date(firstPoint.properties.createdAt).toLocaleString('zh-TW'),
+          狀態: '規劃中',
+        });
+      }
+
+      routePlanningLayer.tableData = tableData;
     };
 
     /**
@@ -2290,9 +2343,9 @@ export const useDataStore = defineStore(
         return null;
       }
 
-      // 計算當前路徑點數量，用於生成順序編號
+      // 計算當前正在規劃的路徑點數量，用於生成順序編號（排除已完成的）
       const currentPoints = routePlanningLayer.geoJsonData.features.filter(
-        (f) => f.properties.type === 'route-planning-point'
+        (f) => f.properties.type === 'route-planning-point' && f.properties.status !== 'completed'
       );
       const nextOrder = currentPoints.length + 1;
 
@@ -2332,6 +2385,10 @@ export const useDataStore = defineStore(
         pointName,
         `(${lat.toFixed(6)}, ${lng.toFixed(6)})`
       );
+      console.log(
+        `📍 路徑規劃點已添加到圖層，總點數: ${routePlanningLayer.geoJsonData.features.length}`
+      );
+      console.log(`🎯 路徑規劃圖層可見性: ${routePlanningLayer.visible}`);
 
       return pointId;
     };
@@ -2346,17 +2403,27 @@ export const useDataStore = defineStore(
      * // 清空所有路徑規劃點
      * clearRoutePlanningLayer();
      */
-    const clearRoutePlanningLayer = () => {
+    const clearRoutePlanningLayer = (clearAll = false) => {
       // 獲取路徑規劃圖層實例
       const routePlanningLayer = findLayerById('route-planning-layer');
       if (routePlanningLayer) {
-        // 清空圖層中的所有要素
-        routePlanningLayer.geoJsonData.features = [];
+        if (clearAll) {
+          // 清空圖層中的所有要素（路徑點 + 路線）
+          routePlanningLayer.geoJsonData.features = [];
+          console.log('🗑️ 已清空路徑規劃圖層的所有內容（包括已完成的路線和路徑點）');
+        } else {
+          // 只清空當前正在規劃的路徑點，保留已完成的路線和已完成的路徑點
+          routePlanningLayer.geoJsonData.features = routePlanningLayer.geoJsonData.features.filter(
+            (f) =>
+              f.properties.type !== 'route-planning-point' || f.properties.status === 'completed'
+          );
+          console.log('🗑️ 已清空當前正在規劃的路徑點，保留已完成的路線和路徑點');
+        }
 
         // 重新計算並更新圖層統計和表格數據
         updateRoutePlanningLayerData(routePlanningLayer);
-
-        console.log('🗑️ 已清空路徑規劃圖層');
+      } else {
+        console.warn('找不到路徑規劃圖層，無法清空');
       }
     };
 
@@ -2430,9 +2497,11 @@ export const useDataStore = defineStore(
         return [];
       }
 
-      // 獲取所有路徑規劃點，並按順序排序
+      // 獲取正在規劃中的路徑規劃點，並按順序排序（排除已完成的）
       const routePoints = routePlanningLayer.geoJsonData.features
-        .filter((f) => f.properties.type === 'route-planning-point')
+        .filter(
+          (f) => f.properties.type === 'route-planning-point' && f.properties.status !== 'completed'
+        )
         .sort((a, b) => a.properties.order - b.properties.order);
 
       // 提取坐標陣列
@@ -2440,6 +2509,202 @@ export const useDataStore = defineStore(
 
       console.log(`📍 獲取 ${coordinates.length} 個路徑點坐標`);
       return coordinates;
+    };
+
+    /**
+     * 使用 OpenRouteService Directions API 計算路徑
+     *
+     * @description 調用 ORS Directions API 計算多個路徑點之間的最佳路線，
+     * 返回包含路徑幾何、距離、時間等詳細信息的數據。
+     *
+     * @param {Array<Array<number>>} coordinates - 路徑點坐標陣列 [[lng, lat], ...]
+     * @param {string} profile - 交通方式 ('driving-car', 'cycling-regular', 'foot-walking')
+     * @returns {Promise<Object>} - ORS Directions API 響應數據
+     *
+     * @throws {Error} - 當 API 調用失敗時拋出錯誤
+     *
+     * @example
+     * const coordinates = [[121.5654, 25.0330], [121.5700, 25.0350]];
+     * const routeData = await fetchRouteDirections(coordinates, 'driving-car');
+     * console.log('路徑距離:', routeData.features[0].properties.summary.distance, '公尺');
+     */
+    const fetchRouteDirections = async (coordinates, profile = 'driving-car') => {
+      const apiKey = '5b3ce3597851110001cf6248cd3e1a052bec45bc8410b037091bb766';
+
+      if (!coordinates || coordinates.length < 2) {
+        throw new Error('路徑規劃至少需要2個路徑點');
+      }
+
+      try {
+        console.log(`🛣️ 開始計算路徑，使用 ${coordinates.length} 個路徑點`);
+        console.log('路徑點坐標:', coordinates);
+
+        // 使用正確的 API URL 格式 (包含 /geojson)
+        const apiUrl = `https://api.openrouteservice.org/v2/directions/${profile}/geojson`;
+
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            Accept:
+              'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
+            'Content-Type': 'application/json',
+            Authorization: apiKey,
+          },
+          body: JSON.stringify({
+            coordinates: coordinates,
+          }),
+        });
+
+        if (!response.ok) {
+          let errorMessage = `HTTP ${response.status}`;
+          try {
+            const errorData = await response.json();
+            if (errorData.error && errorData.error.message) {
+              errorMessage = errorData.error.message;
+            }
+          } catch (parseError) {
+            // 如果無法解析錯誤響應，使用狀態碼
+            errorMessage = `HTTP ${response.status} - ${response.statusText}`;
+          }
+          throw new Error(`ORS API 錯誤: ${errorMessage}`);
+        }
+
+        const data = await response.json();
+
+        if (!data.features || data.features.length === 0) {
+          throw new Error('API 返回的路徑數據為空');
+        }
+
+        console.log('✅ 路徑計算成功');
+        console.log(
+          `📏 路徑距離: ${(data.features[0].properties.summary.distance / 1000).toFixed(2)} 公里`
+        );
+        console.log(
+          `⏱️ 預估時間: ${Math.round(data.features[0].properties.summary.duration / 60)} 分鐘`
+        );
+
+        return data;
+      } catch (error) {
+        console.error('🚫 路徑計算失敗:', error);
+        throw error;
+      }
+    };
+
+    /**
+     * 計算並繪製路徑規劃路線
+     *
+     * @description 使用當前的路徑規劃點計算最佳路線，並將路線添加到地圖圖層中。
+     * 同時更新圖層統計數據，包含路線長度、預估時間等信息。
+     *
+     * @param {string} profile - 交通方式，預設為 'driving-car'
+     * @returns {Promise<Object|null>} - 成功時返回路線數據，失敗時返回 null
+     *
+     * @example
+     * // 計算並繪製駕車路線
+     * const routeResult = await calculateAndDrawRoute('driving-car');
+     * if (routeResult) {
+     *   console.log('路線已繪製，距離:', routeResult.distance, '公里');
+     * }
+     */
+    const calculateAndDrawRoute = async (profile = 'driving-car') => {
+      const routePlanningLayer = findLayerById('route-planning-layer');
+      if (!routePlanningLayer) {
+        console.error('找不到路徑規劃圖層');
+        return null;
+      }
+
+      // 獲取路徑點坐標
+      const coordinates = getRoutePlanningCoordinates();
+      if (coordinates.length < 2) {
+        console.warn('⚠️ 路徑規劃至少需要2個點，目前只有', coordinates.length, '個點');
+        return null;
+      }
+
+      try {
+        console.log('🚀 開始路徑規劃計算...');
+
+        // 調用 ORS Directions API
+        const routeData = await fetchRouteDirections(coordinates, profile);
+        const route = routeData.features[0];
+        const summary = route.properties.summary;
+
+        // 獲取當前路徑點（在清除前保存信息）
+        const currentRoutePoints = routePlanningLayer.geoJsonData.features.filter(
+          (f) => f.properties.type === 'route-planning-point'
+        );
+
+        const firstPoint = currentRoutePoints[0];
+        const lastPoint = currentRoutePoints[currentRoutePoints.length - 1];
+
+        // 計算路線統計
+        const distanceKm = (summary.distance / 1000).toFixed(2);
+        const durationMin = Math.round(summary.duration / 60);
+
+        // 獲取已完成的路線數量，用於生成路線編號
+        const existingRoutes = routePlanningLayer.geoJsonData.features.filter(
+          (f) => f.properties.type === 'route-line'
+        );
+        const routeNumber = existingRoutes.length + 1;
+        const routeId = `route_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+        // 創建路線 GeoJSON 要素
+        const routeFeature = {
+          type: 'Feature',
+          geometry: route.geometry, // 直接使用 ORS 返回的幾何數據
+          properties: {
+            id: routeId,
+            layerId: 'route-planning-layer',
+            type: 'route-line',
+            name: `路線 ${routeNumber}`,
+            routeNumber: routeNumber, // 路線編號
+            distance: parseFloat(distanceKm), // 距離（公里）
+            duration: durationMin, // 時間（分鐘）
+            profile: profile, // 交通方式
+            waypoints: coordinates.length, // 路徑點數量
+            startPointName: firstPoint.properties.name, // 起點名稱
+            endPointName: lastPoint.properties.name, // 終點名稱
+            createdAt: new Date().toISOString(),
+          },
+        };
+
+        // 添加完成的路線到圖層
+        routePlanningLayer.geoJsonData.features.push(routeFeature);
+
+        // 🔥 修改：將當前路徑規劃點標記為已完成，但保留在地圖上
+        routePlanningLayer.geoJsonData.features.forEach((feature) => {
+          if (feature.properties.type === 'route-planning-point') {
+            // 將路徑點標記為已完成，關聯到對應的路線
+            feature.properties.status = 'completed';
+            feature.properties.routeId = routeId;
+            feature.properties.routeNumber = routeNumber;
+          }
+        });
+
+        // 更新圖層數據（現在只有已完成的路線）
+        updateRoutePlanningLayerData(routePlanningLayer);
+
+        console.log(`✅ 路徑規劃完成！`);
+        console.log(`📏 總距離: ${distanceKm} 公里`);
+        console.log(`⏱️ 預估時間: ${durationMin} 分鐘`);
+        console.log(`🛣️ 交通方式: ${profile}`);
+
+        return {
+          routeId,
+          routeNumber: routeNumber,
+          distance: parseFloat(distanceKm),
+          duration: durationMin,
+          waypoints: coordinates.length,
+          profile,
+          geometry: route.geometry,
+        };
+      } catch (error) {
+        console.error('❌ 路徑規劃失敗:', error);
+
+        // 錯誤時更新圖層狀態
+        routePlanningLayer.summaryData.description = `路徑規劃失敗: ${error.message}`;
+
+        return null;
+      }
     };
 
     return {
@@ -2460,6 +2725,7 @@ export const useDataStore = defineStore(
       clearRoutePlanningLayer, // 清除路徑規劃圖層
       deleteRoutePlanningPoint, // 刪除單個路徑規劃點
       getRoutePlanningCoordinates, // 獲取路徑規劃點坐標
+      calculateAndDrawRoute, // 計算並繪製路徑規劃路線
       calculatePointsInRange, // 計算範圍內的點
       calculatePolygonInRange, // 計算範圍內的多邊形
       visibleLayers: computed(() => getAllLayers().filter((layer) => layer.visible)),
