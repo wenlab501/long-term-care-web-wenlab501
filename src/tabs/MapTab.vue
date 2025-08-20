@@ -46,6 +46,7 @@
       let isClickMode = ref(false); // 是否處於點擊模式
       let isIsochroneClickMode = ref(false); // 是否處於等時圈點擊模式
       let isRoutePlanningClickMode = ref(false); // 是否處於路徑規劃點擊模式
+      let isRouteOptimizationClickMode = ref(false); // 是否處於路徑優化點擊模式
 
       // 🖱️ 右鍵菜單相關變數 (Context Menu Related Variables)
       const contextMenu = ref(null); // 右鍵菜單 DOM 引用
@@ -105,6 +106,11 @@
               // 如果處於路徑規劃點擊模式，添加路徑規劃點並阻止其他事件
               e.originalEvent.stopPropagation();
               addRoutePlanningPoint(e.latlng.lat, e.latlng.lng);
+              return false; // 阻止事件繼續傳播
+            } else if (isRouteOptimizationClickMode.value) {
+              // 如果處於路徑優化點擊模式，添加路徑優化點並阻止其他事件
+              e.originalEvent.stopPropagation();
+              addRouteOptimizationPoint(e.latlng.lat, e.latlng.lng);
               return false; // 阻止事件繼續傳播
             } else if (!e.originalEvent.target.closest('.leaflet-interactive')) {
               // 否則清除選取
@@ -312,6 +318,37 @@
 
                 return marker;
               }
+            } else if (layer.isRouteOptimizationLayer) {
+              if (feature.properties.type === 'optimization-point') {
+                // 路徑優化點：紫色數字標記
+                const order = feature.properties.order || 1;
+                const isCompleted = feature.properties.status === 'completed';
+
+                // 根據完成狀態選擇不同的樣式
+                const backgroundColor = isCompleted
+                  ? 'var(--my-color-gray-500)'
+                  : 'var(--my-color-purple)';
+                const borderColor = isCompleted ? 'var(--my-color-gray-400)' : 'white';
+                const textColor = isCompleted
+                  ? 'var(--my-color-gray-200)'
+                  : 'var(--my-color-white)';
+
+                const icon = L.divIcon({
+                  html: `
+                  <div class="d-flex align-items-center justify-content-center my-font-size-xs fw-bold"
+                       style="background: ${backgroundColor}; color: ${textColor}; border-radius: 50%; width: 20px; height: 20px; border: 2px solid ${borderColor}; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                    ${order}
+                  </div>
+                  `,
+                  className: `route-optimization-point-icon ${isCompleted ? 'completed' : 'active'}`,
+                  iconSize: [24, 24],
+                  iconAnchor: [12, 12],
+                  popupAnchor: [0, -12],
+                });
+                const marker = L.marker(latlng, { icon });
+
+                return marker;
+              }
             } else if (type === 'point') {
               // 一般點類型
               const icon = L.divIcon({
@@ -339,6 +376,20 @@
             if (layer.isRoutePlanningLayer && feature.properties.type === 'route-line') {
               return {
                 color: 'var(--my-color-orange)', // 橘色路線
+                weight: 4, // 路線粗細
+                opacity: 0.8, // 路線透明度
+                lineCap: 'round', // 線條端點樣式
+                lineJoin: 'round', // 線條連接樣式
+                dashArray: null, // 實線
+              };
+            }
+            // 路徑優化路線的特殊樣式處理
+            if (
+              layer.isRouteOptimizationLayer &&
+              feature.properties.type === 'optimized-route-line'
+            ) {
+              return {
+                color: 'var(--my-color-purple)', // 紫色路線
                 weight: 4, // 路線粗細
                 opacity: 0.8, // 路線透明度
                 lineCap: 'round', // 線條端點樣式
@@ -700,7 +751,14 @@
                 if (isRoutePlanningClickMode.value) {
                   e.originalEvent.stopPropagation();
                   addRoutePlanningPoint(e.latlng.lat, e.latlng.lng);
-                  return false;
+                  return false; // 阻止事件繼續傳播
+                }
+
+                // 如果處於路徑優化點擊模式，阻止圖層選擇並添加路徑優化點
+                if (isRouteOptimizationClickMode.value) {
+                  e.originalEvent.stopPropagation();
+                  addRouteOptimizationPoint(e.latlng.lat, e.latlng.lng);
+                  return false; // 阻止事件繼續傳播
                 }
 
                 // 分析點不參與選擇，直接返回
@@ -1352,6 +1410,106 @@
         console.log('🗑️ 清除分析圖層');
       };
 
+      // 🗺️ ============ 路徑優化點擊模式相關函數 (Route Optimization Click Mode Functions) ============
+
+      // 添加路徑優化點
+      const addRouteOptimizationPoint = async (lat, lng) => {
+        try {
+          const pointId = dataStore.addRouteOptimizationPoint(lat, lng);
+          if (pointId) {
+            console.log('🗺️ 成功添加路徑優化點:', pointId);
+          }
+        } catch (error) {
+          console.error('添加路徑優化點失敗:', error);
+        }
+      };
+
+      // 開始路徑優化點擊模式
+      const startRouteOptimizationClickMode = () => {
+        // 🔄 互斥邏輯：關閉其他點擊模式
+        if (isClickMode.value) {
+          stopClickMode();
+        }
+        if (isIsochroneClickMode.value) {
+          stopIsochroneClickMode();
+        }
+        if (isRoutePlanningClickMode.value) {
+          finishRoutePlanningClickMode();
+        }
+
+        // 開啟路徑優化點擊模式
+        isRouteOptimizationClickMode.value = true;
+
+        if (mapInstance) {
+          const mapContainer = mapInstance.getContainer();
+          mapContainer.style.cursor = 'crosshair';
+          // 為所有子元素設定十字游標
+          mapContainer.classList.add('route-optimization-click-mode-active');
+        }
+
+        // 清空之前的路徑優化點
+        dataStore.clearRouteOptimizationLayer();
+
+        console.log('🖱️ 開始路徑優化點擊模式（自動關閉其他分析模式）');
+        // 路徑優化點擊模式開始，不顯示彈窗，只在控制台記錄
+      };
+
+      // 完成路徑優化點選
+      const finishRouteOptimizationClickMode = async () => {
+        if (!isRouteOptimizationClickMode.value) {
+          console.warn('⚠️ 當前不在路徑優化點擊模式');
+          return;
+        }
+
+        // 停止路徑優化點擊模式
+        isRouteOptimizationClickMode.value = false;
+        isClickMode.value = false;
+        isIsochroneClickMode.value = false;
+        isRoutePlanningClickMode.value = false;
+
+        if (mapInstance) {
+          const mapContainer = mapInstance.getContainer();
+          mapContainer.style.cursor = '';
+          // 移除十字游標類別
+          mapContainer.classList.remove('route-optimization-click-mode-active');
+        }
+
+        // 獲取當前路徑優化點數量
+        const coordinates = dataStore.getRouteOptimizationCoordinates();
+        if (coordinates.length >= 2) {
+          console.log(`🛑 完成路徑優化點選，共選擇了 ${coordinates.length} 個優化點`);
+
+          try {
+            // 執行路徑優化計算
+            const optimizationResult = await dataStore.calculateAndDrawOptimizedRoute();
+            if (optimizationResult) {
+              console.log('✅ 路徑優化成功完成！');
+              console.log('📍 路徑優化點坐標:', coordinates);
+              console.log('📏 優化後距離:', optimizationResult.distance, '公里');
+              console.log('⏱️ 優化後時間:', optimizationResult.duration, '分鐘');
+              console.log('🔄 優化順序:', optimizationResult.optimizedOrder);
+
+              // 顯示路徑優化結果
+              console.log(`🎉 優化路線 ${optimizationResult.routeNumber || '新增'} 已保存完成`);
+              console.log(`📍 可以繼續添加下一條優化路線`);
+
+              // 路徑優化完成，不顯示彈窗，只在控制台記錄
+            } else {
+              console.warn('⚠️ 路徑優化計算失敗');
+              alert('路徑優化失敗，請檢查優化點是否有效或網路連線。');
+            }
+          } catch (error) {
+            console.error('❌ 路徑優化過程中發生錯誤:', error);
+            alert(`路徑優化失敗: ${error.message}`);
+          }
+        } else if (coordinates.length === 1) {
+          console.log('⚠️ 路徑優化至少需要2個點，目前只有1個點');
+          alert('路徑優化至少需要2個優化點，請添加更多優化點。');
+        } else {
+          console.log('⚠️ 沒有選擇任何路徑優化點');
+        }
+      };
+
       // 🖱️ 顯示右鍵菜單 (Show Context Menu)
       const showAnalysisContextMenu = (event, feature) => {
         event.preventDefault();
@@ -1572,10 +1730,16 @@
         stopIsochroneClickMode, // 停止等時圈點擊模式函數
         startRoutePlanningClickMode, // 開始路徑規劃點擊模式函數
         finishRoutePlanningClickMode, // 完成路徑規劃點選函數
+
+        // 🗺️ 路徑優化點擊模式相關函數
+        startRouteOptimizationClickMode, // 開始路徑優化點擊模式函數
+        finishRouteOptimizationClickMode, // 完成路徑優化點選函數
+
         clearAnalysisLayer, // 清除分析圖層函數
         isClickMode, // 點擊模式狀態
         isIsochroneClickMode, // 等時圈點擊模式狀態
         isRoutePlanningClickMode, // 路徑規劃點擊模式狀態
+        isRouteOptimizationClickMode, // 路徑優化點擊模式狀態
         defineStore, // 定義存儲實例
         // 右鍵菜單相關
         contextMenu, // 右鍵菜單 DOM 引用
@@ -1598,6 +1762,7 @@
       'click-mode-active': isClickMode,
       'isochrone-click-mode-active': isIsochroneClickMode,
       'route-planning-click-mode-active': isRoutePlanningClickMode,
+      'route-optimization-click-mode-active': isRouteOptimizationClickMode,
     }"
   >
     <!-- 🗺️ Leaflet 地圖容器 (Leaflet Map Container) -->
@@ -1733,6 +1898,24 @@
       >
         路徑規劃點選完成
       </button>
+
+      <!-- 點選路徑優化點 -->
+      <button
+        v-if="!isRouteOptimizationClickMode"
+        class="btn rounded-pill border-0 my-btn-purple my-font-size-xs text-nowrap my-cursor-pointer"
+        @click="startRouteOptimizationClickMode"
+        title="在地圖上點選多個位置進行路徑優化"
+      >
+        點選路徑優化點
+      </button>
+      <button
+        v-else
+        class="btn rounded-pill border-0 my-btn-red my-font-size-xs text-nowrap my-cursor-pointer"
+        @click="finishRouteOptimizationClickMode"
+        title="完成路徑優化點選"
+      >
+        路徑優化點選完成
+      </button>
     </div>
   </div>
 </template>
@@ -1791,6 +1974,25 @@
   /* 🗺️ 路徑規劃點擊模式樣式 (Route Planning Click Mode Styles) */
   .route-planning-click-mode-active,
   .route-planning-click-mode-active * {
+    cursor: crosshair !important;
+  }
+
+  /* 🗺️ 路徑優化按鈕樣式 (Route Optimization Button Styles) */
+  .my-btn-purple {
+    background-color: var(--my-color-purple, #6f42c1);
+    border-color: var(--my-color-purple, #6f42c1);
+    color: white;
+  }
+
+  .my-btn-purple:hover {
+    background-color: var(--my-color-purple-hover, #5a32a1);
+    border-color: var(--my-color-purple-hover, #5a32a1);
+    color: white;
+  }
+
+  /* 🗺️ 路徑優化點擊模式樣式 (Route Optimization Click Mode Styles) */
+  .route-optimization-click-mode-active,
+  .route-optimization-click-mode-active * {
     cursor: crosshair !important;
   }
 </style>

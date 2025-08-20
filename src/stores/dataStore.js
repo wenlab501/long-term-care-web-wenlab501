@@ -1001,6 +1001,55 @@ export const useDataStore = defineStore(
             // 4. 在點擊模式中識別路徑規劃模式
             isRoutePlanningLayer: true,
           },
+          {
+            /**
+             * 🗺️ 路徑優化圖層 (Route Optimization Layer)
+             *
+             * @description 用於存儲和管理路徑優化相關的數據，包括：
+             * - 🎯 支援多點路徑優化點選
+             * - 📍 無數量限制的優化點添加
+             * - 🎨 清晰的優化點視覺化
+             * - 🔄 靈活的優化點管理
+             * - 📊 優化點統計和列表顯示
+             */
+            layerId: 'route-optimization-layer',
+            layerName: '路徑優化圖層',
+            visible: true, // 預設開啟
+            isLoading: false, // 初始無加載狀態
+            isLoaded: true, // 標記為已載入（路徑優化圖層總是可用的）
+            type: 'route-optimization', // 特殊圖層類型
+            shape: 'point', // 點狀圖層：路徑優化點
+            colorName: 'purple', // 紫色主題，與路徑規劃區分
+
+            // GeoJSON 數據容器，存儲所有路徑優化點
+            geoJsonData: {
+              type: 'FeatureCollection',
+              features: [], // 初始為空，優化點會動態添加到此陣列
+            },
+
+            // 摘要統計數據（顯示在圖層面板中）
+            summaryData: {
+              totalCount: 0, // 總路徑優化點數量
+              type: '路徑優化點', // 類型描述
+              description: '共 0 個路徑優化點，點選完成後可進行路徑優化', // 詳細描述
+              lastUpdated: new Date().toISOString(), // 最後更新時間
+              coverage: '0 個優化點', // 覆蓋範圍描述
+            },
+
+            tableData: [], // 表格數據（用於 DataTableTab 顯示）
+            legendData: null, // 圖例數據（路徑優化不需要圖例）
+            loader: null, // 不需要數據載入器（優化點是即時生成的）
+            fileName: null, // 不對應實體檔案
+            fieldName: null, // 不需要欄位映射
+
+            // 🔍 特殊標記：標識此圖層為路徑優化圖層
+            // 此標記用於：
+            // 1. 在圖層過濾時排除此圖層
+            // 2. 在事件處理中識別路徑優化圖層
+            // 3. 在視覺渲染中應用特殊樣式
+            // 4. 在點擊模式中識別路徑優化模式
+            isRouteOptimizationLayer: true,
+          },
         ],
       },
     ]);
@@ -2707,6 +2756,495 @@ export const useDataStore = defineStore(
       }
     };
 
+    // 🗺️ ============ 路徑優化相關函數 (Route Optimization Functions) ============
+
+    /**
+     * 添加路徑優化點
+     *
+     * @description 在地圖上添加一個新的路徑優化點，用於路徑優化計算
+     * @param {number} lat - 緯度
+     * @param {number} lng - 經度
+     * @returns {string|null} 路徑優化點的唯一ID，失敗時返回null
+     *
+     * @example
+     * // 添加路徑優化點
+     * const pointId = addRouteOptimizationPoint(25.0330, 121.5654);
+     * if (pointId) {
+     *   console.log('成功添加優化點:', pointId);
+     * }
+     */
+    const addRouteOptimizationPoint = (lat, lng) => {
+      // 獲取路徑優化圖層實例
+      const routeOptimizationLayer = findLayerById('route-optimization-layer');
+      if (!routeOptimizationLayer) {
+        console.error('找不到路徑優化圖層');
+        return null;
+      }
+
+      // 計算當前正在優化的點數量，用於生成順序編號（排除已完成的）
+      const currentPoints = routeOptimizationLayer.geoJsonData.features.filter(
+        (f) => f.properties.type === 'optimization-point' && f.properties.status !== 'completed'
+      );
+      const nextOrder = currentPoints.length + 1;
+
+      // 生成唯一的優化點ID
+      const pointId = `optimization_point_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+      // 生成優化點名稱
+      const pointName = `優化點 ${nextOrder}`;
+
+      // 創建路徑優化點的 GeoJSON 要素
+      const routeOptimizationPointFeature = {
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: [lng, lat], // GeoJSON 格式：[經度, 緯度]
+        },
+        properties: {
+          id: pointId, // 唯一識別編號
+          layerId: 'route-optimization-layer', // 所屬圖層
+          type: 'optimization-point', // 要素類型標記
+          name: pointName, // 顯示名稱
+          order: nextOrder, // 優化點順序
+          latitude: lat, // 緯度（便於存取）
+          longitude: lng, // 經度（便於存取）
+          createdAt: new Date().toISOString(), // 建立時間
+        },
+      };
+
+      // 將新的優化點添加到圖層數據中
+      routeOptimizationLayer.geoJsonData.features.push(routeOptimizationPointFeature);
+
+      // 更新圖層統計和表格數據（與路徑規劃點行為一致）
+      updateRouteOptimizationLayerData(routeOptimizationLayer);
+
+      console.log(
+        `🗺️ 添加路徑優化點 ${nextOrder}:`,
+        pointName,
+        `(${lat.toFixed(6)}, ${lng.toFixed(6)})`
+      );
+      console.log(
+        `📍 路徑優化點已添加到圖層，總點數: ${routeOptimizationLayer.geoJsonData.features.length}`
+      );
+      console.log(`🎯 路徑優化圖層可見性: ${routeOptimizationLayer.visible}`);
+
+      return pointId;
+    };
+
+    /**
+     * 清空路徑優化圖層中的所有優化點
+     *
+     * @description 移除路徑優化圖層中的所有優化點，重置圖層狀態。
+     * 這個函數通常在用戶想要重新開始路徑優化時使用。
+     *
+     * @example
+     * // 清空所有優化點
+     * clearRouteOptimizationLayer();
+     */
+    const clearRouteOptimizationLayer = (clearAll = false) => {
+      // 獲取路徑優化圖層實例
+      const routeOptimizationLayer = findLayerById('route-optimization-layer');
+      if (routeOptimizationLayer) {
+        if (clearAll) {
+          // 清空圖層中的所有要素（優化點 + 優化路線）
+          routeOptimizationLayer.geoJsonData.features = [];
+          console.log('🗑️ 已清空路徑優化圖層的所有內容（包括已完成的優化路線和優化點）');
+        } else {
+          // 只清空當前正在優化的點，保留已完成的優化路線和已完成的優化點
+          routeOptimizationLayer.geoJsonData.features =
+            routeOptimizationLayer.geoJsonData.features.filter(
+              (f) =>
+                f.properties.type !== 'optimization-point' || f.properties.status === 'completed'
+            );
+          console.log('🗑️ 已清空當前正在優化的點，保留已完成的優化路線和優化點');
+        }
+
+        // 重新計算並更新圖層統計和表格數據
+        updateRouteOptimizationLayerData(routeOptimizationLayer);
+      } else {
+        console.warn('找不到路徑優化圖層，無法清空');
+      }
+    };
+
+    /**
+     * 獲取路徑優化點的坐標
+     *
+     * @description 獲取當前路徑優化圖層中所有優化點的坐標，用於路徑優化計算
+     * @returns {Array} 坐標數組，每個元素為 [經度, 緯度]
+     *
+     * @example
+     * // 獲取優化點坐標
+     * const coordinates = getRouteOptimizationCoordinates();
+     * console.log('優化點坐標:', coordinates);
+     */
+    const getRouteOptimizationCoordinates = () => {
+      const routeOptimizationLayer = findLayerById('route-optimization-layer');
+      if (!routeOptimizationLayer) {
+        console.warn('找不到路徑優化圖層');
+        return [];
+      }
+
+      // 獲取正在優化中的優化點，並按順序排序（排除已完成的）
+      const optimizationPoints = routeOptimizationLayer.geoJsonData.features
+        .filter((f) => f.properties.type === 'optimization-point' && !f.properties.status)
+        .sort((a, b) => a.properties.order - b.properties.order);
+
+      // 提取坐標
+      return optimizationPoints.map((point) => point.geometry.coordinates);
+    };
+
+    /**
+     * 更新路徑優化圖層的統計和表格數據
+     *
+     * @description 根據圖層中的要素更新摘要統計和表格數據
+     * @param {Object} routeOptimizationLayer - 路徑優化圖層實例
+     */
+    const updateRouteOptimizationLayerData = (routeOptimizationLayer) => {
+      // 獲取已完成的優化路線
+      const completedRoutes = routeOptimizationLayer.geoJsonData.features.filter(
+        (f) => f.properties.type === 'optimized-route-line'
+      );
+
+      // 獲取當前正在優化的點（排除已完成的）
+      const currentOptimizationPoints = routeOptimizationLayer.geoJsonData.features.filter(
+        (f) => f.properties.type === 'optimization-point' && f.properties.status !== 'completed'
+      );
+
+      // 計算總數量：已完成路線數 + (如果有正在優化的點則+1)
+      const totalCount = completedRoutes.length + (currentOptimizationPoints.length > 0 ? 1 : 0);
+
+      // 更新摘要數據
+      if (completedRoutes.length > 0 || currentOptimizationPoints.length > 0) {
+        const totalDistance = completedRoutes.reduce(
+          (sum, route) => sum + (route.properties.distance || 0),
+          0
+        );
+        const totalDuration = completedRoutes.reduce(
+          (sum, route) => sum + (route.properties.duration || 0),
+          0
+        );
+
+        let description = '';
+        if (completedRoutes.length > 0 && currentOptimizationPoints.length > 0) {
+          description = `已完成 ${completedRoutes.length} 條優化路線，正在規劃第 ${completedRoutes.length + 1} 條路線（已選擇 ${currentOptimizationPoints.length} 個優化點）`;
+        } else if (completedRoutes.length > 0) {
+          description = `已完成 ${completedRoutes.length} 條優化路線，總距離 ${totalDistance.toFixed(2)} 公里，總時間 ${totalDuration} 分鐘`;
+        } else {
+          description = `正在規劃第 1 條優化路線，已選擇 ${currentOptimizationPoints.length} 個優化點`;
+        }
+
+        routeOptimizationLayer.summaryData = {
+          totalCount: totalCount,
+          type: '路徑優化',
+          description: description,
+          lastUpdated: new Date().toISOString(),
+          coverage:
+            completedRoutes.length > 0
+              ? `${totalDistance.toFixed(2)} 公里`
+              : `${currentOptimizationPoints.length} 個優化點`,
+        };
+      } else {
+        routeOptimizationLayer.summaryData = {
+          totalCount: 0,
+          type: '路徑優化',
+          description: '尚未開始路徑優化，點選地圖開始選擇優化點',
+          lastUpdated: new Date().toISOString(),
+          coverage: '0 條路線',
+        };
+      }
+
+      // 更新表格數據
+      const tableData = [];
+
+      // 添加已完成的優化路線
+      completedRoutes.forEach((route, index) => {
+        tableData.push({
+          '#': index + 1,
+          id: route.properties.id,
+          名稱: route.properties.name || `優化路線 ${index + 1}`,
+          類型: '已完成路線',
+          起點: '起點',
+          終點: '終點',
+          路徑點數: route.properties.waypoints || 0,
+          總距離: `${route.properties.distance} 公里`,
+          預估時間: `${route.properties.duration} 分鐘`,
+          建立時間: new Date(route.properties.createdAt).toLocaleString('zh-TW'),
+          狀態: '已完成',
+        });
+      });
+
+      // 如果有正在優化的點，添加到表格
+      if (currentOptimizationPoints.length > 0) {
+        const firstPoint = currentOptimizationPoints[0];
+        const lastPoint = currentOptimizationPoints[currentOptimizationPoints.length - 1];
+
+        tableData.push({
+          '#': completedRoutes.length + 1,
+          id: firstPoint.properties.id,
+          名稱: `優化路線 ${completedRoutes.length + 1}`,
+          類型: '規劃中',
+          起點: `${firstPoint.properties.name}`,
+          終點: currentOptimizationPoints.length > 1 ? `${lastPoint.properties.name}` : '同起點',
+          路徑點數: currentOptimizationPoints.length,
+          總距離: '-',
+          預估時間: '-',
+          建立時間: new Date(firstPoint.properties.createdAt).toLocaleString('zh-TW'),
+          狀態: '規劃中',
+        });
+      }
+
+      routeOptimizationLayer.tableData = tableData;
+    };
+
+    /**
+     * 計算並繪製優化路線
+     *
+     * @description 使用 OpenRouteService Optimization API 計算最佳訪問順序並繪製優化路線
+     * @param {string} profile - 交通方式，預設為 'driving-car'
+     * @returns {Object|null} 優化結果，包含距離、時間、優化順序等，失敗時返回null
+     *
+     * @example
+     * // 計算並繪製優化路線
+     * const optimizationResult = await calculateAndDrawOptimizedRoute('driving-car');
+     * if (optimizationResult) {
+     *   console.log('優化路線已繪製，距離:', optimizationResult.distance, '公里');
+     * }
+     */
+    const calculateAndDrawOptimizedRoute = async (profile = 'driving-car') => {
+      const routeOptimizationLayer = findLayerById('route-optimization-layer');
+      if (!routeOptimizationLayer) {
+        console.error('找不到路徑優化圖層');
+        return null;
+      }
+
+      // 獲取優化點坐標
+      const coordinates = getRouteOptimizationCoordinates();
+      if (coordinates.length < 2) {
+        console.warn('⚠️ 路徑優化至少需要2個點，目前只有', coordinates.length, '個點');
+        return null;
+      }
+
+      try {
+        console.log('🚀 開始路徑優化計算...');
+
+        // 調用 ORS Optimization API
+        const optimizationData = await fetchRouteOptimization(coordinates, profile);
+
+        // 處理優化結果中的每條路線
+        const routeFeatures = [];
+        let totalDistanceKm = 0;
+        let totalDurationMin = 0;
+
+        for (let i = 0; i < optimizationData.routes.length; i++) {
+          const route = optimizationData.routes[i];
+
+          // 構建優化後的訪問順序坐標
+          const optimizedCoordinates = [];
+          route.steps.forEach((step) => {
+            optimizedCoordinates.push(step.location);
+          });
+
+          // 如果有足夠的點，調用 Directions API 獲取實際路線幾何
+          let routeGeometry = { type: 'LineString', coordinates: [] };
+          let routeDistance = 0;
+          let routeDuration = 0;
+
+          if (optimizedCoordinates.length >= 2) {
+            try {
+              const directionsData = await fetchRouteDirections(optimizedCoordinates, profile);
+              if (directionsData && directionsData.features && directionsData.features.length > 0) {
+                const feature = directionsData.features[0];
+                routeGeometry = feature.geometry;
+                routeDistance = (feature.properties.summary.distance / 1000).toFixed(2);
+                routeDuration = Math.round(feature.properties.summary.duration / 60);
+              }
+            } catch (error) {
+              console.warn('無法獲取路線幾何，使用直線連接:', error);
+              // 如果 Directions API 失敗，使用直線連接
+              routeGeometry = {
+                type: 'LineString',
+                coordinates: optimizedCoordinates,
+              };
+              routeDistance = (route.duration / 1000).toFixed(2); // 使用優化結果的估算
+              routeDuration = Math.round(route.duration / 60);
+            }
+          }
+
+          totalDistanceKm += parseFloat(routeDistance);
+          totalDurationMin += routeDuration;
+
+          // 獲取已完成的優化路線數量，用於生成路線編號
+          const existingRoutes = routeOptimizationLayer.geoJsonData.features.filter(
+            (f) => f.properties.type === 'optimized-route-line'
+          );
+          const routeNumber = existingRoutes.length + i + 1;
+          const routeId = `optimized_route_${Date.now()}_${i}_${Math.random().toString(36).substr(2, 9)}`;
+
+          // 創建優化路線 GeoJSON 要素
+          const routeFeature = {
+            type: 'Feature',
+            geometry: routeGeometry,
+            properties: {
+              id: routeId,
+              layerId: 'route-optimization-layer',
+              type: 'optimized-route-line',
+              name: `優化路線 ${routeNumber}`,
+              routeNumber: routeNumber,
+              vehicleId: route.vehicle,
+              distance: parseFloat(routeDistance),
+              duration: routeDuration,
+              profile: profile,
+              waypoints: optimizedCoordinates.length,
+              optimizedOrder: optimizedCoordinates,
+              createdAt: new Date().toISOString(),
+            },
+          };
+
+          routeFeatures.push(routeFeature);
+        }
+
+        // 添加所有優化路線到圖層
+        routeFeatures.forEach((routeFeature) => {
+          routeOptimizationLayer.geoJsonData.features.push(routeFeature);
+        });
+
+        // 將當前優化點標記為已完成，但保留在地圖上
+        routeOptimizationLayer.geoJsonData.features.forEach((feature) => {
+          if (feature.properties.type === 'optimization-point') {
+            // 將優化點標記為已完成
+            feature.properties.status = 'completed';
+          }
+        });
+
+        // 更新圖層數據
+        updateRouteOptimizationLayerData(routeOptimizationLayer);
+
+        console.log(`✅ 路徑優化完成！`);
+        console.log(`📏 總優化距離: ${totalDistanceKm.toFixed(2)} 公里`);
+        console.log(`⏱️ 總優化時間: ${totalDurationMin} 分鐘`);
+        console.log(`🚗 共生成 ${routeFeatures.length} 條優化路線`);
+        console.log(`🛣️ 交通方式: ${profile}`);
+
+        return {
+          routeCount: routeFeatures.length,
+          totalDistance: totalDistanceKm,
+          totalDuration: totalDurationMin,
+          waypoints: coordinates.length,
+          profile,
+          routes: routeFeatures.map((f) => ({
+            id: f.properties.id,
+            name: f.properties.name,
+            distance: f.properties.distance,
+            duration: f.properties.duration,
+          })),
+        };
+      } catch (error) {
+        console.error('❌ 路徑優化失敗:', error);
+
+        // 錯誤時更新圖層狀態
+        routeOptimizationLayer.summaryData.description = `路徑優化失敗: ${error.message}`;
+
+        return null;
+      }
+    };
+
+    /**
+     * 調用 OpenRouteService Optimization API
+     *
+     * @description 使用 XMLHttpRequest 調用 ORS Optimization API 進行路徑優化
+     * @param {Array} coordinates - 坐標數組，每個元素為 [經度, 緯度]
+     * @param {string} profile - 交通方式
+     * @returns {Object} 優化結果
+     */
+    const fetchRouteOptimization = async (coordinates, profile = 'driving-car') => {
+      const apiKey = '5b3ce3597851110001cf6248cd3e1a052bec45bc8410b037091bb766';
+
+      if (!coordinates || coordinates.length < 2) {
+        throw new Error('路徑優化至少需要2個優化點');
+      }
+
+      try {
+        console.log(`🔄 開始路徑優化計算，使用 ${coordinates.length} 個優化點`);
+        console.log('優化點坐標:', coordinates);
+
+        // 構建請求體（參考官方API文檔格式）
+        const requestBody = {
+          jobs: coordinates.slice(1, -1).map((coord, index) => ({
+            id: index + 1,
+            service: 300,
+            delivery: [1],
+            location: coord,
+            skills: [1],
+          })),
+          vehicles: [
+            {
+              id: 1,
+              profile: profile,
+              start: coordinates[0],
+              end: coordinates[coordinates.length - 1],
+              capacity: [4],
+              skills: [1],
+              time_window: [28800, 43200],
+            },
+          ],
+        };
+
+        // 使用 fetch API 調用 ORS Optimization API（與路徑規劃一致）
+        const apiUrl = 'https://api.openrouteservice.org/optimization';
+
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            Accept:
+              'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
+            'Content-Type': 'application/json',
+            Authorization: apiKey,
+          },
+          body: JSON.stringify(requestBody),
+        });
+
+        if (!response.ok) {
+          let errorMessage = `HTTP ${response.status}`;
+          try {
+            const errorData = await response.json();
+            if (errorData.error && errorData.error.message) {
+              errorMessage = errorData.error.message;
+            }
+          } catch (parseError) {
+            // 如果無法解析錯誤響應，使用狀態碼
+            errorMessage = `HTTP ${response.status} - ${response.statusText}`;
+          }
+          throw new Error(`ORS API 錯誤: ${errorMessage}`);
+        }
+
+        const data = await response.json();
+
+        if (data.code === 0 && data.routes && data.routes.length > 0) {
+          console.log('✅ 路徑優化計算成功');
+          console.log(
+            `📊 總計: ${data.summary.routes} 條路線，總成本: ${data.summary.cost}，總時間: ${Math.round(data.summary.duration / 60)} 分鐘`
+          );
+
+          // 返回優化結果（包含所有路線）
+          const result = {
+            ...data,
+            summary: data.summary,
+            routes: data.routes,
+            unassigned: data.unassigned || [],
+          };
+
+          console.log('🔄 優化結果:', result);
+
+          return result;
+        } else {
+          throw new Error('API 返回的優化數據為空或無效');
+        }
+      } catch (error) {
+        console.error('🚫 路徑優化計算失敗:', error);
+        throw error;
+      }
+    };
+
     return {
       layers,
       findLayerById, // 根據 ID 尋找圖層
@@ -2726,6 +3264,13 @@ export const useDataStore = defineStore(
       deleteRoutePlanningPoint, // 刪除單個路徑規劃點
       getRoutePlanningCoordinates, // 獲取路徑規劃點坐標
       calculateAndDrawRoute, // 計算並繪製路徑規劃路線
+
+      // 🗺️ 路徑優化相關函數
+      addRouteOptimizationPoint, // 添加路徑優化點
+      clearRouteOptimizationLayer, // 清除路徑優化圖層
+      getRouteOptimizationCoordinates, // 獲取路徑優化點坐標
+      calculateAndDrawOptimizedRoute, // 計算並繪製優化路線
+
       calculatePointsInRange, // 計算範圍內的點
       calculatePolygonInRange, // 計算範圍內的多邊形
       visibleLayers: computed(() => getAllLayers().filter((layer) => layer.visible)),
