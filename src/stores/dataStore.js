@@ -2886,7 +2886,9 @@ export const useDataStore = defineStore(
 
       // 獲取正在優化中的優化點，並按順序排序（排除已完成的）
       const optimizationPoints = routeOptimizationLayer.geoJsonData.features
-        .filter((f) => f.properties.type === 'optimization-point' && !f.properties.status)
+        .filter(
+          (f) => f.properties.type === 'optimization-point' && f.properties.status !== 'completed'
+        )
         .sort((a, b) => a.properties.order - b.properties.order);
 
       // 提取坐標
@@ -3035,14 +3037,143 @@ export const useDataStore = defineStore(
         let totalDistanceKm = 0;
         let totalDurationMin = 0;
 
+        console.log('🔍 調試優化結果:');
+        console.log('總路線數:', optimizationData.routes.length);
+        console.log('原始優化點數:', coordinates.length);
+
         for (let i = 0; i < optimizationData.routes.length; i++) {
           const route = optimizationData.routes[i];
+          console.log(`🚗 處理路線 ${i + 1}:`, route);
+          console.log('路線步驟數:', route.steps.length);
 
-          // 構建優化後的訪問順序坐標
+          // 構建優化後的訪問順序坐標和對應的點信息
           const optimizedCoordinates = [];
-          route.steps.forEach((step) => {
+          const optimizedPointInfo = [];
+
+          // 用於追蹤已經處理過的點，避免重複
+          const processedPointIds = new Set();
+
+          console.log('🔍 詳細步驟分析:');
+
+          // 1. 構建完整路線坐標（包含所有步驟：start, job, end）
+          route.steps.forEach((step, stepIndex) => {
+            console.log(`  步驟 ${stepIndex + 1}:`, {
+              type: step.type,
+              location: step.location,
+              id: step.id,
+              job: step.job,
+            });
             optimizedCoordinates.push(step.location);
           });
+
+          // 2. 建立完整的優化訪問順序：起點 → API優化的中間點 → 終點
+          // 按照 route.steps 的順序來建立 optimizedPointInfo（包含所有步驟）
+          console.log(`📊 處理所有步驟，共 ${route.steps.length} 個步驟`);
+
+          route.steps.forEach((step, stepIndex) => {
+            console.log(`  處理步驟 ${stepIndex + 1}:`, {
+              type: step.type,
+              location: step.location,
+              id: step.id,
+              job: step.job,
+            });
+
+            // 找到對應的原始優化點（使用更大的容差匹配，避免浮點數精度問題）
+            const originalPoint = routeOptimizationLayer.geoJsonData.features.find((f) => {
+              if (f.properties.type !== 'optimization-point') return false;
+              const tolerance = 0.0001; // 約10米的容差，避免精度問題
+              const lonDiff = Math.abs(f.geometry.coordinates[0] - step.location[0]);
+              const latDiff = Math.abs(f.geometry.coordinates[1] - step.location[1]);
+              return lonDiff < tolerance && latDiff < tolerance;
+            });
+
+            if (originalPoint) {
+              // 檢查是否已經處理過這個點
+              if (!processedPointIds.has(originalPoint.properties.id)) {
+                processedPointIds.add(originalPoint.properties.id);
+                optimizedPointInfo.push({
+                  order: originalPoint.properties.order,
+                  name: originalPoint.properties.name,
+                  coordinates: originalPoint.geometry.coordinates, // 使用原始點的坐標
+                  stepType: step.type, // 記錄步驟類型（start, job, end）
+                  visitOrder: stepIndex + 1, // 記錄訪問順序
+                });
+                console.log(
+                  `✅ 找到匹配點: ${originalPoint.properties.name} (${originalPoint.properties.order}) - ${step.type}`
+                );
+              } else {
+                console.log(
+                  `🔄 跳過重複點: ${originalPoint.properties.name} (${originalPoint.properties.order})`
+                );
+              }
+            } else {
+              console.warn(
+                `⚠️ 未找到匹配的原始點: [${step.location[0]}, ${step.location[1]}] - ${step.type}`
+              );
+              // 如果找不到匹配點，創建一個臨時點信息
+              optimizedPointInfo.push({
+                order: optimizedPointInfo.length + 1,
+                name: `${step.type === 'start' ? '起點' : step.type === 'end' ? '終點' : '未知點'} ${optimizedPointInfo.length + 1}`,
+                coordinates: step.location,
+                stepType: step.type,
+                visitOrder: stepIndex + 1,
+              });
+            }
+          });
+
+          // 4. 檢查是否有遺漏的點（確保所有用戶點擊的點都被包含）
+          const allUserPoints = routeOptimizationLayer.geoJsonData.features.filter(
+            (f) => f.properties.type === 'optimization-point' && f.properties.status !== 'completed'
+          );
+
+          console.log(
+            `🔍 檢查遺漏點: 用戶點擊了 ${allUserPoints.length} 個點，已匹配 ${optimizedPointInfo.length} 個點`
+          );
+          console.log(
+            '🔍 所有用戶點:',
+            allUserPoints.map((p) => ({
+              order: p.properties.order,
+              name: p.properties.name,
+              coords: p.geometry.coordinates,
+            }))
+          );
+          console.log(
+            '🔍 已匹配點:',
+            optimizedPointInfo.map((p) => ({
+              order: p.order,
+              name: p.name,
+              coords: p.coordinates,
+            }))
+          );
+
+          // 如果匹配的點數少於用戶點擊的點數，嘗試匹配遺漏的點
+          if (optimizedPointInfo.length < allUserPoints.length) {
+            allUserPoints.forEach((userPoint) => {
+              // 檢查這個用戶點是否已經在 optimizedPointInfo 中
+              const isAlreadyMatched = optimizedPointInfo.some((info) => {
+                const tolerance = 0.0001; // 約10米的容差，與上面保持一致
+                const lonDiff = Math.abs(info.coordinates[0] - userPoint.geometry.coordinates[0]);
+                const latDiff = Math.abs(info.coordinates[1] - userPoint.geometry.coordinates[1]);
+                return lonDiff < tolerance && latDiff < tolerance;
+              });
+
+              if (!isAlreadyMatched) {
+                optimizedPointInfo.push({
+                  order: userPoint.properties.order,
+                  name: userPoint.properties.name,
+                  coordinates: userPoint.geometry.coordinates,
+                });
+                console.log(
+                  `✅ 補充遺漏點: ${userPoint.properties.name} (${userPoint.properties.order})`
+                );
+              }
+            });
+          }
+
+          console.log(`📊 路線 ${i + 1} 處理結果:`);
+          console.log('  優化坐標數:', optimizedCoordinates.length);
+          console.log('  匹配點信息數:', optimizedPointInfo.length);
+          console.log('  匹配點信息:', optimizedPointInfo);
 
           // 如果有足夠的點，調用 Directions API 獲取實際路線幾何
           let routeGeometry = { type: 'LineString', coordinates: [] };
@@ -3094,8 +3225,9 @@ export const useDataStore = defineStore(
               distance: parseFloat(routeDistance),
               duration: routeDuration,
               profile: profile,
-              waypoints: optimizedCoordinates.length,
+              waypoints: optimizedPointInfo.length, // 只計算實際的優化點數量
               optimizedOrder: optimizedCoordinates,
+              optimizedPointInfo: optimizedPointInfo,
               createdAt: new Date().toISOString(),
             },
           };
@@ -3167,24 +3299,20 @@ export const useDataStore = defineStore(
         console.log(`🔄 開始路徑優化計算，使用 ${coordinates.length} 個優化點`);
         console.log('優化點坐標:', coordinates);
 
-        // 構建請求體（參考官方API文檔格式）
+        // 構建請求體（按照正確的API格式）
         const requestBody = {
+          // 1. JOBS: 定義所有必須完成的任務（第2到第n-1個點）
           jobs: coordinates.slice(1, -1).map((coord, index) => ({
             id: index + 1,
-            service: 300,
-            delivery: [1],
             location: coord,
-            skills: [1],
           })),
+          // 2. VEHICLES: 定義執行任務的車輛
           vehicles: [
             {
               id: 1,
               profile: profile,
-              start: coordinates[0],
-              end: coordinates[coordinates.length - 1],
-              capacity: [4],
-              skills: [1],
-              time_window: [28800, 43200],
+              start: coordinates[0], // 第1個點作為起點
+              end: coordinates[coordinates.length - 1], // 第n個點作為終點
             },
           ],
         };
