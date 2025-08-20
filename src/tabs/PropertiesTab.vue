@@ -490,7 +490,7 @@
                 <DetailItem label="經度" :value="point.longitude.toFixed(6)" />
                 <DetailItem
                   label="坐標"
-                  :value="`[${point.coordinates[0].toFixed(6)}, ${point.coordinates[1].toFixed(6)}]`"
+                  :value="`[${point.coordinates[1].toFixed(6)}, ${point.coordinates[0].toFixed(6)}]`"
                 />
                 <DetailItem label="建立時間" :value="formatDateTime(point.createdAt)" />
               </div>
@@ -532,7 +532,7 @@
             />
             <DetailItem
               label="GeoJSON坐標"
-              :value="`[${selectedFeature.properties.longitude?.toFixed(6) || 'N/A'}, ${selectedFeature.properties.latitude?.toFixed(6) || 'N/A'}]`"
+              :value="`[${selectedFeature.properties.latitude?.toFixed(6) || 'N/A'}, ${selectedFeature.properties.longitude?.toFixed(6) || 'N/A'}]`"
             />
 
             <!-- 其他屬性 -->
@@ -609,7 +609,7 @@
                 <DetailItem label="經度" :value="point.longitude.toFixed(6)" />
                 <DetailItem
                   label="坐標"
-                  :value="`[${point.coordinates[0].toFixed(6)}, ${point.coordinates[1].toFixed(6)}]`"
+                  :value="`[${point.coordinates[1].toFixed(6)}, ${point.coordinates[0].toFixed(6)}]`"
                 />
                 <DetailItem label="建立時間" :value="formatDateTime(point.createdAt)" />
               </div>
@@ -646,7 +646,7 @@
                   <span class="my-content-sm-black">
                     {{ point.name }}
                     <small class="text-muted ms-2">
-                      ({{ point.coordinates[1].toFixed(4) }}, {{ point.coordinates[0].toFixed(4) }})
+                      ({{ point.coordinates[1].toFixed(6) }}, {{ point.coordinates[0].toFixed(6) }})
                     </small>
                   </span>
                 </div>
@@ -692,7 +692,7 @@
             />
             <DetailItem
               label="GeoJSON坐標"
-              :value="`[${selectedFeature.geometry.coordinates[0].toFixed(6)}, ${selectedFeature.geometry.coordinates[1].toFixed(6)}]`"
+              :value="`[${selectedFeature.geometry.coordinates[1].toFixed(6)}, ${selectedFeature.geometry.coordinates[0].toFixed(6)}]`"
             />
 
             <!-- 其他屬性 -->
