@@ -248,6 +248,7 @@
           @update:activeMarkers="$emit('update:activeMarkers', $event)"
           @feature-selected="$emit('feature-selected', $event)"
           @open-distance-modal="(lat, lng) => $emit('open-distance-modal', lat, lng)"
+          @open-isochrone-modal="(lat, lng) => $emit('open-isochrone-modal', lat, lng)"
         />
       </div>
 

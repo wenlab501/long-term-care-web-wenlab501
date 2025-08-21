@@ -36,6 +36,7 @@
       'update:activeMarkers',
       'feature-selected',
       'open-distance-modal',
+      'open-isochrone-modal',
     ],
 
     // 🔧 組件設定函數 (Component Setup Function)
@@ -104,9 +105,9 @@
               emit('open-distance-modal', e.latlng.lat, e.latlng.lng);
               return false; // 阻止事件繼續傳播
             } else if (isIsochroneClickMode.value) {
-              // 如果處於等時圈分析點擊模式，添加等時圈分析點並阻止其他事件
+              // 如果處於等時圈分析點擊模式，發送事件到父組件顯示等時分析 modal
               e.originalEvent.stopPropagation();
-              addIsochroneAnalysisPoint(e.latlng.lat, e.latlng.lng);
+              emit('open-isochrone-modal', e.latlng.lat, e.latlng.lng);
               return false; // 阻止事件繼續傳播
             } else if (isRoutePlanningClickMode.value) {
               // 如果處於路徑規劃點擊模式，添加路徑規劃點並阻止其他事件
