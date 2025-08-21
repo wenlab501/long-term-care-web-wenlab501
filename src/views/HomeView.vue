@@ -756,16 +756,10 @@
       style="background-color: rgba(0, 0, 0, 0.7); z-index: 9999"
     >
       <!-- 📄 距離輸入內容卡片 -->
-      <div
-        class="text-center my-bgcolor-white p-4 rounded shadow"
-        style="min-width: 350px; max-width: 450px"
-      >
+      <div class="text-center my-bgcolor-white p-4 rounded shadow">
         <!-- 📊 標題區域 -->
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="modal-title mb-0">
-            <i class="fas fa-map-marker-alt me-2"></i>
-            設定分析範圍距離
-          </h5>
+          <h5 class="my-title-md-black mb-0">分析範圍</h5>
           <button
             type="button"
             class="btn-close"
@@ -775,14 +769,11 @@
         </div>
 
         <!-- 📝 輸入區域 -->
-        <div class="mb-3">
-          <label for="distanceInput" class="form-label text-start d-block">
-            <i class="fas fa-ruler me-2"></i>
-            請輸入分析範圍距離（公里）
-          </label>
+        <div class="d-flex align-items-center gap-2 my-4">
+          <span class="my-title-sm-gray text-nowrap">半徑</span>
           <input
             type="number"
-            class="form-control"
+            class="form-control text-center my-font-size-md"
             id="distanceInput"
             v-model="distanceInput"
             placeholder="例如：2.5"
@@ -790,28 +781,30 @@
             step="0.1"
             @keyup.enter="handleDistanceConfirm"
           />
+          <span class="my-title-sm-gray text-nowrap">公里</span>
+          <!-- 點擊位置 -->
+          <!--
           <div class="form-text text-start mt-2">
-            <i class="fas fa-info-circle me-1"></i>
             點擊位置：{{
               distanceModalPosition.lat ? distanceModalPosition.lat.toFixed(6) : '0.000000'
             }}, {{ distanceModalPosition.lng ? distanceModalPosition.lng.toFixed(6) : '0.000000' }}
           </div>
-          <!-- 調試信息 -->
-          <div class="form-text text-start mt-1" style="font-size: 0.75rem; color: #6c757d">
-            <i class="fas fa-bug me-1"></i>
-            調試：輸入值 = "{{ distanceInput }}" (長度: {{ distanceInput.length }})
-          </div>
+          -->
         </div>
 
         <!-- 📝 按鈕區域 -->
         <div class="d-flex gap-2 justify-content-end">
-          <button type="button" class="btn btn-secondary" @click="handleDistanceCancel">
+          <button
+            type="button"
+            class="btn my-font-size-sm my-btn-white"
+            @click="handleDistanceCancel"
+          >
             <i class="fas fa-times me-2"></i>
             取消
           </button>
           <button
             type="button"
-            class="btn btn-primary"
+            class="btn my-font-size-sm my-btn-blue"
             @click="handleDistanceConfirm"
             :disabled="!distanceInput || distanceInput === ''"
             :title="
