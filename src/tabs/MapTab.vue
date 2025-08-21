@@ -30,7 +30,13 @@
     },
 
     // 📡 組件事件定義 (Component Events Definition)
-    emits: ['update:zoomLevel', 'update:currentCoords', 'update:activeMarkers', 'feature-selected'],
+    emits: [
+      'update:zoomLevel',
+      'update:currentCoords',
+      'update:activeMarkers',
+      'feature-selected',
+      'open-distance-modal',
+    ],
 
     // 🔧 組件設定函數 (Component Setup Function)
     setup(props, { emit }) {
@@ -93,9 +99,9 @@
           // 綁定地圖點擊事件 - 點擊空白處清除選取或添加分析點
           mapInstance.on('click', function (e) {
             if (isClickMode.value) {
-              // 如果處於數據分析點擊模式，添加分析點並阻止其他事件
+              // 如果處於數據分析點擊模式，發送事件到父組件顯示距離輸入 modal
               e.originalEvent.stopPropagation();
-              addAnalysisPoint(e.latlng.lat, e.latlng.lng);
+              emit('open-distance-modal', e.latlng.lat, e.latlng.lng);
               return false; // 阻止事件繼續傳播
             } else if (isIsochroneClickMode.value) {
               // 如果處於等時圈分析點擊模式，添加等時圈分析點並阻止其他事件

@@ -1346,7 +1346,7 @@ export const useDataStore = defineStore(
       }));
     };
 
-    const addAnalysisPoint = (lat, lng) => {
+    const addAnalysisPoint = (lat, lng, radius = 2000) => {
       const analysisLayer = findLayerById('analysis-layer');
       if (!analysisLayer) return;
 
@@ -1355,10 +1355,10 @@ export const useDataStore = defineStore(
           .length + 1;
 
       // 🎯 計算範圍內的點物件
-      const pointsInRange = calculatePointsInRange(lat, lng, 2000);
+      const pointsInRange = calculatePointsInRange(lat, lng, radius);
 
       // 🎯 計算範圍內的多邊形物件
-      const polygonInRange = calculatePolygonInRange(lat, lng, 2000);
+      const polygonInRange = calculatePolygonInRange(lat, lng, radius);
 
       // 📊 統計各圖層的點數
       const layerStats = {};
@@ -1392,7 +1392,7 @@ export const useDataStore = defineStore(
           layerId: 'analysis-layer', // 添加圖層ID
           type: 'circle-analysis',
           name: featureName,
-          radius: 2000,
+          radius: radius,
           pointsInRange: pointsInRange, // 存儲範圍內的點物件
           polygonInRange: polygonInRange, // 存儲範圍內的多邊形物件
           layerStats: layerStats, // 存儲各圖層統計
@@ -1402,6 +1402,7 @@ export const useDataStore = defineStore(
             名稱: featureName,
             範圍內點位數: pointsInRange.length,
             範圍內多邊形數: polygonInRange.length,
+            分析範圍半徑: `${(radius / 1000).toFixed(1)} 公里`,
           },
         },
       };
