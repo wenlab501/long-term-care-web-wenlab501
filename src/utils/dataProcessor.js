@@ -6,7 +6,8 @@ function getColorForZone(zone) {
 
   // 住宅區系列 - 橙色系
   if (zoneLower.includes('住') || zoneLower.includes('宅')) {
-    if (zoneLower.includes('住1') || zoneLower.includes('第一類')) return 'rgba(255, 178, 102, 0.8)';
+    if (zoneLower.includes('住1') || zoneLower.includes('第一類'))
+      return 'rgba(255, 178, 102, 0.8)';
     if (zoneLower.includes('住2')) return 'rgba(255, 152, 51, 0.8)';
     if (zoneLower.includes('住3')) return 'rgba(255, 128, 25, 0.8)';
     if (zoneLower.includes('住4')) return 'rgba(230, 108, 15, 0.8)';
@@ -35,8 +36,13 @@ function getColorForZone(zone) {
   }
 
   // 綠地/公園系列 - 綠色系
-  if (zoneLower.includes('公園') || zoneLower.includes('綠地') || zoneLower.includes('風景') ||
-      zoneLower.includes('保護') || zoneLower.includes('國家公園')) {
+  if (
+    zoneLower.includes('公園') ||
+    zoneLower.includes('綠地') ||
+    zoneLower.includes('風景') ||
+    zoneLower.includes('保護') ||
+    zoneLower.includes('國家公園')
+  ) {
     if (zoneLower.includes('公園綠地')) return 'rgba(102, 204, 102, 0.8)';
     if (zoneLower.includes('風景')) return 'rgba(76, 175, 76, 0.8)';
     if (zoneLower.includes('保護')) return 'rgba(51, 153, 51, 0.8)';
@@ -45,8 +51,13 @@ function getColorForZone(zone) {
   }
 
   // 交通系列 - 深藍/紫色系
-  if (zoneLower.includes('交通') || zoneLower.includes('停車') || zoneLower.includes('鐵路') ||
-      zoneLower.includes('機場') || zoneLower.includes('高速公路')) {
+  if (
+    zoneLower.includes('交通') ||
+    zoneLower.includes('停車') ||
+    zoneLower.includes('鐵路') ||
+    zoneLower.includes('機場') ||
+    zoneLower.includes('高速公路')
+  ) {
     if (zoneLower.includes('停車')) return 'rgba(153, 102, 204, 0.8)';
     if (zoneLower.includes('交通')) return 'rgba(128, 77, 179, 0.8)';
     if (zoneLower.includes('鐵路')) return 'rgba(102, 51, 153, 0.8)';
@@ -56,8 +67,13 @@ function getColorForZone(zone) {
   }
 
   // 公共設施系列 - 黃色系
-  if (zoneLower.includes('學校') || zoneLower.includes('機關') || zoneLower.includes('醫院') ||
-      zoneLower.includes('市場') || zoneLower.includes('廣場')) {
+  if (
+    zoneLower.includes('學校') ||
+    zoneLower.includes('機關') ||
+    zoneLower.includes('醫院') ||
+    zoneLower.includes('市場') ||
+    zoneLower.includes('廣場')
+  ) {
     if (zoneLower.includes('學校')) return 'rgba(255, 204, 102, 0.8)';
     if (zoneLower.includes('機關')) return 'rgba(255, 187, 51, 0.8)';
     if (zoneLower.includes('醫院')) return 'rgba(255, 170, 0, 0.8)';
@@ -75,13 +91,23 @@ function getColorForZone(zone) {
   }
 
   // 水利/環保系列 - 青色系
-  if (zoneLower.includes('行水') || zoneLower.includes('堤防') || zoneLower.includes('污水') ||
-      zoneLower.includes('垃圾') || zoneLower.includes('自來水')) {
+  if (
+    zoneLower.includes('行水') ||
+    zoneLower.includes('堤防') ||
+    zoneLower.includes('污水') ||
+    zoneLower.includes('垃圾') ||
+    zoneLower.includes('自來水')
+  ) {
     return 'rgba(102, 204, 204, 0.8)';
   }
 
   // 能源系列 - 紫紅色系
-  if (zoneLower.includes('加油') || zoneLower.includes('儲油') || zoneLower.includes('變電') || zoneLower.includes('煤氣')) {
+  if (
+    zoneLower.includes('加油') ||
+    zoneLower.includes('儲油') ||
+    zoneLower.includes('變電') ||
+    zoneLower.includes('煤氣')
+  ) {
     return 'rgba(204, 102, 153, 0.8)';
   }
 
@@ -100,7 +126,7 @@ export async function loadCommunityCareCenterData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -205,7 +231,7 @@ export async function loadCommunityCareCenterData(layer) {
 
     // 統計各行政區的數量 - 從地址中提取行政區
     const districtCounts = {};
-    geoJsonData.features.forEach(feature => {
+    geoJsonData.features.forEach((feature) => {
       const address = feature.properties.propertyData.據點地址;
       if (address) {
         // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
@@ -245,7 +271,7 @@ export async function loadCLevelUnitData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -348,7 +374,7 @@ export async function loadCLevelUnitData(layer) {
 
     // 統計各行政區的數量 - 從地址中提取行政區
     const districtCounts = {};
-    geoJsonData.features.forEach(feature => {
+    geoJsonData.features.forEach((feature) => {
       const address = feature.properties.propertyData.據點地址;
       if (address) {
         // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
@@ -388,7 +414,7 @@ export async function loadRespiteCareCPlusUnitData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -489,7 +515,7 @@ export async function loadRespiteCareCPlusUnitData(layer) {
 
     // 統計各行政區的數量 - 從地址中提取行政區
     const districtCounts = {};
-    geoJsonData.features.forEach(feature => {
+    geoJsonData.features.forEach((feature) => {
       const address = feature.properties.propertyData.據點地址;
       if (address) {
         // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
@@ -529,7 +555,7 @@ export async function loadPublicElderlyWelfareInstitutionData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -638,7 +664,7 @@ export async function loadPublicElderlyWelfareInstitutionData(layer) {
 
     // 統計各行政區的數量 - 從地址中提取行政區
     const districtCounts = {};
-    geoJsonData.features.forEach(feature => {
+    geoJsonData.features.forEach((feature) => {
       const address = feature.properties.propertyData.地址;
       if (address) {
         // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
@@ -678,7 +704,7 @@ export async function loadElderlyWelfareInstitutionData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -793,7 +819,7 @@ export async function loadElderlyWelfareInstitutionData(layer) {
 
     // 統計各行政區的數量 - 從地址中提取行政區
     const districtCounts = {};
-    geoJsonData.features.forEach(feature => {
+    geoJsonData.features.forEach((feature) => {
       const address = feature.properties.propertyData.地址;
       if (address) {
         // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
@@ -833,7 +859,7 @@ export async function loadCommunityIntegrationServiceCenterData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -934,7 +960,7 @@ export async function loadCommunityIntegrationServiceCenterData(layer) {
 
     // 統計各行政區的數量 - 從地址中提取行政區
     const districtCounts = {};
-    geoJsonData.features.forEach(feature => {
+    geoJsonData.features.forEach((feature) => {
       const address = feature.properties.propertyData.服務地址_聯絡電話;
       if (address) {
         // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
@@ -974,7 +1000,7 @@ export async function loadGeneralNursingHomeData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -1075,7 +1101,7 @@ export async function loadGeneralNursingHomeData(layer) {
 
     // 統計各行政區的數量 - 從地址中提取行政區
     const districtCounts = {};
-    geoJsonData.features.forEach(feature => {
+    geoJsonData.features.forEach((feature) => {
       const address = feature.properties.propertyData.地址;
       if (address) {
         // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
@@ -1115,7 +1141,7 @@ export async function loadResidentialLongTermCareData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -1219,7 +1245,7 @@ export async function loadResidentialLongTermCareData(layer) {
 
     // 統計各行政區的數量 - 從地址中提取行政區
     const districtCounts = {};
-    geoJsonData.features.forEach(feature => {
+    geoJsonData.features.forEach((feature) => {
       const address = feature.properties.propertyData.地址;
       if (address) {
         // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
@@ -1259,7 +1285,7 @@ export async function load66Data(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -1366,7 +1392,7 @@ export async function load66Data(layer) {
 
     // 統計各行政區的數量 - 從地址中提取行政區
     const districtCounts = {};
-    geoJsonData.features.forEach(feature => {
+    geoJsonData.features.forEach((feature) => {
       const address = feature.properties.propertyData.機構服務地址;
       if (address) {
         // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
@@ -1406,7 +1432,7 @@ export async function load142Data(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -1513,7 +1539,7 @@ export async function load142Data(layer) {
 
     // 統計各行政區的數量 - 從地址中提取行政區
     const districtCounts = {};
-    geoJsonData.features.forEach(feature => {
+    geoJsonData.features.forEach((feature) => {
       const address = feature.properties.propertyData.機構服務地址;
       if (address) {
         // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
@@ -1553,7 +1579,7 @@ export async function load25Data(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -1660,7 +1686,7 @@ export async function load25Data(layer) {
 
     // 統計各行政區的數量 - 從地址中提取行政區
     const districtCounts = {};
-    geoJsonData.features.forEach(feature => {
+    geoJsonData.features.forEach((feature) => {
       const address = feature.properties.propertyData.機構服務地址;
       if (address) {
         // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
@@ -1700,7 +1726,7 @@ export async function load41Data(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -1817,7 +1843,7 @@ export async function load41Data(layer) {
 
     // 統計各行政區的數量 - 從地址中提取行政區
     const districtCounts = {};
-    geoJsonData.features.forEach(feature => {
+    geoJsonData.features.forEach((feature) => {
       const address = feature.properties.propertyData.機構服務地址;
       if (address) {
         // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
@@ -1857,7 +1883,7 @@ export async function loadHospitalClinicData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -1958,7 +1984,7 @@ export async function loadHospitalClinicData(layer) {
 
     // 統計各行政區的數量
     const districtCounts = {};
-    geoJsonData.features.forEach(feature => {
+    geoJsonData.features.forEach((feature) => {
       const district = feature.properties.propertyData.鄉鎮市區;
       if (district) {
         districtCounts[district] = (districtCounts[district] || 0) + 1;
@@ -1993,7 +2019,7 @@ export async function loadHealthcareFacilityPharmacyData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -2112,7 +2138,7 @@ export async function loadHealthcareFacilityPharmacyData(layer) {
 
     // 統計各行政區的數量 - 從地址中提取行政區
     const districtCounts = {};
-    geoJsonData.features.forEach(feature => {
+    geoJsonData.features.forEach((feature) => {
       const address = feature.properties.propertyData.地址;
       if (address) {
         // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
@@ -2152,7 +2178,7 @@ export async function loadPopulation3LevelsGeoJson(layer) {
     const layerId = layer.layerId;
     const fieldName = layer.fieldName; // fieldName 現在代表「人口數」
 
-    const filePath = `/long-term-care-web/data/geojson/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
 
     // 省略 console.log(a)
 
@@ -2171,7 +2197,7 @@ export async function loadPopulation3LevelsGeoJson(layer) {
 
     // ▼▼▼▼▼ 步驟 1: 預先處理數據，計算面積與人口密度 ▼▼▼▼▼
     // 我們先遍歷一次所有 features，把面積和人口密度（作為新的 value）加上去
-    geoJsonData.features.forEach(feature => {
+    geoJsonData.features.forEach((feature) => {
       const properties = feature.properties;
 
       // 計算面積 (km²)
@@ -2194,7 +2220,6 @@ export async function loadPopulation3LevelsGeoJson(layer) {
     });
     // ▲▲▲▲▲ 步驟 1: 結束 ▲▲▲▲▲
 
-
     // ▼▼▼▼▼ 步驟 2: 根據「人口密度」計算顏色範圍 ▼▼▼▼▼
     let minValue = 0;
     let maxValue = 0;
@@ -2205,26 +2230,22 @@ export async function loadPopulation3LevelsGeoJson(layer) {
       .filter((v) => !isNaN(v) && isFinite(v)); // isFinite 可以過濾掉 Infinity
 
     if (densityValues.length > 0) {
-        minValue = d3.min(densityValues);
-        maxValue = d3.max(densityValues);
+      minValue = d3.min(densityValues);
+      maxValue = d3.max(densityValues);
     }
     // ▲▲▲▲▲ 步驟 2: 結束 ▲▲▲▲▲
-
 
     // ----------------------------
     // 建立顏色比例尺 (這部分邏輯不變，但 domain 的依據已變為密度)
     const numColors = 5;
-    const colors = d3.range(numColors).map(i => d3.interpolateBlues(i / (numColors - 1)));
+    const colors = d3.range(numColors).map((i) => d3.interpolateBlues(i / (numColors - 1)));
 
     const step = (maxValue - minValue) / numColors;
     const thresholds = d3.range(1, numColors).map((i) => {
       return Math.round(minValue + i * step);
     });
 
-    const colorScale = d3
-      .scaleThreshold()
-      .domain(thresholds)
-      .range(colors);
+    const colorScale = d3.scaleThreshold().domain(thresholds).range(colors);
 
     // ----------------------------
 
@@ -2327,7 +2348,7 @@ export async function loadIncomeGeoJson(layer) {
     const layerId = layer.layerId;
     const fieldName = layer.fieldName;
 
-    const filePath = `/long-term-care-web/data/geojson/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
     const a = fieldName || null;
     console.log(a);
 
@@ -2453,7 +2474,7 @@ export async function loadConvenienceStoreData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -2560,7 +2581,7 @@ export async function loadConvenienceStoreData(layer) {
 
     // 統計各行政區的數量 - 從地址中提取行政區
     const districtCounts = {};
-    geoJsonData.features.forEach(feature => {
+    geoJsonData.features.forEach((feature) => {
       const address = feature.properties.propertyData.分公司地址;
       if (address) {
         // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
@@ -2600,7 +2621,7 @@ export async function loadMRTStationGeoJson(layer) {
     const layerId = layer.layerId;
     const fieldName = layer.fieldName;
 
-    const filePath = `/long-term-care-web/data/geojson/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
     const a = fieldName || null;
     console.log(a);
 
@@ -2677,7 +2698,7 @@ export async function loadBusStopGeoJson(layer) {
     const layerId = layer.layerId;
     const fieldName = layer.fieldName;
 
-    const filePath = `/long-term-care-web/data/geojson/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
     const a = fieldName || null;
     console.log(a);
 
@@ -2754,7 +2775,7 @@ export async function loadLanduseGeoJson(layer) {
     const layerId = layer.layerId;
     const fieldName = layer.fieldName;
 
-    const filePath = `/long-term-care-web/data/geojson/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
     const a = fieldName || null;
     console.log(a);
 
@@ -2771,15 +2792,14 @@ export async function loadLanduseGeoJson(layer) {
 
     const geoJsonData = await response.json();
 
-        // ----------------------------
+    // ----------------------------
 
     // 取得所有不重複且排序後的 NEWLAYER 值
     const sortedUniqueValues = Array.from(
-      new Set(geoJsonData.features.map(f => f.properties.NEWLAYER))
+      new Set(geoJsonData.features.map((f) => f.properties.NEWLAYER))
     ).sort((a, b) => Number(a) - Number(b));
 
     // ----------------------------
-
 
     geoJsonData.features.forEach((feature, index) => {
       feature.properties.id = index + 1;
@@ -2826,7 +2846,7 @@ export async function loadLanduseGeoJson(layer) {
 
     // 創建 NEWLAYER 到 ZONE 名稱的映射
     const layerToZoneMap = {};
-    geoJsonData.features.forEach(feature => {
+    geoJsonData.features.forEach((feature) => {
       const layer = feature.properties.NEWLAYER;
       const zone = feature.properties.ZONE;
       if (!layerToZoneMap[layer]) {
@@ -2834,7 +2854,7 @@ export async function loadLanduseGeoJson(layer) {
       }
     });
 
-        // 創建圖例數據
+    // 創建圖例數據
     const legendData = sortedUniqueValues.map((value) => {
       const zoneName = layerToZoneMap[value] || value; // 如果找不到對應的 ZONE，就使用 NEWLAYER 值
       const color = getColorForZone(zoneName);
@@ -2864,7 +2884,7 @@ export async function loadTaipeiDistrictGeoJson(layer) {
     const layerId = layer.layerId;
     const fieldName = layer.fieldName;
 
-    const filePath = `/long-term-care-web/data/geojson/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
     const a = fieldName || null;
     console.log(a);
 
