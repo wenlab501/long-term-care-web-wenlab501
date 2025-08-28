@@ -2,7 +2,7 @@
   "name": "long-term-care-web",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://wenlab501.github.io/github",
+  "homepage": "https://wenlab501.github.io/long-term-care-web",
   "scripts": {
     "serve": "vue-cli-service serve --port 8080",
     "build": "vue-cli-service build",
