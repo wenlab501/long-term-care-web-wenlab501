@@ -154,7 +154,7 @@ export const useDataStore = defineStore(
           },
           {
             layerId: '居家式喘息(GA09)及居家式短照(SC09)服務單位',
-            layerName: '[不確定] 居家式喘息(GA09)及居家式短照(SC09)服務單位',
+            layerName: '居家式喘息(GA09)及居家式短照(SC09)服務單位',
             visible: false,
             isLoading: false,
             isLoaded: false,
@@ -267,7 +267,7 @@ export const useDataStore = defineStore(
           },
           {
             layerId: '社區照顧關懷據點辦理社區喘息服務(C+單位)',
-            layerName: '[不確定] 社區照顧關懷據點辦理社區喘息服務(C+單位)',
+            layerName: '社區照顧關懷據點辦理社區喘息服務(C+單位)',
             visible: false,
             isLoading: false,
             isLoaded: false,
@@ -353,7 +353,7 @@ export const useDataStore = defineStore(
           },
           {
             layerId: '社區整體照顧服務體系C級單位',
-            layerName: '[不確定] 社區整體照顧服務體系C級單位',
+            layerName: '社區整體照顧服務體系C級單位',
             visible: false,
             isLoading: false,
             isLoaded: false,
@@ -370,7 +370,7 @@ export const useDataStore = defineStore(
           },
           {
             layerId: '巷弄長照站喘息(C+)(GA07)及巷弄長照站短照(SC07)服務單位',
-            layerName: '[不確定] 巷弄長照站喘息(C+)(GA07)及巷弄長照站短照(SC07)服務單位',
+            layerName: '巷弄長照站喘息(C+)(GA07)及巷弄長照站短照(SC07)服務單位',
             visible: false,
             isLoading: false,
             isLoaded: false,
@@ -388,7 +388,7 @@ export const useDataStore = defineStore(
           },
           {
             layerId: '社區式喘息(GA03/GA04/GA06)及社區式短照(SC03/SC04/SC06)服務單位',
-            layerName: '[不確定] 社區式喘息(GA03/GA04/GA06)及社區式短照(SC03/SC04/SC06)服務單位',
+            layerName: '社區式喘息(GA03/GA04/GA06)及社區式短照(SC03/SC04/SC06)服務單位',
             visible: false,
             isLoading: false,
             isLoaded: false,
@@ -423,7 +423,7 @@ export const useDataStore = defineStore(
           },
           {
             layerId: '社區整合型服務中心(A單位)',
-            layerName: '[不確定] 社區整合型服務中心(A單位)',
+            layerName: '社區整合型服務中心(A單位)',
             visible: false,
             isLoading: false,
             isLoaded: false,
@@ -593,7 +593,7 @@ export const useDataStore = defineStore(
           },
           {
             layerId: '住宿式長照機構',
-            layerName: '[不確定] 住宿式長照機構',
+            layerName: '住宿式長照機構',
             visible: false,
             isLoading: false,
             isLoaded: false,
@@ -610,7 +610,7 @@ export const useDataStore = defineStore(
           },
           {
             layerId: '住宿式喘息(GA05)及住宿式短照(SC05)服務單位',
-            layerName: '[不確定] 住宿式喘息(GA05)及住宿式短照(SC05)服務單位',
+            layerName: '住宿式喘息(GA05)及住宿式短照(SC05)服務單位',
             visible: false,
             isLoading: false,
             isLoaded: false,
