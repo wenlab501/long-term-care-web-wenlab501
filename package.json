@@ -1,8 +1,8 @@
 {
-  "name": "long-term-care-web-wenlab501",
+  "name": "long-term-care-web-taichung",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://wenlab501.github.io/long-term-care-web-wenlab501",
+  "homepage": "https://wenlab501.github.io/long-term-care-web-taichung",
   "scripts": {
     "serve": "vue-cli-service serve --port 8080",
     "build": "vue-cli-service build",
