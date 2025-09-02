@@ -126,7 +126,7 @@ export async function loadCommunityCareCenterData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-taichung/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -271,7 +271,7 @@ export async function loadCLevelUnitData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-taichung/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -414,7 +414,7 @@ export async function loadRespiteCareCPlusUnitData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-taichung/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -555,7 +555,7 @@ export async function loadPublicElderlyWelfareInstitutionData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-taichung/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -704,7 +704,7 @@ export async function loadElderlyWelfareInstitutionData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-taichung/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -859,7 +859,7 @@ export async function loadCommunityIntegrationServiceCenterData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-taichung/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -1000,7 +1000,7 @@ export async function loadGeneralNursingHomeData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-taichung/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -1141,7 +1141,7 @@ export async function loadResidentialLongTermCareData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-taichung/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -1285,7 +1285,7 @@ export async function load66Data(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-taichung/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -1432,7 +1432,7 @@ export async function load142Data(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-taichung/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -1579,7 +1579,7 @@ export async function load25Data(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-taichung/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -1726,7 +1726,7 @@ export async function load41Data(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-taichung/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -1883,7 +1883,7 @@ export async function loadHospitalClinicData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-taichung/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -2019,7 +2019,7 @@ export async function loadHealthcareFacilityPharmacyData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-taichung/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -2178,7 +2178,7 @@ export async function loadPopulation3LevelsGeoJson(layer) {
     const layerId = layer.layerId;
     const fieldName = layer.fieldName; // fieldName 現在代表「人口數」
 
-    const filePath = `/long-term-care-web-taichung/data/geojson/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
 
     // 省略 console.log(a)
 
@@ -2348,7 +2348,7 @@ export async function loadIncomeGeoJson(layer) {
     const layerId = layer.layerId;
     const fieldName = layer.fieldName;
 
-    const filePath = `/long-term-care-web-taichung/data/geojson/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
     const a = fieldName || null;
     console.log(a);
 
@@ -2474,7 +2474,7 @@ export async function loadConvenienceStoreData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-taichung/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -2621,7 +2621,7 @@ export async function loadMRTStationGeoJson(layer) {
     const layerId = layer.layerId;
     const fieldName = layer.fieldName;
 
-    const filePath = `/long-term-care-web-taichung/data/geojson/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
     const a = fieldName || null;
     console.log(a);
 
@@ -2698,7 +2698,7 @@ export async function loadBusStopGeoJson(layer) {
     const layerId = layer.layerId;
     const fieldName = layer.fieldName;
 
-    const filePath = `/long-term-care-web-taichung/data/geojson/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
     const a = fieldName || null;
     console.log(a);
 
@@ -2775,7 +2775,7 @@ export async function loadLanduseGeoJson(layer) {
     const layerId = layer.layerId;
     const fieldName = layer.fieldName;
 
-    const filePath = `/long-term-care-web-taichung/data/geojson/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
     const a = fieldName || null;
     console.log(a);
 
@@ -2884,7 +2884,7 @@ export async function loadTaipeiDistrictGeoJson(layer) {
     const layerId = layer.layerId;
     const fieldName = layer.fieldName;
 
-    const filePath = `/long-term-care-web-taichung/data/geojson/${layer.fileName}`;
+    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
     const a = fieldName || null;
     console.log(a);
 
