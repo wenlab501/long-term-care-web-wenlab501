@@ -506,7 +506,7 @@ export const useDataStore = defineStore(
             isLoaded: false,
             type: 'point',
             shape: 'circle',
-            colorName: 'green',
+            colorName: 'orange',
             geoJsonData: null,
             summaryData: null,
             tableData: null,
