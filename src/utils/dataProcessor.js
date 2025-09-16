@@ -1426,6 +1426,1890 @@ export async function load66Data(layer) {
   }
 }
 
+// 1_1_居家服務機構
+export async function load01_01(layer) {
+  try {
+    const layerId = layer.layerId;
+    const colorName = layer.colorName;
+
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+
+    const response = await fetch(filePath);
+
+    if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const csvText = await response.text();
+
+    // 將完整的 CSV 文字內容，首先按換行符號('\n')分割成陣列的每一行
+    // 然後對每一行再用逗號(',')分割成欄位，最終形成一個二維陣列
+    const rows = csvText.split('\n').map((row) => row.split(','));
+
+    // 取得二維陣列的第一行(rows[0])作為標頭，並對每個標頭使用 trim() 去除前後可能存在的空白字元
+    const headers = rows[0].map((h) => h.trim());
+
+    const headerIndices = {
+      序號: headers.indexOf('序號'),
+      單位名稱: headers.indexOf('單位名稱'),
+      立案地址: headers.indexOf('立案地址'),
+      設立許可字號: headers.indexOf('設立許可字號'),
+      機構負責人: headers.indexOf('機構負責人'),
+      電話: headers.indexOf('電話'),
+      傳真: headers.indexOf('傳真'),
+      可提供自費服務評鑑結果: headers.indexOf('可提供自費服務評鑑結果'),
+      特約服務區域: headers.indexOf('特約服務區域'),
+      lat: headers.indexOf('lat'),
+      lon: headers.indexOf('lon'),
+    };
+
+    const geoJsonData = {
+      type: 'FeatureCollection',
+      features: rows
+        .slice(1) // 使用 .slice(1) 方法，從索引 1 開始提取所有元素，即跳過第一行(標頭)
+        .map((row, index) => {
+          const lat = parseFloat(row[headerIndices.lat]);
+          const lon = parseFloat(row[headerIndices.lon]);
+
+          const id = index + 1;
+
+          if (isNaN(lat) || isNaN(lon)) {
+            console.warn(`第 ${id} 行 ${row[headerIndices.address]} 的座標無效:`, {
+              lat: row[headerIndices.lat],
+              lon: row[headerIndices.lon],
+            });
+            return null;
+          }
+
+          const propertyData = {
+            序號: row[headerIndices.序號],
+            單位名稱: row[headerIndices.單位名稱],
+            立案地址: row[headerIndices.立案地址],
+            設立許可字號: row[headerIndices.設立許可字號],
+            機構負責人: row[headerIndices.機構負責人],
+            電話: row[headerIndices.電話],
+            傳真: row[headerIndices.傳真],
+            可提供自費服務評鑑結果: row[headerIndices.可提供自費服務評鑑結果],
+            特約服務區域: row[headerIndices.可特約服務區域提供自費服務評鑑結果],
+          };
+
+          const popupData = {
+            name: row[headerIndices.機構名稱],
+          };
+
+          const tableData = {
+            '#': id,
+            color: getComputedStyle(document.documentElement)
+              .getPropertyValue(`--my-color-${colorName}`)
+              .trim(),
+            單位名稱: row[headerIndices.單位名稱],
+            立案地址: row[headerIndices.立案地址],
+          };
+
+          return {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [lon, lat],
+            },
+            properties: {
+              id: id,
+              layerId: layerId,
+              layerName: layer.layerName,
+              name: row[headerIndices.單位名稱],
+              fillColor: getComputedStyle(document.documentElement)
+                .getPropertyValue(`--my-color-${colorName}`)
+                .trim(),
+              propertyData: propertyData,
+              popupData: popupData,
+              tableData: tableData,
+            },
+          };
+        })
+        .filter((feature) => feature !== null), // 使用 .filter() 方法過濾掉陣列中所有為 null 的項目 (即那些因座標無效而返回 null 的資料)
+    };
+
+    // 包含為表格量身打造的數據陣列
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
+
+    // 統計各行政區的數量 - 從地址中提取行政區
+    const districtCounts = {};
+    geoJsonData.features.forEach((feature) => {
+      const address = feature.properties.propertyData.立案地址;
+      if (address) {
+        // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
+        const districtMatch = address.match(/臺北市([^市]*?區)/);
+        if (districtMatch) {
+          const district = districtMatch[1];
+          districtCounts[district] = (districtCounts[district] || 0) + 1;
+        }
+      }
+    });
+
+    // 轉換為陣列格式並排序
+    const districtCount = Object.entries(districtCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count); // 按數量降序排列
+
+    // 包含摘要資訊
+    const summaryData = {
+      totalCount: geoJsonData.features.length,
+      districtCount: districtCount,
+    };
+
+    return {
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
+      tableData, // 包含為表格量身打造的數據陣列
+      summaryData, // 包含摘要資訊
+    };
+  } catch (error) {
+    console.error('❌ 數據載入失敗:', error);
+    throw error;
+  }
+}
+
+// 1_2_居家護理所
+export async function load01_02(layer) {
+  try {
+    const layerId = layer.layerId;
+    const colorName = layer.colorName;
+
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+
+    const response = await fetch(filePath);
+
+    if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const csvText = await response.text();
+
+    // 將完整的 CSV 文字內容，首先按換行符號('\n')分割成陣列的每一行
+    // 然後對每一行再用逗號(',')分割成欄位，最終形成一個二維陣列
+    const rows = csvText.split('\n').map((row) => row.split(','));
+
+    // 取得二維陣列的第一行(rows[0])作為標頭，並對每個標頭使用 trim() 去除前後可能存在的空白字元
+    const headers = rows[0].map((h) => h.trim());
+
+    const headerIndices = {
+      序號: headers.indexOf('序號'),
+      機構名稱: headers.indexOf('機構名稱'),
+      地址: headers.indexOf('地址'),
+      電話: headers.indexOf('電話'),
+      lat: headers.indexOf('lat'),
+      lon: headers.indexOf('lon'),
+    };
+
+    const geoJsonData = {
+      type: 'FeatureCollection',
+      features: rows
+        .slice(1) // 使用 .slice(1) 方法，從索引 1 開始提取所有元素，即跳過第一行(標頭)
+        .map((row, index) => {
+          const lat = parseFloat(row[headerIndices.lat]);
+          const lon = parseFloat(row[headerIndices.lon]);
+
+          const id = index + 1;
+
+          if (isNaN(lat) || isNaN(lon)) {
+            console.warn(`第 ${id} 行 ${row[headerIndices.address]} 的座標無效:`, {
+              lat: row[headerIndices.lat],
+              lon: row[headerIndices.lon],
+            });
+            return null;
+          }
+
+          const propertyData = {
+            序號: row[headerIndices.序號],
+            機構名稱: row[headerIndices.機構名稱],
+            地址: row[headerIndices.地址],
+            電話: row[headerIndices.電話],
+          };
+
+          const popupData = {
+            name: row[headerIndices.機構名稱],
+          };
+
+          const tableData = {
+            '#': id,
+            color: getComputedStyle(document.documentElement)
+              .getPropertyValue(`--my-color-${colorName}`)
+              .trim(),
+            機構名稱: row[headerIndices.機構名稱],
+            地址: row[headerIndices.地址],
+          };
+
+          return {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [lon, lat],
+            },
+            properties: {
+              id: id,
+              layerId: layerId,
+              layerName: layer.layerName,
+              name: row[headerIndices.機構名稱],
+              fillColor: getComputedStyle(document.documentElement)
+                .getPropertyValue(`--my-color-${colorName}`)
+                .trim(),
+              propertyData: propertyData,
+              popupData: popupData,
+              tableData: tableData,
+            },
+          };
+        })
+        .filter((feature) => feature !== null), // 使用 .filter() 方法過濾掉陣列中所有為 null 的項目 (即那些因座標無效而返回 null 的資料)
+    };
+
+    // 包含為表格量身打造的數據陣列
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
+
+    // 統計各行政區的數量 - 從地址中提取行政區
+    const districtCounts = {};
+    geoJsonData.features.forEach((feature) => {
+      const address = feature.properties.propertyData.地址;
+      if (address) {
+        // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
+        const districtMatch = address.match(/臺北市([^市]*?區)/);
+        if (districtMatch) {
+          const district = districtMatch[1];
+          districtCounts[district] = (districtCounts[district] || 0) + 1;
+        }
+      }
+    });
+
+    // 轉換為陣列格式並排序
+    const districtCount = Object.entries(districtCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count); // 按數量降序排列
+
+    // 包含摘要資訊
+    const summaryData = {
+      totalCount: geoJsonData.features.length,
+      districtCount: districtCount,
+    };
+
+    return {
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
+      tableData, // 包含為表格量身打造的數據陣列
+      summaryData, // 包含摘要資訊
+    };
+  } catch (error) {
+    console.error('❌ 數據載入失敗:', error);
+    throw error;
+  }
+}
+
+// 1_3_居家物理治療所
+export async function load01_03(layer) {
+  try {
+    const layerId = layer.layerId;
+    const colorName = layer.colorName;
+
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+
+    const response = await fetch(filePath);
+
+    if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const csvText = await response.text();
+
+    // 將完整的 CSV 文字內容，首先按換行符號('\n')分割成陣列的每一行
+    // 然後對每一行再用逗號(',')分割成欄位，最終形成一個二維陣列
+    const rows = csvText.split('\n').map((row) => row.split(','));
+
+    // 取得二維陣列的第一行(rows[0])作為標頭，並對每個標頭使用 trim() 去除前後可能存在的空白字元
+    const headers = rows[0].map((h) => h.trim());
+
+    const headerIndices = {
+      收費標準: headers.indexOf('收費標準'),
+      機構類別: headers.indexOf('機構類別'),
+      機構名稱: headers.indexOf('機構名稱'),
+      電話: headers.indexOf('電話'),
+      地址: headers.indexOf('地址'),
+      lat: headers.indexOf('lat'),
+      lon: headers.indexOf('lon'),
+    };
+
+    const geoJsonData = {
+      type: 'FeatureCollection',
+      features: rows
+        .slice(1) // 使用 .slice(1) 方法，從索引 1 開始提取所有元素，即跳過第一行(標頭)
+        .map((row, index) => {
+          const lat = parseFloat(row[headerIndices.lat]);
+          const lon = parseFloat(row[headerIndices.lon]);
+
+          const id = index + 1;
+
+          if (isNaN(lat) || isNaN(lon)) {
+            console.warn(`第 ${id} 行 ${row[headerIndices.address]} 的座標無效:`, {
+              lat: row[headerIndices.lat],
+              lon: row[headerIndices.lon],
+            });
+            return null;
+          }
+
+          const propertyData = {
+            收費標準: row[headerIndices.收費標準],
+            機構類別: row[headerIndices.機構類別],
+            機構名稱: row[headerIndices.機構名稱],
+            電話: row[headerIndices.電話],
+            地址: row[headerIndices.地址],
+          };
+
+          const popupData = {
+            name: row[headerIndices.機構名稱],
+          };
+
+          const tableData = {
+            '#': id,
+            color: getComputedStyle(document.documentElement)
+              .getPropertyValue(`--my-color-${colorName}`)
+              .trim(),
+            機構名稱: row[headerIndices.機構名稱],
+            地址: row[headerIndices.地址],
+          };
+
+          return {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [lon, lat],
+            },
+            properties: {
+              id: id,
+              layerId: layerId,
+              layerName: layer.layerName,
+              name: row[headerIndices.機構名稱],
+              fillColor: getComputedStyle(document.documentElement)
+                .getPropertyValue(`--my-color-${colorName}`)
+                .trim(),
+              propertyData: propertyData,
+              popupData: popupData,
+              tableData: tableData,
+            },
+          };
+        })
+        .filter((feature) => feature !== null), // 使用 .filter() 方法過濾掉陣列中所有為 null 的項目 (即那些因座標無效而返回 null 的資料)
+    };
+
+    // 包含為表格量身打造的數據陣列
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
+
+    // 統計各行政區的數量 - 從地址中提取行政區
+    const districtCounts = {};
+    geoJsonData.features.forEach((feature) => {
+      const address = feature.properties.propertyData.地址;
+      if (address) {
+        // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
+        const districtMatch = address.match(/臺北市([^市]*?區)/);
+        if (districtMatch) {
+          const district = districtMatch[1];
+          districtCounts[district] = (districtCounts[district] || 0) + 1;
+        }
+      }
+    });
+
+    // 轉換為陣列格式並排序
+    const districtCount = Object.entries(districtCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count); // 按數量降序排列
+
+    // 包含摘要資訊
+    const summaryData = {
+      totalCount: geoJsonData.features.length,
+      districtCount: districtCount,
+    };
+
+    return {
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
+      tableData, // 包含為表格量身打造的數據陣列
+      summaryData, // 包含摘要資訊
+    };
+  } catch (error) {
+    console.error('❌ 數據載入失敗:', error);
+    throw error;
+  }
+}
+
+// 1_4_居家職能治療所
+// 1_5_居家呼吸照護所
+// 1_6_居家語言治療所
+// 1_7_心理諮商所
+export async function load01_04_07(layer) {
+  try {
+    const layerId = layer.layerId;
+    const colorName = layer.colorName;
+
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+
+    const response = await fetch(filePath);
+
+    if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const csvText = await response.text();
+
+    // 將完整的 CSV 文字內容，首先按換行符號('\n')分割成陣列的每一行
+    // 然後對每一行再用逗號(',')分割成欄位，最終形成一個二維陣列
+    const rows = csvText.split('\n').map((row) => row.split(','));
+
+    // 取得二維陣列的第一行(rows[0])作為標頭，並對每個標頭使用 trim() 去除前後可能存在的空白字元
+    const headers = rows[0].map((h) => h.trim());
+
+    const headerIndices = {
+      序號: headers.indexOf('序號'),
+      機構名稱: headers.indexOf('機構名稱'),
+      服務區域: headers.indexOf('服務區域'),
+      郵遞區號: headers.indexOf('郵遞區號'),
+      機構服務地址: headers.indexOf('機構(服務)地址'),
+      聯絡電話: headers.indexOf('聯絡電話'),
+      聯絡窗口: headers.indexOf('聯絡窗口'),
+      CA07: headers.indexOf('CA07'),
+      CA08: headers.indexOf('CA08'),
+      CB01: headers.indexOf('CB01'),
+      CB02: headers.indexOf('CB02'),
+      CB03: headers.indexOf('CB03'),
+      CB04: headers.indexOf('CB04'),
+      CC01: headers.indexOf('CC01'),
+      CD02: headers.indexOf('CD02'),
+      lat: headers.indexOf('lat'),
+      lon: headers.indexOf('lon'),
+    };
+
+    const geoJsonData = {
+      type: 'FeatureCollection',
+      features: rows
+        .slice(1) // 使用 .slice(1) 方法，從索引 1 開始提取所有元素，即跳過第一行(標頭)
+        .map((row, index) => {
+          const lat = parseFloat(row[headerIndices.lat]);
+          const lon = parseFloat(row[headerIndices.lon]);
+
+          const id = index + 1;
+
+          if (isNaN(lat) || isNaN(lon)) {
+            console.warn(`第 ${id} 行 ${row[headerIndices.address]} 的座標無效:`, {
+              lat: row[headerIndices.lat],
+              lon: row[headerIndices.lon],
+            });
+            return null;
+          }
+
+          const propertyData = {
+            序號: row[headerIndices.序號],
+            機構名稱: row[headerIndices.機構名稱],
+            服務區域: row[headerIndices.服務區域],
+            郵遞區號: row[headerIndices.郵遞區號],
+            機構服務地址: row[headerIndices.機構服務地址],
+            聯絡電話: row[headerIndices.聯絡電話],
+            聯絡窗口: row[headerIndices.聯絡窗口],
+            CA07: row[headerIndices.CA07],
+            CA08: row[headerIndices.CA08],
+            CB01: row[headerIndices.CB01],
+            CB02: row[headerIndices.CB02],
+            CB03: row[headerIndices.CB03],
+            CB04: row[headerIndices.CB04],
+            CC01: row[headerIndices.CC01],
+            CD02: row[headerIndices.CD02],
+          };
+
+          const popupData = {
+            name: row[headerIndices.機構名稱],
+          };
+
+          const tableData = {
+            '#': id,
+            color: getComputedStyle(document.documentElement)
+              .getPropertyValue(`--my-color-${colorName}`)
+              .trim(),
+            機構名稱: row[headerIndices.機構名稱],
+            機構服務地址: row[headerIndices.機構服務地址],
+          };
+
+          return {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [lon, lat],
+            },
+            properties: {
+              id: id,
+              layerId: layerId,
+              layerName: layer.layerName,
+              name: row[headerIndices.機構名稱],
+              fillColor: getComputedStyle(document.documentElement)
+                .getPropertyValue(`--my-color-${colorName}`)
+                .trim(),
+              propertyData: propertyData,
+              popupData: popupData,
+              tableData: tableData,
+            },
+          };
+        })
+        .filter((feature) => feature !== null), // 使用 .filter() 方法過濾掉陣列中所有為 null 的項目 (即那些因座標無效而返回 null 的資料)
+    };
+
+    // 包含為表格量身打造的數據陣列
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
+
+    // 統計各行政區的數量 - 從地址中提取行政區
+    const districtCounts = {};
+    geoJsonData.features.forEach((feature) => {
+      const address = feature.properties.propertyData.機構服務地址;
+      if (address) {
+        // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
+        const districtMatch = address.match(/臺北市([^市]*?區)/);
+        if (districtMatch) {
+          const district = districtMatch[1];
+          districtCounts[district] = (districtCounts[district] || 0) + 1;
+        }
+      }
+    });
+
+    // 轉換為陣列格式並排序
+    const districtCount = Object.entries(districtCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count); // 按數量降序排列
+
+    // 包含摘要資訊
+    const summaryData = {
+      totalCount: geoJsonData.features.length,
+      districtCount: districtCount,
+    };
+
+    return {
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
+      tableData, // 包含為表格量身打造的數據陣列
+      summaryData, // 包含摘要資訊
+    };
+  } catch (error) {
+    console.error('❌ 數據載入失敗:', error);
+    throw error;
+  }
+}
+
+// 2_1_日間照顧
+export async function load02_01(layer) {
+  try {
+    const layerId = layer.layerId;
+    const colorName = layer.colorName;
+
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+
+    const response = await fetch(filePath);
+
+    if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const csvText = await response.text();
+
+    // 將完整的 CSV 文字內容，首先按換行符號('\n')分割成陣列的每一行
+    // 然後對每一行再用逗號(',')分割成欄位，最終形成一個二維陣列
+    const rows = csvText.split('\n').map((row) => row.split(','));
+
+    // 取得二維陣列的第一行(rows[0])作為標頭，並對每個標頭使用 trim() 去除前後可能存在的空白字元
+    const headers = rows[0].map((h) => h.trim());
+
+    const headerIndices = {
+      序號: headers.indexOf('序號'),
+      機關名稱: headers.indexOf('機關名稱'),
+      區別: headers.indexOf('區別'),
+      地址: headers.indexOf('地址'),
+      電話: headers.indexOf('電話'),
+      收託量: headers.indexOf('收託量'),
+      lat: headers.indexOf('lat'),
+      lon: headers.indexOf('lon'),
+    };
+
+    const geoJsonData = {
+      type: 'FeatureCollection',
+      features: rows
+        .slice(1) // 使用 .slice(1) 方法，從索引 1 開始提取所有元素，即跳過第一行(標頭)
+        .map((row, index) => {
+          const lat = parseFloat(row[headerIndices.lat]);
+          const lon = parseFloat(row[headerIndices.lon]);
+
+          const id = index + 1;
+
+          if (isNaN(lat) || isNaN(lon)) {
+            console.warn(`第 ${id} 行 ${row[headerIndices.address]} 的座標無效:`, {
+              lat: row[headerIndices.lat],
+              lon: row[headerIndices.lon],
+            });
+            return null;
+          }
+
+          const propertyData = {
+            序號: row[headerIndices.序號],
+            機關名稱: row[headerIndices.機關名稱],
+            區別: row[headerIndices.區別],
+            地址: row[headerIndices.地址],
+            電話: row[headerIndices.電話],
+            收託量: row[headerIndices.收託量],
+          };
+
+          const popupData = {
+            name: row[headerIndices.機構名稱],
+          };
+
+          const tableData = {
+            '#': id,
+            color: getComputedStyle(document.documentElement)
+              .getPropertyValue(`--my-color-${colorName}`)
+              .trim(),
+            機關名稱: row[headerIndices.機關名稱],
+            地址: row[headerIndices.地址],
+          };
+
+          return {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [lon, lat],
+            },
+            properties: {
+              id: id,
+              layerId: layerId,
+              layerName: layer.layerName,
+              name: row[headerIndices.機關名稱],
+              fillColor: getComputedStyle(document.documentElement)
+                .getPropertyValue(`--my-color-${colorName}`)
+                .trim(),
+              propertyData: propertyData,
+              popupData: popupData,
+              tableData: tableData,
+            },
+          };
+        })
+        .filter((feature) => feature !== null), // 使用 .filter() 方法過濾掉陣列中所有為 null 的項目 (即那些因座標無效而返回 null 的資料)
+    };
+
+    // 包含為表格量身打造的數據陣列
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
+
+    // 統計各行政區的數量 - 從地址中提取行政區
+    const districtCounts = {};
+    geoJsonData.features.forEach((feature) => {
+      const address = feature.properties.propertyData.地址;
+      if (address) {
+        // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
+        const districtMatch = address.match(/臺北市([^市]*?區)/);
+        if (districtMatch) {
+          const district = districtMatch[1];
+          districtCounts[district] = (districtCounts[district] || 0) + 1;
+        }
+      }
+    });
+
+    // 轉換為陣列格式並排序
+    const districtCount = Object.entries(districtCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count); // 按數量降序排列
+
+    // 包含摘要資訊
+    const summaryData = {
+      totalCount: geoJsonData.features.length,
+      districtCount: districtCount,
+    };
+
+    return {
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
+      tableData, // 包含為表格量身打造的數據陣列
+      summaryData, // 包含摘要資訊
+    };
+  } catch (error) {
+    console.error('❌ 數據載入失敗:', error);
+    throw error;
+  }
+}
+
+// 2_2_小規模多機能服務
+export async function load02_02(layer) {
+  try {
+    const layerId = layer.layerId;
+    const colorName = layer.colorName;
+
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+
+    const response = await fetch(filePath);
+
+    if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const csvText = await response.text();
+
+    // 將完整的 CSV 文字內容，首先按換行符號('\n')分割成陣列的每一行
+    // 然後對每一行再用逗號(',')分割成欄位，最終形成一個二維陣列
+    const rows = csvText.split('\n').map((row) => row.split(','));
+
+    // 取得二維陣列的第一行(rows[0])作為標頭，並對每個標頭使用 trim() 去除前後可能存在的空白字元
+    const headers = rows[0].map((h) => h.trim());
+
+    const headerIndices = {
+      編號: headers.indexOf('編號'),
+      單位名稱: headers.indexOf('單位名稱'),
+      行政區: headers.indexOf('行政區'),
+      服務類型: headers.indexOf('服務類型'),
+      地址: headers.indexOf('地址'),
+      連絡電話: headers.indexOf('連絡電話'),
+      可提供自費服務: headers.indexOf('可提供自費服務'),
+      服務對象: headers.indexOf('服務對象'),
+      特約狀態: headers.indexOf('特約狀態'),
+      評鑑結果: headers.indexOf('評鑑結果'),
+      lat: headers.indexOf('lat'),
+      lon: headers.indexOf('lon'),
+    };
+
+    const geoJsonData = {
+      type: 'FeatureCollection',
+      features: rows
+        .slice(1) // 使用 .slice(1) 方法，從索引 1 開始提取所有元素，即跳過第一行(標頭)
+        .map((row, index) => {
+          const lat = parseFloat(row[headerIndices.lat]);
+          const lon = parseFloat(row[headerIndices.lon]);
+
+          const id = index + 1;
+
+          if (isNaN(lat) || isNaN(lon)) {
+            console.warn(`第 ${id} 行 ${row[headerIndices.address]} 的座標無效:`, {
+              lat: row[headerIndices.lat],
+              lon: row[headerIndices.lon],
+            });
+            return null;
+          }
+
+          const propertyData = {
+            編號: row[headerIndices.編號],
+            單位名稱: row[headerIndices.單位名稱],
+            行政區: row[headerIndices.行政區],
+            服務類型: row[headerIndices.服務類型],
+            地址: row[headerIndices.地址],
+            連絡電話: row[headerIndices.連絡電話],
+            可提供自費服務: row[headerIndices.可提供自費服務],
+            服務對象: row[headerIndices.服務對象],
+            特約狀態: row[headerIndices.特約狀態],
+            評鑑結果: row[headerIndices.評鑑結果],
+          };
+
+          const popupData = {
+            name: row[headerIndices.單位名稱],
+          };
+
+          const tableData = {
+            '#': id,
+            color: getComputedStyle(document.documentElement)
+              .getPropertyValue(`--my-color-${colorName}`)
+              .trim(),
+            單位名稱: row[headerIndices.單位名稱],
+            地址: row[headerIndices.地址],
+          };
+
+          return {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [lon, lat],
+            },
+            properties: {
+              id: id,
+              layerId: layerId,
+              layerName: layer.layerName,
+              name: row[headerIndices.單位名稱],
+              fillColor: getComputedStyle(document.documentElement)
+                .getPropertyValue(`--my-color-${colorName}`)
+                .trim(),
+              propertyData: propertyData,
+              popupData: popupData,
+              tableData: tableData,
+            },
+          };
+        })
+        .filter((feature) => feature !== null), // 使用 .filter() 方法過濾掉陣列中所有為 null 的項目 (即那些因座標無效而返回 null 的資料)
+    };
+
+    // 包含為表格量身打造的數據陣列
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
+
+    // 統計各行政區的數量 - 從地址中提取行政區
+    const districtCounts = {};
+    geoJsonData.features.forEach((feature) => {
+      const address = feature.properties.propertyData.地址;
+      if (address) {
+        // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
+        const districtMatch = address.match(/臺北市([^市]*?區)/);
+        if (districtMatch) {
+          const district = districtMatch[1];
+          districtCounts[district] = (districtCounts[district] || 0) + 1;
+        }
+      }
+    });
+
+    // 轉換為陣列格式並排序
+    const districtCount = Object.entries(districtCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count); // 按數量降序排列
+
+    // 包含摘要資訊
+    const summaryData = {
+      totalCount: geoJsonData.features.length,
+      districtCount: districtCount,
+    };
+
+    return {
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
+      tableData, // 包含為表格量身打造的數據陣列
+      summaryData, // 包含摘要資訊
+    };
+  } catch (error) {
+    console.error('❌ 數據載入失敗:', error);
+    throw error;
+  }
+}
+
+// 2_3_團體家屋
+export async function load02_03(layer) {
+  try {
+    const layerId = layer.layerId;
+    const colorName = layer.colorName;
+
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+
+    const response = await fetch(filePath);
+
+    if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const csvText = await response.text();
+
+    // 將完整的 CSV 文字內容，首先按換行符號('\n')分割成陣列的每一行
+    // 然後對每一行再用逗號(',')分割成欄位，最終形成一個二維陣列
+    const rows = csvText.split('\n').map((row) => row.split(','));
+
+    // 取得二維陣列的第一行(rows[0])作為標頭，並對每個標頭使用 trim() 去除前後可能存在的空白字元
+    const headers = rows[0].map((h) => h.trim());
+
+    const headerIndices = {
+      縣市: headers.indexOf('縣市'),
+      名稱: headers.indexOf('名稱'),
+      地址: headers.indexOf('地址'),
+      電話: headers.indexOf('電話'),
+      承辦單位: headers.indexOf('承辦單位'),
+      lat: headers.indexOf('lat'),
+      lon: headers.indexOf('lon'),
+    };
+
+    const geoJsonData = {
+      type: 'FeatureCollection',
+      features: rows
+        .slice(1) // 使用 .slice(1) 方法，從索引 1 開始提取所有元素，即跳過第一行(標頭)
+        .map((row, index) => {
+          const lat = parseFloat(row[headerIndices.lat]);
+          const lon = parseFloat(row[headerIndices.lon]);
+
+          const id = index + 1;
+
+          if (isNaN(lat) || isNaN(lon)) {
+            console.warn(`第 ${id} 行 ${row[headerIndices.address]} 的座標無效:`, {
+              lat: row[headerIndices.lat],
+              lon: row[headerIndices.lon],
+            });
+            return null;
+          }
+
+          const propertyData = {
+            縣市: row[headerIndices.縣市],
+            名稱: row[headerIndices.名稱],
+            地址: row[headerIndices.地址],
+            電話: row[headerIndices.電話],
+            承辦單位: row[headerIndices.承辦單位],
+          };
+
+          const popupData = {
+            name: row[headerIndices.名稱],
+          };
+
+          const tableData = {
+            '#': id,
+            color: getComputedStyle(document.documentElement)
+              .getPropertyValue(`--my-color-${colorName}`)
+              .trim(),
+            名稱: row[headerIndices.名稱],
+            地址: row[headerIndices.地址],
+          };
+
+          return {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [lon, lat],
+            },
+            properties: {
+              id: id,
+              layerId: layerId,
+              layerName: layer.layerName,
+              name: row[headerIndices.單位名稱],
+              fillColor: getComputedStyle(document.documentElement)
+                .getPropertyValue(`--my-color-${colorName}`)
+                .trim(),
+              propertyData: propertyData,
+              popupData: popupData,
+              tableData: tableData,
+            },
+          };
+        })
+        .filter((feature) => feature !== null), // 使用 .filter() 方法過濾掉陣列中所有為 null 的項目 (即那些因座標無效而返回 null 的資料)
+    };
+
+    // 包含為表格量身打造的數據陣列
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
+
+    // 統計各行政區的數量 - 從地址中提取行政區
+    const districtCounts = {};
+    geoJsonData.features.forEach((feature) => {
+      const address = feature.properties.propertyData.地址;
+      if (address) {
+        // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
+        const districtMatch = address.match(/臺北市([^市]*?區)/);
+        if (districtMatch) {
+          const district = districtMatch[1];
+          districtCounts[district] = (districtCounts[district] || 0) + 1;
+        }
+      }
+    });
+
+    // 轉換為陣列格式並排序
+    const districtCount = Object.entries(districtCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count); // 按數量降序排列
+
+    // 包含摘要資訊
+    const summaryData = {
+      totalCount: geoJsonData.features.length,
+      districtCount: districtCount,
+    };
+
+    return {
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
+      tableData, // 包含為表格量身打造的數據陣列
+      summaryData, // 包含摘要資訊
+    };
+  } catch (error) {
+    console.error('❌ 數據載入失敗:', error);
+    throw error;
+  }
+}
+
+// 2_4_家庭托顧
+export async function load02_04(layer) {
+  try {
+    const layerId = layer.layerId;
+    const colorName = layer.colorName;
+
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+
+    const response = await fetch(filePath);
+
+    if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const csvText = await response.text();
+
+    // 將完整的 CSV 文字內容，首先按換行符號('\n')分割成陣列的每一行
+    // 然後對每一行再用逗號(',')分割成欄位，最終形成一個二維陣列
+    const rows = csvText.split('\n').map((row) => row.split(','));
+
+    // 取得二維陣列的第一行(rows[0])作為標頭，並對每個標頭使用 trim() 去除前後可能存在的空白字元
+    const headers = rows[0].map((h) => h.trim());
+
+    const headerIndices = {
+      序號: headers.indexOf('序號'),
+      家托機構名稱: headers.indexOf('家托機構名稱'),
+      家托機構地址: headers.indexOf('家托機構地址'),
+      聯絡電話: headers.indexOf('聯絡電話'),
+      負責人: headers.indexOf('負責人'),
+      lat: headers.indexOf('lat'),
+      lon: headers.indexOf('lon'),
+    };
+
+    const geoJsonData = {
+      type: 'FeatureCollection',
+      features: rows
+        .slice(1) // 使用 .slice(1) 方法，從索引 1 開始提取所有元素，即跳過第一行(標頭)
+        .map((row, index) => {
+          const lat = parseFloat(row[headerIndices.lat]);
+          const lon = parseFloat(row[headerIndices.lon]);
+
+          const id = index + 1;
+
+          if (isNaN(lat) || isNaN(lon)) {
+            console.warn(`第 ${id} 行 ${row[headerIndices.address]} 的座標無效:`, {
+              lat: row[headerIndices.lat],
+              lon: row[headerIndices.lon],
+            });
+            return null;
+          }
+
+          const propertyData = {
+            序號: row[headerIndices.序號],
+            家托機構名稱: row[headerIndices.家托機構名稱],
+            家托機構地址: row[headerIndices.家托機構地址],
+            聯絡電話: row[headerIndices.聯絡電話],
+            負責人: row[headerIndices.負責人],
+          };
+
+          const popupData = {
+            name: row[headerIndices.家托機構名稱],
+          };
+
+          const tableData = {
+            '#': id,
+            color: getComputedStyle(document.documentElement)
+              .getPropertyValue(`--my-color-${colorName}`)
+              .trim(),
+            家托機構名稱: row[headerIndices.家托機構名稱],
+            家托機構地址: row[headerIndices.家托機構地址],
+          };
+
+          return {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [lon, lat],
+            },
+            properties: {
+              id: id,
+              layerId: layerId,
+              layerName: layer.layerName,
+              name: row[headerIndices.家托機構名稱],
+              fillColor: getComputedStyle(document.documentElement)
+                .getPropertyValue(`--my-color-${colorName}`)
+                .trim(),
+              propertyData: propertyData,
+              popupData: popupData,
+              tableData: tableData,
+            },
+          };
+        })
+        .filter((feature) => feature !== null), // 使用 .filter() 方法過濾掉陣列中所有為 null 的項目 (即那些因座標無效而返回 null 的資料)
+    };
+
+    // 包含為表格量身打造的數據陣列
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
+
+    // 統計各行政區的數量 - 從地址中提取行政區
+    const districtCounts = {};
+    geoJsonData.features.forEach((feature) => {
+      const address = feature.properties.propertyData.家托機構地址;
+      if (address) {
+        // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
+        const districtMatch = address.match(/臺北市([^市]*?區)/);
+        if (districtMatch) {
+          const district = districtMatch[1];
+          districtCounts[district] = (districtCounts[district] || 0) + 1;
+        }
+      }
+    });
+
+    // 轉換為陣列格式並排序
+    const districtCount = Object.entries(districtCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count); // 按數量降序排列
+
+    // 包含摘要資訊
+    const summaryData = {
+      totalCount: geoJsonData.features.length,
+      districtCount: districtCount,
+    };
+
+    return {
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
+      tableData, // 包含為表格量身打造的數據陣列
+      summaryData, // 包含摘要資訊
+    };
+  } catch (error) {
+    console.error('❌ 數據載入失敗:', error);
+    throw error;
+  }
+}
+
+// 2_6_社區據點
+export async function load02_06(layer) {
+  try {
+    const layerId = layer.layerId;
+    const colorName = layer.colorName;
+
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+
+    const response = await fetch(filePath);
+
+    if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const csvText = await response.text();
+
+    // 將完整的 CSV 文字內容，首先按換行符號('\n')分割成陣列的每一行
+    // 然後對每一行再用逗號(',')分割成欄位，最終形成一個二維陣列
+    const rows = csvText.split('\n').map((row) => row.split(','));
+
+    // 取得二維陣列的第一行(rows[0])作為標頭，並對每個標頭使用 trim() 去除前後可能存在的空白字元
+    const headers = rows[0].map((h) => h.trim());
+
+    const headerIndices = {
+      序號: headers.indexOf('序號'),
+      據點名稱: headers.indexOf('據點名稱'),
+      據點地址: headers.indexOf('據點地址'),
+      據點電話: headers.indexOf('據點電話'),
+      lat: headers.indexOf('lat'),
+      lon: headers.indexOf('lon'),
+    };
+
+    const geoJsonData = {
+      type: 'FeatureCollection',
+      features: rows
+        .slice(1) // 使用 .slice(1) 方法，從索引 1 開始提取所有元素，即跳過第一行(標頭)
+        .map((row, index) => {
+          const lat = parseFloat(row[headerIndices.lat]);
+          const lon = parseFloat(row[headerIndices.lon]);
+
+          const id = index + 1;
+
+          if (isNaN(lat) || isNaN(lon)) {
+            console.warn(`第 ${id} 行 ${row[headerIndices.address]} 的座標無效:`, {
+              lat: row[headerIndices.lat],
+              lon: row[headerIndices.lon],
+            });
+            return null;
+          }
+
+          const propertyData = {
+            序號: row[headerIndices.序號],
+            據點名稱: row[headerIndices.據點名稱],
+            據點地址: row[headerIndices.據點地址],
+            據點電話: row[headerIndices.據點電話],
+          };
+
+          const popupData = {
+            name: row[headerIndices.據點名稱],
+          };
+
+          const tableData = {
+            '#': id,
+            color: getComputedStyle(document.documentElement)
+              .getPropertyValue(`--my-color-${colorName}`)
+              .trim(),
+            據點名稱: row[headerIndices.據點名稱],
+            據點地址: row[headerIndices.據點地址],
+          };
+
+          return {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [lon, lat],
+            },
+            properties: {
+              id: id,
+              layerId: layerId,
+              layerName: layer.layerName,
+              name: row[headerIndices.據點名稱],
+              fillColor: getComputedStyle(document.documentElement)
+                .getPropertyValue(`--my-color-${colorName}`)
+                .trim(),
+              propertyData: propertyData,
+              popupData: popupData,
+              tableData: tableData,
+            },
+          };
+        })
+        .filter((feature) => feature !== null), // 使用 .filter() 方法過濾掉陣列中所有為 null 的項目 (即那些因座標無效而返回 null 的資料)
+    };
+
+    // 包含為表格量身打造的數據陣列
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
+
+    // 統計各行政區的數量 - 從地址中提取行政區
+    const districtCounts = {};
+    geoJsonData.features.forEach((feature) => {
+      const address = feature.properties.propertyData.立案地址;
+      if (address) {
+        // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
+        const districtMatch = address.match(/臺北市([^市]*?區)/);
+        if (districtMatch) {
+          const district = districtMatch[1];
+          districtCounts[district] = (districtCounts[district] || 0) + 1;
+        }
+      }
+    });
+
+    // 轉換為陣列格式並排序
+    const districtCount = Object.entries(districtCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count); // 按數量降序排列
+
+    // 包含摘要資訊
+    const summaryData = {
+      totalCount: geoJsonData.features.length,
+      districtCount: districtCount,
+    };
+
+    return {
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
+      tableData, // 包含為表格量身打造的數據陣列
+      summaryData, // 包含摘要資訊
+    };
+  } catch (error) {
+    console.error('❌ 數據載入失敗:', error);
+    throw error;
+  }
+}
+
+// 3_2_失智社區服務據點
+export async function load03_02(layer) {
+  try {
+    const layerId = layer.layerId;
+    const colorName = layer.colorName;
+
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+
+    const response = await fetch(filePath);
+
+    if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const csvText = await response.text();
+
+    // 將完整的 CSV 文字內容，首先按換行符號('\n')分割成陣列的每一行
+    // 然後對每一行再用逗號(',')分割成欄位，最終形成一個二維陣列
+    const rows = csvText.split('\n').map((row) => row.split(','));
+
+    // 取得二維陣列的第一行(rows[0])作為標頭，並對每個標頭使用 trim() 去除前後可能存在的空白字元
+    const headers = rows[0].map((h) => h.trim());
+
+    const headerIndices = {
+      編號: headers.indexOf('編號'),
+      行政區: headers.indexOf('行政區'),
+      服務單位名稱: headers.indexOf('服務單位名稱'),
+      連絡人: headers.indexOf('連絡人'),
+      電話: headers.indexOf('電話'),
+      據點地址: headers.indexOf('據點地址'),
+      開辦時間: headers.indexOf('開辦時間'),
+      lat: headers.indexOf('lat'),
+      lon: headers.indexOf('lon'),
+    };
+
+    const geoJsonData = {
+      type: 'FeatureCollection',
+      features: rows
+        .slice(1) // 使用 .slice(1) 方法，從索引 1 開始提取所有元素，即跳過第一行(標頭)
+        .map((row, index) => {
+          const lat = parseFloat(row[headerIndices.lat]);
+          const lon = parseFloat(row[headerIndices.lon]);
+
+          const id = index + 1;
+
+          if (isNaN(lat) || isNaN(lon)) {
+            console.warn(`第 ${id} 行 ${row[headerIndices.address]} 的座標無效:`, {
+              lat: row[headerIndices.lat],
+              lon: row[headerIndices.lon],
+            });
+            return null;
+          }
+
+          const propertyData = {
+            編號: row[headerIndices.編號],
+            行政區: row[headerIndices.行政區],
+            服務單位名稱: row[headerIndices.服務單位名稱],
+            連絡人: row[headerIndices.連絡人],
+            電話: row[headerIndices.電話],
+            據點地址: row[headerIndices.據點地址],
+            開辦時間: row[headerIndices.開辦時間],
+          };
+
+          const popupData = {
+            name: row[headerIndices.服務單位名稱],
+          };
+
+          const tableData = {
+            '#': id,
+            color: getComputedStyle(document.documentElement)
+              .getPropertyValue(`--my-color-${colorName}`)
+              .trim(),
+            服務單位名稱: row[headerIndices.服務單位名稱],
+            據點地址: row[headerIndices.據點地址],
+          };
+
+          return {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [lon, lat],
+            },
+            properties: {
+              id: id,
+              layerId: layerId,
+              layerName: layer.layerName,
+              name: row[headerIndices.服務單位名稱],
+              fillColor: getComputedStyle(document.documentElement)
+                .getPropertyValue(`--my-color-${colorName}`)
+                .trim(),
+              propertyData: propertyData,
+              popupData: popupData,
+              tableData: tableData,
+            },
+          };
+        })
+        .filter((feature) => feature !== null), // 使用 .filter() 方法過濾掉陣列中所有為 null 的項目 (即那些因座標無效而返回 null 的資料)
+    };
+
+    // 包含為表格量身打造的數據陣列
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
+
+    // 統計各行政區的數量 - 從地址中提取行政區
+    const districtCounts = {};
+    geoJsonData.features.forEach((feature) => {
+      const address = feature.properties.propertyData.據點地址;
+      if (address) {
+        // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
+        const districtMatch = address.match(/臺北市([^市]*?區)/);
+        if (districtMatch) {
+          const district = districtMatch[1];
+          districtCounts[district] = (districtCounts[district] || 0) + 1;
+        }
+      }
+    });
+
+    // 轉換為陣列格式並排序
+    const districtCount = Object.entries(districtCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count); // 按數量降序排列
+
+    // 包含摘要資訊
+    const summaryData = {
+      totalCount: geoJsonData.features.length,
+      districtCount: districtCount,
+    };
+
+    return {
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
+      tableData, // 包含為表格量身打造的數據陣列
+      summaryData, // 包含摘要資訊
+    };
+  } catch (error) {
+    console.error('❌ 數據載入失敗:', error);
+    throw error;
+  }
+}
+
+// 3_3_家庭照顧者支持服務據點
+export async function load03_03(layer) {
+  try {
+    const layerId = layer.layerId;
+    const colorName = layer.colorName;
+
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+
+    const response = await fetch(filePath);
+
+    if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const csvText = await response.text();
+
+    // 將完整的 CSV 文字內容，首先按換行符號('\n')分割成陣列的每一行
+    // 然後對每一行再用逗號(',')分割成欄位，最終形成一個二維陣列
+    const rows = csvText.split('\n').map((row) => row.split(','));
+
+    // 取得二維陣列的第一行(rows[0])作為標頭，並對每個標頭使用 trim() 去除前後可能存在的空白字元
+    const headers = rows[0].map((h) => h.trim());
+
+    const headerIndices = {
+      服務單位名稱: headers.indexOf('服務單位名稱'),
+      電話: headers.indexOf('電話'),
+      據點地址: headers.indexOf('據點地址'),
+      備註: headers.indexOf('備註'),
+      lat: headers.indexOf('lat'),
+      lon: headers.indexOf('lon'),
+    };
+
+    const geoJsonData = {
+      type: 'FeatureCollection',
+      features: rows
+        .slice(1) // 使用 .slice(1) 方法，從索引 1 開始提取所有元素，即跳過第一行(標頭)
+        .map((row, index) => {
+          const lat = parseFloat(row[headerIndices.lat]);
+          const lon = parseFloat(row[headerIndices.lon]);
+
+          const id = index + 1;
+
+          if (isNaN(lat) || isNaN(lon)) {
+            console.warn(`第 ${id} 行 ${row[headerIndices.address]} 的座標無效:`, {
+              lat: row[headerIndices.lat],
+              lon: row[headerIndices.lon],
+            });
+            return null;
+          }
+
+          const propertyData = {
+            服務單位名稱: row[headerIndices.服務單位名稱],
+            電話: row[headerIndices.電話],
+            據點地址: row[headerIndices.據點地址],
+            備註: row[headerIndices.備註],
+          };
+
+          const popupData = {
+            name: row[headerIndices.服務單位名稱],
+          };
+
+          const tableData = {
+            '#': id,
+            color: getComputedStyle(document.documentElement)
+              .getPropertyValue(`--my-color-${colorName}`)
+              .trim(),
+            服務單位名稱: row[headerIndices.服務單位名稱],
+            據點地址: row[headerIndices.據點地址],
+          };
+
+          return {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [lon, lat],
+            },
+            properties: {
+              id: id,
+              layerId: layerId,
+              layerName: layer.layerName,
+              name: row[headerIndices.服務單位名稱],
+              fillColor: getComputedStyle(document.documentElement)
+                .getPropertyValue(`--my-color-${colorName}`)
+                .trim(),
+              propertyData: propertyData,
+              popupData: popupData,
+              tableData: tableData,
+            },
+          };
+        })
+        .filter((feature) => feature !== null), // 使用 .filter() 方法過濾掉陣列中所有為 null 的項目 (即那些因座標無效而返回 null 的資料)
+    };
+
+    // 包含為表格量身打造的數據陣列
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
+
+    // 統計各行政區的數量 - 從地址中提取行政區
+    const districtCounts = {};
+    geoJsonData.features.forEach((feature) => {
+      const address = feature.properties.propertyData.據點地址;
+      if (address) {
+        // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
+        const districtMatch = address.match(/臺北市([^市]*?區)/);
+        if (districtMatch) {
+          const district = districtMatch[1];
+          districtCounts[district] = (districtCounts[district] || 0) + 1;
+        }
+      }
+    });
+
+    // 轉換為陣列格式並排序
+    const districtCount = Object.entries(districtCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count); // 按數量降序排列
+
+    // 包含摘要資訊
+    const summaryData = {
+      totalCount: geoJsonData.features.length,
+      districtCount: districtCount,
+    };
+
+    return {
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
+      tableData, // 包含為表格量身打造的數據陣列
+      summaryData, // 包含摘要資訊
+    };
+  } catch (error) {
+    console.error('❌ 數據載入失敗:', error);
+    throw error;
+  }
+}
+
+// 3_5_醫事C級巷弄長照站
+export async function load03_05(layer) {
+  try {
+    const layerId = layer.layerId;
+    const colorName = layer.colorName;
+
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+
+    const response = await fetch(filePath);
+
+    if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const csvText = await response.text();
+
+    // 將完整的 CSV 文字內容，首先按換行符號('\n')分割成陣列的每一行
+    // 然後對每一行再用逗號(',')分割成欄位，最終形成一個二維陣列
+    const rows = csvText.split('\n').map((row) => row.split(','));
+
+    // 取得二維陣列的第一行(rows[0])作為標頭，並對每個標頭使用 trim() 去除前後可能存在的空白字元
+    const headers = rows[0].map((h) => h.trim());
+
+    const headerIndices = {
+      編號: headers.indexOf('編號'),
+      據點名稱: headers.indexOf('據點名稱'),
+      行政區: headers.indexOf('行政區'),
+      里別: headers.indexOf('里別'),
+      據點地址: headers.indexOf('據點地址'),
+      電話: headers.indexOf('電話'),
+      lat: headers.indexOf('lat'),
+      lon: headers.indexOf('lon'),
+    };
+
+    const geoJsonData = {
+      type: 'FeatureCollection',
+      features: rows
+        .slice(1) // 使用 .slice(1) 方法，從索引 1 開始提取所有元素，即跳過第一行(標頭)
+        .map((row, index) => {
+          const lat = parseFloat(row[headerIndices.lat]);
+          const lon = parseFloat(row[headerIndices.lon]);
+
+          const id = index + 1;
+
+          if (isNaN(lat) || isNaN(lon)) {
+            console.warn(`第 ${id} 行 ${row[headerIndices.據點名稱]} 的座標無效:`, {
+              lat: row[headerIndices.lat],
+              lon: row[headerIndices.lon],
+            });
+            return null;
+          }
+
+          const propertyData = {
+            編號: row[headerIndices.編號],
+            據點名稱: row[headerIndices.據點名稱],
+            行政區: row[headerIndices.行政區],
+            里別: row[headerIndices.里別],
+            據點地址: row[headerIndices.據點地址],
+            電話: row[headerIndices.電話],
+          };
+
+          const popupData = {
+            name: row[headerIndices.據點名稱],
+          };
+
+          const tableData = {
+            '#': id,
+            color: getComputedStyle(document.documentElement)
+              .getPropertyValue(`--my-color-${colorName}`)
+              .trim(),
+            據點名稱: row[headerIndices.據點名稱],
+            據點地址: row[headerIndices.據點地址],
+          };
+
+          return {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [lon, lat],
+            },
+            properties: {
+              id: id,
+              layerId: layerId,
+              layerName: layer.layerName,
+              name: row[headerIndices.據點名稱],
+              fillColor: getComputedStyle(document.documentElement)
+                .getPropertyValue(`--my-color-${colorName}`)
+                .trim(),
+              propertyData: propertyData,
+              popupData: popupData,
+              tableData: tableData,
+            },
+          };
+        })
+        .filter((feature) => feature !== null), // 使用 .filter() 方法過濾掉陣列中所有為 null 的項目 (即那些因座標無效而返回 null 的資料)
+    };
+
+    // 包含為表格量身打造的數據陣列
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
+
+    // 統計各行政區的數量 - 從地址中提取行政區
+    const districtCounts = {};
+    geoJsonData.features.forEach((feature) => {
+      const address = feature.properties.propertyData.據點地址;
+      if (address) {
+        // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
+        const districtMatch = address.match(/臺北市([^市]*?區)/);
+        if (districtMatch) {
+          const district = districtMatch[1];
+          districtCounts[district] = (districtCounts[district] || 0) + 1;
+        }
+      }
+    });
+
+    // 轉換為陣列格式並排序
+    const districtCount = Object.entries(districtCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count); // 按數量降序排列
+
+    // 包含摘要資訊
+    const summaryData = {
+      totalCount: geoJsonData.features.length,
+      districtCount: districtCount,
+    };
+
+    return {
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
+      tableData, // 包含為表格量身打造的數據陣列
+      summaryData, // 包含摘要資訊
+    };
+  } catch (error) {
+    console.error('❌ 數據載入失敗:', error);
+    throw error;
+  }
+}
+
+// 3_6_原住民族文化健康站
+export async function load03_06(layer) {
+  try {
+    const layerId = layer.layerId;
+    const colorName = layer.colorName;
+
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+
+    const response = await fetch(filePath);
+
+    if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const csvText = await response.text();
+
+    // 將完整的 CSV 文字內容，首先按換行符號('\n')分割成陣列的每一行
+    // 然後對每一行再用逗號(',')分割成欄位，最終形成一個二維陣列
+    const rows = csvText.split('\n').map((row) => row.split(','));
+
+    // 取得二維陣列的第一行(rows[0])作為標頭，並對每個標頭使用 trim() 去除前後可能存在的空白字元
+    const headers = rows[0].map((h) => h.trim());
+
+    const headerIndices = {
+      縣市: headers.indexOf('縣市'),
+      行政區: headers.indexOf('行政區'),
+      文健站: headers.indexOf('文健站'),
+      核定額度: headers.indexOf('核定額度'),
+      主要服務族群: headers.indexOf('主要服務族群'),
+      執行單位: headers.indexOf('執行單位'),
+      有無負責人: headers.indexOf('有無負責人'),
+      地址: headers.indexOf('地址'),
+      電話: headers.indexOf('電話'),
+      lat: headers.indexOf('lat'),
+      lon: headers.indexOf('lon'),
+    };
+
+    const geoJsonData = {
+      type: 'FeatureCollection',
+      features: rows
+        .slice(1) // 使用 .slice(1) 方法，從索引 1 開始提取所有元素，即跳過第一行(標頭)
+        .map((row, index) => {
+          const lat = parseFloat(row[headerIndices.lat]);
+          const lon = parseFloat(row[headerIndices.lon]);
+
+          const id = index + 1;
+
+          if (isNaN(lat) || isNaN(lon)) {
+            console.warn(`第 ${id} 行 ${row[headerIndices.據點名稱]} 的座標無效:`, {
+              lat: row[headerIndices.lat],
+              lon: row[headerIndices.lon],
+            });
+            return null;
+          }
+
+          const propertyData = {
+            縣市: row[headerIndices.縣市],
+            行政區: row[headerIndices.行政區],
+            文健站: row[headerIndices.文健站],
+            核定額度: row[headerIndices.核定額度],
+            主要服務族群: row[headerIndices.主要服務族群],
+            執行單位: row[headerIndices.執行單位],
+            有無負責人: row[headerIndices.有無負責人],
+            地址: row[headerIndices.地址],
+            電話: row[headerIndices.電話],
+          };
+
+          const popupData = {
+            name: row[headerIndices.執行單位],
+          };
+
+          const tableData = {
+            '#': id,
+            color: getComputedStyle(document.documentElement)
+              .getPropertyValue(`--my-color-${colorName}`)
+              .trim(),
+            執行單位: row[headerIndices.執行單位],
+            地址: row[headerIndices.地址],
+          };
+
+          return {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [lon, lat],
+            },
+            properties: {
+              id: id,
+              layerId: layerId,
+              layerName: layer.layerName,
+              name: row[headerIndices.執行單位],
+              fillColor: getComputedStyle(document.documentElement)
+                .getPropertyValue(`--my-color-${colorName}`)
+                .trim(),
+              propertyData: propertyData,
+              popupData: popupData,
+              tableData: tableData,
+            },
+          };
+        })
+        .filter((feature) => feature !== null), // 使用 .filter() 方法過濾掉陣列中所有為 null 的項目 (即那些因座標無效而返回 null 的資料)
+    };
+
+    // 包含為表格量身打造的數據陣列
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
+
+    // 統計各行政區的數量 - 從地址中提取行政區
+    const districtCounts = {};
+    geoJsonData.features.forEach((feature) => {
+      const address = feature.properties.propertyData.地址;
+      if (address) {
+        // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
+        const districtMatch = address.match(/臺北市([^市]*?區)/);
+        if (districtMatch) {
+          const district = districtMatch[1];
+          districtCounts[district] = (districtCounts[district] || 0) + 1;
+        }
+      }
+    });
+
+    // 轉換為陣列格式並排序
+    const districtCount = Object.entries(districtCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count); // 按數量降序排列
+
+    // 包含摘要資訊
+    const summaryData = {
+      totalCount: geoJsonData.features.length,
+      districtCount: districtCount,
+    };
+
+    return {
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
+      tableData, // 包含為表格量身打造的數據陣列
+      summaryData, // 包含摘要資訊
+    };
+  } catch (error) {
+    console.error('❌ 數據載入失敗:', error);
+    throw error;
+  }
+}
+
 // 居家式喘息(GA09)及居家式短照(SC09)服務單位
 export async function load142Data(layer) {
   try {
