@@ -50,7 +50,11 @@
             <div class="my-title-xs-gray">{{ group.groupName }}</div>
           </div>
 
-          <div v-for="layer in group.groupLayers" :key="layer.layerId" class="mb-1">
+          <div
+            v-for="layer in group.groupLayers.filter((layer) => layer.display !== false)"
+            :key="layer.layerId"
+            class="mb-1"
+          >
             <!-- 圖層卡片 -->
             <div
               class="btn rounded-0 border-0 d-flex shadow-sm my-bgcolor-white-hover p-0"
