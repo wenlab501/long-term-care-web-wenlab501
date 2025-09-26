@@ -4352,6 +4352,242 @@ export async function loadIncomeGeoJson(layer) {
   }
 }
 
+// 台北里級社區原始數據 - Reinf_eeds欄位 (需求強化)
+export async function loadReinfEedsGeoJson(layer) {
+  try {
+    const layerId = layer.layerId;
+    const fieldName = layer.fieldName; // 應該是 'Reinf_eeds' (需求強化)
+
+    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
+
+    const response = await fetch(filePath);
+
+    if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const geoJsonData = await response.json();
+
+    // ----------------------------
+
+    let minValue = 0;
+    let maxValue = 0;
+
+    const values = geoJsonData.features
+      .map((f) => parseFloat(f.properties.detail?.[fieldName]))
+      .filter((v) => !isNaN(v));
+
+    minValue = d3.min(values);
+    maxValue = d3.max(values);
+
+    // ----------------------------
+
+    const colorScale = d3
+      .scaleSequential()
+      .domain([minValue, maxValue]) // 輸入範圍：[最小值, 最大值]
+      .interpolator(d3.interpolateReds); // 使用紅色系插值
+
+    // ----------------------------
+
+    geoJsonData.features.forEach((feature, index) => {
+      feature.properties.id = index + 1;
+      feature.properties.layerId = layerId;
+      feature.properties.layerName = layer.layerName;
+      feature.properties.name = feature.properties.FULL;
+      feature.properties.value = parseFloat(feature.properties.detail?.[fieldName] || 0);
+      feature.properties.color = 'var(--my-color-white)';
+      feature.properties.fillColor = colorScale(feature.properties.value);
+
+      const propertyData = {
+        里名: feature.properties.name,
+        ...feature.properties,
+      };
+
+      const popupData = {
+        里名: feature.properties.name,
+        [fieldName]: feature.properties.detail?.[fieldName] || 0,
+      };
+
+      const tableData = {
+        '#': feature.properties.id,
+        color: colorScale(feature.properties.value),
+        里名: feature.properties.name,
+        [fieldName]: feature.properties.detail?.[fieldName] || 0,
+      };
+
+      feature.properties.propertyData = propertyData;
+      feature.properties.popupData = popupData;
+      feature.properties.tableData = tableData;
+    });
+
+    // 包含為表格量身打造的數據陣列
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
+
+    // 包含摘要資訊
+    const summaryData = {
+      totalCount: geoJsonData.features.length,
+    };
+
+    // 為 scaleSequential 生成圖例
+    const numLegendSteps = 5;
+    const legendData = d3.range(numLegendSteps).map((i) => {
+      const t = i / (numLegendSteps - 1); // 0 到 1 的比例
+      const value = minValue + t * (maxValue - minValue); // 對應的數值
+      const color = colorScale(value); // 對應的顏色
+
+      let label = '';
+      if (i === 0) {
+        label = `${Math.round(minValue * 100) / 100}`;
+      } else if (i === numLegendSteps - 1) {
+        label = `${Math.round(maxValue * 100) / 100}`;
+      } else {
+        label = `${Math.round(value * 100) / 100}`;
+      }
+
+      return {
+        color: color,
+        label: label,
+        extent: [value, value], // 對於連續比例尺，每個點代表一個值
+      };
+    });
+
+    return {
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
+      tableData, // 包含為表格量身打造的數據陣列
+      summaryData, // 包含摘要資訊
+      legendData, // 包含圖例資訊
+    };
+  } catch (error) {
+    console.error('❌ GeoJSON 數據載入或處理失敗:', error);
+    throw error;
+  }
+}
+
+// 台北里級社區原始數據 - Membership欄位 (群體感)
+export async function loadMembershipGeoJson(layer) {
+  try {
+    const layerId = layer.layerId;
+    const fieldName = layer.fieldName; // 應該是 'Membership' (群體感)
+
+    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
+
+    const response = await fetch(filePath);
+
+    if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const geoJsonData = await response.json();
+
+    // ----------------------------
+
+    let minValue = 0;
+    let maxValue = 0;
+
+    const values = geoJsonData.features
+      .map((f) => parseFloat(f.properties.detail?.[fieldName]))
+      .filter((v) => !isNaN(v));
+
+    minValue = d3.min(values);
+    maxValue = d3.max(values);
+
+    // ----------------------------
+
+    const colorScale = d3
+      .scaleSequential()
+      .domain([minValue, maxValue]) // 輸入範圍：[最小值, 最大值]
+      .interpolator(d3.interpolateGreens); // 使用綠色系插值
+
+    // ----------------------------
+
+    geoJsonData.features.forEach((feature, index) => {
+      feature.properties.id = index + 1;
+      feature.properties.layerId = layerId;
+      feature.properties.layerName = layer.layerName;
+      feature.properties.name = feature.properties.FULL;
+      feature.properties.value = parseFloat(feature.properties.detail?.[fieldName] || 0);
+      feature.properties.color = 'var(--my-color-white)';
+      feature.properties.fillColor = colorScale(feature.properties.value);
+
+      const propertyData = {
+        里名: feature.properties.name,
+        ...feature.properties,
+      };
+
+      const popupData = {
+        里名: feature.properties.name,
+        [fieldName]: feature.properties.detail?.[fieldName] || 0,
+      };
+
+      const tableData = {
+        '#': feature.properties.id,
+        color: colorScale(feature.properties.value),
+        里名: feature.properties.name,
+        [fieldName]: feature.properties.detail?.[fieldName] || 0,
+      };
+
+      feature.properties.propertyData = propertyData;
+      feature.properties.popupData = popupData;
+      feature.properties.tableData = tableData;
+    });
+
+    // 包含為表格量身打造的數據陣列
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
+
+    // 包含摘要資訊
+    const summaryData = {
+      totalCount: geoJsonData.features.length,
+    };
+
+    // 為 scaleSequential 生成圖例
+    const numLegendSteps = 5;
+    const legendData = d3.range(numLegendSteps).map((i) => {
+      const t = i / (numLegendSteps - 1); // 0 到 1 的比例
+      const value = minValue + t * (maxValue - minValue); // 對應的數值
+      const color = colorScale(value); // 對應的顏色
+
+      let label = '';
+      if (i === 0) {
+        label = `${Math.round(minValue * 100) / 100}`;
+      } else if (i === numLegendSteps - 1) {
+        label = `${Math.round(maxValue * 100) / 100}`;
+      } else {
+        label = `${Math.round(value * 100) / 100}`;
+      }
+
+      return {
+        color: color,
+        label: label,
+        extent: [value, value], // 對於連續比例尺，每個點代表一個值
+      };
+    });
+
+    return {
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
+      tableData, // 包含為表格量身打造的數據陣列
+      summaryData, // 包含摘要資訊
+      legendData, // 包含圖例資訊
+    };
+  } catch (error) {
+    console.error('❌ GeoJSON 數據載入或處理失敗:', error);
+    throw error;
+  }
+}
+
 // 4大超商
 export async function loadConvenienceStoreData(layer) {
   try {
