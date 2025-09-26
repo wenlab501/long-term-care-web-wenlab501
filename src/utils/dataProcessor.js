@@ -19,7 +19,7 @@ function getColorInterpolator(colorName) {
     blue: d3.interpolateBlues,
     bluegrey: d3.interpolateGreys,
     indigo: d3.interpolateBlues,
-    deeppurple: d3.interpolatePurples, // 使用紫色系列
+    deeppurple: d3.interpolatePurples, // 使用紫色系列，同一色調從淺到深
     purple: d3.interpolatePurples,
     brown: d3.interpolateOranges, // 使用橘色系列
     grey: d3.interpolateGreys,

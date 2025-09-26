@@ -833,7 +833,7 @@ export const useDataStore = defineStore(
             isLoaded: false,
             type: 'polygon',
             shape: null,
-            colorName: 'purple',
+            colorName: 'deeppurple',
             geoJsonData: null,
             summaryData: null,
             tableData: null,
@@ -850,7 +850,7 @@ export const useDataStore = defineStore(
             isLoaded: false,
             type: 'polygon',
             shape: null,
-            colorName: 'purple',
+            colorName: 'deeppurple',
             geoJsonData: null,
             summaryData: null,
             tableData: null,
@@ -867,7 +867,7 @@ export const useDataStore = defineStore(
             isLoaded: false,
             type: 'polygon',
             shape: null,
-            colorName: 'purple',
+            colorName: 'deeppurple',
             geoJsonData: null,
             summaryData: null,
             tableData: null,
@@ -1075,7 +1075,7 @@ export const useDataStore = defineStore(
             isLoaded: true, // 標記為已載入（路徑優化圖層總是可用的）
             type: 'route-optimization', // 特殊圖層類型
             shape: 'point', // 點狀圖層：路徑優化點
-            colorName: 'purple', // 紫色主題，與路徑規劃區分
+            colorName: 'deeppurple', // 紫色主題，與路徑規劃區分
 
             // GeoJSON 數據容器，存儲所有路徑優化點
             geoJsonData: {
