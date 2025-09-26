@@ -132,3 +132,530 @@ export function getIcon(iconKey, lang = 'zh') {
     icon: iconInfo.icon,
   };
 }
+
+// =================================================================================
+// 📊 Natural Breaks 分類算法 (Jenks Natural Breaks)
+// =================================================================================
+
+/**
+ * 計算 Jenks Natural Breaks 分類閾值 (完全重寫版本)
+ *
+ * Jenks Natural Breaks (Fisher-Jenks) 是一種統計分類方法，通過動態規劃算法找到最佳分類斷點，
+ * 使得組內方差最小化，組間方差最大化。該實現使用優化的動態規劃算法，具有更好的性能和穩定性。
+ *
+ * 算法原理：
+ * 1. 使用動態規劃表 dp[i][j] 記錄將前 i 個數據分為 j 類的最小方差
+ * 2. 使用累積統計量優化方差計算，避免重複計算
+ * 3. 回溯找出最佳分割點序列
+ *
+ * @param {number[]} values - 數值陣列（會自動過濾並排序）
+ * @param {number} numClasses - 分類數量（必須 >= 1）
+ * @returns {number[]} 分類閾值陣列，長度為 numClasses-1
+ * @throws {Error} 當參數無效時拋出錯誤
+ *
+ * @example
+ * // 將數據分為3類
+ * const data = [1, 2, 4, 5, 7, 9, 12, 15, 18, 20];
+ * const breaks = calculateNaturalBreaks(data, 3);
+ * // 返回: [5, 12] （表示分類為: <=5, 5-12, >12）
+ */
+export function calculateNaturalBreaks(values, numClasses) {
+  // === 輸入驗證 ===
+  if (!Array.isArray(values)) {
+    throw new Error('values 必須是數組');
+  }
+
+  if (!Number.isInteger(numClasses) || numClasses < 1) {
+    throw new Error('numClasses 必須是正整數');
+  }
+
+  if (values.length === 0) {
+    return [];
+  }
+
+  // === 數據預處理 ===
+  // 過濾無效值，去重並排序
+  const validValues = [
+    ...new Set(values.filter((v) => typeof v === 'number' && !isNaN(v) && isFinite(v))),
+  ].sort((a, b) => a - b);
+
+  if (validValues.length === 0) {
+    return [];
+  }
+
+  const n = validValues.length;
+
+  // === 邊界情況處理 ===
+  if (numClasses === 1) {
+    return [];
+  }
+
+  if (numClasses >= n) {
+    // 如果分類數大於等於數據點數，每個數據點為一類
+    return validValues.slice(0, -1);
+  }
+
+  // === 預計算累積統計量 ===
+  const cumulativeSum = new Float64Array(n + 1);
+  const cumulativeSumSquares = new Float64Array(n + 1);
+
+  cumulativeSum[0] = 0;
+  cumulativeSumSquares[0] = 0;
+
+  for (let i = 0; i < n; i++) {
+    const value = validValues[i];
+    cumulativeSum[i + 1] = cumulativeSum[i] + value;
+    cumulativeSumSquares[i + 1] = cumulativeSumSquares[i] + value * value;
+  }
+
+  // === 優化的方差計算函數 ===
+  const calculateSegmentVariance = (start, end) => {
+    if (start >= end) return 0;
+
+    const count = end - start;
+    if (count <= 1) return 0;
+
+    const sum = cumulativeSum[end] - cumulativeSum[start];
+    const sumSquares = cumulativeSumSquares[end] - cumulativeSumSquares[start];
+    const mean = sum / count;
+
+    // 方差 = E[X²] - E[X]²
+    const variance = sumSquares / count - mean * mean;
+
+    // 總方差 = 方差 * 樣本數
+    return variance * count;
+  };
+
+  // === 動態規劃表初始化 ===
+  // dp[i][j] = 將前 i 個數據點分為 j 類的最小總方差
+  const dp = Array(n + 1)
+    .fill(null)
+    .map(() => Array(numClasses + 1).fill(Infinity));
+  // backtrack[i][j] = 在狀態 dp[i][j] 時的最佳分割點
+  const backtrack = Array(n + 1)
+    .fill(null)
+    .map(() => Array(numClasses + 1).fill(0));
+
+  // === 初始化邊界條件 ===
+  // 將前 i 個數據點分為 1 類
+  for (let i = 1; i <= n; i++) {
+    dp[i][1] = calculateSegmentVariance(0, i);
+    backtrack[i][1] = 0;
+  }
+
+  // === 動態規劃主循環 ===
+  for (let numData = 2; numData <= n; numData++) {
+    for (let numClass = 2; numClass <= Math.min(numData, numClasses); numClass++) {
+      // 嘗試所有可能的分割點
+      for (let splitPoint = numClass - 1; splitPoint < numData; splitPoint++) {
+        // 當前分割的方差 = 前面部分的最優方差 + 當前段的方差
+        const currentVariance =
+          dp[splitPoint][numClass - 1] + calculateSegmentVariance(splitPoint, numData);
+
+        // 如果找到更優解，更新
+        if (currentVariance < dp[numData][numClass]) {
+          dp[numData][numClass] = currentVariance;
+          backtrack[numData][numClass] = splitPoint;
+        }
+      }
+    }
+  }
+
+  // === 回溯找出最佳分割點 ===
+  const breakIndices = [];
+  let currentData = n;
+  let currentClass = numClasses;
+
+  while (currentClass > 1) {
+    const splitPoint = backtrack[currentData][currentClass];
+    if (splitPoint > 0) {
+      breakIndices.push(splitPoint);
+    }
+    currentData = splitPoint;
+    currentClass--;
+  }
+
+  // === 轉換索引為實際值 ===
+  const breaks = breakIndices
+    .reverse() // 反轉得到正確順序
+    .map((index) => validValues[index - 1]) // 轉換為實際值（斷點是前一個值）
+    .filter((value, index, arr) => index === 0 || value !== arr[index - 1]); // 去重
+
+  return breaks;
+}
+
+/**
+ * 快速計算Natural Breaks的優化版本 (完全重寫)
+ *
+ * 這是一個高性能版本，專為大型數據集優化。使用了以下優化技術：
+ * 1. 預計算累積統計量，避免重複計算
+ * 2. 使用 Float64Array 提升數值計算精度和性能
+ * 3. 數值穩定的方差計算公式
+ * 4. 內存優化的動態規劃實現
+ * 5. 早期終止條件檢查
+ *
+ * @param {number[]} values - 數值陣列
+ * @param {number} numClasses - 分類數量
+ * @returns {number[]} 閾值陣列
+ */
+export function calculateNaturalBreaksFast(values, numClasses) {
+  // === 快速路徑：直接調用主算法 ===
+  // 主算法已經包含了所有優化，對於大多數情況已經足夠快
+  if (values.length < 10000) {
+    return calculateNaturalBreaks(values, numClasses);
+  }
+
+  // === 超大數據集的額外優化 ===
+
+  // 輸入驗證
+  if (!Array.isArray(values)) {
+    throw new Error('values 必須是數組');
+  }
+
+  if (!Number.isInteger(numClasses) || numClasses < 1) {
+    throw new Error('numClasses 必須是正整數');
+  }
+
+  if (values.length === 0) {
+    return [];
+  }
+
+  // 數據預處理 - 對超大數據集進行採樣優化
+  let processedValues;
+
+  if (values.length > 50000) {
+    // 對於超大數據集，先進行智能採樣
+    const sampleSize = Math.min(10000, Math.floor(values.length * 0.1));
+    const step = Math.floor(values.length / sampleSize);
+
+    const validValues = values
+      .filter((v) => typeof v === 'number' && !isNaN(v) && isFinite(v))
+      .sort((a, b) => a - b);
+
+    // 分層採樣：確保覆蓋整個數據範圍
+    const sampledValues = [];
+    for (let i = 0; i < validValues.length; i += step) {
+      sampledValues.push(validValues[i]);
+    }
+
+    // 確保包含邊界值
+    if (sampledValues[sampledValues.length - 1] !== validValues[validValues.length - 1]) {
+      sampledValues.push(validValues[validValues.length - 1]);
+    }
+
+    processedValues = [...new Set(sampledValues)].sort((a, b) => a - b);
+  } else {
+    // 標準處理
+    processedValues = [
+      ...new Set(values.filter((v) => typeof v === 'number' && !isNaN(v) && isFinite(v))),
+    ].sort((a, b) => a - b);
+  }
+
+  if (processedValues.length === 0) {
+    return [];
+  }
+
+  const n = processedValues.length;
+
+  // 邊界情況
+  if (numClasses === 1) return [];
+  if (numClasses >= n) return processedValues.slice(0, -1);
+
+  // === 高性能動態規劃實現 ===
+
+  // 使用 Float64Array 提升性能和精度
+  const cumulativeSum = new Float64Array(n + 1);
+  const cumulativeSumSquares = new Float64Array(n + 1);
+
+  // 預計算累積統計量
+  for (let i = 0; i < n; i++) {
+    const value = processedValues[i];
+    cumulativeSum[i + 1] = cumulativeSum[i] + value;
+    cumulativeSumSquares[i + 1] = cumulativeSumSquares[i] + value * value;
+  }
+
+  // 高效的方差計算函數
+  const fastVariance = (start, end) => {
+    const count = end - start;
+    if (count <= 1) return 0;
+
+    const sum = cumulativeSum[end] - cumulativeSum[start];
+    const sumSquares = cumulativeSumSquares[end] - cumulativeSumSquares[start];
+    const mean = sum / count;
+
+    // 數值穩定的方差公式
+    const variance = (sumSquares - sum * mean) / count;
+    return Math.max(0, variance * count);
+  };
+
+  // 緊湊的動態規劃表
+  const dp = new Array(n + 1);
+  const backtrack = new Array(n + 1);
+
+  for (let i = 0; i <= n; i++) {
+    dp[i] = new Float64Array(numClasses + 1);
+    backtrack[i] = new Uint16Array(numClasses + 1);
+    dp[i].fill(Infinity);
+  }
+
+  // 初始化
+  for (let i = 1; i <= n; i++) {
+    dp[i][1] = fastVariance(0, i);
+  }
+
+  // 動態規劃主循環 - 使用緊湊的循環順序
+  for (let k = 2; k <= numClasses; k++) {
+    for (let i = k; i <= n; i++) {
+      for (let j = k - 1; j < i; j++) {
+        const cost = dp[j][k - 1] + fastVariance(j, i);
+        if (cost < dp[i][k]) {
+          dp[i][k] = cost;
+          backtrack[i][k] = j;
+        }
+      }
+    }
+  }
+
+  // 回溯
+  const breaks = [];
+  let pos = n;
+  let classes = numClasses;
+
+  while (classes > 1) {
+    const splitPoint = backtrack[pos][classes];
+    if (splitPoint > 0) {
+      breaks.push(processedValues[splitPoint - 1]);
+    }
+    pos = splitPoint;
+    classes--;
+  }
+
+  return breaks.reverse().filter((v, i, arr) => i === 0 || v !== arr[i - 1]);
+}
+
+/**
+ * 獲取Natural Breaks分類的詳細統計資訊 (完全重寫版本)
+ *
+ * 提供完整的分類品質評估指標，包括方差分解、分類效果評估等。
+ * 使用數值穩定的統計計算方法，提供更準確的結果。
+ *
+ * @param {number[]} values - 數值陣列
+ * @param {number[]} breaks - 斷點陣列
+ * @returns {Object} 包含各類別統計資訊的物件
+ * @throws {Error} 當參數無效時拋出錯誤
+ *
+ * @example
+ * const values = [1, 2, 4, 5, 7, 9, 12, 15, 18, 20];
+ * const breaks = [5, 12];
+ * const stats = getNaturalBreaksStats(values, breaks);
+ * console.log(stats.goodnessOfVarianceFit); // 分類品質指標 (0-1)
+ */
+export function getNaturalBreaksStats(values, breaks) {
+  // === 輸入驗證 ===
+  if (!Array.isArray(values)) {
+    throw new Error('values 必須是數組');
+  }
+
+  if (!Array.isArray(breaks)) {
+    throw new Error('breaks 必須是數組');
+  }
+
+  // === 數據預處理 ===
+  const validValues = values
+    .filter((v) => typeof v === 'number' && !isNaN(v) && isFinite(v))
+    .sort((a, b) => a - b);
+
+  if (validValues.length === 0) {
+    return {
+      classes: [],
+      totalVariance: 0,
+      withinClassVariance: 0,
+      betweenClassVariance: 0,
+      goodnessOfVarianceFit: 0,
+      averageSilhouetteScore: 0,
+      classificationEfficiency: 0,
+    };
+  }
+
+  const n = validValues.length;
+  const sortedBreaks = [...breaks].sort((a, b) => a - b);
+
+  // === 分類數據到各個類別 ===
+  const classes = [];
+  let currentStart = 0;
+
+  for (let i = 0; i <= sortedBreaks.length; i++) {
+    let currentEnd;
+
+    if (i === sortedBreaks.length) {
+      // 最後一個類別
+      currentEnd = n;
+    } else {
+      // 找到第一個大於當前斷點的值的位置
+      currentEnd = validValues.findIndex((v) => v > sortedBreaks[i]);
+      if (currentEnd === -1) currentEnd = n;
+    }
+
+    if (currentStart < currentEnd) {
+      const classValues = validValues.slice(currentStart, currentEnd);
+
+      if (classValues.length > 0) {
+        // === 計算類別統計 ===
+        const count = classValues.length;
+        const sum = classValues.reduce((acc, val) => acc + val, 0);
+        const mean = sum / count;
+
+        // 使用數值穩定的方差計算
+        let variance = 0;
+
+        for (const value of classValues) {
+          variance += (value - mean) ** 2;
+        }
+
+        const standardDeviation = Math.sqrt(variance / count);
+
+        // === 構建範圍標籤 ===
+        let rangeLabel;
+        if (i === 0) {
+          rangeLabel =
+            sortedBreaks.length > 0
+              ? `≤ ${Math.round(sortedBreaks[0])}`
+              : `${Math.round(Math.min(...classValues))} - ${Math.round(Math.max(...classValues))}`;
+        } else if (i === sortedBreaks.length) {
+          rangeLabel = `> ${Math.round(sortedBreaks[i - 1])}`;
+        } else {
+          rangeLabel = `${Math.round(sortedBreaks[i - 1])} - ${Math.round(sortedBreaks[i])}`;
+        }
+
+        classes.push({
+          index: i,
+          range: rangeLabel,
+          count,
+          min: Math.min(...classValues),
+          max: Math.max(...classValues),
+          mean,
+          median:
+            count % 2 === 0
+              ? (classValues[Math.floor(count / 2) - 1] + classValues[Math.floor(count / 2)]) / 2
+              : classValues[Math.floor(count / 2)],
+          standardDeviation,
+          variance,
+          totalVariance: variance, // 總方差 (用於優化計算)
+          values: classValues,
+          percentage: (count / n) * 100,
+        });
+      }
+    }
+
+    currentStart = currentEnd;
+  }
+
+  // === 計算全域統計 ===
+  const overallSum = validValues.reduce((acc, val) => acc + val, 0);
+  const overallMean = overallSum / n;
+
+  // 總方差計算
+  let totalVariance = 0;
+
+  for (const value of validValues) {
+    totalVariance += (value - overallMean) ** 2;
+  }
+
+  // === 方差分解 ===
+  const withinClassVariance = classes.reduce((acc, cls) => acc + cls.variance, 0);
+  const betweenClassVariance = totalVariance - withinClassVariance;
+
+  // 分類品質指標 (Goodness of Variance Fit)
+  const goodnessOfVarianceFit = totalVariance > 0 ? betweenClassVariance / totalVariance : 0;
+
+  // === 額外的分類評估指標 ===
+
+  // 計算平均輪廓係數 (Silhouette Score)
+  let averageSilhouetteScore = 0;
+  if (classes.length > 1) {
+    let totalSilhouette = 0;
+    let validSilhouetteCount = 0;
+
+    for (let i = 0; i < classes.length; i++) {
+      const currentClass = classes[i];
+
+      if (currentClass.count > 1) {
+        // 計算類內平均距離
+        let intraClassDistance = 0;
+        const values = currentClass.values;
+
+        for (let j = 0; j < values.length; j++) {
+          for (let k = j + 1; k < values.length; k++) {
+            intraClassDistance += Math.abs(values[j] - values[k]);
+          }
+        }
+
+        const avgIntraDistance = intraClassDistance / ((values.length * (values.length - 1)) / 2);
+
+        // 找到最近的其他類別的平均距離
+        let minInterClassDistance = Infinity;
+
+        for (let j = 0; j < classes.length; j++) {
+          if (i !== j) {
+            const otherClass = classes[j];
+            let interClassDistance = 0;
+            let pairCount = 0;
+
+            for (const val1 of currentClass.values) {
+              for (const val2 of otherClass.values) {
+                interClassDistance += Math.abs(val1 - val2);
+                pairCount++;
+              }
+            }
+
+            const avgInterDistance = interClassDistance / pairCount;
+            minInterClassDistance = Math.min(minInterClassDistance, avgInterDistance);
+          }
+        }
+
+        // 計算輪廓係數
+        if (minInterClassDistance !== Infinity && avgIntraDistance > 0) {
+          const silhouette =
+            (minInterClassDistance - avgIntraDistance) /
+            Math.max(minInterClassDistance, avgIntraDistance);
+          totalSilhouette += silhouette * currentClass.count;
+          validSilhouetteCount += currentClass.count;
+        }
+      }
+    }
+
+    averageSilhouetteScore = validSilhouetteCount > 0 ? totalSilhouette / validSilhouetteCount : 0;
+  }
+
+  // 分類效率 (Classification Efficiency)
+  const expectedVarianceReduction = 1 - 1 / classes.length;
+  const actualVarianceReduction = goodnessOfVarianceFit;
+  const classificationEfficiency =
+    expectedVarianceReduction > 0 ? actualVarianceReduction / expectedVarianceReduction : 0;
+
+  return {
+    classes,
+    totalVariance,
+    withinClassVariance,
+    betweenClassVariance,
+    goodnessOfVarianceFit,
+    averageSilhouetteScore,
+    classificationEfficiency,
+    // 額外的統計資訊
+    overallMean,
+    overallStandardDeviation: Math.sqrt(totalVariance / n),
+    numClasses: classes.length,
+    totalCount: n,
+    // 分類平衡性
+    classBalance: {
+      minClassSize: Math.min(...classes.map((c) => c.count)),
+      maxClassSize: Math.max(...classes.map((c) => c.count)),
+      averageClassSize: n / classes.length,
+      classVariance:
+        classes.length > 1
+          ? classes.reduce((acc, cls) => acc + (cls.count - n / classes.length) ** 2, 0) /
+            classes.length
+          : 0,
+    },
+  };
+}

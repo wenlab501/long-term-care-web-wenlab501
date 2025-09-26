@@ -1,4 +1,33 @@
 import * as d3 from 'd3';
+import { calculateNaturalBreaks, getNaturalBreaksStats } from './utils.js';
+
+// 根據colorName生成對應的漸層顏色
+function getColorInterpolator(colorName) {
+  const colorMap = {
+    red: d3.interpolateReds,
+    pink: d3.interpolateReds, // 使用紅色系列
+    deeporange: d3.interpolateOranges,
+    orange: d3.interpolateOranges,
+    amber: d3.interpolateOranges, // 使用橘色系列
+    yellow: d3.interpolateOranges, // 使用橘色系列
+    lime: d3.interpolateGreens, // 使用綠色系列
+    'light-green': d3.interpolateGreens,
+    green: d3.interpolateGreens,
+    teal: d3.interpolateBlues, // 使用藍色系列
+    cyan: d3.interpolateBlues, // 使用藍色系列
+    lightblue: d3.interpolateBlues,
+    blue: d3.interpolateBlues,
+    bluegrey: d3.interpolateGreys,
+    indigo: d3.interpolateBlues,
+    deeppurple: d3.interpolatePurples, // 使用紫色系列
+    purple: d3.interpolatePurples,
+    brown: d3.interpolateOranges, // 使用橘色系列
+    grey: d3.interpolateGreys,
+    gray: d3.interpolateGreys,
+  };
+
+  return colorMap[colorName] || d3.interpolateBlues; // 預設為藍色
+}
 
 // 土地利用顏色分類函數
 function getColorForZone(zone) {
@@ -4105,29 +4134,20 @@ export async function loadPopulation3LevelsGeoJson(layer) {
     // ▲▲▲▲▲ 步驟 1: 結束 ▲▲▲▲▲
 
     // ▼▼▼▼▼ 步驟 2: 根據「人口密度」計算顏色範圍 ▼▼▼▼▼
-    let minValue = 0;
-    let maxValue = 0;
-
     // 從剛剛算好的人口密度 (feature.properties.value) 中取得最大最小值
     const densityValues = geoJsonData.features
       .map((f) => f.properties.value)
       .filter((v) => !isNaN(v) && isFinite(v)); // isFinite 可以過濾掉 Infinity
-
-    if (densityValues.length > 0) {
-      minValue = d3.min(densityValues);
-      maxValue = d3.max(densityValues);
-    }
     // ▲▲▲▲▲ 步驟 2: 結束 ▲▲▲▲▲
 
     // ----------------------------
-    // 建立顏色比例尺 (這部分邏輯不變，但 domain 的依據已變為密度)
+    // 使用 Natural Breaks 分類
     const numColors = 5;
-    const colors = d3.range(numColors).map((i) => d3.interpolateBlues(i / (numColors - 1)));
+    const colorInterpolator = getColorInterpolator(layer.colorName);
+    const colors = d3.range(numColors).map((i) => colorInterpolator(i / (numColors - 1)));
 
-    const step = (maxValue - minValue) / numColors;
-    const thresholds = d3.range(1, numColors).map((i) => {
-      return Math.round(minValue + i * step);
-    });
+    // 計算 Natural Breaks 閾值
+    const thresholds = calculateNaturalBreaks(densityValues, numColors);
 
     const colorScale = d3.scaleThreshold().domain(thresholds).range(colors);
 
@@ -4184,32 +4204,17 @@ export async function loadPopulation3LevelsGeoJson(layer) {
       totalCount: geoJsonData.features.length,
     };
 
-    // ▼▼▼▼▼ 步驟 4: 更新圖例以反映人口密度 ▼▼▼▼▼
-    const legendData = colors.map((color, index) => {
-      let label = '';
-      let extent = [];
-      const format = (d) => Math.round(d).toLocaleString(); // 讓數字加上千分位，更易讀
+    // ▼▼▼▼▼ 步驟 4: 使用 Natural Breaks 統計生成圖例 ▼▼▼▼▼
+    const naturalBreaksStats = getNaturalBreaksStats(densityValues, thresholds);
 
-      if (index === 0) {
-        const upperBound = thresholds[0];
-        label = `< ${format(upperBound)}`;
-        extent = [null, upperBound];
-      } else if (index === colors.length - 1) {
-        const lowerBound = thresholds[thresholds.length - 1];
-        label = `> ${format(lowerBound)}`;
-        extent = [lowerBound, null];
-      } else {
-        const lowerBound = thresholds[index - 1];
-        const upperBound = thresholds[index];
-        label = `${format(lowerBound)} - ${format(upperBound)}`;
-        extent = [lowerBound, upperBound];
-      }
-
+    const legendData = naturalBreaksStats.classes.map((cls, index) => {
       return {
-        color: color,
-        // 在圖例標籤後方加上單位
-        label: `${label} (人/km²)`,
-        extent: extent,
+        color: colors[index],
+        // 在圖例標籤後方加上單位和數量
+        label: `${cls.range} (人/km²) (${cls.count})`,
+        extent: [cls.min, cls.max],
+        count: cls.count,
+        percentage: cls.percentage.toFixed(1),
       };
     });
     // ▲▲▲▲▲ 步驟 4: 結束 ▲▲▲▲▲
@@ -4251,29 +4256,21 @@ export async function loadIncomeGeoJson(layer) {
 
     // ----------------------------
 
-    let minValue = 0;
-    let maxValue = 0;
-
     const values = geoJsonData.features
       .map((f) => parseFloat(f.properties[fieldName]))
       .filter((v) => !isNaN(v));
 
-    minValue = d3.min(values);
-    maxValue = d3.max(values);
-
     // ----------------------------
 
-    // 建立一個使用內建「紅白藍」色帶的發散型比例尺
-    // const colorScale = d3
-    //   .scaleSequential()
-    //   .domain([minValue, maxValue]) // 輸入範圍：[最小值, 最大值]
-    //   .interpolator(d3.interpolateYlGnBu); // [關鍵] 直接使用 D3 內建的顏色產生器
+    // 使用 Natural Breaks 分類
+    const numColors = 5;
+    const colorInterpolator = getColorInterpolator(layer.colorName);
+    const colors = d3.range(numColors).map((i) => colorInterpolator(i / (numColors - 1)));
 
-    const colorScale = d3
-      .scaleSequential()
-      .domain([minValue, maxValue]) // 輸入範圍：[最小值, 最大值]
-      // [關鍵] 使用 D3 內建的藍色插值函數
-      .interpolator(d3.interpolateBlues);
+    // 計算 Natural Breaks 閾值
+    const thresholds = calculateNaturalBreaks(values, numColors);
+
+    const colorScale = d3.scaleThreshold().domain(thresholds).range(colors);
 
     // ----------------------------
 
@@ -4317,26 +4314,17 @@ export async function loadIncomeGeoJson(layer) {
       totalCount: geoJsonData.features.length,
     };
 
-    // 為 scaleSequential 生成圖例
-    const numLegendSteps = 5;
-    const legendData = d3.range(numLegendSteps).map((i) => {
-      const t = i / (numLegendSteps - 1); // 0 到 1 的比例
-      const value = minValue + t * (maxValue - minValue); // 對應的數值
-      const color = colorScale(value); // 對應的顏色
+    // 使用 Natural Breaks 統計生成圖例
+    const naturalBreaksStats = getNaturalBreaksStats(values, thresholds);
 
-      let label = '';
-      if (i === 0) {
-        label = `${Math.round(minValue)}`;
-      } else if (i === numLegendSteps - 1) {
-        label = `${Math.round(maxValue)}`;
-      } else {
-        label = `${Math.round(value)}`;
-      }
-
+    const legendData = naturalBreaksStats.classes.map((cls, index) => {
       return {
-        color: color,
-        label: label,
-        extent: [value, value], // 對於連續比例尺，每個點代表一個值
+        color: colors[index],
+        // 在圖例標籤後方加上數量
+        label: `${cls.range} (${cls.count})`,
+        extent: [cls.min, cls.max],
+        count: cls.count,
+        percentage: cls.percentage.toFixed(1),
       };
     });
 
@@ -4375,22 +4363,21 @@ export async function loadReinfEedsGeoJson(layer) {
 
     // ----------------------------
 
-    let minValue = 0;
-    let maxValue = 0;
-
     const values = geoJsonData.features
       .map((f) => parseFloat(f.properties.detail?.[fieldName]))
       .filter((v) => !isNaN(v));
 
-    minValue = d3.min(values);
-    maxValue = d3.max(values);
-
     // ----------------------------
 
-    const colorScale = d3
-      .scaleSequential()
-      .domain([minValue, maxValue]) // 輸入範圍：[最小值, 最大值]
-      .interpolator(d3.interpolateReds); // 使用紅色系插值
+    // 使用 Natural Breaks 分類
+    const numColors = 5;
+    const colorInterpolator = getColorInterpolator(layer.colorName);
+    const colors = d3.range(numColors).map((i) => colorInterpolator(i / (numColors - 1)));
+
+    // 計算 Natural Breaks 閾值
+    const thresholds = calculateNaturalBreaks(values, numColors);
+
+    const colorScale = d3.scaleThreshold().domain(thresholds).range(colors);
 
     // ----------------------------
 
@@ -4435,26 +4422,17 @@ export async function loadReinfEedsGeoJson(layer) {
       totalCount: geoJsonData.features.length,
     };
 
-    // 為 scaleSequential 生成圖例
-    const numLegendSteps = 5;
-    const legendData = d3.range(numLegendSteps).map((i) => {
-      const t = i / (numLegendSteps - 1); // 0 到 1 的比例
-      const value = minValue + t * (maxValue - minValue); // 對應的數值
-      const color = colorScale(value); // 對應的顏色
+    // 使用 Natural Breaks 統計生成圖例
+    const naturalBreaksStats = getNaturalBreaksStats(values, thresholds);
 
-      let label = '';
-      if (i === 0) {
-        label = `${Math.round(minValue * 100) / 100}`;
-      } else if (i === numLegendSteps - 1) {
-        label = `${Math.round(maxValue * 100) / 100}`;
-      } else {
-        label = `${Math.round(value * 100) / 100}`;
-      }
-
+    const legendData = naturalBreaksStats.classes.map((cls, index) => {
       return {
-        color: color,
-        label: label,
-        extent: [value, value], // 對於連續比例尺，每個點代表一個值
+        color: colors[index],
+        // 在圖例標籤後方加上數量
+        label: `${cls.range} (${cls.count})`,
+        extent: [cls.min, cls.max],
+        count: cls.count,
+        percentage: cls.percentage.toFixed(1),
       };
     });
 
@@ -4493,22 +4471,21 @@ export async function loadMembershipGeoJson(layer) {
 
     // ----------------------------
 
-    let minValue = 0;
-    let maxValue = 0;
-
     const values = geoJsonData.features
       .map((f) => parseFloat(f.properties.detail?.[fieldName]))
       .filter((v) => !isNaN(v));
 
-    minValue = d3.min(values);
-    maxValue = d3.max(values);
-
     // ----------------------------
 
-    const colorScale = d3
-      .scaleSequential()
-      .domain([minValue, maxValue]) // 輸入範圍：[最小值, 最大值]
-      .interpolator(d3.interpolateGreens); // 使用綠色系插值
+    // 使用 Natural Breaks 分類
+    const numColors = 5;
+    const colorInterpolator = getColorInterpolator(layer.colorName);
+    const colors = d3.range(numColors).map((i) => colorInterpolator(i / (numColors - 1)));
+
+    // 計算 Natural Breaks 閾值
+    const thresholds = calculateNaturalBreaks(values, numColors);
+
+    const colorScale = d3.scaleThreshold().domain(thresholds).range(colors);
 
     // ----------------------------
 
@@ -4553,26 +4530,17 @@ export async function loadMembershipGeoJson(layer) {
       totalCount: geoJsonData.features.length,
     };
 
-    // 為 scaleSequential 生成圖例
-    const numLegendSteps = 5;
-    const legendData = d3.range(numLegendSteps).map((i) => {
-      const t = i / (numLegendSteps - 1); // 0 到 1 的比例
-      const value = minValue + t * (maxValue - minValue); // 對應的數值
-      const color = colorScale(value); // 對應的顏色
+    // 使用 Natural Breaks 統計生成圖例
+    const naturalBreaksStats = getNaturalBreaksStats(values, thresholds);
 
-      let label = '';
-      if (i === 0) {
-        label = `${Math.round(minValue * 100) / 100}`;
-      } else if (i === numLegendSteps - 1) {
-        label = `${Math.round(maxValue * 100) / 100}`;
-      } else {
-        label = `${Math.round(value * 100) / 100}`;
-      }
-
+    const legendData = naturalBreaksStats.classes.map((cls, index) => {
       return {
-        color: color,
-        label: label,
-        extent: [value, value], // 對於連續比例尺，每個點代表一個值
+        color: colors[index],
+        // 在圖例標籤後方加上數量
+        label: `${cls.range} (${cls.count})`,
+        extent: [cls.min, cls.max],
+        count: cls.count,
+        percentage: cls.percentage.toFixed(1),
       };
     });
 
@@ -4611,22 +4579,21 @@ export async function loadInfluenceGeoJson(layer) {
 
     // ----------------------------
 
-    let minValue = 0;
-    let maxValue = 0;
-
     const values = geoJsonData.features
       .map((f) => parseFloat(f.properties.detail?.[fieldName]))
       .filter((v) => !isNaN(v));
 
-    minValue = d3.min(values);
-    maxValue = d3.max(values);
-
     // ----------------------------
 
-    const colorScale = d3
-      .scaleSequential()
-      .domain([minValue, maxValue]) // 輸入範圍：[最小值, 最大值]
-      .interpolator(d3.interpolateOranges); // 使用橙色系插值
+    // 使用 Natural Breaks 分類
+    const numColors = 5;
+    const colorInterpolator = getColorInterpolator(layer.colorName);
+    const colors = d3.range(numColors).map((i) => colorInterpolator(i / (numColors - 1)));
+
+    // 計算 Natural Breaks 閾值
+    const thresholds = calculateNaturalBreaks(values, numColors);
+
+    const colorScale = d3.scaleThreshold().domain(thresholds).range(colors);
 
     // ----------------------------
 
@@ -4671,26 +4638,17 @@ export async function loadInfluenceGeoJson(layer) {
       totalCount: geoJsonData.features.length,
     };
 
-    // 為 scaleSequential 生成圖例
-    const numLegendSteps = 5;
-    const legendData = d3.range(numLegendSteps).map((i) => {
-      const t = i / (numLegendSteps - 1); // 0 到 1 的比例
-      const value = minValue + t * (maxValue - minValue); // 對應的數值
-      const color = colorScale(value); // 對應的顏色
+    // 使用 Natural Breaks 統計生成圖例
+    const naturalBreaksStats = getNaturalBreaksStats(values, thresholds);
 
-      let label = '';
-      if (i === 0) {
-        label = `${Math.round(minValue * 100) / 100}`;
-      } else if (i === numLegendSteps - 1) {
-        label = `${Math.round(maxValue * 100) / 100}`;
-      } else {
-        label = `${Math.round(value * 100) / 100}`;
-      }
-
+    const legendData = naturalBreaksStats.classes.map((cls, index) => {
       return {
-        color: color,
-        label: label,
-        extent: [value, value], // 對於連續比例尺，每個點代表一個值
+        color: colors[index],
+        // 在圖例標籤後方加上數量
+        label: `${cls.range} (${cls.count})`,
+        extent: [cls.min, cls.max],
+        count: cls.count,
+        percentage: cls.percentage.toFixed(1),
       };
     });
 
