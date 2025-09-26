@@ -4207,9 +4207,12 @@ export async function loadPopulation3LevelsGeoJson(layer) {
     // ▼▼▼▼▼ 步驟 4: 使用 Natural Breaks 統計生成圖例 ▼▼▼▼▼
     const naturalBreaksStats = getNaturalBreaksStats(densityValues, thresholds);
 
-    const legendData = naturalBreaksStats.classes.map((cls, index) => {
+    const legendData = naturalBreaksStats.classes.map((cls) => {
+      // 使用與圖層相同的 colorScale 來計算圖例顏色，確保一致性
+      const legendColor = colorScale(cls.min + (cls.max - cls.min) / 2); // 使用類別中點值計算顏色
+
       return {
-        color: colors[index],
+        color: legendColor, // 使用與圖層相同的顏色計算方式
         // 在圖例標籤後方加上單位和數量
         label: `${cls.range} (人/km²) (${cls.count})`,
         extent: [cls.min, cls.max],
@@ -4317,9 +4320,9 @@ export async function loadIncomeGeoJson(layer) {
     // 使用 Natural Breaks 統計生成圖例
     const naturalBreaksStats = getNaturalBreaksStats(values, thresholds);
 
-    const legendData = naturalBreaksStats.classes.map((cls, index) => {
+    const legendData = naturalBreaksStats.classes.map((cls) => {
       return {
-        color: colors[index],
+        color: colorScale(cls.min + (cls.max - cls.min) / 2), // 使用與圖層相同的顏色計算方式
         // 在圖例標籤後方加上數量
         label: `${cls.range} (${cls.count})`,
         extent: [cls.min, cls.max],
@@ -4425,9 +4428,9 @@ export async function loadReinfEedsGeoJson(layer) {
     // 使用 Natural Breaks 統計生成圖例
     const naturalBreaksStats = getNaturalBreaksStats(values, thresholds);
 
-    const legendData = naturalBreaksStats.classes.map((cls, index) => {
+    const legendData = naturalBreaksStats.classes.map((cls) => {
       return {
-        color: colors[index],
+        color: colorScale(cls.min + (cls.max - cls.min) / 2), // 使用與圖層相同的顏色計算方式
         // 在圖例標籤後方加上數量
         label: `${cls.range} (${cls.count})`,
         extent: [cls.min, cls.max],
@@ -4533,9 +4536,9 @@ export async function loadMembershipGeoJson(layer) {
     // 使用 Natural Breaks 統計生成圖例
     const naturalBreaksStats = getNaturalBreaksStats(values, thresholds);
 
-    const legendData = naturalBreaksStats.classes.map((cls, index) => {
+    const legendData = naturalBreaksStats.classes.map((cls) => {
       return {
-        color: colors[index],
+        color: colorScale(cls.min + (cls.max - cls.min) / 2), // 使用與圖層相同的顏色計算方式
         // 在圖例標籤後方加上數量
         label: `${cls.range} (${cls.count})`,
         extent: [cls.min, cls.max],
@@ -4641,9 +4644,9 @@ export async function loadInfluenceGeoJson(layer) {
     // 使用 Natural Breaks 統計生成圖例
     const naturalBreaksStats = getNaturalBreaksStats(values, thresholds);
 
-    const legendData = naturalBreaksStats.classes.map((cls, index) => {
+    const legendData = naturalBreaksStats.classes.map((cls) => {
       return {
-        color: colors[index],
+        color: colorScale(cls.min + (cls.max - cls.min) / 2), // 使用與圖層相同的顏色計算方式
         // 在圖例標籤後方加上數量
         label: `${cls.range} (${cls.count})`,
         extent: [cls.min, cls.max],
@@ -4749,9 +4752,9 @@ export async function loadCPRGeoJson(layer) {
     // 使用 Natural Breaks 統計生成圖例
     const naturalBreaksStats = getNaturalBreaksStats(values, thresholds);
 
-    const legendData = naturalBreaksStats.classes.map((cls, index) => {
+    const legendData = naturalBreaksStats.classes.map((cls) => {
       return {
-        color: colors[index],
+        color: colorScale(cls.min + (cls.max - cls.min) / 2), // 使用與圖層相同的顏色計算方式
         // 在圖例標籤後方加上數量
         label: `${cls.range} (${cls.count})`,
         extent: [cls.min, cls.max],
@@ -4857,9 +4860,9 @@ export async function loadAEDGeoJson(layer) {
     // 使用 Natural Breaks 統計生成圖例
     const naturalBreaksStats = getNaturalBreaksStats(values, thresholds);
 
-    const legendData = naturalBreaksStats.classes.map((cls, index) => {
+    const legendData = naturalBreaksStats.classes.map((cls) => {
       return {
-        color: colors[index],
+        color: colorScale(cls.min + (cls.max - cls.min) / 2), // 使用與圖層相同的顏色計算方式
         // 在圖例標籤後方加上數量
         label: `${cls.range} (${cls.count})`,
         extent: [cls.min, cls.max],
