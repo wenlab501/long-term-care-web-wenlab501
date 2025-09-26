@@ -4664,6 +4664,222 @@ export async function loadInfluenceGeoJson(layer) {
   }
 }
 
+// 台北里級社區原始數據 - tot_CPR欄位 (協助執行CPR意願)
+export async function loadCPRGeoJson(layer) {
+  try {
+    const layerId = layer.layerId;
+    const fieldName = layer.fieldName; // 應該是 'tot_CPR' (協助執行CPR意願)
+
+    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
+
+    const response = await fetch(filePath);
+
+    if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const geoJsonData = await response.json();
+
+    // ----------------------------
+
+    const values = geoJsonData.features
+      .map((f) => parseFloat(f.properties.detail?.[fieldName]))
+      .filter((v) => !isNaN(v));
+
+    // ----------------------------
+
+    // 使用 Natural Breaks 分類
+    const numColors = 5;
+    const colorInterpolator = getColorInterpolator(layer.colorName);
+    const colors = d3.range(numColors).map((i) => colorInterpolator(i / (numColors - 1)));
+
+    // 計算 Natural Breaks 閾值
+    const thresholds = calculateNaturalBreaks(values, numColors);
+
+    const colorScale = d3.scaleThreshold().domain(thresholds).range(colors);
+
+    // ----------------------------
+
+    geoJsonData.features.forEach((feature, index) => {
+      feature.properties.id = index + 1;
+      feature.properties.layerId = layerId;
+      feature.properties.layerName = layer.layerName;
+      feature.properties.name = feature.properties.FULL;
+      feature.properties.value = parseFloat(feature.properties.detail?.[fieldName] || 0);
+      feature.properties.color = 'var(--my-color-white)';
+      feature.properties.fillColor = colorScale(feature.properties.value);
+
+      const propertyData = {
+        里名: feature.properties.name,
+        ...feature.properties,
+      };
+
+      const popupData = {
+        里名: feature.properties.name,
+        [fieldName]: feature.properties.detail?.[fieldName] || 0,
+      };
+
+      const tableData = {
+        '#': feature.properties.id,
+        color: colorScale(feature.properties.value),
+        里名: feature.properties.name,
+        [fieldName]: feature.properties.detail?.[fieldName] || 0,
+      };
+
+      feature.properties.propertyData = propertyData;
+      feature.properties.popupData = popupData;
+      feature.properties.tableData = tableData;
+    });
+
+    // 包含為表格量身打造的數據陣列
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
+
+    // 包含摘要資訊
+    const summaryData = {
+      totalCount: geoJsonData.features.length,
+    };
+
+    // 使用 Natural Breaks 統計生成圖例
+    const naturalBreaksStats = getNaturalBreaksStats(values, thresholds);
+
+    const legendData = naturalBreaksStats.classes.map((cls, index) => {
+      return {
+        color: colors[index],
+        // 在圖例標籤後方加上數量
+        label: `${cls.range} (${cls.count})`,
+        extent: [cls.min, cls.max],
+        count: cls.count,
+        percentage: cls.percentage.toFixed(1),
+      };
+    });
+
+    return {
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
+      tableData, // 包含為表格量身打造的數據陣列
+      summaryData, // 包含摘要資訊
+      legendData, // 包含圖例資訊
+    };
+  } catch (error) {
+    console.error('❌ GeoJSON 數據載入或處理失敗:', error);
+    throw error;
+  }
+}
+
+// 台北里級社區原始數據 - tot_AED欄位 (協助執行AED意願)
+export async function loadAEDGeoJson(layer) {
+  try {
+    const layerId = layer.layerId;
+    const fieldName = layer.fieldName; // 應該是 'tot_AED' (協助執行AED意願)
+
+    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
+
+    const response = await fetch(filePath);
+
+    if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const geoJsonData = await response.json();
+
+    // ----------------------------
+
+    const values = geoJsonData.features
+      .map((f) => parseFloat(f.properties.detail?.[fieldName]))
+      .filter((v) => !isNaN(v));
+
+    // ----------------------------
+
+    // 使用 Natural Breaks 分類
+    const numColors = 5;
+    const colorInterpolator = getColorInterpolator(layer.colorName);
+    const colors = d3.range(numColors).map((i) => colorInterpolator(i / (numColors - 1)));
+
+    // 計算 Natural Breaks 閾值
+    const thresholds = calculateNaturalBreaks(values, numColors);
+
+    const colorScale = d3.scaleThreshold().domain(thresholds).range(colors);
+
+    // ----------------------------
+
+    geoJsonData.features.forEach((feature, index) => {
+      feature.properties.id = index + 1;
+      feature.properties.layerId = layerId;
+      feature.properties.layerName = layer.layerName;
+      feature.properties.name = feature.properties.FULL;
+      feature.properties.value = parseFloat(feature.properties.detail?.[fieldName] || 0);
+      feature.properties.color = 'var(--my-color-white)';
+      feature.properties.fillColor = colorScale(feature.properties.value);
+
+      const propertyData = {
+        里名: feature.properties.name,
+        ...feature.properties,
+      };
+
+      const popupData = {
+        里名: feature.properties.name,
+        [fieldName]: feature.properties.detail?.[fieldName] || 0,
+      };
+
+      const tableData = {
+        '#': feature.properties.id,
+        color: colorScale(feature.properties.value),
+        里名: feature.properties.name,
+        [fieldName]: feature.properties.detail?.[fieldName] || 0,
+      };
+
+      feature.properties.propertyData = propertyData;
+      feature.properties.popupData = popupData;
+      feature.properties.tableData = tableData;
+    });
+
+    // 包含為表格量身打造的數據陣列
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
+
+    // 包含摘要資訊
+    const summaryData = {
+      totalCount: geoJsonData.features.length,
+    };
+
+    // 使用 Natural Breaks 統計生成圖例
+    const naturalBreaksStats = getNaturalBreaksStats(values, thresholds);
+
+    const legendData = naturalBreaksStats.classes.map((cls, index) => {
+      return {
+        color: colors[index],
+        // 在圖例標籤後方加上數量
+        label: `${cls.range} (${cls.count})`,
+        extent: [cls.min, cls.max],
+        count: cls.count,
+        percentage: cls.percentage.toFixed(1),
+      };
+    });
+
+    return {
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
+      tableData, // 包含為表格量身打造的數據陣列
+      summaryData, // 包含摘要資訊
+      legendData, // 包含圖例資訊
+    };
+  } catch (error) {
+    console.error('❌ GeoJSON 數據載入或處理失敗:', error);
+    throw error;
+  }
+}
+
 // 4大超商
 export async function loadConvenienceStoreData(layer) {
   try {
