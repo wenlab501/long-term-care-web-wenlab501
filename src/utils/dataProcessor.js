@@ -1,32 +1,32 @@
 import * as d3 from 'd3';
 import { calculateNaturalBreaks, getNaturalBreaksStats } from './utils.js';
 
-// 根據colorName生成對應的漸層顏色
+// 根據colorName生成對應的漸層顏色，使用CSS定義的顏色
 function getColorInterpolator(colorName) {
   const colorMap = {
-    red: d3.interpolateReds,
-    pink: d3.interpolateReds, // 使用紅色系列
-    deeporange: d3.interpolateOranges,
-    orange: d3.interpolateOranges,
-    amber: d3.interpolateOranges, // 使用橘色系列
-    yellow: d3.interpolateOranges, // 使用橘色系列
-    lime: d3.interpolateGreens, // 使用綠色系列
-    'light-green': d3.interpolateGreens,
-    green: d3.interpolateGreens,
-    teal: d3.interpolateBlues, // 使用藍色系列
-    cyan: d3.interpolateBlues, // 使用藍色系列
-    lightblue: d3.interpolateBlues,
-    blue: d3.interpolateBlues,
-    bluegrey: d3.interpolateGreys,
-    indigo: d3.interpolateBlues,
-    deeppurple: d3.interpolatePurples, // 使用紫色系列，同一色調從淺到深
-    purple: d3.interpolatePurples,
-    brown: d3.interpolateOranges, // 使用橘色系列
-    grey: d3.interpolateGreys,
-    gray: d3.interpolateGreys,
+    red: d3.interpolateRgb('#ffffff', '#f44336'),
+    pink: d3.interpolateRgb('#ffffff', '#e91e63'),
+    deeporange: d3.interpolateRgb('#ffffff', '#ff5722'),
+    orange: d3.interpolateRgb('#ffffff', '#ff9800'),
+    amber: d3.interpolateRgb('#ffffff', '#ffc107'),
+    yellow: d3.interpolateRgb('#ffffff', '#ffeb3b'),
+    lime: d3.interpolateRgb('#ffffff', '#cddc39'),
+    'light-green': d3.interpolateRgb('#ffffff', '#8bc34a'),
+    green: d3.interpolateRgb('#ffffff', '#4caf50'),
+    teal: d3.interpolateRgb('#ffffff', '#009688'),
+    cyan: d3.interpolateRgb('#ffffff', '#00bcd4'),
+    lightblue: d3.interpolateRgb('#ffffff', '#03a9f4'),
+    blue: d3.interpolateRgb('#ffffff', '#2196f3'),
+    bluegrey: d3.interpolateRgb('#ffffff', '#607d8b'),
+    indigo: d3.interpolateRgb('#ffffff', '#3f51b5'),
+    deeppurple: d3.interpolateRgb('#ffffff', '#673ab7'),
+    purple: d3.interpolateRgb('#ffffff', '#9c27b0'),
+    brown: d3.interpolateRgb('#ffffff', '#795548'),
+    grey: d3.interpolateRgb('#ffffff', '#757575'),
+    gray: d3.interpolateRgb('#ffffff', '#757575'),
   };
 
-  return colorMap[colorName] || d3.interpolateBlues; // 預設為藍色
+  return colorMap[colorName] || d3.interpolateRgb('#ffffff', '#2196f3'); // 預設為藍色
 }
 
 // 土地利用顏色分類函數
