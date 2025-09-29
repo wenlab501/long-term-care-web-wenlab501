@@ -655,7 +655,7 @@
                   this.setStyle({
                     weight: 4,
                     color: 'white',
-                    fillOpacity: 0.8,
+                    fillOpacity: 0.6,
                   });
                   this.bringToFront();
                 }
@@ -812,6 +812,33 @@
           },
         });
 
+        // 為分析圖層設置高 z-index 確保在最上層
+        if (
+          layer.isAnalysisLayer ||
+          layer.isIsochroneAnalysisLayer ||
+          layer.isRoutePlanningLayer ||
+          layer.isRouteOptimizationLayer
+        ) {
+          // 設置整個圖層的 z-index
+          if (geoJsonLayer.setZIndex) {
+            geoJsonLayer.setZIndex(1000);
+          }
+
+          // 為圖層中的每個要素設置高 z-index
+          geoJsonLayer.eachLayer((featureLayer) => {
+            if (featureLayer.setZIndex) {
+              featureLayer.setZIndex(1000);
+            }
+            // 對於標記，設置圖標的 z-index
+            if (featureLayer.getElement && featureLayer.getElement()) {
+              const element = featureLayer.getElement();
+              if (element) {
+                element.style.zIndex = '1000';
+              }
+            }
+          });
+        }
+
         return geoJsonLayer; // 返回創建的 GeoJSON 圖層
       };
 
@@ -889,7 +916,13 @@
         });
 
         // 檢查是否有分析圖層需要更新
-        const hasAnalysisLayerUpdate = visibleLayers.some((layer) => layer.isAnalysisLayer);
+        const hasAnalysisLayerUpdate = visibleLayers.some(
+          (layer) =>
+            layer.isAnalysisLayer ||
+            layer.isIsochroneAnalysisLayer ||
+            layer.isRoutePlanningLayer ||
+            layer.isRouteOptimizationLayer
+        );
 
         // 如果有分析圖層更新，需要重新渲染所有圖層以保持正確順序
         if (hasAnalysisLayerUpdate) {
@@ -905,8 +938,24 @@
         // 用於收集新添加的圖層，以便後續自動縮放
         const newAddedLayers = [];
 
-        // 按照 layers 的反轉順序處理所有可見圖層（這樣第一個圖層會在最底層）
-        visibleLayers
+        // 分離普通圖層和分析圖層，確保分析圖層始終在最上層
+        const normalLayers = visibleLayers.filter(
+          (layer) =>
+            !layer.isAnalysisLayer &&
+            !layer.isIsochroneAnalysisLayer &&
+            !layer.isRoutePlanningLayer &&
+            !layer.isRouteOptimizationLayer
+        );
+        const analysisLayers = visibleLayers.filter(
+          (layer) =>
+            layer.isAnalysisLayer ||
+            layer.isIsochroneAnalysisLayer ||
+            layer.isRoutePlanningLayer ||
+            layer.isRouteOptimizationLayer
+        );
+
+        // 先處理普通圖層（按照反轉順序，第一個圖層在最底層）
+        normalLayers
           .slice()
           .reverse()
           .forEach((layer) => {
@@ -921,21 +970,63 @@
             try {
               const newLayer = createFeatureLayer(layer);
               if (newLayer) {
-                if (layer.isAnalysisLayer) {
-                  newLayer.isAnalysisLayer = true;
-                }
                 newLayer.addTo(mapInstance);
                 layerGroups[layerId] = newLayer;
 
-                // 如果是新添加的圖層，收集起來用於自動縮放（分析圖層不需要縮放）
-                if (newLayerIds.includes(layerId) && !layer.isAnalysisLayer) {
+                // 如果是新添加的圖層，收集起來用於自動縮放
+                if (newLayerIds.includes(layerId)) {
                   newAddedLayers.push(newLayer);
                 }
 
-                console.log(`🗺️ 圖層 "${layer.layerName}" 已添加到地圖`);
+                console.log(`🗺️ 普通圖層 "${layer.layerName}" 已添加到地圖`);
               }
             } catch (error) {
-              console.error(`添加圖層 "${layer.layerName}" 時發生錯誤:`, error);
+              console.error(`添加普通圖層 "${layer.layerName}" 時發生錯誤:`, error);
+            }
+          });
+
+        // 最後處理分析圖層（確保在最上層）
+        analysisLayers
+          .slice()
+          .reverse()
+          .forEach((layer) => {
+            const { layerId } = layer;
+
+            // 如果有分析圖層更新，所有圖層都需要重新創建
+            // 否則只有不存在的圖層才創建
+            const shouldCreateLayer = hasAnalysisLayerUpdate || !layerGroups[layerId];
+
+            if (!shouldCreateLayer) return;
+
+            try {
+              const newLayer = createFeatureLayer(layer);
+              if (newLayer) {
+                // 標記分析圖層
+                if (layer.isAnalysisLayer) {
+                  newLayer.isAnalysisLayer = true;
+                }
+                if (layer.isIsochroneAnalysisLayer) {
+                  newLayer.isIsochroneAnalysisLayer = true;
+                }
+                if (layer.isRoutePlanningLayer) {
+                  newLayer.isRoutePlanningLayer = true;
+                }
+                if (layer.isRouteOptimizationLayer) {
+                  newLayer.isRouteOptimizationLayer = true;
+                }
+
+                // 設置分析圖層的 z-index 確保在最上層
+                if (newLayer.setZIndex) {
+                  newLayer.setZIndex(1000);
+                }
+
+                newLayer.addTo(mapInstance);
+                layerGroups[layerId] = newLayer;
+
+                console.log(`🗺️ 分析圖層 "${layer.layerName}" 已添加到地圖（最上層）`);
+              }
+            } catch (error) {
+              console.error(`添加分析圖層 "${layer.layerName}" 時發生錯誤:`, error);
             }
           });
 
