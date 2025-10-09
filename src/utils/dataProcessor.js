@@ -4234,6 +4234,304 @@ export async function loadPopulation3LevelsGeoJson(layer) {
   }
 }
 
+// 12-4各行政區死亡人口數(按年分)
+export async function loadDeathPopulationByYearGeoJson(layer) {
+  try {
+    const layerId = layer.layerId;
+    const fieldName = layer.fieldName; // fieldName 現在代表「人口數」
+
+    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
+
+    // 省略 console.log(a)
+
+    const response = await fetch(filePath);
+
+    if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const geoJsonData = await response.json();
+
+    // ▼▼▼▼▼ 步驟 1: 預先處理數據，計算面積與人口密度 ▼▼▼▼▼
+    // 我們先遍歷一次所有 features，把面積和人口密度（作為新的 value）加上去
+    geoJsonData.features.forEach((feature) => {
+      const properties = feature.properties;
+
+      // 計算面積 (km²)
+      const earthRadiusKm = 6371;
+      const areaInSqKm = d3.geoArea(feature) * Math.pow(earthRadiusKm, 2);
+      properties.area = areaInSqKm;
+
+      // 取得人口數
+      const population = parseFloat(properties[fieldName]);
+
+      // 計算人口密度 (人/km²)
+      // 避免除以 0 或無效數字
+      let density = 0;
+      if (areaInSqKm > 0 && !isNaN(population) && population > 0) {
+        density = population / areaInSqKm;
+      }
+
+      // 將 feature 的核心 value 設為人口密度
+      properties.value = density;
+    });
+    // ▲▲▲▲▲ 步驟 1: 結束 ▲▲▲▲▲
+
+    // ▼▼▼▼▼ 步驟 2: 根據「人口密度」計算顏色範圍 ▼▼▼▼▼
+    // 從剛剛算好的人口密度 (feature.properties.value) 中取得最大最小值
+    const densityValues = geoJsonData.features
+      .map((f) => f.properties.value)
+      .filter((v) => !isNaN(v) && isFinite(v)); // isFinite 可以過濾掉 Infinity
+    // ▲▲▲▲▲ 步驟 2: 結束 ▲▲▲▲▲
+
+    // ----------------------------
+    // 使用 Natural Breaks 分類
+    const numColors = 5;
+    const colorInterpolator = getColorInterpolator(layer.colorName);
+    const colors = d3.range(numColors).map((i) => colorInterpolator(i / (numColors - 1)));
+
+    // 計算 Natural Breaks 閾值
+    const thresholds = calculateNaturalBreaks(densityValues, numColors);
+
+    const colorScale = d3.scaleThreshold().domain(thresholds).range(colors);
+
+    // ----------------------------
+
+    // ▼▼▼▼▼ 步驟 3: 賦予顏色並整理最終輸出資料 ▼▼▼▼▼
+    geoJsonData.features.forEach((feature, index) => {
+      const properties = feature.properties;
+
+      properties.id = index + 1;
+      properties.layerId = layerId;
+      properties.layerName = layer.layerName;
+      properties.name = `${properties.district}-${properties[fieldName]}`;
+
+      // 注意：properties.value 已經是人口密度了，這裡不需要再計算
+
+      properties.color = 'var(--my-color-white)';
+      properties.fillColor = colorScale(properties.value);
+
+      const propertyData = {
+        區名: properties.district,
+        人口密度: `${properties.value.toFixed(1)} 人/km²`,
+        [fieldName]: properties[fieldName], // 原始人口數
+        '面積(km²)': properties.area.toFixed(3),
+        ...properties, // 包含所有原始屬性
+      };
+
+      const popupData = {
+        區名: properties.district,
+        人口密度: `${properties.value.toFixed(1)} 人/km²`,
+      };
+
+      const tableData = {
+        '#': properties.id,
+        color: colorScale(properties.value),
+        區名: properties.district,
+        [fieldName]: properties[fieldName], // 顯示原始人口數
+        '人口密度 (人/km²)': properties.value.toFixed(1), // 新增密度欄位
+      };
+
+      properties.propertyData = propertyData;
+      properties.popupData = popupData;
+      properties.tableData = tableData;
+    });
+    // ▲▲▲▲▲ 步驟 3: 結束 ▲▲▲▲▲
+
+    // ----------------------------
+
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
+
+    const summaryData = {
+      totalCount: geoJsonData.features.length,
+    };
+
+    // ▼▼▼▼▼ 步驟 4: 使用 Natural Breaks 統計生成圖例 ▼▼▼▼▼
+    const naturalBreaksStats = getNaturalBreaksStats(densityValues, thresholds);
+
+    const legendData = naturalBreaksStats.classes.map((cls) => {
+      // 使用與圖層相同的 colorScale 來計算圖例顏色，確保一致性
+      const legendColor = colorScale(cls.min + (cls.max - cls.min) / 2); // 使用類別中點值計算顏色
+
+      return {
+        color: legendColor, // 使用與圖層相同的顏色計算方式
+        // 在圖例標籤後方加上單位和數量
+        label: `${cls.range} (人/km²) (${cls.count})`,
+        extent: [cls.min, cls.max],
+        count: cls.count,
+        percentage: cls.percentage.toFixed(1),
+      };
+    });
+    // ▲▲▲▲▲ 步驟 4: 結束 ▲▲▲▲▲
+
+    return {
+      geoJsonData,
+      tableData,
+      summaryData,
+      legendData,
+    };
+  } catch (error) {
+    console.error('❌ GeoJSON 數據載入或處理失敗:', error);
+    throw error;
+  }
+}
+
+// 111迄今各區結婚、離婚及終止結婚對數
+export async function loadMarriagePopulationByYearGeoJson(layer) {
+  try {
+    const layerId = layer.layerId;
+    const fieldName = layer.fieldName; // fieldName 現在代表「人口數」
+
+    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
+
+    // 省略 console.log(a)
+
+    const response = await fetch(filePath);
+
+    if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const geoJsonData = await response.json();
+
+    // ▼▼▼▼▼ 步驟 1: 預先處理數據，計算面積與人口密度 ▼▼▼▼▼
+    // 我們先遍歷一次所有 features，把面積和人口密度（作為新的 value）加上去
+    geoJsonData.features.forEach((feature) => {
+      const properties = feature.properties;
+
+      // 計算面積 (km²)
+      const earthRadiusKm = 6371;
+      const areaInSqKm = d3.geoArea(feature) * Math.pow(earthRadiusKm, 2);
+      properties.area = areaInSqKm;
+
+      // 取得人口數
+      const population = parseFloat(properties[fieldName]);
+
+      // 計算人口密度 (人/km²)
+      // 避免除以 0 或無效數字
+      let density = 0;
+      if (areaInSqKm > 0 && !isNaN(population) && population > 0) {
+        density = population / areaInSqKm;
+      }
+
+      // 將 feature 的核心 value 設為人口密度
+      properties.value = density;
+    });
+    // ▲▲▲▲▲ 步驟 1: 結束 ▲▲▲▲▲
+
+    // ▼▼▼▼▼ 步驟 2: 根據「人口密度」計算顏色範圍 ▼▼▼▼▼
+    // 從剛剛算好的人口密度 (feature.properties.value) 中取得最大最小值
+    const densityValues = geoJsonData.features
+      .map((f) => f.properties.value)
+      .filter((v) => !isNaN(v) && isFinite(v)); // isFinite 可以過濾掉 Infinity
+    // ▲▲▲▲▲ 步驟 2: 結束 ▲▲▲▲▲
+
+    // ----------------------------
+    // 使用 Natural Breaks 分類
+    const numColors = 5;
+    const colorInterpolator = getColorInterpolator(layer.colorName);
+    const colors = d3.range(numColors).map((i) => colorInterpolator(i / (numColors - 1)));
+
+    // 計算 Natural Breaks 閾值
+    const thresholds = calculateNaturalBreaks(densityValues, numColors);
+
+    const colorScale = d3.scaleThreshold().domain(thresholds).range(colors);
+
+    // ----------------------------
+
+    // ▼▼▼▼▼ 步驟 3: 賦予顏色並整理最終輸出資料 ▼▼▼▼▼
+    geoJsonData.features.forEach((feature, index) => {
+      const properties = feature.properties;
+
+      properties.id = index + 1;
+      properties.layerId = layerId;
+      properties.layerName = layer.layerName;
+      properties.name = `${properties.行政區}-${properties[fieldName]}`;
+
+      // 注意：properties.value 已經是人口密度了，這裡不需要再計算
+
+      properties.color = 'var(--my-color-white)';
+      properties.fillColor = colorScale(properties.value);
+
+      const propertyData = {
+        行政區: properties.行政區,
+        人口密度: `${properties.value.toFixed(1)} 人/km²`,
+        [fieldName]: properties[fieldName], // 原始人口數
+        '面積(km²)': properties.area.toFixed(3),
+        ...properties, // 包含所有原始屬性
+      };
+
+      const popupData = {
+        行政區: properties.行政區,
+        人口密度: `${properties.value.toFixed(1)} 人/km²`,
+      };
+
+      const tableData = {
+        '#': properties.id,
+        color: colorScale(properties.value),
+        行政區: properties.行政區,
+        [fieldName]: properties[fieldName], // 顯示原始人口數
+        '人口密度 (人/km²)': properties.value.toFixed(1), // 新增密度欄位
+      };
+
+      properties.propertyData = propertyData;
+      properties.popupData = popupData;
+      properties.tableData = tableData;
+    });
+    // ▲▲▲▲▲ 步驟 3: 結束 ▲▲▲▲▲
+
+    // ----------------------------
+
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
+
+    const summaryData = {
+      totalCount: geoJsonData.features.length,
+    };
+
+    // ▼▼▼▼▼ 步驟 4: 使用 Natural Breaks 統計生成圖例 ▼▼▼▼▼
+    const naturalBreaksStats = getNaturalBreaksStats(densityValues, thresholds);
+
+    const legendData = naturalBreaksStats.classes.map((cls) => {
+      // 使用與圖層相同的 colorScale 來計算圖例顏色，確保一致性
+      const legendColor = colorScale(cls.min + (cls.max - cls.min) / 2); // 使用類別中點值計算顏色
+
+      return {
+        color: legendColor, // 使用與圖層相同的顏色計算方式
+        // 在圖例標籤後方加上單位和數量
+        label: `${cls.range} (人/km²) (${cls.count})`,
+        extent: [cls.min, cls.max],
+        count: cls.count,
+        percentage: cls.percentage.toFixed(1),
+      };
+    });
+    // ▲▲▲▲▲ 步驟 4: 結束 ▲▲▲▲▲
+
+    return {
+      geoJsonData,
+      tableData,
+      summaryData,
+      legendData,
+    };
+  } catch (error) {
+    console.error('❌ GeoJSON 數據載入或處理失敗:', error);
+    throw error;
+  }
+}
+
 // 綜稅綜合所得總額
 export async function loadIncomeGeoJson(layer) {
   try {
