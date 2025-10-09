@@ -104,25 +104,61 @@
                     </div>
                   </div>
                 </div>
-                <div class="px-3 pb-2 pt-1 d-flex flex-wrap" style="gap: 0.5rem">
-                  <button
-                    v-for="subLayer in item.subLayers"
-                    :key="subLayer.layerId"
-                    class="btn rounded-pill"
-                    :class="{
-                      'my-btn-green-1': subLayer.visible,
-                      'my-btn-gray-2': !subLayer.visible,
-                    }"
-                    style="
-                      padding: 0.1rem 0.5rem;
-                      font-size: 0.75rem;
-                      border: 1px solid;
-                      border-color: var(--my-color-gray-200) !important;
-                    "
-                    @click.stop="toggleLayer(subLayer.layerId)"
-                  >
-                    {{ subLayer.layerFields[0].layerSubtitle }}
-                  </button>
+                <div class="px-0 pb-2 pt-0">
+                  <div v-for="subLayer in item.subLayers" :key="subLayer.layerId">
+                    <div
+                      class="btn rounded-0 border-0 d-flex shadow-sm my-bgcolor-white-hover p-0 w-100"
+                      @click="toggleLayer(subLayer.layerId)"
+                    >
+                      <div
+                        class="d-flex"
+                        :class="`my-bgcolor-${subLayer.colorName}`"
+                        style="min-width: 6px"
+                      ></div>
+                      <div class="w-100">
+                        <div class="d-flex">
+                          <div class="d-flex align-items-center text-start w-100 px-3 py-2">
+                            <span class="my-content-sm-black">
+                              {{
+                                item.layerTitle +
+                                (subLayer.layerFields?.[0]?.layerSubtitle
+                                  ? ' - ' + subLayer.layerFields[0].layerSubtitle
+                                  : '')
+                              }}
+                              <span class="my-content-xs-gray ms-2">
+                                {{ subLayer.summaryData?.totalCount }}
+                              </span>
+                            </span>
+                          </div>
+                          <div class="d-flex align-items-center justify-content-center px-3 py-2">
+                            <input
+                              type="checkbox"
+                              :id="'switch-' + subLayer.layerId"
+                              :checked="subLayer.visible"
+                              :disabled="subLayer.isLoading"
+                              @change="toggleLayer(subLayer.layerId)"
+                            />
+                            <label :for="'switch-' + subLayer.layerId"></label>
+                          </div>
+                        </div>
+                        <div v-if="subLayer.legendData && subLayer.visible" class="px-3 pb-2">
+                          <div
+                            v-for="data in subLayer.legendData"
+                            :key="data.color"
+                            class="d-flex align-items-center"
+                          >
+                            <div
+                              style="min-width: 6px; min-height: 18px"
+                              :style="{
+                                backgroundColor: data.color,
+                              }"
+                            ></div>
+                            <div class="my-content-xs-black text-nowrap ms-2">{{ data.label }}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
