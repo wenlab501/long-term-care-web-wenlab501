@@ -129,13 +129,13 @@
    * @param {Object} layer - 圖層物件
    */
   const handleHighlight = (item, layer) => {
-    console.log('準備高亮顯示:', { item, layer: layer.layerName });
+    console.log('準備高亮顯示:', { item, layer: layer.layerNames?.[0] });
 
     // 傳遞包含圖層資訊和項目ID的物件
     const highlightData = {
       id: item.id || item['#'], // 🔥 優先使用 item.id，如果沒有則使用 item['#'] 作為後備
       layerId: layer.layerId,
-      layerName: layer.layerName,
+      layerName: layer.layerNames?.[0],
       item: item,
     };
 
@@ -223,7 +223,7 @@
             @click="setActiveLayerTab(layer.layerId)"
           >
             <span class="my-title-sm-black"
-              >{{ layer.layerName }}
+              >{{ layer.layerNames?.[0] }}
               <span class="my-content-xs-gray ms-2" v-if="getLayerDataCount(layer)">
                 {{ getLayerDataCount(layer) }}
               </span>

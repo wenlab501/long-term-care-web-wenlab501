@@ -37,7 +37,7 @@
   const currentLayerName = computed(() => {
     if (!activeLayerTab.value) return '無開啟圖層';
     const layer = visibleLayers.value.find((l) => l.layerId === activeLayerTab.value);
-    return layer ? layer.layerName || '未知圖層' : '無開啟圖層';
+    return layer ? layer.layerNames?.[0] || '未知圖層' : '無開啟圖層';
   });
 
   /**
@@ -299,7 +299,7 @@
             }"
             @click="setActiveLayerTab(layer.layerId)"
           >
-            <span class="my-title-sm-black">{{ layer.layerName }}</span>
+            <span class="my-title-sm-black">{{ layer.layerNames?.[0] }}</span>
           </div>
           <div class="w-100" :class="`my-bgcolor-${layer.colorName}`" style="min-height: 4px"></div>
         </li>
