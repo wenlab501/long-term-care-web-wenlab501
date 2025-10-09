@@ -239,7 +239,11 @@ export async function loadCommunityCareCenterData(layer) {
             properties: {
               id: id,
               layerId: layerId,
-              layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
+              layerName:
+                layer.layerTitle +
+                (layer.layerFields?.[0]?.layerSubtitle
+                  ? ' - ' + layer.layerFields[0].layerSubtitle
+                  : ''),
               name: row[headerIndices.據點名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
@@ -382,7 +386,11 @@ export async function loadCLevelUnitData(layer) {
             properties: {
               id: id,
               layerId: layerId,
-              layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
+              layerName:
+                layer.layerTitle +
+                (layer.layerFields?.[0]?.layerSubtitle
+                  ? ' - ' + layer.layerFields[0].layerSubtitle
+                  : ''),
               name: row[headerIndices.據點名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
@@ -523,7 +531,11 @@ export async function loadRespiteCareCPlusUnitData(layer) {
             properties: {
               id: id,
               layerId: layerId,
-              layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
+              layerName:
+                layer.layerTitle +
+                (layer.layerFields?.[0]?.layerSubtitle
+                  ? ' - ' + layer.layerFields[0].layerSubtitle
+                  : ''),
               name: row[headerIndices.據點名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
@@ -672,7 +684,11 @@ export async function loadPublicElderlyWelfareInstitutionData(layer) {
             properties: {
               id: id,
               layerId: layerId,
-              layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
+              layerName:
+                layer.layerTitle +
+                (layer.layerFields?.[0]?.layerSubtitle
+                  ? ' - ' + layer.layerFields[0].layerSubtitle
+                  : ''),
               name: row[headerIndices.機構名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
@@ -827,7 +843,11 @@ export async function loadElderlyWelfareInstitutionData(layer) {
             properties: {
               id: id,
               layerId: layerId,
-              layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
+              layerName:
+                layer.layerTitle +
+                (layer.layerFields?.[0]?.layerSubtitle
+                  ? ' - ' + layer.layerFields[0].layerSubtitle
+                  : ''),
               name: row[headerIndices.機構名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
@@ -968,7 +988,11 @@ export async function loadCommunityIntegrationServiceCenterData(layer) {
             properties: {
               id: id,
               layerId: layerId,
-              layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
+              layerName:
+                layer.layerTitle +
+                (layer.layerFields?.[0]?.layerSubtitle
+                  ? ' - ' + layer.layerFields[0].layerSubtitle
+                  : ''),
               name: row[headerIndices.單位名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
@@ -1109,7 +1133,11 @@ export async function loadGeneralNursingHomeData(layer) {
             properties: {
               id: id,
               layerId: layerId,
-              layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
+              layerName:
+                layer.layerTitle +
+                (layer.layerFields?.[0]?.layerSubtitle
+                  ? ' - ' + layer.layerFields[0].layerSubtitle
+                  : ''),
               name: row[headerIndices.機構名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
@@ -1253,7 +1281,11 @@ export async function loadResidentialLongTermCareData(layer) {
             properties: {
               id: id,
               layerId: layerId,
-              layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
+              layerName:
+                layer.layerTitle +
+                (layer.layerFields?.[0]?.layerSubtitle
+                  ? ' - ' + layer.layerFields[0].layerSubtitle
+                  : ''),
               name: row[headerIndices.機構名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
@@ -1400,7 +1432,11 @@ export async function load66Data(layer) {
             properties: {
               id: id,
               layerId: layerId,
-              layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
+              layerName:
+                layer.layerTitle +
+                (layer.layerFields?.[0]?.layerSubtitle
+                  ? ' - ' + layer.layerFields[0].layerSubtitle
+                  : ''),
               name: row[headerIndices.機構名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
@@ -1549,7 +1585,11 @@ export async function load01_01(layer) {
             properties: {
               id: id,
               layerId: layerId,
-              layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
+              layerName:
+                layer.layerTitle +
+                (layer.layerFields?.[0]?.layerSubtitle
+                  ? ' - ' + layer.layerFields[0].layerSubtitle
+                  : ''),
               name: row[headerIndices.單位名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
@@ -1688,7 +1728,11 @@ export async function load01_02(layer) {
             properties: {
               id: id,
               layerId: layerId,
-              layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
+              layerName:
+                layer.layerTitle +
+                (layer.layerFields?.[0]?.layerSubtitle
+                  ? ' - ' + layer.layerFields[0].layerSubtitle
+                  : ''),
               name: row[headerIndices.機構名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
@@ -1829,7 +1873,11 @@ export async function load01_03(layer) {
             properties: {
               id: id,
               layerId: layerId,
-              layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
+              layerName:
+                layer.layerTitle +
+                (layer.layerFields?.[0]?.layerSubtitle
+                  ? ' - ' + layer.layerFields[0].layerSubtitle
+                  : ''),
               name: row[headerIndices.機構名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
@@ -1993,7 +2041,11 @@ export async function load01_04_07(layer) {
             properties: {
               id: id,
               layerId: layerId,
-              layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
+              layerName:
+                layer.layerTitle +
+                (layer.layerFields?.[0]?.layerSubtitle
+                  ? ' - ' + layer.layerFields[0].layerSubtitle
+                  : ''),
               name: row[headerIndices.機構名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
@@ -2136,7 +2188,11 @@ export async function load02_01(layer) {
             properties: {
               id: id,
               layerId: layerId,
-              layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
+              layerName:
+                layer.layerTitle +
+                (layer.layerFields?.[0]?.layerSubtitle
+                  ? ' - ' + layer.layerFields[0].layerSubtitle
+                  : ''),
               name: row[headerIndices.機關名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
@@ -2287,7 +2343,11 @@ export async function load02_02(layer) {
             properties: {
               id: id,
               layerId: layerId,
-              layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
+              layerName:
+                layer.layerTitle +
+                (layer.layerFields?.[0]?.layerSubtitle
+                  ? ' - ' + layer.layerFields[0].layerSubtitle
+                  : ''),
               name: row[headerIndices.單位名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
@@ -2428,7 +2488,11 @@ export async function load02_03(layer) {
             properties: {
               id: id,
               layerId: layerId,
-              layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
+              layerName:
+                layer.layerTitle +
+                (layer.layerFields?.[0]?.layerSubtitle
+                  ? ' - ' + layer.layerFields[0].layerSubtitle
+                  : ''),
               name: row[headerIndices.單位名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
@@ -2569,7 +2633,11 @@ export async function load02_04(layer) {
             properties: {
               id: id,
               layerId: layerId,
-              layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
+              layerName:
+                layer.layerTitle +
+                (layer.layerFields?.[0]?.layerSubtitle
+                  ? ' - ' + layer.layerFields[0].layerSubtitle
+                  : ''),
               name: row[headerIndices.家托機構名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
@@ -2708,7 +2776,11 @@ export async function load02_06(layer) {
             properties: {
               id: id,
               layerId: layerId,
-              layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
+              layerName:
+                layer.layerTitle +
+                (layer.layerFields?.[0]?.layerSubtitle
+                  ? ' - ' + layer.layerFields[0].layerSubtitle
+                  : ''),
               name: row[headerIndices.據點名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
@@ -2853,7 +2925,11 @@ export async function load03_02(layer) {
             properties: {
               id: id,
               layerId: layerId,
-              layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
+              layerName:
+                layer.layerTitle +
+                (layer.layerFields?.[0]?.layerSubtitle
+                  ? ' - ' + layer.layerFields[0].layerSubtitle
+                  : ''),
               name: row[headerIndices.服務單位名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
@@ -2992,7 +3068,11 @@ export async function load03_03(layer) {
             properties: {
               id: id,
               layerId: layerId,
-              layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
+              layerName:
+                layer.layerTitle +
+                (layer.layerFields?.[0]?.layerSubtitle
+                  ? ' - ' + layer.layerFields[0].layerSubtitle
+                  : ''),
               name: row[headerIndices.服務單位名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
@@ -3135,7 +3215,11 @@ export async function load03_05(layer) {
             properties: {
               id: id,
               layerId: layerId,
-              layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
+              layerName:
+                layer.layerTitle +
+                (layer.layerFields?.[0]?.layerSubtitle
+                  ? ' - ' + layer.layerFields[0].layerSubtitle
+                  : ''),
               name: row[headerIndices.據點名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
@@ -3284,7 +3368,11 @@ export async function load03_06(layer) {
             properties: {
               id: id,
               layerId: layerId,
-              layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
+              layerName:
+                layer.layerTitle +
+                (layer.layerFields?.[0]?.layerSubtitle
+                  ? ' - ' + layer.layerFields[0].layerSubtitle
+                  : ''),
               name: row[headerIndices.執行單位],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
@@ -3431,7 +3519,11 @@ export async function load142Data(layer) {
             properties: {
               id: id,
               layerId: layerId,
-              layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
+              layerName:
+                layer.layerTitle +
+                (layer.layerFields?.[0]?.layerSubtitle
+                  ? ' - ' + layer.layerFields[0].layerSubtitle
+                  : ''),
               name: row[headerIndices.機構名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
@@ -3578,7 +3670,11 @@ export async function load25Data(layer) {
             properties: {
               id: id,
               layerId: layerId,
-              layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
+              layerName:
+                layer.layerTitle +
+                (layer.layerFields?.[0]?.layerSubtitle
+                  ? ' - ' + layer.layerFields[0].layerSubtitle
+                  : ''),
               name: row[headerIndices.機構名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
@@ -3735,7 +3831,11 @@ export async function load41Data(layer) {
             properties: {
               id: id,
               layerId: layerId,
-              layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
+              layerName:
+                layer.layerTitle +
+                (layer.layerFields?.[0]?.layerSubtitle
+                  ? ' - ' + layer.layerFields[0].layerSubtitle
+                  : ''),
               name: row[headerIndices.機構名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
@@ -3876,7 +3976,11 @@ export async function loadHospitalClinicData(layer) {
             properties: {
               id: id,
               layerId: layerId,
-              layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
+              layerName:
+                layer.layerTitle +
+                (layer.layerFields?.[0]?.layerSubtitle
+                  ? ' - ' + layer.layerFields[0].layerSubtitle
+                  : ''),
               name: row[headerIndices.醫療院所],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
@@ -4030,7 +4134,11 @@ export async function loadHealthcareFacilityPharmacyData(layer) {
             properties: {
               id: id,
               layerId: layerId,
-              layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
+              layerName:
+                layer.layerTitle +
+                (layer.layerFields?.[0]?.layerSubtitle
+                  ? ' - ' + layer.layerFields[0].layerSubtitle
+                  : ''),
               name: row[headerIndices.醫事機構名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
@@ -4160,7 +4268,9 @@ export async function loadPopulation3LevelsGeoJson(layer) {
 
       properties.id = index + 1;
       properties.layerId = layerId;
-      properties.layerName = layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '');
+      properties.layerName =
+        layer.layerTitle +
+        (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '');
       properties.name = `${properties.COUNTY}${properties.TOWN}${properties.VILLAGE}`;
 
       // 注意：properties.value 已經是人口密度了，這裡不需要再計算
@@ -4310,8 +4420,10 @@ export async function loadDeathPopulationByYearGeoJson(layer) {
 
       properties.id = index + 1;
       properties.layerId = layerId;
-      properties.layerName = layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '');
-      properties.name = `${properties.district}-${properties[fieldName]}`;
+      properties.layerName =
+        layer.layerTitle +
+        (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '');
+      properties.name = `${properties.行政區}-${properties[fieldName]}`;
 
       // 注意：properties.value 已經是人口密度了，這裡不需要再計算
 
@@ -4319,7 +4431,7 @@ export async function loadDeathPopulationByYearGeoJson(layer) {
       properties.fillColor = colorScale(properties.value);
 
       const propertyData = {
-        區名: properties.district,
+        行政區: properties.行政區,
         人口密度: `${properties.value.toFixed(1)} 人/km²`,
         [fieldName]: properties[fieldName], // 原始人口數
         '面積(km²)': properties.area.toFixed(3),
@@ -4327,14 +4439,14 @@ export async function loadDeathPopulationByYearGeoJson(layer) {
       };
 
       const popupData = {
-        區名: properties.district,
+        行政區: properties.行政區,
         人口密度: `${properties.value.toFixed(1)} 人/km²`,
       };
 
       const tableData = {
         '#': properties.id,
         color: colorScale(properties.value),
-        區名: properties.district,
+        行政區: properties.行政區,
         [fieldName]: properties[fieldName], // 顯示原始人口數
         '人口密度 (人/km²)': properties.value.toFixed(1), // 新增密度欄位
       };
@@ -4460,7 +4572,9 @@ export async function loadMarriagePopulationByYearGeoJson(layer) {
 
       properties.id = index + 1;
       properties.layerId = layerId;
-      properties.layerName = layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '');
+      properties.layerName =
+        layer.layerTitle +
+        (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '');
       properties.name = `${properties.行政區}-${properties[fieldName]}`;
 
       // 注意：properties.value 已經是人口密度了，這裡不需要再計算
@@ -4583,7 +4697,8 @@ export async function loadIncomeGeoJson(layer) {
       feature.properties.id = index + 1;
       feature.properties.layerId = layerId;
       feature.properties.layerName =
-        layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '');
+        layer.layerTitle +
+        (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '');
       feature.properties.name = feature.properties.FULL;
       feature.properties.value = parseFloat(feature.properties[fieldName]);
       feature.properties.color = 'var(--my-color-white)';
@@ -4692,7 +4807,8 @@ export async function loadReinfEedsGeoJson(layer) {
       feature.properties.id = index + 1;
       feature.properties.layerId = layerId;
       feature.properties.layerName =
-        layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '');
+        layer.layerTitle +
+        (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '');
       feature.properties.name = feature.properties.FULL;
       feature.properties.value = parseFloat(feature.properties.detail?.[fieldName] || 0);
       feature.properties.color = 'var(--my-color-white)';
@@ -4802,7 +4918,8 @@ export async function loadMembershipGeoJson(layer) {
       feature.properties.id = index + 1;
       feature.properties.layerId = layerId;
       feature.properties.layerName =
-        layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '');
+        layer.layerTitle +
+        (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '');
       feature.properties.name = feature.properties.FULL;
       feature.properties.value = parseFloat(feature.properties.detail?.[fieldName] || 0);
       feature.properties.color = 'var(--my-color-white)';
@@ -4912,7 +5029,8 @@ export async function loadInfluenceGeoJson(layer) {
       feature.properties.id = index + 1;
       feature.properties.layerId = layerId;
       feature.properties.layerName =
-        layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '');
+        layer.layerTitle +
+        (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '');
       feature.properties.name = feature.properties.FULL;
       feature.properties.value = parseFloat(feature.properties.detail?.[fieldName] || 0);
       feature.properties.color = 'var(--my-color-white)';
@@ -5022,7 +5140,8 @@ export async function loadCPRGeoJson(layer) {
       feature.properties.id = index + 1;
       feature.properties.layerId = layerId;
       feature.properties.layerName =
-        layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '');
+        layer.layerTitle +
+        (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '');
       feature.properties.name = feature.properties.FULL;
       feature.properties.value = parseFloat(feature.properties.detail?.[fieldName] || 0);
       feature.properties.color = 'var(--my-color-white)';
@@ -5132,7 +5251,8 @@ export async function loadAEDGeoJson(layer) {
       feature.properties.id = index + 1;
       feature.properties.layerId = layerId;
       feature.properties.layerName =
-        layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '');
+        layer.layerTitle +
+        (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '');
       feature.properties.name = feature.properties.FULL;
       feature.properties.value = parseFloat(feature.properties.detail?.[fieldName] || 0);
       feature.properties.color = 'var(--my-color-white)';
@@ -5288,7 +5408,11 @@ export async function loadConvenienceStoreData(layer) {
             properties: {
               id: id,
               layerId: layerId,
-              layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
+              layerName:
+                layer.layerTitle +
+                (layer.layerFields?.[0]?.layerSubtitle
+                  ? ' - ' + layer.layerFields[0].layerSubtitle
+                  : ''),
               name: row[headerIndices.公司名稱],
               fillColor: getComputedStyle(document.documentElement)
                 .getPropertyValue(`--my-color-${colorName}`)
@@ -5373,7 +5497,8 @@ export async function loadMRTStationGeoJson(layer) {
       feature.properties.id = index + 1;
       feature.properties.layerId = layerId;
       feature.properties.layerName =
-        layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '');
+        layer.layerTitle +
+        (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '');
       feature.properties.name = feature.properties.NAME;
       feature.properties.color = 'var(--my-color-white)';
       feature.properties.fillColor = null;
@@ -5452,7 +5577,8 @@ export async function loadBusStopGeoJson(layer) {
       feature.properties.id = index + 1;
       feature.properties.layerId = layerId;
       feature.properties.layerName =
-        layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '');
+        layer.layerTitle +
+        (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '');
       feature.properties.name = feature.properties.BSM_CHINES;
       feature.properties.color = 'var(--my-color-white)';
       feature.properties.fillColor = null;
@@ -5538,7 +5664,8 @@ export async function loadLanduseGeoJson(layer) {
       feature.properties.id = index + 1;
       feature.properties.layerId = layerId;
       feature.properties.layerName =
-        layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '');
+        layer.layerTitle +
+        (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '');
       feature.properties.name = feature.properties.ZONE;
 
       // 根據土地利用類型分配顏色
@@ -5642,7 +5769,8 @@ export async function loadTaipeiDistrictGeoJson(layer) {
       feature.properties.id = index + 1;
       feature.properties.layerId = layerId;
       feature.properties.layerName =
-        layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '');
+        layer.layerTitle +
+        (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '');
       feature.properties.name = feature.properties.PTNAME;
       feature.properties.color = 'var(--my-color-red)';
       feature.properties.fillColor = null;
