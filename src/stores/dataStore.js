@@ -730,7 +730,11 @@ export const useDataStore = defineStore(
           },
           {
             layerTitle: '各行政區死亡人口數',
-            layerFields: [{ layerSubtitle: '112年', fieldName: '112年' }],
+            layerFields: [
+              { layerSubtitle: '112年', fieldName: '112年' },
+              { layerSubtitle: '111年', fieldName: '111年' },
+              { layerSubtitle: '110年', fieldName: '110年' },
+            ],
             visible: false,
             isLoading: false,
             isLoaded: false,
@@ -746,7 +750,32 @@ export const useDataStore = defineStore(
           },
           {
             layerTitle: '結婚、離婚及終止結婚對數',
-            layerFields: [{ layerSubtitle: '113年', fieldName: '113_結婚對數合計數量' }],
+            layerFields: [
+              {
+                layerSubtitle: '113年 結婚對數合計數量',
+                fieldName: '113_結婚對數合計數量',
+              },
+              {
+                layerSubtitle: '113年 結婚對數＿不同性別',
+                fieldName: '113_結婚對數＿不同性別',
+              },
+              {
+                layerSubtitle: '113年 結婚對數＿相同性別',
+                fieldName: '113_結婚對數＿相同性別',
+              },
+              {
+                layerSubtitle: '113年 離婚／終止結婚對數合計數量',
+                fieldName: '113_離婚／終止結婚對數合計數量',
+              },
+              {
+                layerSubtitle: '113年 離婚／終止結婚對數＿不同性別',
+                fieldName: '113_離婚／終止結婚對數＿不同性別',
+              },
+              {
+                layerSubtitle: '113年 離婚／終止結婚對數＿相同性別',
+                fieldName: '113_離婚／終止結婚對數＿相同性別',
+              },
+            ],
             visible: false,
             isLoading: false,
             isLoaded: false,
@@ -761,24 +790,11 @@ export const useDataStore = defineStore(
             fileName: '111迄今各區結婚、離婚及終止結婚對數.geojson',
           },
           {
-            layerTitle: '綜稅綜合所得總額-中位數',
-            layerFields: [{ layerSubtitle: null, fieldName: '中位數' }],
-            visible: false,
-            isLoading: false,
-            isLoaded: false,
-            type: 'polygon',
-            shape: null,
-            colorName: 'purple',
-            geoJsonData: null,
-            summaryData: null,
-            tableData: null,
-            legendData: null,
-            loader: loadIncomeGeoJson,
-            fileName: '臺北市_村里_綜稅綜合所得總額.geojson',
-          },
-          {
-            layerTitle: '綜稅綜合所得總額-平均數',
-            layerFields: [{ layerSubtitle: null, fieldName: '平均數' }],
+            layerTitle: '綜稅綜合所得總額',
+            layerFields: [
+              { layerSubtitle: '中位數', fieldName: '中位數' },
+              { layerSubtitle: '平均數', fieldName: '平均數' },
+            ],
             visible: false,
             isLoading: false,
             isLoaded: false,
@@ -3483,6 +3499,9 @@ export const useDataStore = defineStore(
             newGroupLayers.push(layer);
           } else {
             // 🔍 情況2：有多個 layerFields，展開成多個獨立的子圖層
+            // 首先為原始圖層設置 layerId（用於 _originalLayer 引用）
+            layer.layerId = layer.layerTitle;
+
             layer.layerFields.forEach((field, index) => {
               // 提取當前欄位的子標題和欄位名稱
               const subtitle = field.layerSubtitle;
