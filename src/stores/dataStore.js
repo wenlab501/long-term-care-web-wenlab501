@@ -3456,85 +3456,140 @@ export const useDataStore = defineStore(
     /**
      * 🔄 初始化並展開圖層結構
      *
-     * 此函數負責處理圖層的展開邏輯，特別是針對具有多個 layerFields 的圖層：
+     * 此函數是整個圖層管理系統的核心，負責將原始圖層配置轉換為可操作的圖層結構。
+     * 它處理兩種不同類型的圖層，並為後續的 UI 渲染和狀態管理做準備。
      *
-     * 處理邏輯：
-     * 1. 對於沒有 layerFields 或只有一個 layerField 的圖層：
-     *    - 保持原有結構不變
-     *    - 生成完整的 layerName（圖層標題 + 子標題）
-     *    - 設置 layerId 和 layerName 屬性
+     * 📋 核心功能：
+     * 1. 圖層結構標準化：統一所有圖層的數據結構
+     * 2. 多字段展開：將多字段圖層展開為多個子圖層
+     * 3. 唯一標識生成：為每個圖層生成唯一的 layerId
+     * 4. 載入彈窗支援：設置 layerName 用於載入提示
+     * 5. 分組顯示準備：添加 _originalLayer 引用用於 UI 分組
      *
-     * 2. 對於有多個 layerFields 的圖層：
-     *    - 將每個 layerField 展開成獨立的子圖層
-     *    - 每個子圖層包含原始圖層的所有屬性
-     *    - 添加 _originalLayer 引用和 _fieldIndex 標記
-     *    - 用於 LayersTab.vue 中的分組顯示
+     * 🔍 詳細處理邏輯：
+     *
+     * A. 單字段圖層處理（layerFields 為 null 或只有一個元素）：
+     *    - 適用場景：傳統的單一圖層或只有一個數據字段的圖層
+     *    - 處理步驟：
+     *      1. 提取 layerSubtitle 和 fieldName（如果存在）
+     *      2. 生成完整的 layerName：layerTitle + layerSubtitle
+     *      3. 設置 layerId：layerName + fieldName（如果存在）
+     *      4. 設置 layerName 屬性用於載入彈窗顯示
+     *      5. 保持原有結構，直接添加到處理後的陣列
+     *
+     * B. 多字段圖層處理（有多個 layerFields）：
+     *    - 適用場景：如人口統計（14歲以下、15~64歲、65歲以上）
+     *    - 處理步驟：
+     *      1. 為原始圖層設置基礎 layerId = layerTitle
+     *      2. 遍歷每個 layerField，創建獨立的子圖層：
+     *         - 複製原始圖層的所有屬性
+     *         - 設置唯一的子圖層 layerId
+     *         - 設置 layerName 用於載入彈窗
+     *         - 添加 _originalLayer 引用指向原始圖層
+     *         - 添加 _fieldIndex 標記字段順序
+     *         - 將 layerFields 替換為只包含當前字段的陣列
+     *
+     * 🎯 關鍵屬性說明：
+     * - layerId：圖層的唯一標識符，用於狀態管理和事件處理
+     * - layerName：完整的圖層顯示名稱，用於載入彈窗和 UI 顯示
+     * - _originalLayer：指向原始圖層的引用，用於 LayersTab.vue 的分組顯示
+     * - _fieldIndex：字段索引，用於追蹤和除錯
+     * - layerFields：包含當前處理字段的陣列（多字段圖層展開後只有一個元素）
+     *
+     * 🔄 數據流向：
+     * 原始配置 → 此函數處理 → 標準化圖層結構 → LayersTab.vue 分組顯示 → 用戶互動
+     *
+     * ⚡ 效能考量：
+     * - 使用展開運算符複製對象，避免直接修改原始數據
+     * - 一次性處理所有圖層，減少重複計算
+     * - 為後續的響應式更新做準備
      *
      * @returns {Array} 處理後的圖層分組陣列
+     * @example
+     * // 處理前的原始圖層配置：包含多個 layerFields 的圖層
+     * // 處理後生成的子圖層：每個 layerField 展開為獨立的子圖層
+     * // 每個子圖層包含 _originalLayer 引用，用於 LayersTab.vue 分組顯示
      */
     const initializeAndExpandLayers = () => {
+      // 📦 初始化結果陣列，用於儲存處理後的圖層分組
       const newLayers = [];
 
+      // 🔄 遍歷所有圖層分組（如：地理統計資料、長照服務據點等）
       for (const group of layers.value) {
+        // 📋 初始化當前分組的處理結果陣列
         const newGroupLayers = [];
 
+        // 🔍 遍歷當前分組中的所有圖層
         for (const layer of group.groupLayers) {
-          // 🔍 情況1：layerFields 為 null 或只有一個元素，保持原樣
+          // 📊 情況1：單字段圖層處理（layerFields 為 null 或只有一個元素）
           if (!layer.layerFields || layer.layerFields.length <= 1) {
-            // 提取子標題和欄位名稱（如果存在）
+            // 🔍 提取子標題和欄位名稱（使用可選鏈操作符避免錯誤）
             const subtitle = layer.layerFields?.[0]?.layerSubtitle;
             const fieldName = layer.layerFields?.[0]?.fieldName;
 
-            // 生成完整的圖層名稱：主標題 + 子標題（如果存在）
+            // 🏷️ 生成完整的圖層顯示名稱：主標題 + 子標題（如果存在）
+            // 例如："人口統計" + " - " + "14歲以下" = "人口統計 - 14歲以下"
             const layerName =
               layer.layerTitle + (subtitle && subtitle !== null ? ' - ' + subtitle : '');
 
-            // 設置圖層ID：如果有欄位名稱則加上欄位名稱，否則使用圖層名稱
+            // 🆔 設置圖層唯一標識符：
+            // 如果有欄位名稱則加上欄位名稱，確保唯一性
+            // 例如："人口統計 - 14歲以下-A0A14_CNT"
             layer.layerId =
               fieldName && fieldName !== null ? `${layerName}-${fieldName}` : layerName;
 
             // 🏷️ 設置 layerName 屬性，用於載入彈窗顯示
+            // 這個屬性會在圖層載入時顯示在載入提示中
             layer.layerName = layerName;
-            layer.activeFieldIndex = 0;
+            layer.activeFieldIndex = 0; // 設置當前活躍的欄位索引
+
+            // ➕ 將處理後的圖層添加到當前分組的結果陣列中
             newGroupLayers.push(layer);
           } else {
-            // 🔍 情況2：有多個 layerFields，展開成多個獨立的子圖層
-            // 首先為原始圖層設置 layerId（用於 _originalLayer 引用）
+            // 📊 情況2：多字段圖層處理（有多個 layerFields）
+            // 🆔 首先為原始圖層設置基礎 layerId，用於 _originalLayer 引用
+            // 這是 LayersTab.vue 分組顯示邏輯的關鍵
             layer.layerId = layer.layerTitle;
 
+            // 🔄 遍歷每個 layerField，創建獨立的子圖層
             layer.layerFields.forEach((field, index) => {
-              // 提取當前欄位的子標題和欄位名稱
+              // 🔍 提取當前欄位的子標題和欄位名稱
               const subtitle = field.layerSubtitle;
               const fieldName = field.fieldName;
 
-              // 生成完整的子圖層名稱：主標題 + 子標題（如果存在）
+              // 🏷️ 生成完整的子圖層顯示名稱：主標題 + 子標題（如果存在）
+              // 例如："各行政區死亡人口數" + " - " + "112年" = "各行政區死亡人口數 - 112年"
               const layerName =
                 layer.layerTitle + (subtitle && subtitle !== null ? ' - ' + subtitle : '');
 
-              // 設置子圖層ID：如果有欄位名稱則加上欄位名稱，否則使用圖層名稱
+              // 🆔 設置子圖層唯一標識符：
+              // 如果有欄位名稱則加上欄位名稱，確保唯一性
+              // 例如："各行政區死亡人口數 - 112年-112年"
               const layerId =
                 fieldName && fieldName !== null ? `${layerName}-${fieldName}` : layerName;
 
               // 🏗️ 創建虛擬子圖層對象
               const subLayer = {
-                ...layer, // 複製原始圖層的所有屬性
-                layerId: layerId, // 設置唯一的圖層ID
+                ...layer, // 🔄 複製原始圖層的所有屬性（顏色、類型、載入器等）
+                layerId: layerId, // 🆔 設置唯一的圖層ID，用於狀態管理和事件處理
                 layerName: layerName, // 🏷️ 設置 layerName 屬性，用於載入彈窗顯示
-                layerFields: [field], // 只包含當前處理的欄位
-                activeFieldIndex: 0, // 設置當前活躍的欄位索引
+                layerFields: [field], // 📋 只包含當前處理的欄位，簡化後續處理
+                activeFieldIndex: 0, // 📊 設置當前活躍的欄位索引
                 _originalLayer: layer, // 🔗 保留原始圖層的引用，用於 LayersTab.vue 分組顯示
                 _fieldIndex: index, // 📊 記錄這是第幾個欄位，用於追蹤和除錯
               };
 
+              // ➕ 將創建的子圖層添加到當前分組的結果陣列中
               newGroupLayers.push(subLayer);
             });
           }
         }
 
-        // 將處理後的圖層分組添加到新陣列中
+        // 📦 將處理後的圖層分組添加到新陣列中
+        // 保持原有的分組結構，但使用處理後的圖層陣列
         newLayers.push({
-          ...group,
-          groupLayers: newGroupLayers,
+          ...group, // 複製分組的基本屬性（groupName 等）
+          groupLayers: newGroupLayers, // 使用處理後的圖層陣列
         });
       }
 

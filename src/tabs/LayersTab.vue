@@ -7,35 +7,99 @@
     name: 'LayersTab',
 
     /**
-     * 🔧 組件設定函數 (Component Setup)
-     * 使用 Composition API 設定組件邏輯
+     * 🔧 LayersTab 組件設定函數
+     *
+     * 此組件負責顯示和管理地圖圖層的切換介面，支援以下功能：
+     * 1. 顯示所有可用的地圖圖層，按分組組織
+     * 2. 支援單一圖層和多字段圖層的不同顯示方式
+     * 3. 提供圖層可見性切換功能
+     * 4. 顯示圖層的圖例資訊
+     * 5. 處理分組圖層的展開和收合
+     *
+     * 技術特點：
+     * - 使用 Vue 3 Composition API
+     * - 整合 Pinia 狀態管理
+     * - 響應式數據處理
+     * - 動態圖層分組和渲染
      */
     setup() {
       // 📦 取得 Pinia 數據存儲實例
+      // 此實例提供所有圖層數據、狀態管理和操作方法
       const dataStore = useDataStore();
 
-      // 建立一個 ref 來引用模板中的圖層列表 DOM 元素
+      // 🎯 DOM 引用：圖層列表容器
+      // 用於滾動控制、高度計算等 DOM 操作
       const layerListRef = ref(null);
 
-      // 建立一個計算屬性，從 store 中獲取圖層數據。當 store 的 state 改變時，這裡會自動更新。
+      // 📊 原始圖層數據計算屬性
+      // 從 Pinia store 中獲取所有圖層分組數據
+      // 當 store 中的圖層狀態改變時，此屬性會自動重新計算
       const layers = computed(() => dataStore.layers);
 
       /**
        * 🔄 處理圖層數據用於分組顯示
        *
-       * 此計算屬性負責將 dataStore 中的圖層數據轉換為適合 LayersTab.vue 顯示的格式：
+       * 此計算屬性負責將 dataStore 中的圖層數據轉換為適合 LayersTab.vue 顯示的格式。
+       * 它是整個圖層分組顯示邏輯的核心，處理兩種不同類型的圖層：
        *
-       * 處理邏輯：
-       * 1. 遍歷所有圖層分組
-       * 2. 對於每個分組，檢查其中的圖層：
-       *    - 如果圖層有 _originalLayer 屬性（來自 dataStore 的多字段展開）：
-       *      * 將相同 _originalLayer.layerId 的子圖層分組在一起
-       *      * 創建一個分組對象，包含所有子圖層
-       *      * 用於在 UI 中顯示為一個圖層區塊，內含多個子圖層按鈕
-       *    - 如果圖層沒有 _originalLayer 屬性（普通圖層）：
+       * 📋 數據處理流程：
+       * 1. 遍歷所有圖層分組（如：地理統計資料、長照服務據點等）
+       * 2. 對於每個分組中的圖層，根據其結構進行分類處理：
+       *
+       * 🔍 圖層分類邏輯：
+       *
+       * A. 多字段圖層（有 _originalLayer 屬性）：
+       *    - 來源：dataStore 中的 initializeAndExpandLayers 函數處理後的多字段圖層
+       *    - 特徵：包含 _originalLayer 和 _fieldIndex 屬性
+       *    - 處理方式：
+       *      * 按 _originalLayer.layerId 將子圖層分組
+       *      * 創建 isGroup: true 的分組對象
+       *      * 包含所有相關的子圖層（subLayers 陣列）
+       *      * 在 UI 中顯示為一個帶有底線標題的區塊，內含多個子圖層按鈕
+       *
+       * B. 普通圖層（沒有 _originalLayer 屬性）：
+       *    - 來源：單一圖層或單字段圖層
+       *    - 特徵：沒有 _originalLayer 屬性
+       *    - 處理方式：
        *      * 直接添加到分組中，保持原有顯示方式
+       *      * 標記為 isGroup: false
+       *
+       * 🎯 輸出結構：
+       * 每個分組包含：
+       * - groupName: 分組名稱（如："地理統計資料"）
+       * - groupLayers: 處理後的圖層陣列
+       *   - isGroup: true 的分組對象（多字段圖層）
+       *   - isGroup: false 的普通圖層對象
+       *
+       * 🔄 響應式特性：
+       * - 當 dataStore.layers 發生變化時自動重新計算
+       * - 確保 UI 與數據狀態保持同步
        *
        * @returns {Array} 處理後的圖層分組陣列，用於模板渲染
+       * @example
+       * // 返回結構示例：
+       * [
+       *   {
+       *     groupName: "地理統計資料",
+       *     groupLayers: [
+       *       {
+       *         isGroup: true,
+       *         groupId: "人口統計-group",
+       *         layerTitle: "人口統計",
+       *         colorName: "purple",
+       *         subLayers: [
+       *           { layerTitle: "人口統計", layerFields: [{layerSubtitle: "14歲以下"}] },
+       *           { layerTitle: "人口統計", layerFields: [{layerSubtitle: "15~64歲"}] }
+       *         ]
+       *       },
+       *       {
+       *         isGroup: false,
+       *         layerTitle: "單一圖層",
+       *         // ... 其他圖層屬性
+       *       }
+       *     ]
+       *   }
+       * ]
        */
       const processedLayers = computed(() => {
         return layers.value.map((group) => {
@@ -83,8 +147,38 @@
       });
       /**
        * 🔘 切換圖層可見性
-       * 呼叫 store 中的 action 來切換指定圖層的顯示/隱藏狀態
+       *
+       * 此函數負責處理圖層的顯示/隱藏切換操作，是圖層面板的核心互動功能。
+       *
+       * 📋 功能說明：
+       * 1. 接收圖層 ID 作為參數
+       * 2. 呼叫 dataStore 的 toggleLayerVisibility 方法
+       * 3. 觸發圖層狀態變更和相關的 UI 更新
+       *
+       * 🔄 處理流程：
+       * 1. 用戶點擊圖層切換開關或圖層卡片
+       * 2. 事件處理器調用此函數
+       * 3. 函數委託給 dataStore 進行實際的狀態管理
+       * 4. dataStore 更新圖層可見性狀態
+       * 5. 觸發響應式更新，UI 自動重新渲染
+       *
+       * 🎯 支援的圖層類型：
+       * - 普通圖層：直接切換可見性
+       * - 多字段圖層的子圖層：切換特定字段的可見性
+       * - 分組圖層：切換整個分組的可見性
+       *
+       * ⚡ 效能考量：
+       * - 使用委託模式，將複雜的狀態管理邏輯交給 dataStore
+       * - 避免在組件中重複實現狀態管理邏輯
+       * - 確保狀態的一致性和可預測性
+       *
        * @param {string} layerId - 要切換的圖層 ID
+       * @example
+       * // 切換普通圖層
+       * toggleLayer('人口統計');
+       *
+       * // 切換多字段圖層的子圖層
+       * toggleLayer('各行政區死亡人口數-112年');
        */
       const toggleLayer = (layerId) => {
         dataStore.toggleLayerVisibility(layerId);
@@ -102,31 +196,42 @@
 </script>
 
 <template>
+  <!-- 🎨 圖層面板主容器 -->
   <div class="h-100 d-flex flex-column overflow-hidden my-bgcolor-gray-100">
+    <!-- 📋 圖層列表滾動容器 -->
     <div class="flex-grow-1 overflow-auto layer-list-container" ref="layerListRef">
       <div class="mb-3">
+        <!-- 🔄 遍歷所有圖層分組 -->
         <div v-for="group in processedLayers" :key="group.groupName" class="p-3">
+          <!-- 📌 分組標題區域 -->
           <div class="d-flex align-items-center pb-2">
             <div class="my-title-xs-gray">{{ group.groupName }}</div>
           </div>
 
+          <!-- 🔄 遍歷分組中的每個圖層項目 -->
           <div
             v-for="item in group.groupLayers"
             :key="item.isGroup ? item.groupId : item.layerId"
             class="mb-1"
           >
-            <!-- Grouped Layers -->
+            <!-- 📊 多字段圖層分組顯示 -->
             <div v-if="item.isGroup">
+              <!-- 🎨 分組容器：包含標題和所有子圖層按鈕 -->
               <div class="rounded-0 border-0 d-flex flex-column shadow-sm my-bgcolor-white p-0">
+                <!-- 📌 分組標題區域 -->
                 <div class="d-flex">
+                  <!-- 🎨 圖層顏色指示條 -->
                   <div
                     class="d-flex"
                     :class="`my-bgcolor-${item.colorName}`"
                     style="min-width: 6px"
                   ></div>
                   <div class="w-100">
+                    <!-- 📝 分組標題（帶底線樣式） -->
                     <div class="d-flex align-items-center text-start w-100 px-3 py-2">
-                      <span class="my-content-sm-black">{{ item.layerTitle }}111</span>
+                      <span class="my-content-sm-black" style="text-decoration: underline">{{
+                        item.layerTitle
+                      }}</span>
                     </div>
                   </div>
                 </div>
