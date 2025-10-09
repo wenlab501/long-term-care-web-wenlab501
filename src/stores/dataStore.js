@@ -54,7 +54,6 @@ export const useDataStore = defineStore(
         groupName: '居家式長照機構',
         groupLayers: [
           {
-            layerId: '居家服務機構',
             layerName: '居家服務機構',
             visible: false,
             isLoading: false,
@@ -72,7 +71,6 @@ export const useDataStore = defineStore(
             display: true,
           },
           {
-            layerId: '居家護理所',
             layerName: '居家護理所',
             visible: false,
             isLoading: false,
@@ -90,7 +88,6 @@ export const useDataStore = defineStore(
             display: true,
           },
           {
-            layerId: '居家物理治療所',
             layerName: '居家物理治療所',
             visible: false,
             isLoading: false,
@@ -108,7 +105,6 @@ export const useDataStore = defineStore(
             display: true,
           },
           {
-            layerId: '居家職能治療所',
             layerName: '居家職能治療所',
             visible: false,
             isLoading: false,
@@ -126,7 +122,6 @@ export const useDataStore = defineStore(
             display: true,
           },
           {
-            layerId: '居家呼吸照護所',
             layerName: '居家呼吸照護所',
             visible: false,
             isLoading: false,
@@ -144,7 +139,6 @@ export const useDataStore = defineStore(
             display: true,
           },
           {
-            layerId: '居家語言治療所',
             layerName: '居家語言治療所',
             visible: false,
             isLoading: false,
@@ -162,7 +156,6 @@ export const useDataStore = defineStore(
             display: true,
           },
           {
-            layerId: '心理諮商所',
             layerName: '心理諮商所',
             visible: false,
             isLoading: false,
@@ -180,7 +173,6 @@ export const useDataStore = defineStore(
             display: true,
           },
           {
-            layerId: '居家式喘息(GA09)及居家式短照(SC09)服務單位',
             layerName: '居家式喘息(GA09)及居家式短照(SC09)服務單位',
             visible: false,
             isLoading: false,
@@ -204,7 +196,6 @@ export const useDataStore = defineStore(
         groupName: '社區式長照機構 - 日間照顧',
         groupLayers: [
           {
-            layerId: '日間照顧',
             layerName: '日間照顧',
             visible: false,
             isLoading: false,
@@ -222,7 +213,6 @@ export const useDataStore = defineStore(
             display: true,
           },
           {
-            layerId: '小規模多機能',
             layerName: '小規模多機能',
             visible: false,
             isLoading: false,
@@ -241,7 +231,6 @@ export const useDataStore = defineStore(
             display: true,
           },
           {
-            layerId: '團體家屋',
             layerName: '團體家屋',
             visible: false,
             isLoading: false,
@@ -259,7 +248,6 @@ export const useDataStore = defineStore(
             display: true,
           },
           {
-            layerId: '家庭托顧',
             layerName: '家庭托顧',
             visible: false,
             isLoading: false,
@@ -277,7 +265,6 @@ export const useDataStore = defineStore(
             display: true,
           },
           {
-            layerId: '社區據點',
             layerName: '社區據點',
             visible: false,
             isLoading: false,
@@ -300,7 +287,6 @@ export const useDataStore = defineStore(
         groupName: '社區式長照機構 - 社區據點',
         groupLayers: [
           {
-            layerId: '社區照顧關懷據點',
             layerName: '社區照顧關懷據點',
             visible: false,
             isLoading: false,
@@ -318,7 +304,6 @@ export const useDataStore = defineStore(
             display: true,
           },
           {
-            layerId: '社區照顧關懷據點暨C級巷弄長照站',
             layerName: '社區照顧關懷據點暨C級巷弄長照站',
             visible: false,
             isLoading: false,
@@ -336,7 +321,6 @@ export const useDataStore = defineStore(
             display: true,
           },
           {
-            layerId: '失智社區服務據點',
             layerName: '失智社區服務據點',
             visible: false,
             isLoading: false,
@@ -354,7 +338,6 @@ export const useDataStore = defineStore(
             display: true,
           },
           {
-            layerId: '家庭照顧者支持服務據點',
             layerName: '家庭照顧者支持服務據點',
             visible: false,
             isLoading: false,
@@ -372,7 +355,6 @@ export const useDataStore = defineStore(
             display: true,
           },
           {
-            layerId: '醫事C級巷弄長照站',
             layerName: '醫事C級巷弄長照站',
             visible: false,
             isLoading: false,
@@ -390,7 +372,6 @@ export const useDataStore = defineStore(
             display: true,
           },
           {
-            layerId: '原住民族文化健康站',
             layerName: '原住民族文化健康站',
             visible: false,
             isLoading: false,
@@ -408,7 +389,6 @@ export const useDataStore = defineStore(
             display: true,
           },
           {
-            layerId: '社區照顧關懷據點辦理社區喘息服務(C+單位)',
             layerName: '社區照顧關懷據點辦理社區喘息服務(C+單位)',
             visible: false,
             isLoading: false,
@@ -427,7 +407,6 @@ export const useDataStore = defineStore(
             display: false,
           },
           {
-            layerId: '巷弄長照站喘息(C+)(GA07)及巷弄長照站短照(SC07)服務單位',
             layerName: '巷弄長照站喘息(C+)(GA07)及巷弄長照站短照(SC07)服務單位',
             visible: false,
             isLoading: false,
@@ -446,7 +425,6 @@ export const useDataStore = defineStore(
             display: false,
           },
           {
-            layerId: '社區式喘息(GA03/GA04/GA06)及社區式短照(SC03/SC04/SC06)服務單位',
             layerName: '社區式喘息(GA03/GA04/GA06)及社區式短照(SC03/SC04/SC06)服務單位',
             visible: false,
             isLoading: false,
@@ -465,7 +443,6 @@ export const useDataStore = defineStore(
             display: false,
           },
           {
-            layerId: '社區整合型服務中心(A單位)',
             layerName: '社區整合型服務中心(A單位)',
             visible: false,
             isLoading: false,
@@ -488,7 +465,6 @@ export const useDataStore = defineStore(
         groupName: '機構式長照機構 - 老人福利機構',
         groupLayers: [
           {
-            layerId: '安養機構',
             layerName: '安養機構',
             visible: false,
             isLoading: false,
@@ -506,7 +482,6 @@ export const useDataStore = defineStore(
             display: true,
           },
           {
-            layerId: '養護機構',
             layerName: '養護機構',
             visible: false,
             isLoading: false,
@@ -524,7 +499,6 @@ export const useDataStore = defineStore(
             display: true,
           },
           {
-            layerId: '長期照顧機構',
             layerName: '長期照顧機構',
             visible: false,
             isLoading: false,
@@ -543,7 +517,6 @@ export const useDataStore = defineStore(
           },
           /*
           {
-            layerId: '公辦民營老人福利機構',
             layerName: '公辦民營老人福利機構',
             visible: false,
             isLoading: false,
@@ -567,7 +540,6 @@ export const useDataStore = defineStore(
         groupName: '機構式長照機構 - 護理之家',
         groupLayers: [
           {
-            layerId: '一般護理之家',
             layerName: '一般護理之家',
             visible: false,
             isLoading: false,
@@ -590,7 +562,6 @@ export const useDataStore = defineStore(
         groupName: '機構式長照機構 - 法人長照機構',
         groupLayers: [
           {
-            layerId: '住宿式長照機構',
             layerName: '住宿式長照機構',
             visible: false,
             isLoading: false,
@@ -608,7 +579,6 @@ export const useDataStore = defineStore(
             display: false,
           },
           {
-            layerId: '住宿式喘息(GA05)及住宿式短照(SC05)服務單位',
             layerName: '住宿式喘息(GA05)及住宿式短照(SC05)服務單位',
             visible: false,
             isLoading: false,
@@ -632,7 +602,6 @@ export const useDataStore = defineStore(
         groupName: '基礎設施',
         groupLayers: [
           {
-            layerId: '醫院',
             layerName: '醫院',
             visible: false,
             isLoading: false,
@@ -650,7 +619,6 @@ export const useDataStore = defineStore(
             display: true,
           },
           {
-            layerId: '診所',
             layerName: '診所',
             visible: false,
             isLoading: false,
@@ -668,7 +636,6 @@ export const useDataStore = defineStore(
             display: true,
           },
           {
-            layerId: '健保特約藥局',
             layerName: '健保特約藥局',
             visible: false,
             isLoading: false,
@@ -686,7 +653,6 @@ export const useDataStore = defineStore(
             display: true,
           },
           {
-            layerId: '四大超商',
             layerName: '四大超商',
             visible: false,
             isLoading: false,
@@ -704,7 +670,6 @@ export const useDataStore = defineStore(
             display: true,
           },
           {
-            layerId: '捷運站點',
             layerName: '捷運站點',
             visible: false,
             isLoading: false,
@@ -722,7 +687,6 @@ export const useDataStore = defineStore(
             display: true,
           },
           {
-            layerId: '公車站點',
             layerName: '公車站點',
             visible: false,
             isLoading: false,
@@ -745,7 +709,6 @@ export const useDataStore = defineStore(
         groupName: '地理統計資料',
         groupLayers: [
           {
-            layerId: '人口統計-14歲以下',
             layerName: '人口統計-14歲以下',
             visible: false,
             isLoading: false,
@@ -762,7 +725,6 @@ export const useDataStore = defineStore(
             fieldNames: ['A0A14_CNT'],
           },
           {
-            layerId: '人口統計-15~64歲',
             layerName: '人口統計-15~64歲',
             visible: false,
             isLoading: false,
@@ -779,7 +741,6 @@ export const useDataStore = defineStore(
             fieldNames: ['A15A64_CNT'],
           },
           {
-            layerId: '人口統計-65歲以上',
             layerName: '人口統計-65歲以上',
             visible: false,
             isLoading: false,
@@ -796,7 +757,6 @@ export const useDataStore = defineStore(
             fieldNames: ['A65UP_CNT'],
           },
           {
-            layerId: '各行政區死亡人口數-112年',
             layerName: '各行政區死亡人口數-112年',
             visible: false,
             isLoading: false,
@@ -813,7 +773,6 @@ export const useDataStore = defineStore(
             fieldNames: ['112年'],
           },
           {
-            layerId: '結婚、離婚及終止結婚對數-113年結婚對數合計數量',
             layerName: '結婚、離婚及終止結婚對數-113年結婚對數合計數量',
             visible: false,
             isLoading: false,
@@ -830,7 +789,6 @@ export const useDataStore = defineStore(
             fieldNames: ['113_結婚對數合計數量'],
           },
           {
-            layerId: '綜稅綜合所得總額-中位數',
             layerName: '綜稅綜合所得總額-中位數',
             visible: false,
             isLoading: false,
@@ -847,7 +805,6 @@ export const useDataStore = defineStore(
             fieldNames: ['中位數'],
           },
           {
-            layerId: '綜稅綜合所得總額-平均數',
             layerName: '綜稅綜合所得總額-平均數',
             visible: false,
             isLoading: false,
@@ -864,7 +821,6 @@ export const useDataStore = defineStore(
             fieldNames: ['平均數'],
           },
           {
-            layerId: '需求強化',
             layerName: '需求強化',
             visible: false,
             isLoading: false,
@@ -881,7 +837,6 @@ export const useDataStore = defineStore(
             fieldNames: ['Reinf_eeds'],
           },
           {
-            layerId: '群體感',
             layerName: '群體感',
             visible: false,
             isLoading: false,
@@ -898,7 +853,6 @@ export const useDataStore = defineStore(
             fieldNames: ['Membership'],
           },
           {
-            layerId: '影響力',
             layerName: '影響力',
             visible: false,
             isLoading: false,
@@ -915,7 +869,6 @@ export const useDataStore = defineStore(
             fieldNames: ['Influence'],
           },
           {
-            layerId: 'CPR意願',
             layerName: 'CPR意願',
             visible: false,
             isLoading: false,
@@ -932,7 +885,6 @@ export const useDataStore = defineStore(
             fieldNames: ['tot_CPR'],
           },
           {
-            layerId: 'AED意願',
             layerName: 'AED意願',
             visible: false,
             isLoading: false,
@@ -954,7 +906,6 @@ export const useDataStore = defineStore(
         groupName: '基礎地理資料',
         groupLayers: [
           {
-            layerId: '土地利用',
             layerName: '土地利用',
             visible: false,
             isLoading: false,
@@ -971,7 +922,6 @@ export const useDataStore = defineStore(
             fieldNames: ['NEWLAYER'],
           },
           {
-            layerId: '行政區界',
             layerName: '行政區界',
             visible: false,
             isLoading: false,
@@ -993,7 +943,6 @@ export const useDataStore = defineStore(
         groupName: '數據分析',
         groupLayers: [
           {
-            layerId: 'analysis-layer',
             layerName: '數據分析圖層',
             visible: true, // 預設開啟
             isLoading: false,
@@ -1036,7 +985,6 @@ export const useDataStore = defineStore(
              * - 📊 生成詳細的統計報告和表格數據
              * - 🎨 支援多邊形和圓圈兩種視覺表示方式
              */
-            layerId: 'isochrone-analysis-layer',
             layerName: '等時圈分析圖層',
             visible: true, // 預設開啟，讓使用者可以立即使用
             isLoading: false, // 初始無加載狀態
@@ -1090,7 +1038,6 @@ export const useDataStore = defineStore(
              * - 🔄 靈活的路徑點管理
              * - 📊 路徑點統計和列表顯示
              */
-            layerId: 'route-planning-layer',
             layerName: '路徑規劃圖層',
             visible: true, // 預設開啟
             isLoading: false, // 初始無加載狀態
@@ -1140,7 +1087,6 @@ export const useDataStore = defineStore(
              * - 🔄 靈活的優化點管理
              * - 📊 優化點統計和列表顯示
              */
-            layerId: 'route-optimization-layer',
             layerName: '路徑優化圖層',
             visible: true, // 預設開啟
             isLoading: false, // 初始無加載狀態
@@ -1310,7 +1256,6 @@ export const useDataStore = defineStore(
                 // 創建增強的 feature 物件，包含距離和圖層資訊
                 const enhancedFeature = {
                   ...feature, // 保留原始 feature 的所有屬性
-                  layerId: layer.layerId,
                   layerName: layer.layerName,
                   distance: Math.round(distance), // 添加距離資訊
                 };
@@ -1363,7 +1308,6 @@ export const useDataStore = defineStore(
                 // 創建增強的 feature 物件，包含圖層資訊
                 const enhancedFeature = {
                   ...feature, // 保留原始 feature 的所有屬性
-                  layerId: layer.layerId,
                   layerName: layer.layerName,
                   overlapType: 'intersects', // 標記為相交
                 };
@@ -1518,7 +1462,6 @@ export const useDataStore = defineStore(
         },
         properties: {
           id: pointId,
-          layerId: 'analysis-layer', // 添加圖層ID
           type: 'circle-analysis',
           name: featureName,
           radius: radius,
@@ -1545,7 +1488,6 @@ export const useDataStore = defineStore(
         },
         properties: {
           id: `${pointId}_analysis_point`,
-          layerId: 'analysis-layer',
           type: 'point-analysis',
           parentId: pointId,
         },
@@ -1735,7 +1677,6 @@ export const useDataStore = defineStore(
                 // 創建增強的要素物件，包含原始數據和額外資訊
                 const enhancedFeature = {
                   ...feature, // 保留原始 GeoJSON feature 的所有屬性
-                  layerId: layer.layerId, // 添加圖層 ID
                   layerName: layer.layerName, // 添加圖層名稱（供顯示用）
                   distance: Math.round(distance), // 添加與中心點的距離（四捨五入到公尺）
                 };
@@ -1817,7 +1758,6 @@ export const useDataStore = defineStore(
                 // 創建增強的要素物件，包含重疊資訊
                 const enhancedFeature = {
                   ...feature, // 保留原始 GeoJSON feature 的所有屬性
-                  layerId: layer.layerId, // 添加圖層 ID
                   layerName: layer.layerName, // 添加圖層名稱
                   overlapType: 'intersects', // 標記重疊類型
                 };
@@ -2089,7 +2029,6 @@ export const useDataStore = defineStore(
           geometry: isochroneData.features[0].geometry, // 直接使用 ORS API 返回的多邊形幾何
           properties: {
             id: pointId, // 唯一識別編號
-            layerId: 'isochrone-analysis-layer', // 所屬圖層
             type: 'isochrone-polygon-analysis', // 要素類型標記
             name: featureName, // 顯示名稱
             travelTime: travelTimeMinutes, // 旅行時間
@@ -2116,7 +2055,6 @@ export const useDataStore = defineStore(
           },
           properties: {
             id: `${pointId}_isochrone_analysis_point`, // 唯一識別編號
-            layerId: 'isochrone-analysis-layer',
             type: 'isochrone-point-analysis', // 點標記類型
             parentId: pointId, // 關聯的多邊形 ID
           },
@@ -2215,7 +2153,6 @@ export const useDataStore = defineStore(
         },
         properties: {
           id: pointId,
-          layerId: 'isochrone-analysis-layer',
           type: 'isochrone-circle-analysis', // 標記為圓圈類型（非多邊形）
           name: featureName,
           radius: FALLBACK_RADIUS, // 圓圈半徑
@@ -2241,7 +2178,6 @@ export const useDataStore = defineStore(
         },
         properties: {
           id: `${pointId}_isochrone_analysis_point`,
-          layerId: 'isochrone-analysis-layer',
           type: 'isochrone-point-analysis',
           parentId: pointId,
         },
@@ -2543,7 +2479,6 @@ export const useDataStore = defineStore(
         },
         properties: {
           id: pointId, // 唯一識別編號
-          layerId: 'route-planning-layer', // 所屬圖層
           type: 'route-planning-point', // 要素類型標記
           name: pointName, // 顯示名稱
           order: nextOrder, // 路徑點順序
@@ -2832,7 +2767,6 @@ export const useDataStore = defineStore(
           geometry: route.geometry, // 直接使用 ORS 返回的幾何數據
           properties: {
             id: routeId,
-            layerId: 'route-planning-layer',
             type: 'route-line',
             name: `路線 ${routeNumber}`,
             routeNumber: routeNumber, // 路線編號
@@ -2932,7 +2866,6 @@ export const useDataStore = defineStore(
         },
         properties: {
           id: pointId, // 唯一識別編號
-          layerId: 'route-optimization-layer', // 所屬圖層
           type: 'optimization-point', // 要素類型標記
           name: pointName, // 顯示名稱
           order: nextOrder, // 優化點順序
@@ -3347,7 +3280,6 @@ export const useDataStore = defineStore(
             geometry: routeGeometry,
             properties: {
               id: routeId,
-              layerId: 'route-optimization-layer',
               type: 'optimized-route-line',
               name: `優化路線 ${routeNumber}`,
               routeNumber: routeNumber,
@@ -3502,6 +3434,21 @@ export const useDataStore = defineStore(
         throw error;
       }
     };
+
+    // 🔧 初始化所有圖層的 layerId (基於 layerName + fieldNames[0])
+    const initializeLayerIds = () => {
+      for (const group of layers.value) {
+        for (const layer of group.groupLayers) {
+          // 生成 layerId: layerName + fieldNames[0] (如果 fieldNames[0] 不是 null)
+          const fieldName = layer.fieldNames?.[0];
+          layer.layerId =
+            fieldName && fieldName !== null ? `${layer.layerName}-${fieldName}` : layer.layerName;
+        }
+      }
+    };
+
+    // 在初始化時執行
+    initializeLayerIds();
 
     return {
       layers,
