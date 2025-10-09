@@ -19,20 +19,54 @@
 
       // 建立一個計算屬性，從 store 中獲取圖層數據。當 store 的 state 改變時，這裡會自動更新。
       const layers = computed(() => dataStore.layers);
+      const processedLayers = computed(() => {
+        return layers.value.map((group) => {
+          const newGroup = { ...group, groupLayers: [] };
+          const layersToProcess = group.groupLayers.filter((layer) => layer.display !== false);
+          const processedOriginalLayerIds = new Set();
 
+          for (const layer of layersToProcess) {
+            if (layer._originalLayer) {
+              if (!processedOriginalLayerIds.has(layer._originalLayer.layerId)) {
+                processedOriginalLayerIds.add(layer._originalLayer.layerId);
+
+                const subLayers = layersToProcess.filter(
+                  (l) =>
+                    l._originalLayer && l._originalLayer.layerId === layer._originalLayer.layerId
+                );
+
+                newGroup.groupLayers.push({
+                  isGroup: true,
+                  // Use a unique ID for the group wrapper
+                  groupId: layer._originalLayer.layerId + '-group',
+                  layerTitle: layer._originalLayer.layerTitle,
+                  colorName: layer._originalLayer.colorName,
+                  subLayers: subLayers,
+                });
+              }
+            } else {
+              // This is a normal layer (or a layer with 1 field)
+              newGroup.groupLayers.push({
+                isGroup: false,
+                ...layer,
+              });
+            }
+          }
+          return newGroup;
+        });
+      });
       /**
        * 🔘 切換圖層可見性
        * 呼叫 store 中的 action 來切換指定圖層的顯示/隱藏狀態
        * @param {string} layerId - 要切換的圖層 ID
        */
       const toggleLayer = (layerId) => {
-        console.log('🔘 LayersTab: 切換圖層', layerId);
         dataStore.toggleLayerVisibility(layerId);
       };
 
       // 📤 將需要暴露給 <template> 使用的數據和方法返回
       return {
-        layers,
+        processedLayers,
         toggleLayer,
         layerListRef,
         getIcon,
@@ -45,25 +79,63 @@
   <div class="h-100 d-flex flex-column overflow-hidden my-bgcolor-gray-100">
     <div class="flex-grow-1 overflow-auto layer-list-container" ref="layerListRef">
       <div class="mb-3">
-        <div v-for="group in layers" :key="group.groupName" class="p-3">
+        <div v-for="group in processedLayers" :key="group.groupName" class="p-3">
           <div class="d-flex align-items-center pb-2">
             <div class="my-title-xs-gray">{{ group.groupName }}</div>
           </div>
 
           <div
-            v-for="layer in group.groupLayers.filter((layer) => layer.display !== false)"
-            :key="layer.layerId"
+            v-for="item in group.groupLayers"
+            :key="item.isGroup ? item.groupId : item.layerId"
             class="mb-1"
           >
+            <!-- Grouped Layers -->
+            <div v-if="item.isGroup">
+              <div class="rounded-0 border-0 d-flex flex-column shadow-sm my-bgcolor-white p-0">
+                <div class="d-flex">
+                  <div
+                    class="d-flex"
+                    :class="`my-bgcolor-${item.colorName}`"
+                    style="min-width: 6px"
+                  ></div>
+                  <div class="w-100">
+                    <div class="d-flex align-items-center text-start w-100 px-3 py-2">
+                      <span class="my-content-sm-black">{{ item.layerTitle }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="px-3 pb-2 pt-1 d-flex flex-wrap" style="gap: 0.5rem">
+                  <button
+                    v-for="subLayer in item.subLayers"
+                    :key="subLayer.layerId"
+                    class="btn rounded-pill"
+                    :class="{
+                      'my-btn-green-1': subLayer.visible,
+                      'my-btn-gray-2': !subLayer.visible,
+                    }"
+                    style="
+                      padding: 0.1rem 0.5rem;
+                      font-size: 0.75rem;
+                      border: 1px solid;
+                      border-color: var(--my-color-gray-200) !important;
+                    "
+                    @click.stop="toggleLayer(subLayer.layerId)"
+                  >
+                    {{ subLayer.layerFields[0].layerSubtitle }}
+                  </button>
+                </div>
+              </div>
+            </div>
             <!-- 圖層卡片 -->
             <div
+              v-else
               class="btn rounded-0 border-0 d-flex shadow-sm my-bgcolor-white-hover p-0"
-              @click="toggleLayer(layer.layerId)"
+              @click="toggleLayer(item.layerId)"
             >
               <!-- 圖層圖示 -->
               <div
                 class="d-flex"
-                :class="`my-bgcolor-${layer.colorName}`"
+                :class="`my-bgcolor-${item.colorName}`"
                 style="min-width: 6px"
               ></div>
               <div class="w-100">
@@ -72,13 +144,13 @@
                   <div class="d-flex align-items-center text-start w-100 px-3 py-2">
                     <span class="my-content-sm-black">
                       {{
-                        layer.layerTitle +
-                        (layer.layerFields?.[0]?.layerSubtitle
-                          ? ' - ' + layer.layerFields[0].layerSubtitle
+                        item.layerTitle +
+                        (item.layerFields?.[0]?.layerSubtitle
+                          ? ' - ' + item.layerFields[0].layerSubtitle
                           : '')
                       }}
                       <span class="my-content-xs-gray ms-2">
-                        {{ layer.summaryData?.totalCount }}
+                        {{ item.summaryData?.totalCount }}
                       </span>
                     </span>
                   </div>
@@ -86,17 +158,17 @@
                   <div class="d-flex align-items-center justify-content-center px-3 py-2">
                     <input
                       type="checkbox"
-                      :id="'switch-' + layer.layerId"
-                      :checked="layer.visible"
-                      :disabled="layer.isLoading"
-                      @change="toggleLayer(layer.layerId)"
+                      :id="'switch-' + item.layerId"
+                      :checked="item.visible"
+                      :disabled="item.isLoading"
+                      @change="toggleLayer(item.layerId)"
                     />
-                    <label :for="'switch-' + layer.layerId"></label>
+                    <label :for="'switch-' + item.layerId"></label>
                   </div>
                 </div>
-                <div v-if="layer.legendData && layer.visible" class="px-3 pb-2">
+                <div v-if="item.legendData && item.visible" class="px-3 pb-2">
                   <div
-                    v-for="data in layer.legendData"
+                    v-for="data in item.legendData"
                     :key="data.color"
                     class="d-flex align-items-center"
                   >
