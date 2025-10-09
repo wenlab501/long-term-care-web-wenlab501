@@ -1132,7 +1132,8 @@ export const useDataStore = defineStore(
 
       console.log(
         '🔧 DataStore: 找到圖層',
-        layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle || ''),
+        layer.layerTitle +
+          (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
         '當前狀態:',
         layer.visible
       );
@@ -1161,12 +1162,12 @@ export const useDataStore = defineStore(
 
           // 🔄 強制觸發響應式更新
           console.log(
-            `✅ 圖層 "${layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle || '')}" 載入完成 (${result.geoJsonData?.features?.length || 0} 筆資料)`
+            `✅ 圖層 "${layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '')}" 載入完成 (${result.geoJsonData?.features?.length || 0} 筆資料)`
           );
           console.log(`📊 圖層摘要資料:`, layer.summaryData);
         } catch (error) {
           console.error(
-            `Failed to load data for layer "${layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle || '')}":`,
+            `Failed to load data for layer "${layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '')}":`,
             error
           );
           layer.visible = false; // 載入失敗時恢復可見性狀態
@@ -1235,7 +1236,11 @@ export const useDataStore = defineStore(
                 // 創建增強的 feature 物件，包含距離和圖層資訊
                 const enhancedFeature = {
                   ...feature, // 保留原始 feature 的所有屬性
-                  layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle || ''),
+                  layerName:
+                    layer.layerTitle +
+                    (layer.layerFields?.[0]?.layerSubtitle
+                      ? ' - ' + layer.layerFields[0].layerSubtitle
+                      : ''),
                   distance: Math.round(distance), // 添加距離資訊
                 };
                 pointsInRange.push(enhancedFeature);
@@ -1287,7 +1292,11 @@ export const useDataStore = defineStore(
                 // 創建增強的 feature 物件，包含圖層資訊
                 const enhancedFeature = {
                   ...feature, // 保留原始 feature 的所有屬性
-                  layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle || ''),
+                  layerName:
+                    layer.layerTitle +
+                    (layer.layerFields?.[0]?.layerSubtitle
+                      ? ' - ' + layer.layerFields[0].layerSubtitle
+                      : ''),
                   overlapType: 'intersects', // 標記為相交
                 };
                 polygonInRange.push(enhancedFeature);
@@ -1626,7 +1635,7 @@ export const useDataStore = defineStore(
           if (!layer.geoJsonData) status.push('無數據');
 
           console.log(
-            `  - ${layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle || '')}: ${status.length > 0 ? status.join(', ') : '✅ 符合條件'}`
+            `  - ${layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '')}: ${status.length > 0 ? status.join(', ') : '✅ 符合條件'}`
           );
         });
 
@@ -1656,7 +1665,11 @@ export const useDataStore = defineStore(
                 // 創建增強的要素物件，包含原始數據和額外資訊
                 const enhancedFeature = {
                   ...feature, // 保留原始 GeoJSON feature 的所有屬性
-                  layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle || ''), // 添加圖層名稱（供顯示用）
+                  layerName:
+                    layer.layerTitle +
+                    (layer.layerFields?.[0]?.layerSubtitle
+                      ? ' - ' + layer.layerFields[0].layerSubtitle
+                      : ''), // 添加圖層名稱（供顯示用）
                   distance: Math.round(distance), // 添加與中心點的距離（四捨五入到公尺）
                 };
                 pointsInRange.push(enhancedFeature);
@@ -1737,7 +1750,11 @@ export const useDataStore = defineStore(
                 // 創建增強的要素物件，包含重疊資訊
                 const enhancedFeature = {
                   ...feature, // 保留原始 GeoJSON feature 的所有屬性
-                  layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle || ''), // 添加圖層名稱
+                  layerName:
+                    layer.layerTitle +
+                    (layer.layerFields?.[0]?.layerSubtitle
+                      ? ' - ' + layer.layerFields[0].layerSubtitle
+                      : ''), // 添加圖層名稱
                   overlapType: 'intersects', // 標記重疊類型
                 };
                 polygonInRange.push(enhancedFeature);
@@ -1908,12 +1925,12 @@ export const useDataStore = defineStore(
               layer.legendData = data.legendData;
               layer.isLoaded = true;
               console.log(
-                `✅ 已載入圖層: ${layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle || '')}`
+                `✅ 已載入圖層: ${layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '')}`
               );
             }
           } catch (error) {
             console.error(
-              `❌ 載入圖層失敗: ${layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle || '')}`,
+              `❌ 載入圖層失敗: ${layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '')}`,
               error
             );
           } finally {
@@ -3419,23 +3436,60 @@ export const useDataStore = defineStore(
       }
     };
 
-    // 🔧 初始化所有圖層的 layerId (基於 layerTitle + layerFields[0])
-    const initializeLayerIds = () => {
-      for (const group of layers.value) {
-        for (const layer of group.groupLayers) {
-          // 生成完整的圖層名稱: layerTitle + layerFields[0].layerSubtitle (如果不是 null)
-          const subtitle = layer.layerFields?.[0]?.layerSubtitle;
-          const layerName = layer.layerTitle + (subtitle && subtitle !== null ? subtitle : '');
+    // 🔧 初始化並展開圖層 (基於 layerTitle + layerSubtitle)
+    const initializeAndExpandLayers = () => {
+      const newLayers = [];
 
-          // 生成 layerId: layerName + layerFields[0].fieldName (如果不是 null)
-          const fieldName = layer.layerFields?.[0]?.fieldName;
-          layer.layerId = fieldName && fieldName !== null ? `${layerName}-${fieldName}` : layerName;
+      for (const group of layers.value) {
+        const newGroupLayers = [];
+
+        for (const layer of group.groupLayers) {
+          // 如果 layerFields 為 null 或只有一個元素，保持原樣
+          if (!layer.layerFields || layer.layerFields.length <= 1) {
+            const subtitle = layer.layerFields?.[0]?.layerSubtitle;
+            const fieldName = layer.layerFields?.[0]?.fieldName;
+            const layerName =
+              layer.layerTitle + (subtitle && subtitle !== null ? ' - ' + subtitle : '');
+            layer.layerId =
+              fieldName && fieldName !== null ? `${layerName}-${fieldName}` : layerName;
+            layer.activeFieldIndex = 0;
+            newGroupLayers.push(layer);
+          } else {
+            // 如果有多個 layerFields，展開成多個獨立的 layer
+            layer.layerFields.forEach((field, index) => {
+              const subtitle = field.layerSubtitle;
+              const fieldName = field.fieldName;
+              const layerName =
+                layer.layerTitle + (subtitle && subtitle !== null ? ' - ' + subtitle : '');
+              const layerId =
+                fieldName && fieldName !== null ? `${layerName}-${fieldName}` : layerName;
+
+              // 創建虛擬子圖層
+              const subLayer = {
+                ...layer, // 複製所有屬性
+                layerId: layerId,
+                layerFields: [field], // 只包含當前 field
+                activeFieldIndex: 0,
+                _originalLayer: layer, // 保留原始 layer 的引用
+                _fieldIndex: index, // 記錄這是第幾個 field
+              };
+
+              newGroupLayers.push(subLayer);
+            });
+          }
         }
+
+        newLayers.push({
+          ...group,
+          groupLayers: newGroupLayers,
+        });
       }
+
+      layers.value = newLayers;
     };
 
     // 在初始化時執行
-    initializeLayerIds();
+    initializeAndExpandLayers();
 
     return {
       layers,

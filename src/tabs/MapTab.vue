@@ -978,10 +978,10 @@
                   newAddedLayers.push(newLayer);
                 }
 
-                console.log(`🗺️ 普通圖層 "${layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle || '')}" 已添加到地圖`);
+                console.log(`🗺️ 普通圖層 "${layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '')}" 已添加到地圖`);
               }
             } catch (error) {
-              console.error(`添加普通圖層 "${layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle || '')}" 時發生錯誤:`, error);
+              console.error(`添加普通圖層 "${layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '')}" 時發生錯誤:`, error);
             }
           });
 
@@ -1023,10 +1023,10 @@
                 newLayer.addTo(mapInstance);
                 layerGroups[layerId] = newLayer;
 
-                console.log(`🗺️ 分析圖層 "${layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle || '')}" 已添加到地圖（最上層）`);
+                console.log(`🗺️ 分析圖層 "${layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '')}" 已添加到地圖（最上層）`);
               }
             } catch (error) {
-              console.error(`添加分析圖層 "${layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle || '')}" 時發生錯誤:`, error);
+              console.error(`添加分析圖層 "${layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '')}" 時發生錯誤:`, error);
             }
           });
 
