@@ -50,7 +50,7 @@
 
         const layerId = selectedFeature.value.properties.layerId;
         const layer = dataStore.findLayerById(layerId);
-        return layer ? layer.layerNames?.[0] : layerId;
+        return layer ? layer.layerTitle + (layer.layerSubtitles?.[0] || '') : layerId;
       });
 
       /**
