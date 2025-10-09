@@ -3437,6 +3437,25 @@ export const useDataStore = defineStore(
     };
 
     // 🔧 初始化並展開圖層 (基於 layerTitle + layerSubtitle)
+    /**
+     * 🔄 初始化並展開圖層結構
+     *
+     * 此函數負責處理圖層的展開邏輯，特別是針對具有多個 layerFields 的圖層：
+     *
+     * 處理邏輯：
+     * 1. 對於沒有 layerFields 或只有一個 layerField 的圖層：
+     *    - 保持原有結構不變
+     *    - 生成完整的 layerName（圖層標題 + 子標題）
+     *    - 設置 layerId 和 layerName 屬性
+     *
+     * 2. 對於有多個 layerFields 的圖層：
+     *    - 將每個 layerField 展開成獨立的子圖層
+     *    - 每個子圖層包含原始圖層的所有屬性
+     *    - 添加 _originalLayer 引用和 _fieldIndex 標記
+     *    - 用於 LayersTab.vue 中的分組顯示
+     *
+     * @returns {Array} 處理後的圖層分組陣列
+     */
     const initializeAndExpandLayers = () => {
       const newLayers = [];
 
@@ -3444,34 +3463,48 @@ export const useDataStore = defineStore(
         const newGroupLayers = [];
 
         for (const layer of group.groupLayers) {
-          // 如果 layerFields 為 null 或只有一個元素，保持原樣
+          // 🔍 情況1：layerFields 為 null 或只有一個元素，保持原樣
           if (!layer.layerFields || layer.layerFields.length <= 1) {
+            // 提取子標題和欄位名稱（如果存在）
             const subtitle = layer.layerFields?.[0]?.layerSubtitle;
             const fieldName = layer.layerFields?.[0]?.fieldName;
+
+            // 生成完整的圖層名稱：主標題 + 子標題（如果存在）
             const layerName =
               layer.layerTitle + (subtitle && subtitle !== null ? ' - ' + subtitle : '');
+
+            // 設置圖層ID：如果有欄位名稱則加上欄位名稱，否則使用圖層名稱
             layer.layerId =
               fieldName && fieldName !== null ? `${layerName}-${fieldName}` : layerName;
+
+            // 🏷️ 設置 layerName 屬性，用於載入彈窗顯示
+            layer.layerName = layerName;
             layer.activeFieldIndex = 0;
             newGroupLayers.push(layer);
           } else {
-            // 如果有多個 layerFields，展開成多個獨立的 layer
+            // 🔍 情況2：有多個 layerFields，展開成多個獨立的子圖層
             layer.layerFields.forEach((field, index) => {
+              // 提取當前欄位的子標題和欄位名稱
               const subtitle = field.layerSubtitle;
               const fieldName = field.fieldName;
+
+              // 生成完整的子圖層名稱：主標題 + 子標題（如果存在）
               const layerName =
                 layer.layerTitle + (subtitle && subtitle !== null ? ' - ' + subtitle : '');
+
+              // 設置子圖層ID：如果有欄位名稱則加上欄位名稱，否則使用圖層名稱
               const layerId =
                 fieldName && fieldName !== null ? `${layerName}-${fieldName}` : layerName;
 
-              // 創建虛擬子圖層
+              // 🏗️ 創建虛擬子圖層對象
               const subLayer = {
-                ...layer, // 複製所有屬性
-                layerId: layerId,
-                layerFields: [field], // 只包含當前 field
-                activeFieldIndex: 0,
-                _originalLayer: layer, // 保留原始 layer 的引用
-                _fieldIndex: index, // 記錄這是第幾個 field
+                ...layer, // 複製原始圖層的所有屬性
+                layerId: layerId, // 設置唯一的圖層ID
+                layerName: layerName, // 🏷️ 設置 layerName 屬性，用於載入彈窗顯示
+                layerFields: [field], // 只包含當前處理的欄位
+                activeFieldIndex: 0, // 設置當前活躍的欄位索引
+                _originalLayer: layer, // 🔗 保留原始圖層的引用，用於 LayersTab.vue 分組顯示
+                _fieldIndex: index, // 📊 記錄這是第幾個欄位，用於追蹤和除錯
               };
 
               newGroupLayers.push(subLayer);
@@ -3479,6 +3512,7 @@ export const useDataStore = defineStore(
           }
         }
 
+        // 將處理後的圖層分組添加到新陣列中
         newLayers.push({
           ...group,
           groupLayers: newGroupLayers,
