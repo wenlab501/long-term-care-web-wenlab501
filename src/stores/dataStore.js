@@ -68,7 +68,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: load01_01,
             fileName: '114年度臺北市居家服務機構一覽表_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: true,
           },
           {
@@ -86,7 +86,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: load01_02,
             fileName: '臺北市居家護理所一覽表_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: true,
           },
           {
@@ -104,7 +104,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: load01_03,
             fileName: '台灣物理治療所地圖_臺北市_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: true,
           },
           {
@@ -122,7 +122,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: load01_04_07,
             fileName: '居家職能治療所_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: true,
           },
           {
@@ -140,7 +140,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: load01_04_07,
             fileName: '居家呼吸照護所_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: true,
           },
           {
@@ -158,7 +158,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: load01_04_07,
             fileName: '居家語言治療所_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: true,
           },
           {
@@ -176,7 +176,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: load01_04_07,
             fileName: '心理諮商所_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: true,
           },
           {
@@ -195,7 +195,7 @@ export const useDataStore = defineStore(
             loader: load142Data,
             fileName:
               '台北市政府衛生局/臺北市政府衛生局長照2.0居家式喘息(GA09)及居家式短照(SC09)服務單位一覽表_142_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: false,
           },
         ],
@@ -218,7 +218,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: load02_01,
             fileName: '臺北市日間照顧機構一覽表_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: true,
           },
           {
@@ -237,7 +237,7 @@ export const useDataStore = defineStore(
             loader: load02_02,
             fileName:
               '臺北市社區式長照機構(長者日間照顧及小規模多機能)清冊一覽表_小規模多機能_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: true,
           },
           {
@@ -255,7 +255,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: load02_03,
             fileName: '團體家屋_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: true,
           },
           {
@@ -273,7 +273,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: load02_04,
             fileName: '臺北市社區長照機構（家庭托顧）名冊一覽表_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: true,
           },
           {
@@ -291,7 +291,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: load02_06,
             fileName: '據點資料-社區照顧關懷網_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: true,
           },
         ],
@@ -314,7 +314,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: loadCommunityCareCenterData,
             fileName: '台北市政府社會局/114年度臺北市社區照顧關懷據點㇐覽表_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: true,
           },
           {
@@ -332,7 +332,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: loadCLevelUnitData,
             fileName: '台北市政府社會局/114年臺北市社區整體照顧服務體系C級單位一覽表_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: true,
           },
           {
@@ -350,7 +350,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: load03_02,
             fileName: '114年度臺北市失智社區服務據點布建清單_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: true,
           },
           {
@@ -368,7 +368,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: load03_03,
             fileName: '家庭照顧支持性服務資源列表_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: true,
           },
           {
@@ -386,7 +386,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: load03_05,
             fileName: '114年臺北市社區整體照顧服務體系C級單位一覽表_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: true,
           },
           {
@@ -404,7 +404,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: load03_06,
             fileName: '1130902原住民族委員會文化健康站清冊2_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: true,
           },
           {
@@ -423,7 +423,7 @@ export const useDataStore = defineStore(
             loader: loadRespiteCareCPlusUnitData,
             fileName:
               '臺北市政府社會局114年度社區照顧關懷據點辦理社區喘息服務(C+單位)一覽表_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: false,
           },
           {
@@ -442,7 +442,7 @@ export const useDataStore = defineStore(
             loader: load25Data,
             fileName:
               '台北市政府衛生局/臺北市政府衛生局長照2.0巷弄長照站喘息(C+)(GA07)及巷弄長照站短照(SC07)服務 單位一覽表_25_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: false,
           },
           {
@@ -461,7 +461,7 @@ export const useDataStore = defineStore(
             loader: load41Data,
             fileName:
               '台北市政府衛生局/臺北市政府衛生局長照2.0社區式喘息(GA03_GA04_GA06)及社區式短照(SC03_SC04_SC06)服務單位一覽表_41_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: false,
           },
           {
@@ -479,7 +479,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: loadCommunityIntegrationServiceCenterData,
             fileName: '台北市政府衛生局/臺北市社區整合型服務中心(A單位)一覽表_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: false,
           },
         ],
@@ -502,7 +502,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: loadElderlyWelfareInstitutionData,
             fileName: '台北市政府社會局/臺北市老人福利機構名冊1140201_coord_安養.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: true,
           },
           {
@@ -520,7 +520,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: loadElderlyWelfareInstitutionData,
             fileName: '台北市政府社會局/臺北市老人福利機構名冊1140201_coord_養護.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: true,
           },
           {
@@ -538,7 +538,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: loadElderlyWelfareInstitutionData,
             fileName: '台北市政府社會局/臺北市老人福利機構名冊1140201_coord_長照.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: true,
           },
           /*
@@ -557,7 +557,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: loadPublicElderlyWelfareInstitutionData,
             fileName: '臺北市公辦民營老人福利機構一覽表_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: true,
           },
           */
@@ -581,7 +581,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: loadGeneralNursingHomeData,
             fileName: '台北市政府衛生局/臺北市立案一般護理之家一覽表_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: true,
           },
         ],
@@ -604,7 +604,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: loadResidentialLongTermCareData,
             fileName: '台北市政府衛生局/臺北市立案住宿式長照機構一覽表_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: false,
           },
           {
@@ -623,7 +623,7 @@ export const useDataStore = defineStore(
             loader: load66Data,
             fileName:
               '台北市政府衛生局/臺北市政府衛生局長照2.0住宿式喘息(GA05)及住宿式短照(SC05)服務單位一覽表_66_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: false,
           },
         ],
@@ -646,7 +646,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: loadHospitalClinicData,
             fileName: '112年12月醫療院所分布圖_全國_醫院_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: true,
           },
           {
@@ -664,7 +664,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: loadHospitalClinicData,
             fileName: '112年12月醫療院所分布圖_全國_診所_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: true,
           },
           {
@@ -682,7 +682,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: loadHealthcareFacilityPharmacyData,
             fileName: '健保特約醫事機構-藥局_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: true,
           },
           {
@@ -700,7 +700,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: loadConvenienceStoreData,
             fileName: '全國5大超商資料集_coord.csv',
-            fieldName: null,
+            fieldNames: [null],
             display: true,
           },
           {
@@ -718,7 +718,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: loadMRTStationGeoJson,
             fileName: 'TpeMrtStations_TWD97_FIDCODE.geojson',
-            fieldName: null,
+            fieldNames: [null],
             display: true,
           },
           {
@@ -736,7 +736,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: loadBusStopGeoJson,
             fileName: 'busstop.geojson',
-            fieldName: null,
+            fieldNames: [null],
             display: true,
           },
         ],
@@ -759,7 +759,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: loadPopulation3LevelsGeoJson,
             fileName: '113年12月行政區三段年齡組性別人口統計_村里_WGS84_臺北市.geojson',
-            fieldName: 'A0A14_CNT',
+            fieldNames: ['A0A14_CNT'],
           },
           {
             layerId: '人口統計-15~64歲',
@@ -776,7 +776,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: loadPopulation3LevelsGeoJson,
             fileName: '113年12月行政區三段年齡組性別人口統計_村里_WGS84_臺北市.geojson',
-            fieldName: 'A15A64_CNT',
+            fieldNames: ['A15A64_CNT'],
           },
           {
             layerId: '人口統計-65歲以上',
@@ -793,7 +793,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: loadPopulation3LevelsGeoJson,
             fileName: '113年12月行政區三段年齡組性別人口統計_村里_WGS84_臺北市.geojson',
-            fieldName: 'A65UP_CNT',
+            fieldNames: ['A65UP_CNT'],
           },
           {
             layerId: '各行政區死亡人口數-112年',
@@ -810,7 +810,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: loadDeathPopulationByYearGeoJson,
             fileName: '12-4各行政區死亡人口數(按年分).geojson',
-            fieldName: '112年',
+            fieldNames: ['112年'],
           },
           {
             layerId: '結婚、離婚及終止結婚對數-113年結婚對數合計數量',
@@ -827,7 +827,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: loadMarriagePopulationByYearGeoJson,
             fileName: '111迄今各區結婚、離婚及終止結婚對數.geojson',
-            fieldName: '113_結婚對數合計數量',
+            fieldNames: ['113_結婚對數合計數量'],
           },
           {
             layerId: '綜稅綜合所得總額-中位數',
@@ -844,7 +844,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: loadIncomeGeoJson,
             fileName: '臺北市_村里_綜稅綜合所得總額.geojson',
-            fieldName: '中位數',
+            fieldNames: ['中位數'],
           },
           {
             layerId: '綜稅綜合所得總額-平均數',
@@ -861,7 +861,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: loadIncomeGeoJson,
             fileName: '臺北市_村里_綜稅綜合所得總額.geojson',
-            fieldName: '平均數',
+            fieldNames: ['平均數'],
           },
           {
             layerId: '需求強化',
@@ -878,7 +878,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: loadReinfEedsGeoJson,
             fileName: '台北里級社區原始數據.geojson',
-            fieldName: 'Reinf_eeds',
+            fieldNames: ['Reinf_eeds'],
           },
           {
             layerId: '群體感',
@@ -895,7 +895,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: loadMembershipGeoJson,
             fileName: '台北里級社區原始數據.geojson',
-            fieldName: 'Membership',
+            fieldNames: ['Membership'],
           },
           {
             layerId: '影響力',
@@ -912,7 +912,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: loadInfluenceGeoJson,
             fileName: '台北里級社區原始數據.geojson',
-            fieldName: 'Influence',
+            fieldNames: ['Influence'],
           },
           {
             layerId: 'CPR意願',
@@ -929,7 +929,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: loadCPRGeoJson,
             fileName: '台北里級社區原始數據.geojson',
-            fieldName: 'tot_CPR',
+            fieldNames: ['tot_CPR'],
           },
           {
             layerId: 'AED意願',
@@ -946,7 +946,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: loadAEDGeoJson,
             fileName: '台北里級社區原始數據.geojson',
-            fieldName: 'tot_AED',
+            fieldNames: ['tot_AED'],
           },
         ],
       },
@@ -968,7 +968,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: loadLanduseGeoJson,
             fileName: 'Landuse2.geojson',
-            fieldName: 'NEWLAYER',
+            fieldNames: ['NEWLAYER'],
           },
           {
             layerId: '行政區界',
@@ -985,7 +985,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: loadTaipeiDistrictGeoJson,
             fileName: '臺北市區界圖_20220915.geojson',
-            fieldName: 'A0A14_CNT',
+            fieldNames: ['A0A14_CNT'],
           },
         ],
       },
@@ -1016,7 +1016,7 @@ export const useDataStore = defineStore(
             legendData: null,
             loader: null, // 不需要載入器
             fileName: null,
-            fieldName: null,
+            fieldNames: [null],
             display: true,
             isAnalysisLayer: true, // 標記為分析圖層
           },
@@ -1064,7 +1064,7 @@ export const useDataStore = defineStore(
             legendData: null, // 圖例數據（等時圈分析不需要圖例）
             loader: null, // 不需要數據載入器（分析是即時生成的）
             fileName: null, // 不對應實體檔案
-            fieldName: null, // 不需要欄位映射
+            fieldNames: [null], // 不需要欄位映射
             display: true,
 
             // 🔍 特殊標記：標識此圖層為等時圈分析圖層
@@ -1118,7 +1118,7 @@ export const useDataStore = defineStore(
             legendData: null, // 圖例數據（路徑規劃不需要圖例）
             loader: null, // 不需要數據載入器（路徑點是即時生成的）
             fileName: null, // 不對應實體檔案
-            fieldName: null, // 不需要欄位映射
+            fieldNames: [null], // 不需要欄位映射
             display: true,
 
             // 🔍 特殊標記：標識此圖層為路徑規劃圖層
@@ -1168,7 +1168,7 @@ export const useDataStore = defineStore(
             legendData: null, // 圖例數據（路徑優化不需要圖例）
             loader: null, // 不需要數據載入器（優化點是即時生成的）
             fileName: null, // 不對應實體檔案
-            fieldName: null, // 不需要欄位映射
+            fieldNames: [null], // 不需要欄位映射
             display: true,
 
             // 🔍 特殊標記：標識此圖層為路徑優化圖層

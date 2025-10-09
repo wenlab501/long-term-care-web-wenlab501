@@ -4089,7 +4089,7 @@ export async function loadHealthcareFacilityPharmacyData(layer) {
 export async function loadPopulation3LevelsGeoJson(layer) {
   try {
     const layerId = layer.layerId;
-    const fieldName = layer.fieldName; // fieldName 現在代表「人口數」
+    const fieldName = layer.fieldNames?.[0]; // fieldName 現在代表「人口數」
 
     const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
 
@@ -4238,7 +4238,7 @@ export async function loadPopulation3LevelsGeoJson(layer) {
 export async function loadDeathPopulationByYearGeoJson(layer) {
   try {
     const layerId = layer.layerId;
-    const fieldName = layer.fieldName; // fieldName 現在代表「人口數」
+    const fieldName = layer.fieldNames?.[0]; // fieldName 現在代表「人口數」
 
     const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
 
@@ -4387,7 +4387,7 @@ export async function loadDeathPopulationByYearGeoJson(layer) {
 export async function loadMarriagePopulationByYearGeoJson(layer) {
   try {
     const layerId = layer.layerId;
-    const fieldName = layer.fieldName; // fieldName 現在代表「人口數」
+    const fieldName = layer.fieldNames?.[0]; // fieldName 現在代表「人口數」
 
     const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
 
@@ -4536,7 +4536,7 @@ export async function loadMarriagePopulationByYearGeoJson(layer) {
 export async function loadIncomeGeoJson(layer) {
   try {
     const layerId = layer.layerId;
-    const fieldName = layer.fieldName;
+    const fieldName = layer.fieldNames?.[0];
 
     const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
     const a = fieldName || null;
@@ -4645,7 +4645,7 @@ export async function loadIncomeGeoJson(layer) {
 export async function loadReinfEedsGeoJson(layer) {
   try {
     const layerId = layer.layerId;
-    const fieldName = layer.fieldName; // 應該是 'Reinf_eeds' (需求強化)
+    const fieldName = layer.fieldNames?.[0]; // 應該是 'Reinf_eeds' (需求強化)
 
     const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
 
@@ -4753,7 +4753,7 @@ export async function loadReinfEedsGeoJson(layer) {
 export async function loadMembershipGeoJson(layer) {
   try {
     const layerId = layer.layerId;
-    const fieldName = layer.fieldName; // 應該是 'Membership' (群體感)
+    const fieldName = layer.fieldNames?.[0]; // 應該是 'Membership' (群體感)
 
     const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
 
@@ -4861,7 +4861,7 @@ export async function loadMembershipGeoJson(layer) {
 export async function loadInfluenceGeoJson(layer) {
   try {
     const layerId = layer.layerId;
-    const fieldName = layer.fieldName; // 應該是 'Influence' (影響力)
+    const fieldName = layer.fieldNames?.[0]; // 應該是 'Influence' (影響力)
 
     const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
 
@@ -4969,7 +4969,7 @@ export async function loadInfluenceGeoJson(layer) {
 export async function loadCPRGeoJson(layer) {
   try {
     const layerId = layer.layerId;
-    const fieldName = layer.fieldName; // 應該是 'tot_CPR' (協助執行CPR意願)
+    const fieldName = layer.fieldNames?.[0]; // 應該是 'tot_CPR' (協助執行CPR意願)
 
     const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
 
@@ -5077,7 +5077,7 @@ export async function loadCPRGeoJson(layer) {
 export async function loadAEDGeoJson(layer) {
   try {
     const layerId = layer.layerId;
-    const fieldName = layer.fieldName; // 應該是 'tot_AED' (協助執行AED意願)
+    const fieldName = layer.fieldNames?.[0]; // 應該是 'tot_AED' (協助執行AED意願)
 
     const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
 
@@ -5332,7 +5332,7 @@ export async function loadConvenienceStoreData(layer) {
 export async function loadMRTStationGeoJson(layer) {
   try {
     const layerId = layer.layerId;
-    const fieldName = layer.fieldName;
+    const fieldName = layer.fieldNames?.[0];
 
     const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
     const a = fieldName || null;
@@ -5409,7 +5409,7 @@ export async function loadMRTStationGeoJson(layer) {
 export async function loadBusStopGeoJson(layer) {
   try {
     const layerId = layer.layerId;
-    const fieldName = layer.fieldName;
+    const fieldName = layer.fieldNames?.[0];
 
     const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
     const a = fieldName || null;
@@ -5486,7 +5486,7 @@ export async function loadBusStopGeoJson(layer) {
 export async function loadLanduseGeoJson(layer) {
   try {
     const layerId = layer.layerId;
-    const fieldName = layer.fieldName;
+    const fieldName = layer.fieldNames?.[0];
 
     const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
     const a = fieldName || null;
@@ -5595,7 +5595,7 @@ export async function loadLanduseGeoJson(layer) {
 export async function loadTaipeiDistrictGeoJson(layer) {
   try {
     const layerId = layer.layerId;
-    const fieldName = layer.fieldName;
+    const fieldName = layer.fieldNames?.[0];
 
     const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
     const a = fieldName || null;
