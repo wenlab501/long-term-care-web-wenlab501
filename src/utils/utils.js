@@ -1,109 +1,124 @@
 /**
- * 圖標映射表 - 支援中文/英文/FontAwesome 類名
+ * 圖標映射表 - 支援中文/英文/FontAwesome 完整標籤
  * 用於統一管理系統中使用的所有圖標
  */
 export const ICONS = {
   // 基本操作圖標
-  add: { zh: '新增', en: 'Add', icon: 'fas fa-plus' },
-  edit: { zh: '編輯', en: 'Edit', icon: 'fas fa-edit' },
-  delete: { zh: '刪除', en: 'Delete', icon: 'fas fa-trash' },
-  save: { zh: '儲存', en: 'Save', icon: 'fas fa-save' },
-  cancel: { zh: '取消', en: 'Cancel', icon: 'fas fa-times' },
-  confirm: { zh: '確認', en: 'Confirm', icon: 'fas fa-check' },
-  search: { zh: '搜尋', en: 'Search', icon: 'fas fa-search' },
-  filter: { zh: '篩選', en: 'Filter', icon: 'fas fa-filter' },
-  sort: { zh: '排序', en: 'Sort', icon: 'fas fa-sort' },
-  refresh: { zh: '重新整理', en: 'Refresh', icon: 'fas fa-sync-alt' },
+  add: { zh: '新增', en: 'Add', icon: '<i class="fas fa-plus"></i>' },
+  edit: { zh: '編輯', en: 'Edit', icon: '<i class="fas fa-edit"></i>' },
+  delete: { zh: '刪除', en: 'Delete', icon: '<i class="fas fa-trash"></i>' },
+  delete_alt: { zh: '刪除', en: 'Delete', icon: '<i class="fas fa-trash-alt"></i>' },
+  save: { zh: '儲存', en: 'Save', icon: '<i class="fas fa-save"></i>' },
+  cancel: { zh: '取消', en: 'Cancel', icon: '<i class="fas fa-times"></i>' },
+  confirm: { zh: '確認', en: 'Confirm', icon: '<i class="fas fa-check"></i>' },
+  search: { zh: '搜尋', en: 'Search', icon: '<i class="fas fa-search"></i>' },
+  filter: { zh: '篩選', en: 'Filter', icon: '<i class="fas fa-filter"></i>' },
+  sort: { zh: '排序', en: 'Sort', icon: '<i class="fas fa-sort"></i>' },
+  refresh: { zh: '重新整理', en: 'Refresh', icon: '<i class="fas fa-sync-alt"></i>' },
 
   // 檔案操作圖標
-  upload: { zh: '上傳', en: 'Upload', icon: 'fas fa-upload' },
-  download: { zh: '下載', en: 'Download', icon: 'fas fa-download' },
-  import: { zh: '匯入', en: 'Import', icon: 'fas fa-file-import' },
-  export: { zh: '匯出', en: 'Export', icon: 'fas fa-file-export' },
+  upload: { zh: '上傳', en: 'Upload', icon: '<i class="fas fa-upload"></i>' },
+  download: { zh: '下載', en: 'Download', icon: '<i class="fas fa-download"></i>' },
+  import: { zh: '匯入', en: 'Import', icon: '<i class="fas fa-file-import"></i>' },
+  export: { zh: '匯出', en: 'Export', icon: '<i class="fas fa-file-export"></i>' },
 
   // 導航圖標
-  home: { zh: '首頁', en: 'Home', icon: 'fas fa-home' },
-  back: { zh: '返回', en: 'Back', icon: 'fas fa-arrow-left' },
-  forward: { zh: '前進', en: 'Forward', icon: 'fas fa-arrow-right' },
-  up: { zh: '向上', en: 'Up', icon: 'fas fa-arrow-up' },
-  down: { zh: '向下', en: 'Down', icon: 'fas fa-arrow-down' },
+  home: { zh: '首頁', en: 'Home', icon: '<i class="fas fa-home"></i>' },
+  back: { zh: '返回', en: 'Back', icon: '<i class="fas fa-arrow-left"></i>' },
+  forward: { zh: '前進', en: 'Forward', icon: '<i class="fas fa-arrow-right"></i>' },
+  up: { zh: '向上', en: 'Up', icon: '<i class="fas fa-arrow-up"></i>' },
+  down: { zh: '向下', en: 'Down', icon: '<i class="fas fa-arrow-down"></i>' },
+  chevron_up: { zh: '向上箭頭', en: 'Chevron Up', icon: '<i class="fa-solid fa-chevron-up"></i>' },
+  chevron_down: {
+    zh: '向下箭頭',
+    en: 'Chevron Down',
+    icon: '<i class="fa-solid fa-chevron-down"></i>',
+  },
 
   // 狀態圖標
-  success: { zh: '成功', en: 'Success', icon: 'fas fa-check-circle' },
-  error: { zh: '錯誤', en: 'Error', icon: 'fas fa-exclamation-circle' },
-  warning: { zh: '警告', en: 'Warning', icon: 'fas fa-exclamation-triangle' },
-  info: { zh: '資訊', en: 'Info', icon: 'fas fa-info-circle' },
-  loading: { zh: '載入中', en: 'Loading', icon: 'fas fa-spinner' },
+  success: { zh: '成功', en: 'Success', icon: '<i class="fas fa-check-circle"></i>' },
+  error: { zh: '錯誤', en: 'Error', icon: '<i class="fas fa-exclamation-circle"></i>' },
+  warning: { zh: '警告', en: 'Warning', icon: '<i class="fas fa-exclamation-triangle"></i>' },
+  info: { zh: '資訊', en: 'Info', icon: '<i class="fas fa-info-circle"></i>' },
+  loading: { zh: '載入中', en: 'Loading', icon: '<i class="fas fa-spinner"></i>' },
 
   // 視圖控制圖標
-  view: { zh: '檢視', en: 'View', icon: 'fas fa-eye' },
-  hide: { zh: '隱藏', en: 'Hide', icon: 'fas fa-eye-slash' },
-  expand: { zh: '展開', en: 'Expand', icon: 'fas fa-expand' },
-  collapse: { zh: '收縮', en: 'Collapse', icon: 'fas fa-compress' },
+  view: { zh: '檢視', en: 'View', icon: '<i class="fas fa-eye"></i>' },
+  hide: { zh: '隱藏', en: 'Hide', icon: '<i class="fas fa-eye-slash"></i>' },
+  expand: { zh: '展開', en: 'Expand', icon: '<i class="fas fa-expand"></i>' },
+  collapse: { zh: '收縮', en: 'Collapse', icon: '<i class="fas fa-compress"></i>' },
 
   // 📂 圖層和資料相關 (Layer & Data Icons)
-  layer: { zh: '圖層', en: 'Layer', icon: 'fas fa-layer-group' },
-  visible: { zh: '可見', en: 'Visible', icon: 'fas fa-eye' },
-  hidden: { zh: '隱藏', en: 'Hidden', icon: 'fas fa-eye-slash' },
-  data: { zh: '資料', en: 'Data', icon: 'fas fa-database' },
-  table: { zh: '表格', en: 'Table', icon: 'fas fa-table' },
+  layer: { zh: '圖層', en: 'Layer', icon: '<i class="fas fa-layer-group"></i>' },
+  visible: { zh: '可見', en: 'Visible', icon: '<i class="fas fa-eye"></i>' },
+  hidden: { zh: '隱藏', en: 'Hidden', icon: '<i class="fas fa-eye-slash"></i>' },
+  data: { zh: '資料', en: 'Data', icon: '<i class="fas fa-database"></i>' },
+  table: { zh: '表格', en: 'Table', icon: '<i class="fas fa-table"></i>' },
 
   // 🗺️ 地圖相關 (Map Icons)
-  map: { zh: '地圖', en: 'Map', icon: 'fas fa-map' },
-  location: { zh: '位置', en: 'Location', icon: 'fas fa-map-marker-alt' },
-  zoom_in: { zh: '放大', en: 'Zoom In', icon: 'fas fa-search-plus' },
-  zoom_out: { zh: '縮小', en: 'Zoom Out', icon: 'fas fa-search-minus' },
-  center: { zh: '居中', en: 'Center', icon: 'fas fa-crosshairs' },
+  map: { zh: '地圖', en: 'Map', icon: '<i class="fas fa-map"></i>' },
+  location: { zh: '位置', en: 'Location', icon: '<i class="fas fa-map-marker-alt"></i>' },
+  location_dot: {
+    zh: '位置點',
+    en: 'Location Dot',
+    icon: '<i class="fa-solid fa-location-dot"></i>',
+  },
+  zoom_in: { zh: '放大', en: 'Zoom In', icon: '<i class="fas fa-search-plus"></i>' },
+  zoom_out: { zh: '縮小', en: 'Zoom Out', icon: '<i class="fas fa-search-minus"></i>' },
+  center: { zh: '居中', en: 'Center', icon: '<i class="fas fa-crosshairs"></i>' },
 
   // 📊 分析和統計 (Analysis & Statistics Icons)
-  chart: { zh: '圖表', en: 'Chart', icon: 'fas fa-chart-bar' },
-  statistics: { zh: '統計', en: 'Statistics', icon: 'fas fa-chart-line' },
-  dashboard: { zh: '儀表板', en: 'Dashboard', icon: 'fas fa-tachometer-alt' },
-  analysis: { zh: '分析', en: 'Analysis', icon: 'fas fa-analytics' },
+  chart: { zh: '圖表', en: 'Chart', icon: '<i class="fas fa-chart-bar"></i>' },
+  statistics: { zh: '統計', en: 'Statistics', icon: '<i class="fas fa-chart-line"></i>' },
+  dashboard: { zh: '儀表板', en: 'Dashboard', icon: '<i class="fas fa-tachometer-alt"></i>' },
+  analysis: { zh: '分析', en: 'Analysis', icon: '<i class="fas fa-analytics"></i>' },
 
   // 🏥 醫療相關 (Medical Icons)
-  hospital: { zh: '醫院', en: 'Hospital', icon: 'fas fa-hospital' },
-  clinic: { zh: '診所', en: 'Clinic', icon: 'fas fa-clinic-medical' },
-  pharmacy: { zh: '藥局', en: 'Pharmacy', icon: 'fas fa-pills' },
-  elderly_care: { zh: '長照', en: 'Elderly Care', icon: 'fas fa-hands-helping' },
-  medical: { zh: '醫療', en: 'Medical', icon: 'fas fa-user-md' },
+  hospital: { zh: '醫院', en: 'Hospital', icon: '<i class="fas fa-hospital"></i>' },
+  clinic: { zh: '診所', en: 'Clinic', icon: '<i class="fas fa-clinic-medical"></i>' },
+  pharmacy: { zh: '藥局', en: 'Pharmacy', icon: '<i class="fas fa-pills"></i>' },
+  elderly_care: { zh: '長照', en: 'Elderly Care', icon: '<i class="fas fa-hands-helping"></i>' },
+  medical: { zh: '醫療', en: 'Medical', icon: '<i class="fas fa-user-md"></i>' },
+
+  // 🏢 建築和基礎設施 (Building & Infrastructure Icons)
+  building: { zh: '建築', en: 'Building', icon: '<i class="fas fa-building"></i>' },
 
   // 👥 人口和社會 (Population & Social Icons)
-  population: { zh: '人口', en: 'Population', icon: 'fas fa-users' },
-  demographics: { zh: '人口統計', en: 'Demographics', icon: 'fas fa-user-friends' },
-  community: { zh: '社區', en: 'Community', icon: 'fas fa-home' },
+  population: { zh: '人口', en: 'Population', icon: '<i class="fas fa-users"></i>' },
+  demographics: { zh: '人口統計', en: 'Demographics', icon: '<i class="fas fa-user-friends"></i>' },
+  community: { zh: '社區', en: 'Community', icon: '<i class="fas fa-home"></i>' },
 
   // 💰 經濟相關 (Economic Icons)
-  income: { zh: '收入', en: 'Income', icon: 'fas fa-dollar-sign' },
-  tax: { zh: '稅收', en: 'Tax', icon: 'fas fa-file-invoice-dollar' },
+  income: { zh: '收入', en: 'Income', icon: '<i class="fas fa-dollar-sign"></i>' },
+  tax: { zh: '稅收', en: 'Tax', icon: '<i class="fas fa-file-invoice-dollar"></i>' },
 
   // 🎛️ 操作和控制 (Control & Action Icons)
-  drag: { zh: '拖拉', en: 'Drag', icon: 'fa-solid fa-grip-lines-vertical' },
-  move_up: { zh: '上移', en: 'Move Up', icon: 'fas fa-arrow-up' },
-  move_down: { zh: '下移', en: 'Move Down', icon: 'fas fa-arrow-down' },
+  drag: { zh: '拖拉', en: 'Drag', icon: '<i class="fa-solid fa-grip-lines-vertical"></i>' },
+  move_up: { zh: '上移', en: 'Move Up', icon: '<i class="fas fa-arrow-up"></i>' },
+  move_down: { zh: '下移', en: 'Move Down', icon: '<i class="fas fa-arrow-down"></i>' },
 
   // ⚙️ 設定和配置 (Settings & Configuration Icons)
-  settings: { zh: '設定', en: 'Settings', icon: 'fas fa-cog' },
-  sort_up: { zh: '升序', en: 'Sort Ascending', icon: 'fas fa-sort-up' },
-  sort_down: { zh: '降序', en: 'Sort Descending', icon: 'fas fa-sort-down' },
+  settings: { zh: '設定', en: 'Settings', icon: '<i class="fas fa-cog"></i>' },
+  sort_up: { zh: '升序', en: 'Sort Ascending', icon: '<i class="fas fa-sort-up"></i>' },
+  sort_down: { zh: '降序', en: 'Sort Descending', icon: '<i class="fas fa-sort-down"></i>' },
 
   // 📁 檔案和資料夾 (File & Folder Icons)
-  folder: { zh: '資料夾', en: 'Folder', icon: 'fas fa-folder' },
-  folder_open: { zh: '開啟資料夾', en: 'Open Folder', icon: 'fas fa-folder-open' },
-  file: { zh: '檔案', en: 'File', icon: 'fas fa-file' },
+  folder: { zh: '資料夾', en: 'Folder', icon: '<i class="fas fa-folder"></i>' },
+  folder_open: { zh: '開啟資料夾', en: 'Open Folder', icon: '<i class="fas fa-folder-open"></i>' },
+  file: { zh: '檔案', en: 'File', icon: '<i class="fas fa-file"></i>' },
 
   // ℹ️ 資訊和狀態 (Information & Status Icons)
-  information: { zh: '資訊', en: 'Information', icon: 'fas fa-info-circle' },
-  alert: { zh: '警告', en: 'Warning', icon: 'fas fa-exclamation-triangle' },
-  failure: { zh: '錯誤', en: 'Error', icon: 'fas fa-times-circle' },
-  complete: { zh: '成功', en: 'Success', icon: 'fas fa-check-circle' },
+  information: { zh: '資訊', en: 'Information', icon: '<i class="fas fa-info-circle"></i>' },
+  alert: { zh: '警告', en: 'Warning', icon: '<i class="fas fa-exclamation-triangle"></i>' },
+  failure: { zh: '錯誤', en: 'Error', icon: '<i class="fas fa-times-circle"></i>' },
+  complete: { zh: '成功', en: 'Success', icon: '<i class="fas fa-check-circle"></i>' },
 
   // 🔄 狀態轉換 (State Transition Icons)
-  reset: { zh: '重設', en: 'Reset', icon: 'fas fa-undo' },
+  reset: { zh: '重設', en: 'Reset', icon: '<i class="fas fa-undo"></i>' },
 
   // 📱 介面元素 (UI Element Icons)
-  menu: { zh: '選單', en: 'Menu', icon: 'fas fa-bars' },
-  close: { zh: '關閉', en: 'Close', icon: 'fas fa-times' },
+  menu: { zh: '選單', en: 'Menu', icon: '<i class="fas fa-bars"></i>' },
+  close: { zh: '關閉', en: 'Close', icon: '<i class="fas fa-times"></i>' },
 };
 
 // =================================================================================
@@ -115,7 +130,7 @@ export const ICONS = {
  *
  * @param {string} iconKey - 圖標鍵名
  * @param {string} lang - 語言 ('zh' | 'en')
- * @returns {object} 包含文字和圖標類名的物件
+ * @returns {object} 包含文字和圖標完整標籤的物件
  */
 export function getIcon(iconKey, lang = 'zh') {
   const iconInfo = ICONS[iconKey];
@@ -123,7 +138,7 @@ export function getIcon(iconKey, lang = 'zh') {
     console.warn(`找不到圖標定義: ${iconKey}`);
     return {
       text: iconKey,
-      icon: 'fas fa-question-circle',
+      icon: '<i class="fas fa-question-circle"></i>',
     };
   }
 

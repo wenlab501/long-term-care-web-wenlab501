@@ -1,5 +1,6 @@
 <script>
   import { computed, ref, onMounted, onUnmounted } from 'vue';
+  import { ICONS } from '@/utils/utils.js';
   import LayersTab from '../tabs/LayersTab.vue';
   import DataTableTab from '../tabs/DataTableTab.vue';
   import PropertiesTab from '../tabs/PropertiesTab.vue';
@@ -52,9 +53,9 @@
        * 根據需求顯示不同的分頁選項
        */
       const availableTabs = computed(() => [
-        { id: 'layers', name: '圖層', icon: 'fas fa-layer-group' },
-        { id: 'table', name: '資料表', icon: 'fas fa-table' },
-        { id: 'properties', name: '屬性', icon: 'fa-solid fa-location-dot' },
+        { id: 'layers', name: '圖層', icon: ICONS.layer.icon },
+        { id: 'table', name: '資料表', icon: ICONS.table.icon },
+        { id: 'properties', name: '屬性', icon: ICONS.location_dot.icon },
       ]);
 
       /**
@@ -80,8 +81,8 @@
 
         return {
           'min-height': `${baseHeight}px`,
-          'height': `${baseHeight + extraPadding}px`,
-          'padding': `8px 4px ${extraPadding}px 4px`,
+          height: `${baseHeight + extraPadding}px`,
+          padding: `8px 4px ${extraPadding}px 4px`,
         };
       });
 
@@ -188,7 +189,7 @@
         @click="switchTab(tab.id)"
       >
         <div class="d-flex flex-column align-items-center justify-content-center w-100">
-          <span class="my-font-size-sm"><i :class="tab.icon" class="mb-1"></i></span>
+          <span class="my-font-size-sm mb-1" v-html="tab.icon"></span>
           <span class="my-font-size-xs">{{ tab.name }}</span>
         </div>
       </button>

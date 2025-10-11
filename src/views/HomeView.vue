@@ -1,6 +1,7 @@
 <script>
   import { ref, onMounted, onUnmounted, computed, nextTick, watch } from 'vue';
   import { useDataStore } from '@/stores/dataStore';
+  import { ICONS } from '@/utils/utils.js';
 
   // 🧩 組件引入
   import LoadingOverlay from '../components/LoadingOverlay.vue';
@@ -806,6 +807,9 @@
         openIsochroneModal, // 顯示等時分析 modal
         handleIsochroneConfirm, // 處理等時分析輸入確認
         handleIsochroneCancel, // 處理等時分析輸入取消
+
+        // 🎨 圖標定義
+        ICONS, // 圖標映射表
       };
     },
   };
@@ -875,7 +879,7 @@
             class="btn my-font-size-sm my-btn-white"
             @click="handleDistanceCancel"
           >
-            <i class="fas fa-times me-2"></i>
+            <span v-html="ICONS.cancel.icon.replace('</i>', ' me-2</i>')"></span>
             取消
           </button>
           <button
@@ -892,7 +896,7 @@
               parseFloat(distanceInput)
             "
           >
-            <i class="fas fa-check me-2"></i>
+            <span v-html="ICONS.confirm.icon.replace('</i>', ' me-2</i>')"></span>
             確認
           </button>
         </div>
@@ -941,7 +945,7 @@
             class="btn my-font-size-sm my-btn-white"
             @click="handleIsochroneCancel"
           >
-            <i class="fas fa-times me-2"></i>
+            <span v-html="ICONS.cancel.icon.replace('</i>', ' me-2</i>')"></span>
             取消
           </button>
           <button
@@ -950,7 +954,7 @@
             @click="handleIsochroneConfirm"
             :disabled="!isochroneInput || isochroneInput === ''"
           >
-            <i class="fas fa-check me-2"></i>
+            <span v-html="ICONS.confirm.icon.replace('</i>', ' me-2</i>')"></span>
             確認
           </button>
         </div>

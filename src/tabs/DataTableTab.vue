@@ -1,6 +1,7 @@
 <script setup>
   import { ref, computed, defineEmits, onMounted, watch } from 'vue';
   import { useDataStore } from '@/stores/dataStore.js';
+  import { ICONS } from '@/utils/utils.js';
 
   const emit = defineEmits(['highlight-on-map']);
 
@@ -118,9 +119,9 @@
   const getSortIcon = (layerId, key) => {
     const sortState = layerSortStates.value[layerId];
     if (!sortState || sortState.key !== key) {
-      return 'fas fa-sort';
+      return ICONS.sort.icon;
     }
-    return sortState.order === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+    return sortState.order === 'asc' ? ICONS.sort_up.icon : ICONS.sort_down.icon;
   };
 
   /**
@@ -129,13 +130,20 @@
    * @param {Object} layer - 圖層物件
    */
   const handleHighlight = (item, layer) => {
-    console.log('準備高亮顯示:', { item, layer: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '') });
+    console.log('準備高亮顯示:', {
+      item,
+      layer:
+        layer.layerTitle +
+        (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
+    });
 
     // 傳遞包含圖層資訊和項目ID的物件
     const highlightData = {
       id: item.id || item['#'], // 🔥 優先使用 item.id，如果沒有則使用 item['#'] 作為後備
       layerId: layer.layerId,
-      layerName: layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
+      layerName:
+        layer.layerTitle +
+        (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : ''),
       item: item,
     };
 
@@ -223,7 +231,12 @@
             @click="setActiveLayerTab(layer.layerId)"
           >
             <span class="my-title-sm-black"
-              >{{ layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '') }}
+              >{{
+                layer.layerTitle +
+                (layer.layerFields?.[0]?.layerSubtitle
+                  ? ' - ' + layer.layerFields[0].layerSubtitle
+                  : '')
+              }}
               <span class="my-content-xs-gray ms-2" v-if="getLayerDataCount(layer)">
                 {{ getLayerDataCount(layer) }}
               </span>
@@ -256,8 +269,10 @@
                       <span class="my-title-xs-gray text-nowrap">
                         {{ column }}
                       </span>
-                      <span class="my-title-xs-gray text-nowrap ms-2">
-                        <i :class="getSortIcon(layer.layerId, column)"></i>
+                      <span
+                        class="my-title-xs-gray text-nowrap ms-2"
+                        v-html="getSortIcon(layer.layerId, column)"
+                      >
                       </span>
                     </th>
                   </template>

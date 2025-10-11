@@ -5,6 +5,7 @@
   import 'leaflet/dist/leaflet.css'; // 引入 Leaflet 預設樣式
   import { useDataStore } from '@/stores/dataStore.js'; // 引入資料存儲
   import { useDefineStore } from '@/stores/defineStore.js'; // 引入定義存儲
+  import { ICONS } from '@/utils/utils.js'; // 引入圖標定義
 
   // 🔧 修復 Leaflet 預設圖標問題 (Fix Leaflet Default Icon Issues)
   import icon from 'leaflet/dist/images/marker-icon.png'; // 引入標準標記圖標
@@ -254,7 +255,7 @@
                 const icon = L.divIcon({
                   html: `
                   <div class="d-flex align-items-center justify-content-center my-color-green my-font-size-sm">
-                    <i class="fas fa-plus"></i>
+                    ${ICONS.add.icon}
                   </div>
                   `,
                   className: 'analysis-point-icon',
@@ -284,7 +285,7 @@
                 const icon = L.divIcon({
                   html: `
                   <div class="d-flex align-items-center justify-content-center my-color-blue my-font-size-sm">
-                    <i class="fas fa-plus"></i>
+                    ${ICONS.add.icon}
                   </div>
                   `,
                   className: 'isochrone-analysis-point-icon',
@@ -1943,7 +1944,10 @@
         class="context-menu-item d-flex align-items-center my-bgcolor-white-hover my-title-sm-black px-3 py-2 my-2"
         @click="deleteAnalysisPoint"
       >
-        <span class="my-color-red"><i class="fas fa-trash-alt me-2"></i></span>
+        <span
+          class="my-color-red"
+          v-html="`${ICONS.delete_alt.icon.replace('</i>', ' me-2</i>')}`"
+        ></span>
         刪除此分析點
       </div>
     </div>

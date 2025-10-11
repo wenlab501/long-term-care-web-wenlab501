@@ -1,7 +1,7 @@
 <script>
   import { computed, ref } from 'vue';
   import { useDataStore } from '@/stores/dataStore.js';
-  import { getIcon } from '../utils/utils.js';
+  import { ICONS, getIcon } from '../utils/utils.js';
 
   export default {
     name: 'LayersTab',
@@ -41,10 +41,10 @@
 
       // 📊 圖層類別定義 (Layer Category Definitions)
       const layerCategories = [
-        { id: 'longTermCare', name: '長照設施', icon: 'fas fa-hands-helping' },
-        { id: 'infrastructure', name: '基礎設施', icon: 'fas fa-building' },
-        { id: 'geographicData', name: '地理資料', icon: 'fas fa-map' },
-        { id: 'dataAnalysis', name: '數據分析', icon: 'fas fa-chart-bar' },
+        { id: 'longTermCare', name: '長照設施', icon: ICONS.elderly_care.icon },
+        { id: 'infrastructure', name: '基礎設施', icon: ICONS.building.icon },
+        { id: 'geographicData', name: '地理資料', icon: ICONS.map.icon },
+        { id: 'dataAnalysis', name: '數據分析', icon: ICONS.chart.icon },
       ];
 
       // 📊 根據選中的類別獲取對應的圖層數據
@@ -259,6 +259,7 @@
         activeLayerCategory,
         layerCategories,
         switchLayerCategory,
+        ICONS,
       };
     },
   };
@@ -283,7 +284,7 @@
         @click="switchLayerCategory(category.id)"
       >
         <div class="d-flex flex-column align-items-center justify-content-center w-100">
-          <span class="my-font-size-sm"><i :class="category.icon" class="mb-1"></i></span>
+          <span class="my-font-size-sm mb-1" v-html="category.icon"></span>
           <span class="my-font-size-xs">{{ category.name }}</span>
         </div>
       </button>
@@ -329,14 +330,14 @@
                         >{{ item.layerTitle }}</span
                       >
                       <!-- 🔽 收合按鈕 -->
-                      <i
-                        :class="
+                      <span
+                        v-html="
                           isGroupCollapsed(item.groupId)
-                            ? 'fa-solid fa-chevron-down'
-                            : 'fa-solid fa-chevron-up'
+                            ? ICONS.chevron_down.icon
+                            : ICONS.chevron_up.icon
                         "
                         style="font-size: 12px; color: var(--my-color-gray-600); margin-left: 8px"
-                      ></i>
+                      ></span>
                     </div>
                   </div>
                 </div>

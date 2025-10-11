@@ -4,6 +4,8 @@
   // 🧩 子組件引入
   import MapTab from '../tabs/MapTab.vue';
   import DashboardTab from '../tabs/DashboardTab.vue';
+  // 🔧 工具函數引入
+  import { ICONS } from '@/utils/utils.js';
 
   export default {
     name: 'UpperView',
@@ -219,6 +221,7 @@
         invalidateMapSize, // 刷新地圖尺寸功能
         stopClickMode, // 停止數據分析點擊模式
         stopIsochroneClickMode, // 停止等時圈分析點擊模式
+        ICONS, // 圖標定義
       };
     },
   };
@@ -239,9 +242,8 @@
             @click="$emit('update:activeUpperTab', 'map')"
             style="width: 30px; height: 30px"
             title="地圖視圖"
-          >
-            <i class="fas fa-map"></i>
-          </button>
+            v-html="ICONS.map.icon"
+          ></button>
           <!-- 📊 儀表板按鈕 (Dashboard Button) -->
           <button
             class="btn rounded-circle border-0 d-flex align-items-center justify-content-center my-btn-transparent my-font-size-xs"
@@ -251,9 +253,8 @@
             @click="$emit('update:activeUpperTab', 'dashboard')"
             style="width: 30px; height: 30px"
             title="資料儀表板"
-          >
-            <i class="fas fa-chart-bar"></i>
-          </button>
+            v-html="ICONS.chart.icon"
+          ></button>
         </div>
       </div>
 
