@@ -36,10 +36,37 @@
       // 預設為收合狀態（所有分組都收合）
       const collapsedGroups = ref(new Set());
 
-      // 📊 原始圖層數據計算屬性
-      // 從 Pinia store 中獲取所有圖層分組數據
-      // 當 store 中的圖層狀態改變時，此屬性會自動重新計算
-      const layers = computed(() => dataStore.layers);
+      // 📑 當前選中的圖層類別 (Active Layer Category)
+      const activeLayerCategory = ref('longTermCare');
+
+      // 📊 圖層類別定義 (Layer Category Definitions)
+      const layerCategories = [
+        { id: 'longTermCare', name: '長照設施', icon: 'fas fa-hands-helping' },
+        { id: 'infrastructure', name: '基礎設施', icon: 'fas fa-building' },
+        { id: 'geographicData', name: '地理資料', icon: 'fas fa-map' },
+        { id: 'dataAnalysis', name: '數據分析', icon: 'fas fa-chart-bar' },
+      ];
+
+      // 📊 根據選中的類別獲取對應的圖層數據
+      const layers = computed(() => {
+        switch (activeLayerCategory.value) {
+          case 'longTermCare':
+            return dataStore.layersLongTermCare;
+          case 'infrastructure':
+            return dataStore.layersInfrastructure;
+          case 'geographicData':
+            return dataStore.layersGeographicData;
+          case 'dataAnalysis':
+            return dataStore.layersDataAnalysis;
+          default:
+            return dataStore.layers;
+        }
+      });
+
+      // 🔘 切換圖層類別 (Switch Layer Category)
+      const switchLayerCategory = (categoryId) => {
+        activeLayerCategory.value = categoryId;
+      };
 
       /**
        * 🔄 處理圖層數據用於分組顯示
@@ -229,6 +256,9 @@
         isGroupCollapsed,
         layerListRef,
         getIcon,
+        activeLayerCategory,
+        layerCategories,
+        switchLayerCategory,
       };
     },
   };
@@ -237,6 +267,28 @@
 <template>
   <!-- 🎨 圖層面板主容器 -->
   <div class="h-100 d-flex flex-column overflow-hidden my-bgcolor-gray-100">
+    <!-- 📑 圖層類別導航 (Layer Category Navigation) -->
+    <div class="d-flex align-items-center justify-content-between p-2">
+      <button
+        v-for="category in layerCategories"
+        :key="category.id"
+        class="d-flex rounded-3 border-0 flex-grow-1 py-2 mx-1"
+        :class="{
+          'my-btn-transparent': activeLayerCategory !== category.id,
+          'my-btn-blue': activeLayerCategory === category.id,
+        }"
+        :style="{
+          'min-height': '44px',
+        }"
+        @click="switchLayerCategory(category.id)"
+      >
+        <div class="d-flex flex-column align-items-center justify-content-center w-100">
+          <span class="my-font-size-sm"><i :class="category.icon" class="mb-1"></i></span>
+          <span class="my-font-size-xs">{{ category.name }}</span>
+        </div>
+      </button>
+    </div>
+
     <!-- 📋 圖層列表滾動容器 -->
     <div class="flex-grow-1 overflow-auto layer-list-container" ref="layerListRef">
       <div class="mb-3">
