@@ -1944,10 +1944,6 @@
         class="context-menu-item d-flex align-items-center my-bgcolor-white-hover my-title-sm-black px-3 py-2 my-2"
         @click="deleteAnalysisPoint"
       >
-        <span
-          class="my-color-red"
-          v-html="`${ICONS.delete_alt.icon.replace('</i>', ' me-2</i>')}`"
-        ></span>
         刪除此分析點
       </div>
     </div>

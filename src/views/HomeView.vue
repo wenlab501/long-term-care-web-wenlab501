@@ -879,7 +879,6 @@
             class="btn my-font-size-sm my-btn-white"
             @click="handleDistanceCancel"
           >
-            <span v-html="ICONS.cancel.icon.replace('</i>', ' me-2</i>')"></span>
             取消
           </button>
           <button
@@ -896,7 +895,6 @@
               parseFloat(distanceInput)
             "
           >
-            <span v-html="ICONS.confirm.icon.replace('</i>', ' me-2</i>')"></span>
             確認
           </button>
         </div>
@@ -945,7 +943,6 @@
             class="btn my-font-size-sm my-btn-white"
             @click="handleIsochroneCancel"
           >
-            <span v-html="ICONS.cancel.icon.replace('</i>', ' me-2</i>')"></span>
             取消
           </button>
           <button
@@ -954,7 +951,6 @@
             @click="handleIsochroneConfirm"
             :disabled="!isochroneInput || isochroneInput === ''"
           >
-            <span v-html="ICONS.confirm.icon.replace('</i>', ' me-2</i>')"></span>
             確認
           </button>
         </div>
