@@ -711,9 +711,21 @@ export const useDataStore = defineStore(
           {
             layerTitle: '人口統計',
             layerFields: [
-              { layerSubtitle: '14歲以下', fieldName: 'A0A14_CNT' },
-              { layerSubtitle: '15~64歲', fieldName: 'A15A64_CNT' },
-              { layerSubtitle: '65歲以上', fieldName: 'A65UP_CNT' },
+              {
+                layerSubtitle: '14歲以下',
+                fieldName: 'A0A14_CNT',
+                loader: loadPopulation3LevelsGeoJson,
+              },
+              {
+                layerSubtitle: '15~64歲',
+                fieldName: 'A15A64_CNT',
+                loader: loadPopulation3LevelsGeoJson,
+              },
+              {
+                layerSubtitle: '65歲以上',
+                fieldName: 'A65UP_CNT',
+                loader: loadPopulation3LevelsGeoJson,
+              },
             ],
             visible: false,
             isLoading: false,
@@ -725,35 +737,127 @@ export const useDataStore = defineStore(
             summaryData: null,
             tableData: null,
             legendData: null,
-            loader: loadPopulation3LevelsGeoJson,
+            loader: null,
             fileName: '113年12月行政區三段年齡組性別人口統計_村里_WGS84_臺北市.geojson',
           },
           {
             layerTitle: '各行政區死亡人口數',
             layerFields: [
-              { layerSubtitle: '112年', fieldName: '112年' },
-              { layerSubtitle: '111年', fieldName: '111年' },
-              { layerSubtitle: '110年', fieldName: '110年' },
-              { layerSubtitle: '109年', fieldName: '109年' },
-              { layerSubtitle: '108年', fieldName: '108年' },
-              { layerSubtitle: '107年', fieldName: '107年' },
-              { layerSubtitle: '106年', fieldName: '106年' },
-              { layerSubtitle: '105年', fieldName: '105年' },
-              { layerSubtitle: '104年', fieldName: '104年' },
-              { layerSubtitle: '103年', fieldName: '103年' },
-              { layerSubtitle: '102年', fieldName: '102年' },
-              { layerSubtitle: '101年', fieldName: '101年' },
-              { layerSubtitle: '100年', fieldName: '100年' },
-              { layerSubtitle: '99年', fieldName: '99年' },
-              { layerSubtitle: '98年', fieldName: '98年' },
-              { layerSubtitle: '97年', fieldName: '97年' },
-              { layerSubtitle: '96年', fieldName: '96年' },
-              { layerSubtitle: '95年', fieldName: '95年' },
-              { layerSubtitle: '94年', fieldName: '94年' },
-              { layerSubtitle: '93年', fieldName: '93年' },
-              { layerSubtitle: '92年', fieldName: '92年' },
-              { layerSubtitle: '91年', fieldName: '91年' },
-              { layerSubtitle: '90年', fieldName: '90年' },
+              {
+                layerSubtitle: '112年',
+                fieldName: '112年',
+                loader: loadDeathPopulationByYearGeoJson,
+              },
+              {
+                layerSubtitle: '111年',
+                fieldName: '111年',
+                loader: loadDeathPopulationByYearGeoJson,
+              },
+              {
+                layerSubtitle: '110年',
+                fieldName: '110年',
+                loader: loadDeathPopulationByYearGeoJson,
+              },
+              {
+                layerSubtitle: '109年',
+                fieldName: '109年',
+                loader: loadDeathPopulationByYearGeoJson,
+              },
+              {
+                layerSubtitle: '108年',
+                fieldName: '108年',
+                loader: loadDeathPopulationByYearGeoJson,
+              },
+              {
+                layerSubtitle: '107年',
+                fieldName: '107年',
+                loader: loadDeathPopulationByYearGeoJson,
+              },
+              {
+                layerSubtitle: '106年',
+                fieldName: '106年',
+                loader: loadDeathPopulationByYearGeoJson,
+              },
+              {
+                layerSubtitle: '105年',
+                fieldName: '105年',
+                loader: loadDeathPopulationByYearGeoJson,
+              },
+              {
+                layerSubtitle: '104年',
+                fieldName: '104年',
+                loader: loadDeathPopulationByYearGeoJson,
+              },
+              {
+                layerSubtitle: '103年',
+                fieldName: '103年',
+                loader: loadDeathPopulationByYearGeoJson,
+              },
+              {
+                layerSubtitle: '102年',
+                fieldName: '102年',
+                loader: loadDeathPopulationByYearGeoJson,
+              },
+              {
+                layerSubtitle: '101年',
+                fieldName: '101年',
+                loader: loadDeathPopulationByYearGeoJson,
+              },
+              {
+                layerSubtitle: '100年',
+                fieldName: '100年',
+                loader: loadDeathPopulationByYearGeoJson,
+              },
+              {
+                layerSubtitle: '99年',
+                fieldName: '99年',
+                loader: loadDeathPopulationByYearGeoJson,
+              },
+              {
+                layerSubtitle: '98年',
+                fieldName: '98年',
+                loader: loadDeathPopulationByYearGeoJson,
+              },
+              {
+                layerSubtitle: '97年',
+                fieldName: '97年',
+                loader: loadDeathPopulationByYearGeoJson,
+              },
+              {
+                layerSubtitle: '96年',
+                fieldName: '96年',
+                loader: loadDeathPopulationByYearGeoJson,
+              },
+              {
+                layerSubtitle: '95年',
+                fieldName: '95年',
+                loader: loadDeathPopulationByYearGeoJson,
+              },
+              {
+                layerSubtitle: '94年',
+                fieldName: '94年',
+                loader: loadDeathPopulationByYearGeoJson,
+              },
+              {
+                layerSubtitle: '93年',
+                fieldName: '93年',
+                loader: loadDeathPopulationByYearGeoJson,
+              },
+              {
+                layerSubtitle: '92年',
+                fieldName: '92年',
+                loader: loadDeathPopulationByYearGeoJson,
+              },
+              {
+                layerSubtitle: '91年',
+                fieldName: '91年',
+                loader: loadDeathPopulationByYearGeoJson,
+              },
+              {
+                layerSubtitle: '90年',
+                fieldName: '90年',
+                loader: loadDeathPopulationByYearGeoJson,
+              },
             ],
             visible: false,
             isLoading: false,
@@ -765,7 +869,7 @@ export const useDataStore = defineStore(
             summaryData: null,
             tableData: null,
             legendData: null,
-            loader: loadDeathPopulationByYearGeoJson,
+            loader: null,
             fileName: '12-4各行政區死亡人口數(按年分).geojson',
           },
           {
@@ -774,76 +878,94 @@ export const useDataStore = defineStore(
               {
                 layerSubtitle: '113年 結婚對數合計數量',
                 fieldName: '113_結婚對數合計數量',
+                loader: loadMarriagePopulationByYearGeoJson,
               },
               {
                 layerSubtitle: '113年 結婚對數＿不同性別',
                 fieldName: '113_結婚對數＿不同性別',
+                loader: loadMarriagePopulationByYearGeoJson,
               },
               {
                 layerSubtitle: '113年 結婚對數＿相同性別',
                 fieldName: '113_結婚對數＿相同性別',
+                loader: loadMarriagePopulationByYearGeoJson,
               },
               {
                 layerSubtitle: '113年 離婚／終止結婚對數合計數量',
                 fieldName: '113_離婚／終止結婚對數合計數量',
+                loader: loadMarriagePopulationByYearGeoJson,
               },
               {
                 layerSubtitle: '113年 離婚／終止結婚對數＿不同性別',
                 fieldName: '113_離婚／終止結婚對數＿不同性別',
+                loader: loadMarriagePopulationByYearGeoJson,
               },
               {
                 layerSubtitle: '113年 離婚／終止結婚對數＿相同性別',
                 fieldName: '113_離婚／終止結婚對數＿相同性別',
+                loader: loadMarriagePopulationByYearGeoJson,
               },
 
               {
                 layerSubtitle: '112年 結婚對數合計數量',
                 fieldName: '112_結婚對數合計數量',
+                loader: loadMarriagePopulationByYearGeoJson,
               },
               {
                 layerSubtitle: '112年 結婚對數＿不同性別',
                 fieldName: '112_結婚對數＿不同性別',
+                loader: loadMarriagePopulationByYearGeoJson,
               },
               {
                 layerSubtitle: '112年 結婚對數＿相同性別',
                 fieldName: '112_結婚對數＿相同性別',
+                loader: loadMarriagePopulationByYearGeoJson,
               },
               {
                 layerSubtitle: '112年 離婚／終止結婚對數合計數量',
                 fieldName: '112_離婚／終止結婚對數合計數量',
+                loader: loadMarriagePopulationByYearGeoJson,
               },
               {
                 layerSubtitle: '112年 離婚／終止結婚對數＿不同性別',
                 fieldName: '112_離婚／終止結婚對數＿不同性別',
+                loader: loadMarriagePopulationByYearGeoJson,
               },
               {
                 layerSubtitle: '112年 離婚／終止結婚對數＿相同性別',
                 fieldName: '112_離婚／終止結婚對數＿相同性別',
+                loader: loadMarriagePopulationByYearGeoJson,
               },
 
               {
                 layerSubtitle: '111年 結婚對數合計數量',
                 fieldName: '111_結婚對數合計數量',
+                loader: loadMarriagePopulationByYearGeoJson,
               },
               {
                 layerSubtitle: '111年 結婚對數＿不同性別',
                 fieldName: '111_結婚對數＿不同性別',
+                loader: loadMarriagePopulationByYearGeoJson,
               },
               {
                 layerSubtitle: '111年 結婚對數＿相同性別',
                 fieldName: '111_結婚對數＿相同性別',
+                loader: loadMarriagePopulationByYearGeoJson,
               },
               {
                 layerSubtitle: '111年 離婚／終止結婚對數合計數量',
                 fieldName: '111_離婚／終止結婚對數合計數量',
+                loader: loadMarriagePopulationByYearGeoJson,
               },
               {
                 layerSubtitle: '111年 離婚／終止結婚對數＿不同性別',
                 fieldName: '111_離婚／終止結婚對數＿不同性別',
+                loader: loadMarriagePopulationByYearGeoJson,
               },
               {
                 layerSubtitle: '111年 離婚／終止結婚對數＿相同性別',
                 fieldName: '111_離婚／終止結婚對數＿相同性別',
+                loader: loadMarriagePopulationByYearGeoJson,
               },
             ],
             visible: false,
@@ -856,14 +978,14 @@ export const useDataStore = defineStore(
             summaryData: null,
             tableData: null,
             legendData: null,
-            loader: loadMarriagePopulationByYearGeoJson,
+            loader: null,
             fileName: '111迄今各區結婚、離婚及終止結婚對數.geojson',
           },
           {
             layerTitle: '綜稅綜合所得總額',
             layerFields: [
-              { layerSubtitle: '中位數', fieldName: '中位數' },
-              { layerSubtitle: '平均數', fieldName: '平均數' },
+              { layerSubtitle: '中位數', fieldName: '中位數', loader: loadIncomeGeoJson },
+              { layerSubtitle: '平均數', fieldName: '平均數', loader: loadIncomeGeoJson },
             ],
             visible: false,
             isLoading: false,
@@ -875,12 +997,18 @@ export const useDataStore = defineStore(
             summaryData: null,
             tableData: null,
             legendData: null,
-            loader: loadIncomeGeoJson,
+            loader: null,
             fileName: '臺北市_村里_綜稅綜合所得總額.geojson',
           },
           {
-            layerTitle: '需求強化',
-            layerFields: [{ layerSubtitle: null, fieldName: 'Reinf_eeds' }],
+            layerTitle: '台北里級社區原始數據',
+            layerFields: [
+              { layerSubtitle: '需求強化', fieldName: 'Reinf_eeds', loader: loadReinfEedsGeoJson },
+              { layerSubtitle: '群體感', fieldName: 'Membership', loader: loadMembershipGeoJson },
+              { layerSubtitle: '影響力', fieldName: 'Influence', loader: loadInfluenceGeoJson },
+              { layerSubtitle: 'CPR意願', fieldName: 'tot_CPR', loader: loadCPRGeoJson },
+              { layerSubtitle: 'AED意願', fieldName: 'tot_AED', loader: loadAEDGeoJson },
+            ],
             visible: false,
             isLoading: false,
             isLoaded: false,
@@ -891,71 +1019,7 @@ export const useDataStore = defineStore(
             summaryData: null,
             tableData: null,
             legendData: null,
-            loader: loadReinfEedsGeoJson,
-            fileName: '台北里級社區原始數據.geojson',
-          },
-          {
-            layerTitle: '群體感',
-            layerFields: [{ layerSubtitle: null, fieldName: 'Membership' }],
-            visible: false,
-            isLoading: false,
-            isLoaded: false,
-            type: 'polygon',
-            shape: null,
-            colorName: 'deeppurple',
-            geoJsonData: null,
-            summaryData: null,
-            tableData: null,
-            legendData: null,
-            loader: loadMembershipGeoJson,
-            fileName: '台北里級社區原始數據.geojson',
-          },
-          {
-            layerTitle: '影響力',
-            layerFields: [{ layerSubtitle: null, fieldName: 'Influence' }],
-            visible: false,
-            isLoading: false,
-            isLoaded: false,
-            type: 'polygon',
-            shape: null,
-            colorName: 'deeppurple',
-            geoJsonData: null,
-            summaryData: null,
-            tableData: null,
-            legendData: null,
-            loader: loadInfluenceGeoJson,
-            fileName: '台北里級社區原始數據.geojson',
-          },
-          {
-            layerTitle: 'CPR意願',
-            layerFields: [{ layerSubtitle: null, fieldName: 'tot_CPR' }],
-            visible: false,
-            isLoading: false,
-            isLoaded: false,
-            type: 'polygon',
-            shape: null,
-            colorName: 'deeppurple',
-            geoJsonData: null,
-            summaryData: null,
-            tableData: null,
-            legendData: null,
-            loader: loadCPRGeoJson,
-            fileName: '台北里級社區原始數據.geojson',
-          },
-          {
-            layerTitle: 'AED意願',
-            layerFields: [{ layerSubtitle: null, fieldName: 'tot_AED' }],
-            visible: false,
-            isLoading: false,
-            isLoaded: false,
-            type: 'polygon',
-            shape: null,
-            colorName: 'deeppurple',
-            geoJsonData: null,
-            summaryData: null,
-            tableData: null,
-            legendData: null,
-            loader: loadAEDGeoJson,
+            loader: null,
             fileName: '台北里級社區原始數據.geojson',
           },
         ],
@@ -965,7 +1029,9 @@ export const useDataStore = defineStore(
         groupLayers: [
           {
             layerTitle: '土地利用',
-            layerFields: [{ layerSubtitle: null, fieldName: 'NEWLAYER' }],
+            layerFields: [
+              { layerSubtitle: null, fieldName: 'NEWLAYER', loader: loadLanduseGeoJson },
+            ],
             visible: false,
             isLoading: false,
             isLoaded: false,
@@ -976,12 +1042,14 @@ export const useDataStore = defineStore(
             summaryData: null,
             tableData: null,
             legendData: null,
-            loader: loadLanduseGeoJson,
+            loader: null,
             fileName: 'Landuse2.geojson',
           },
           {
             layerTitle: '行政區界',
-            layerFields: [{ layerSubtitle: null, fieldName: 'A0A14_CNT' }],
+            layerFields: [
+              { layerSubtitle: null, fieldName: 'A0A14_CNT', loader: loadTaipeiDistrictGeoJson },
+            ],
             visible: false,
             isLoading: false,
             isLoaded: false,
@@ -992,7 +1060,7 @@ export const useDataStore = defineStore(
             summaryData: null,
             tableData: null,
             legendData: null,
-            loader: loadTaipeiDistrictGeoJson,
+            loader: null,
             fileName: '臺北市區界圖_20220915.geojson',
           },
         ],
@@ -1237,7 +1305,9 @@ export const useDataStore = defineStore(
       ) {
         try {
           layer.isLoading = true;
-          const result = await layer.loader(layer);
+          // 🔄 根據 layerFields 決定使用哪個 loader
+          const loaderToUse = layer.layerFields ? layer.layerFields[0].loader : layer.loader;
+          const result = await loaderToUse(layer);
 
           // 將載入的資料直接存儲在圖層物件中
           layer.geoJsonData = result.geoJsonData;
@@ -2003,8 +2073,10 @@ export const useDataStore = defineStore(
             layer.isLoading = true;
             layer.visible = true; // 設為可見
 
-            if (layer.loader) {
-              const data = await layer.loader(layer.fileName);
+            // 🔄 根據 layerFields 決定使用哪個 loader
+            const loaderToUse = layer.layerFields ? layer.layerFields[0].loader : layer.loader;
+            if (loaderToUse) {
+              const data = await loaderToUse(layer.fileName);
               layer.geoJsonData = data.geoJsonData;
               layer.summaryData = data.summaryData;
               layer.tableData = data.tableData;
