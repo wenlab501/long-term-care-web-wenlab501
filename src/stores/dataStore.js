@@ -1029,9 +1029,7 @@ export const useDataStore = defineStore(
         groupLayers: [
           {
             layerTitle: '土地利用',
-            layerFields: [
-              { layerSubtitle: null, fieldName: 'NEWLAYER', loader: loadLanduseGeoJson },
-            ],
+            layerFields: null,
             visible: false,
             isLoading: false,
             isLoaded: false,
@@ -1042,14 +1040,12 @@ export const useDataStore = defineStore(
             summaryData: null,
             tableData: null,
             legendData: null,
-            loader: null,
+            loader: loadLanduseGeoJson,
             fileName: 'Landuse2.geojson',
           },
           {
             layerTitle: '行政區界',
-            layerFields: [
-              { layerSubtitle: null, fieldName: 'A0A14_CNT', loader: loadTaipeiDistrictGeoJson },
-            ],
+            layerFields: null,
             visible: false,
             isLoading: false,
             isLoaded: false,
@@ -1060,7 +1056,7 @@ export const useDataStore = defineStore(
             summaryData: null,
             tableData: null,
             legendData: null,
-            loader: null,
+            loader: loadTaipeiDistrictGeoJson,
             fileName: '臺北市區界圖_20220915.geojson',
           },
         ],
