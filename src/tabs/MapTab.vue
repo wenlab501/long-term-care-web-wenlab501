@@ -807,7 +807,7 @@
               contextmenu: function (e) {
                 // 只有分析圖層的圓圈才顯示右鍵菜單
                 if (
-                  (layer.isAnalysisLayer || feature.properties.layerId === 'analysis-layer') &&
+                  (layer.isAnalysisLayer || feature.properties.layerId === '數據分析圖層') &&
                   feature.properties.type === 'circle-analysis'
                 ) {
                   showAnalysisContextMenu(e.originalEvent, feature);
@@ -816,7 +816,7 @@
                 // 只有等時圈分析圖層的圓圈或多邊形才顯示右鍵菜單
                 if (
                   (layer.isIsochroneAnalysisLayer ||
-                    feature.properties.layerId === 'isochrone-analysis-layer') &&
+                    feature.properties.layerId === '等時圈分析圖層') &&
                   (feature.properties.type === 'isochrone-circle-analysis' ||
                     feature.properties.type === 'isochrone-polygon-analysis')
                 ) {
