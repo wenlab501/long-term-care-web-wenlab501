@@ -277,6 +277,28 @@
   };
 
   /**
+   * 🛑 停止數據分析點擊模式 (Stop Data Analysis Click Mode)
+   * 透過 mainContentRef 呼叫 UpperView 的停止點擊模式功能
+   */
+  const stopClickMode = () => {
+    if (mainContentRef.value) {
+      console.log('🛑 MiddleView: 停止數據分析點擊模式');
+      mainContentRef.value.stopClickMode();
+    }
+  };
+
+  /**
+   * 🛑 停止等時圈分析點擊模式 (Stop Isochrone Analysis Click Mode)
+   * 透過 mainContentRef 呼叫 UpperView 的停止等時圈點擊模式功能
+   */
+  const stopIsochroneClickMode = () => {
+    if (mainContentRef.value) {
+      console.log('🛑 MiddleView: 停止等時圈分析點擊模式');
+      mainContentRef.value.stopIsochroneClickMode();
+    }
+  };
+
+  /**
    * 📤 暴露方法給父組件使用 (Expose Methods to Parent Component)
    * 讓 HomeView 可以直接呼叫這些方法，實現組件間的方法調用
    */
@@ -286,6 +308,8 @@
     resetMapTab, // 地圖視圖重設
     invalidateMapSize, // 地圖尺寸刷新
     stopMapClickMode, // 停止地圖點擊模式
+    stopClickMode, // 停止數據分析點擊模式
+    stopIsochroneClickMode, // 停止等時圈分析點擊模式
     // 如果 HomeView 需要直接存取子組件，可以暴露 mainContentRef 和 bottomViewRef
     // mainContentRef,    // 主內容組件引用
     // bottomViewRef      // 底部視圖組件引用

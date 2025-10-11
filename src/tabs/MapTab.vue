@@ -50,10 +50,10 @@
       let mapInstance = null; // 地圖實例，使用普通變數而非 ref 避免響應式開銷
       let currentTileLayer = null; // 當前底圖圖層實例
       let layerGroups = {}; // 存放所有圖層群組的物件
-      let isClickMode = ref(false); // 是否處於點擊模式
-      let isIsochroneClickMode = ref(false); // 是否處於等時圈點擊模式
-      let isRoutePlanningClickMode = ref(false); // 是否處於路徑規劃點擊模式
-      let isRouteOptimizationClickMode = ref(false); // 是否處於路徑優化點擊模式
+      const isClickMode = ref(false); // 是否處於點擊模式
+      const isIsochroneClickMode = ref(false); // 是否處於等時圈點擊模式
+      const isRoutePlanningClickMode = ref(false); // 是否處於路徑規劃點擊模式
+      const isRouteOptimizationClickMode = ref(false); // 是否處於路徑優化點擊模式
 
       // 🖱️ 右鍵菜單相關變數 (Context Menu Related Variables)
       const contextMenu = ref(null); // 右鍵菜單 DOM 引用
@@ -99,28 +99,42 @@
 
           // 綁定地圖點擊事件 - 點擊空白處清除選取或添加分析點
           mapInstance.on('click', function (e) {
+            console.log('🖱️ 地圖點擊事件觸發', {
+              isClickMode: isClickMode.value,
+              isIsochroneClickMode: isIsochroneClickMode.value,
+              isRoutePlanningClickMode: isRoutePlanningClickMode.value,
+              isRouteOptimizationClickMode: isRouteOptimizationClickMode.value,
+              lat: e.latlng.lat,
+              lng: e.latlng.lng,
+            });
+
             if (isClickMode.value) {
               // 如果處於數據分析點擊模式，發送事件到父組件顯示距離輸入 modal
+              console.log('✅ 處於數據分析點擊模式，發送 open-distance-modal 事件');
               e.originalEvent.stopPropagation();
               emit('open-distance-modal', e.latlng.lat, e.latlng.lng);
               return false; // 阻止事件繼續傳播
             } else if (isIsochroneClickMode.value) {
               // 如果處於等時圈分析點擊模式，發送事件到父組件顯示等時分析 modal
+              console.log('✅ 處於等時圈分析點擊模式，發送 open-isochrone-modal 事件');
               e.originalEvent.stopPropagation();
               emit('open-isochrone-modal', e.latlng.lat, e.latlng.lng);
               return false; // 阻止事件繼續傳播
             } else if (isRoutePlanningClickMode.value) {
               // 如果處於路徑規劃點擊模式，添加路徑規劃點並阻止其他事件
+              console.log('✅ 處於路徑規劃點擊模式，添加路徑規劃點');
               e.originalEvent.stopPropagation();
               addRoutePlanningPoint(e.latlng.lat, e.latlng.lng);
               return false; // 阻止事件繼續傳播
             } else if (isRouteOptimizationClickMode.value) {
               // 如果處於路徑優化點擊模式，添加路徑優化點並阻止其他事件
+              console.log('✅ 處於路徑優化點擊模式，添加路徑優化點');
               e.originalEvent.stopPropagation();
               addRouteOptimizationPoint(e.latlng.lat, e.latlng.lng);
               return false; // 阻止事件繼續傳播
             } else if (!e.originalEvent.target.closest('.leaflet-interactive')) {
               // 否則清除選取
+              console.log('ℹ️ 點擊地圖空白處，清除選取');
               dataStore.setSelectedFeature(null);
               resetAllLayerStyles();
             }
@@ -978,10 +992,15 @@
                   newAddedLayers.push(newLayer);
                 }
 
-                console.log(`🗺️ 普通圖層 "${layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '')}" 已添加到地圖`);
+                console.log(
+                  `🗺️ 普通圖層 "${layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '')}" 已添加到地圖`
+                );
               }
             } catch (error) {
-              console.error(`添加普通圖層 "${layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '')}" 時發生錯誤:`, error);
+              console.error(
+                `添加普通圖層 "${layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '')}" 時發生錯誤:`,
+                error
+              );
             }
           });
 
@@ -1023,10 +1042,15 @@
                 newLayer.addTo(mapInstance);
                 layerGroups[layerId] = newLayer;
 
-                console.log(`🗺️ 分析圖層 "${layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '')}" 已添加到地圖（最上層）`);
+                console.log(
+                  `🗺️ 分析圖層 "${layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '')}" 已添加到地圖（最上層）`
+                );
               }
             } catch (error) {
-              console.error(`添加分析圖層 "${layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '')}" 時發生錯誤:`, error);
+              console.error(
+                `添加分析圖層 "${layer.layerTitle + (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '')}" 時發生錯誤:`,
+                error
+              );
             }
           });
 
@@ -1356,6 +1380,7 @@
 
       // 開始點擊模式
       const startClickMode = () => {
+        console.log('🖱️ startClickMode 被調用');
         // 🔄 互斥邏輯：關閉其他點擊模式
         if (isIsochroneClickMode.value) {
           stopIsochroneClickMode();
@@ -1363,31 +1388,42 @@
         if (isRoutePlanningClickMode.value) {
           finishRoutePlanningClickMode();
         }
+        if (isRouteOptimizationClickMode.value) {
+          finishRouteOptimizationClickMode();
+        }
 
         isClickMode.value = true;
+        console.log('🖱️ isClickMode 設為 true:', isClickMode.value);
         if (mapInstance) {
           const mapContainer = mapInstance.getContainer();
           mapContainer.style.cursor = 'crosshair';
           // 為所有子元素設定十字游標
           mapContainer.classList.add('click-mode-active');
+          console.log('🖱️ 已設定十字游標和 CSS 類別');
+        } else {
+          console.warn('⚠️ mapInstance 尚未初始化');
         }
-        console.log('🖱️ 開始數據分析點擊模式（自動關閉等時圈分析模式）');
+        console.log('✅ 開始數據分析點擊模式');
       };
 
       // 停止點擊模式
       const stopClickMode = () => {
+        console.log('🛑 stopClickMode 被調用');
         isClickMode.value = false;
+        console.log('🛑 isClickMode 設為 false:', isClickMode.value);
         if (mapInstance) {
           const mapContainer = mapInstance.getContainer();
           mapContainer.style.cursor = '';
           // 移除十字游標類別
           mapContainer.classList.remove('click-mode-active');
+          console.log('🛑 已移除十字游標和 CSS 類別');
         }
-        console.log('🛑 停止地圖點擊模式');
+        console.log('✅ 停止數據分析點擊模式完成');
       };
 
       // 開始等時圈點擊模式
       const startIsochroneClickMode = () => {
+        console.log('🖱️ startIsochroneClickMode 被調用');
         // 🔄 互斥邏輯：關閉其他點擊模式
         if (isClickMode.value) {
           stopClickMode();
@@ -1395,27 +1431,37 @@
         if (isRoutePlanningClickMode.value) {
           finishRoutePlanningClickMode();
         }
+        if (isRouteOptimizationClickMode.value) {
+          finishRouteOptimizationClickMode();
+        }
 
         isIsochroneClickMode.value = true;
+        console.log('🖱️ isIsochroneClickMode 設為 true:', isIsochroneClickMode.value);
         if (mapInstance) {
           const mapContainer = mapInstance.getContainer();
           mapContainer.style.cursor = 'crosshair';
           // 為所有子元素設定十字游標
           mapContainer.classList.add('isochrone-click-mode-active');
+          console.log('🖱️ 已設定十字游標和 CSS 類別');
+        } else {
+          console.warn('⚠️ mapInstance 尚未初始化');
         }
-        console.log('🖱️ 開始等時圈分析點擊模式（自動關閉數據分析模式）');
+        console.log('✅ 開始等時圈分析點擊模式');
       };
 
       // 停止等時圈點擊模式
       const stopIsochroneClickMode = () => {
+        console.log('🛑 stopIsochroneClickMode 被調用');
         isIsochroneClickMode.value = false;
+        console.log('🛑 isIsochroneClickMode 設為 false:', isIsochroneClickMode.value);
         if (mapInstance) {
           const mapContainer = mapInstance.getContainer();
           mapContainer.style.cursor = '';
           // 移除十字游標類別
           mapContainer.classList.remove('isochrone-click-mode-active');
+          console.log('🛑 已移除十字游標和 CSS 類別');
         }
-        console.log('🛑 停止等時圈分析點擊模式');
+        console.log('✅ 停止等時圈分析點擊模式完成');
       };
 
       // 🗺️ ============ 路徑規劃點擊模式相關函數 (Route Planning Click Mode Functions) ============
@@ -1434,6 +1480,7 @@
 
       // 開始路徑規劃點擊模式
       const startRoutePlanningClickMode = () => {
+        console.log('🖱️ startRoutePlanningClickMode 被調用');
         // 🔄 互斥邏輯：關閉其他點擊模式
         if (isClickMode.value) {
           stopClickMode();
@@ -1441,15 +1488,22 @@
         if (isIsochroneClickMode.value) {
           stopIsochroneClickMode();
         }
+        if (isRouteOptimizationClickMode.value) {
+          finishRouteOptimizationClickMode();
+        }
 
         isRoutePlanningClickMode.value = true;
+        console.log('🖱️ isRoutePlanningClickMode 設為 true:', isRoutePlanningClickMode.value);
         if (mapInstance) {
           const mapContainer = mapInstance.getContainer();
           mapContainer.style.cursor = 'crosshair';
           // 為所有子元素設定十字游標
           mapContainer.classList.add('route-planning-click-mode-active');
+          console.log('🖱️ 已設定十字游標和 CSS 類別');
+        } else {
+          console.warn('⚠️ mapInstance 尚未初始化');
         }
-        console.log('🖱️ 開始路徑規劃點擊模式（自動關閉其他分析模式）');
+        console.log('✅ 開始路徑規劃點擊模式');
       };
 
       // 完成路徑規劃點選（替代停止函數）
@@ -1524,6 +1578,7 @@
 
       // 開始路徑優化點擊模式
       const startRouteOptimizationClickMode = () => {
+        console.log('🖱️ startRouteOptimizationClickMode 被調用');
         // 🔄 互斥邏輯：關閉其他點擊模式
         if (isClickMode.value) {
           stopClickMode();
@@ -1537,19 +1592,24 @@
 
         // 開啟路徑優化點擊模式
         isRouteOptimizationClickMode.value = true;
+        console.log(
+          '🖱️ isRouteOptimizationClickMode 設為 true:',
+          isRouteOptimizationClickMode.value
+        );
 
         if (mapInstance) {
           const mapContainer = mapInstance.getContainer();
           mapContainer.style.cursor = 'crosshair';
           // 為所有子元素設定十字游標
           mapContainer.classList.add('route-optimization-click-mode-active');
+          console.log('🖱️ 已設定十字游標和 CSS 類別');
+        } else {
+          console.warn('⚠️ mapInstance 尚未初始化');
         }
 
         // 清空之前的路徑優化點
         dataStore.clearRouteOptimizationLayer();
-
-        console.log('🖱️ 開始路徑優化點擊模式（自動關閉其他分析模式）');
-        // 路徑優化點擊模式開始，不顯示彈窗，只在控制台記錄
+        console.log('✅ 開始路徑優化點擊模式');
       };
 
       // 完成路徑優化點選
@@ -1659,10 +1719,10 @@
         if (!pointId) return;
 
         // 根據圖層類型調用對應的刪除方法
-        if (layerId === 'analysis-layer') {
+        if (layerId === '數據分析圖層') {
           dataStore.deleteAnalysisPoint(pointId);
           console.log('🗑️ 刪除分析點:', pointId);
-        } else if (layerId === 'isochrone-analysis-layer') {
+        } else if (layerId === '等時圈分析圖層') {
           dataStore.deleteIsochroneAnalysisPoint(pointId);
           console.log('🗑️ 刪除等時圈分析點:', pointId);
         }

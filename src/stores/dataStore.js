@@ -1542,7 +1542,7 @@ export const useDataStore = defineStore(
      * 3. 清空等時圈分析圖層後
      *
      * @example
-     * const isochroneLayer = findLayerById('isochrone-analysis-layer');
+     * const isochroneLayer = findLayerById('等時圈分析圖層');
      * updateIsochroneAnalysisLayerData(isochroneLayer);
      */
     const updateIsochroneAnalysisLayerData = (isochroneLayer) => {
@@ -1581,8 +1581,11 @@ export const useDataStore = defineStore(
     };
 
     const addAnalysisPoint = (lat, lng, radius = 2000) => {
-      const analysisLayer = findLayerById('analysis-layer');
-      if (!analysisLayer) return;
+      const analysisLayer = findLayerById('數據分析圖層');
+      if (!analysisLayer) {
+        console.error('❌ 找不到數據分析圖層');
+        return;
+      }
 
       const pointId =
         analysisLayer.geoJsonData.features.filter((f) => f.properties.type === 'point-analysis')
@@ -1626,6 +1629,7 @@ export const useDataStore = defineStore(
           type: 'circle-analysis',
           name: featureName,
           radius: radius,
+          layerId: '數據分析圖層', // 設置圖層ID
           pointsInRange: pointsInRange, // 存儲範圍內的點物件
           polygonInRange: polygonInRange, // 存儲範圍內的多邊形物件
           layerStats: layerStats, // 存儲各圖層統計
@@ -1651,6 +1655,7 @@ export const useDataStore = defineStore(
           id: `${pointId}_analysis_point`,
           type: 'point-analysis',
           parentId: pointId,
+          layerId: '數據分析圖層', // 設置圖層ID
         },
       };
 
@@ -2151,9 +2156,9 @@ export const useDataStore = defineStore(
      */
     const addIsochroneAnalysisPoint = async (lat, lng, travelTimeMinutes = 10) => {
       // 獲取等時圈分析圖層實例
-      const isochroneLayer = findLayerById('isochrone-analysis-layer');
+      const isochroneLayer = findLayerById('等時圈分析圖層');
       if (!isochroneLayer) {
-        console.error('找不到等時圈分析圖層');
+        console.error('❌ 找不到等時圈分析圖層');
         return;
       }
 
@@ -2208,6 +2213,7 @@ export const useDataStore = defineStore(
             type: 'isochrone-polygon-analysis', // 要素類型標記
             name: featureName, // 顯示名稱
             travelTime: travelTimeMinutes, // 旅行時間
+            layerId: '等時圈分析圖層', // 設置圖層ID
             pointsInRange: pointsInRange, // 範圍內的點設施
             polygonInRange: polygonInRange, // 範圍內的多邊形區域
             layerStats: layerStats, // 圖層統計
@@ -2233,6 +2239,7 @@ export const useDataStore = defineStore(
             id: `${pointId}_isochrone_analysis_point`, // 唯一識別編號
             type: 'isochrone-point-analysis', // 點標記類型
             parentId: pointId, // 關聯的多邊形 ID
+            layerId: '等時圈分析圖層', // 設置圖層ID
           },
         };
 
@@ -2282,7 +2289,7 @@ export const useDataStore = defineStore(
      * 這個距離大約對應 10-15 分鐘的車程（視交通狀況而定）
      */
     const addSimpleIsochroneAnalysisPoint = (lat, lng, pointId) => {
-      const isochroneLayer = findLayerById('isochrone-analysis-layer');
+      const isochroneLayer = findLayerById('等時圈分析圖層');
       if (!isochroneLayer) {
         console.error('回退方案：找不到等時圈分析圖層');
         return;
@@ -2332,6 +2339,7 @@ export const useDataStore = defineStore(
           type: 'isochrone-circle-analysis', // 標記為圓圈類型（非多邊形）
           name: featureName,
           radius: FALLBACK_RADIUS, // 圓圈半徑
+          layerId: '等時圈分析圖層', // 設置圖層ID
           pointsInRange: pointsInRange,
           polygonInRange: polygonInRange,
           layerStats: layerStats,
@@ -2356,6 +2364,7 @@ export const useDataStore = defineStore(
           id: `${pointId}_isochrone_analysis_point`,
           type: 'isochrone-point-analysis',
           parentId: pointId,
+          layerId: '等時圈分析圖層', // 設置圖層ID
         },
       };
 
@@ -2379,7 +2388,7 @@ export const useDataStore = defineStore(
     };
 
     const clearAnalysisLayer = () => {
-      const analysisLayer = findLayerById('analysis-layer');
+      const analysisLayer = findLayerById('數據分析圖層');
       if (analysisLayer) {
         analysisLayer.geoJsonData.features = [];
 
@@ -2404,7 +2413,7 @@ export const useDataStore = defineStore(
      * clearIsochroneAnalysisLayer();
      */
     const clearIsochroneAnalysisLayer = () => {
-      const isochroneLayer = findLayerById('isochrone-analysis-layer');
+      const isochroneLayer = findLayerById('等時圈分析圖層');
       if (isochroneLayer) {
         // 清空圖層中的所有要素
         isochroneLayer.geoJsonData.features = [];
@@ -2420,7 +2429,7 @@ export const useDataStore = defineStore(
 
     // 🗑️ 刪除單個分析點 (Delete Single Analysis Point)
     const deleteAnalysisPoint = (pointId) => {
-      const analysisLayer = findLayerById('analysis-layer');
+      const analysisLayer = findLayerById('數據分析圖層');
       if (!analysisLayer || !analysisLayer.geoJsonData) return;
 
       // 過濾掉指定的分析圓圈和其對應的點
@@ -2458,7 +2467,7 @@ export const useDataStore = defineStore(
      * deleteIsochroneAnalysisPoint(3);
      */
     const deleteIsochroneAnalysisPoint = (pointId) => {
-      const isochroneLayer = findLayerById('isochrone-analysis-layer');
+      const isochroneLayer = findLayerById('等時圈分析圖層');
       if (!isochroneLayer || !isochroneLayer.geoJsonData) {
         console.warn('找不到等時圈分析圖層或其數據，無法執行刪除操作');
         return;
@@ -2509,7 +2518,7 @@ export const useDataStore = defineStore(
      * @param {Object} routePlanningLayer - 路徑規劃圖層物件
      *
      * @example
-     * const routeLayer = findLayerById('route-planning-layer');
+     * const routeLayer = findLayerById('路徑規劃圖層');
      * updateRoutePlanningLayerData(routeLayer);
      */
     const updateRoutePlanningLayerData = (routePlanningLayer) => {
@@ -2628,7 +2637,7 @@ export const useDataStore = defineStore(
      */
     const addRoutePlanningPoint = (lat, lng) => {
       // 獲取路徑規劃圖層實例
-      const routePlanningLayer = findLayerById('route-planning-layer');
+      const routePlanningLayer = findLayerById('路徑規劃圖層');
       if (!routePlanningLayer) {
         console.error('找不到路徑規劃圖層');
         return null;
@@ -2661,6 +2670,7 @@ export const useDataStore = defineStore(
           latitude: lat, // 緯度（便於存取）
           longitude: lng, // 經度（便於存取）
           createdAt: new Date().toISOString(), // 建立時間
+          layerId: '路徑規劃圖層', // 設置圖層ID
         },
       };
 
@@ -2695,7 +2705,7 @@ export const useDataStore = defineStore(
      */
     const clearRoutePlanningLayer = (clearAll = false) => {
       // 獲取路徑規劃圖層實例
-      const routePlanningLayer = findLayerById('route-planning-layer');
+      const routePlanningLayer = findLayerById('路徑規劃圖層');
       if (routePlanningLayer) {
         if (clearAll) {
           // 清空圖層中的所有要素（路徑點 + 路線）
@@ -2730,7 +2740,7 @@ export const useDataStore = defineStore(
      */
     const deleteRoutePlanningPoint = (pointId) => {
       // 獲取路徑規劃圖層實例
-      const routePlanningLayer = findLayerById('route-planning-layer');
+      const routePlanningLayer = findLayerById('路徑規劃圖層');
       if (!routePlanningLayer || !routePlanningLayer.geoJsonData) {
         console.warn('找不到路徑規劃圖層或其數據，無法執行刪除操作');
         return;
@@ -2781,7 +2791,7 @@ export const useDataStore = defineStore(
      * // 輸出: [[121.5654, 25.0330], [121.5700, 25.0350], ...]
      */
     const getRoutePlanningCoordinates = () => {
-      const routePlanningLayer = findLayerById('route-planning-layer');
+      const routePlanningLayer = findLayerById('路徑規劃圖層');
       if (!routePlanningLayer) {
         console.warn('找不到路徑規劃圖層');
         return [];
@@ -2897,7 +2907,7 @@ export const useDataStore = defineStore(
      * }
      */
     const calculateAndDrawRoute = async (profile = 'driving-car') => {
-      const routePlanningLayer = findLayerById('route-planning-layer');
+      const routePlanningLayer = findLayerById('路徑規劃圖層');
       if (!routePlanningLayer) {
         console.error('找不到路徑規劃圖層');
         return null;
@@ -3015,7 +3025,7 @@ export const useDataStore = defineStore(
      */
     const addRouteOptimizationPoint = (lat, lng) => {
       // 獲取路徑優化圖層實例
-      const routeOptimizationLayer = findLayerById('route-optimization-layer');
+      const routeOptimizationLayer = findLayerById('路徑優化圖層');
       if (!routeOptimizationLayer) {
         console.error('找不到路徑優化圖層');
         return null;
@@ -3082,7 +3092,7 @@ export const useDataStore = defineStore(
      */
     const clearRouteOptimizationLayer = (clearAll = false) => {
       // 獲取路徑優化圖層實例
-      const routeOptimizationLayer = findLayerById('route-optimization-layer');
+      const routeOptimizationLayer = findLayerById('路徑優化圖層');
       if (routeOptimizationLayer) {
         if (clearAll) {
           // 清空圖層中的所有要素（優化點 + 優化路線）
@@ -3117,7 +3127,7 @@ export const useDataStore = defineStore(
      * console.log('優化點坐標:', coordinates);
      */
     const getRouteOptimizationCoordinates = () => {
-      const routeOptimizationLayer = findLayerById('route-optimization-layer');
+      const routeOptimizationLayer = findLayerById('路徑優化圖層');
       if (!routeOptimizationLayer) {
         console.warn('找不到路徑優化圖層');
         return [];
@@ -3252,7 +3262,7 @@ export const useDataStore = defineStore(
      * }
      */
     const calculateAndDrawOptimizedRoute = async (profile = 'driving-car') => {
-      const routeOptimizationLayer = findLayerById('route-optimization-layer');
+      const routeOptimizationLayer = findLayerById('路徑優化圖層');
       if (!routeOptimizationLayer) {
         console.error('找不到路徑優化圖層');
         return null;

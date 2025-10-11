@@ -189,6 +189,26 @@
         }
       };
 
+      /**
+       * 🛑 停止數據分析點擊模式 (Stop Data Analysis Click Mode)
+       * 停止地圖上的數據分析點擊模式
+       */
+      const stopClickMode = () => {
+        if (MapTab.value) {
+          MapTab.value.stopClickMode();
+        }
+      };
+
+      /**
+       * 🛑 停止等時圈分析點擊模式 (Stop Isochrone Analysis Click Mode)
+       * 停止地圖上的等時圈分析點擊模式
+       */
+      const stopIsochroneClickMode = () => {
+        if (MapTab.value) {
+          MapTab.value.stopIsochroneClickMode();
+        }
+      };
+
       return {
         MapTab, // 地圖組件引用
         DashboardTab, // 儀表板組件引用
@@ -197,6 +217,8 @@
         resetView, // 重設視圖功能
         fitToTainanBounds, // 適應邊界功能
         invalidateMapSize, // 刷新地圖尺寸功能
+        stopClickMode, // 停止數據分析點擊模式
+        stopIsochroneClickMode, // 停止等時圈分析點擊模式
       };
     },
   };
