@@ -31,6 +31,11 @@
       // 用於滾動控制、高度計算等 DOM 操作
       const layerListRef = ref(null);
 
+      // 🔽 圖層分組收合狀態管理
+      // 用於追蹤每個多字段圖層分組的收合狀態
+      // 預設為收合狀態（所有分組都收合）
+      const collapsedGroups = ref(new Set());
+
       // 📊 原始圖層數據計算屬性
       // 從 Pinia store 中獲取所有圖層分組數據
       // 當 store 中的圖層狀態改變時，此屬性會自動重新計算
@@ -184,10 +189,44 @@
         dataStore.toggleLayerVisibility(layerId);
       };
 
+      /**
+       * 🔽 切換圖層分組的收合狀態
+       * 預設為收合狀態，展開時加入 Set，收合時從 Set 移除
+       *
+       * 此函數負責處理多字段圖層分組的展開/收合操作。
+       *
+       * @param {string} groupId - 要切換的分組 ID
+       */
+      const toggleGroupCollapse = (groupId) => {
+        if (collapsedGroups.value.has(groupId)) {
+          // 目前是展開狀態，要收合
+          collapsedGroups.value.delete(groupId);
+        } else {
+          // 目前是收合狀態，要展開
+          collapsedGroups.value.add(groupId);
+        }
+        // 觸發響應式更新
+        collapsedGroups.value = new Set(collapsedGroups.value);
+      };
+
+      /**
+       * 🔍 檢查分組是否已收合
+       * 預設所有分組都是收合狀態
+       *
+       * @param {string} groupId - 要檢查的分組 ID
+       * @returns {boolean} 是否已收合
+       */
+      const isGroupCollapsed = (groupId) => {
+        // 預設為收合狀態，如果不在 Set 中則表示已收合
+        return !collapsedGroups.value.has(groupId);
+      };
+
       // 📤 將需要暴露給 <template> 使用的數據和方法返回
       return {
         processedLayers,
         toggleLayer,
+        toggleGroupCollapse,
+        isGroupCollapsed,
         layerListRef,
         getIcon,
       };
@@ -218,8 +257,11 @@
             <div v-if="item.isGroup">
               <!-- 🎨 分組容器：包含標題和所有子圖層按鈕 -->
               <div class="rounded-0 border-0 d-flex flex-column shadow-sm my-bgcolor-white p-0">
-                <!-- 📌 分組標題區域 -->
-                <div class="d-flex">
+                <!-- 📌 分組標題區域（整個區域可點擊） -->
+                <div
+                  class="d-flex btn rounded-0 border-0 shadow-sm my-bgcolor-white-hover p-0"
+                  @click="toggleGroupCollapse(item.groupId)"
+                >
                   <!-- 🎨 圖層顏色指示條 -->
                   <div
                     class="d-flex"
@@ -229,13 +271,25 @@
                   <div class="w-100">
                     <!-- 📝 分組標題（帶底線樣式） -->
                     <div class="d-flex align-items-center text-start w-100 px-3 py-2">
-                      <span class="my-content-sm-black" style="text-decoration: underline">{{
-                        item.layerTitle
-                      }}</span>
+                      <span
+                        class="my-content-sm-black flex-grow-1"
+                        style="text-decoration: underline"
+                        >{{ item.layerTitle }}</span
+                      >
+                      <!-- 🔽 收合按鈕 -->
+                      <i
+                        :class="
+                          isGroupCollapsed(item.groupId)
+                            ? 'fa-solid fa-chevron-down'
+                            : 'fa-solid fa-chevron-up'
+                        "
+                        style="font-size: 12px; color: var(--my-color-gray-600); margin-left: 8px"
+                      ></i>
                     </div>
                   </div>
                 </div>
-                <div class="px-0 pt-0">
+                <!-- 🔄 子圖層列表區域（可收合） -->
+                <div class="px-0 pt-0" v-show="!isGroupCollapsed(item.groupId)">
                   <div v-for="subLayer in item.subLayers" :key="subLayer.layerId">
                     <div
                       class="btn rounded-0 border-0 d-flex shadow-sm my-bgcolor-white-hover p-0 w-100"
