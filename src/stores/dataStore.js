@@ -734,6 +734,26 @@ export const useDataStore = defineStore(
               { layerSubtitle: '112年', fieldName: '112年' },
               { layerSubtitle: '111年', fieldName: '111年' },
               { layerSubtitle: '110年', fieldName: '110年' },
+              { layerSubtitle: '109年', fieldName: '109年' },
+              { layerSubtitle: '108年', fieldName: '108年' },
+              { layerSubtitle: '107年', fieldName: '107年' },
+              { layerSubtitle: '106年', fieldName: '106年' },
+              { layerSubtitle: '105年', fieldName: '105年' },
+              { layerSubtitle: '104年', fieldName: '104年' },
+              { layerSubtitle: '103年', fieldName: '103年' },
+              { layerSubtitle: '102年', fieldName: '102年' },
+              { layerSubtitle: '101年', fieldName: '101年' },
+              { layerSubtitle: '100年', fieldName: '100年' },
+              { layerSubtitle: '99年', fieldName: '99年' },
+              { layerSubtitle: '98年', fieldName: '98年' },
+              { layerSubtitle: '97年', fieldName: '97年' },
+              { layerSubtitle: '96年', fieldName: '96年' },
+              { layerSubtitle: '95年', fieldName: '95年' },
+              { layerSubtitle: '94年', fieldName: '94年' },
+              { layerSubtitle: '93年', fieldName: '93年' },
+              { layerSubtitle: '92年', fieldName: '92年' },
+              { layerSubtitle: '91年', fieldName: '91年' },
+              { layerSubtitle: '90年', fieldName: '90年' },
             ],
             visible: false,
             isLoading: false,
@@ -774,6 +794,56 @@ export const useDataStore = defineStore(
               {
                 layerSubtitle: '113年 離婚／終止結婚對數＿相同性別',
                 fieldName: '113_離婚／終止結婚對數＿相同性別',
+              },
+
+              {
+                layerSubtitle: '112年 結婚對數合計數量',
+                fieldName: '112_結婚對數合計數量',
+              },
+              {
+                layerSubtitle: '112年 結婚對數＿不同性別',
+                fieldName: '112_結婚對數＿不同性別',
+              },
+              {
+                layerSubtitle: '112年 結婚對數＿相同性別',
+                fieldName: '112_結婚對數＿相同性別',
+              },
+              {
+                layerSubtitle: '112年 離婚／終止結婚對數合計數量',
+                fieldName: '112_離婚／終止結婚對數合計數量',
+              },
+              {
+                layerSubtitle: '112年 離婚／終止結婚對數＿不同性別',
+                fieldName: '112_離婚／終止結婚對數＿不同性別',
+              },
+              {
+                layerSubtitle: '112年 離婚／終止結婚對數＿相同性別',
+                fieldName: '112_離婚／終止結婚對數＿相同性別',
+              },
+
+              {
+                layerSubtitle: '111年 結婚對數合計數量',
+                fieldName: '111_結婚對數合計數量',
+              },
+              {
+                layerSubtitle: '111年 結婚對數＿不同性別',
+                fieldName: '111_結婚對數＿不同性別',
+              },
+              {
+                layerSubtitle: '111年 結婚對數＿相同性別',
+                fieldName: '111_結婚對數＿相同性別',
+              },
+              {
+                layerSubtitle: '111年 離婚／終止結婚對數合計數量',
+                fieldName: '111_離婚／終止結婚對數合計數量',
+              },
+              {
+                layerSubtitle: '111年 離婚／終止結婚對數＿不同性別',
+                fieldName: '111_離婚／終止結婚對數＿不同性別',
+              },
+              {
+                layerSubtitle: '111年 離婚／終止結婚對數＿相同性別',
+                fieldName: '111_離婚／終止結婚對數＿相同性別',
               },
             ],
             visible: false,
