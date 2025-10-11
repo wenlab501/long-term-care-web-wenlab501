@@ -49,7 +49,8 @@ import {
 export const useDataStore = defineStore(
   'data',
   () => {
-    const layers = ref([
+    // 📁 長照圖層 (Long-term Care Layers)
+    const layersLongTermCare = ref([
       {
         groupName: '居家式長照機構',
         groupLayers: [
@@ -598,6 +599,10 @@ export const useDataStore = defineStore(
           },
         ],
       },
+    ]);
+
+    // 🏢 基礎設施圖層 (Infrastructure Layers)
+    const layersInfrastructure = ref([
       {
         groupName: '基礎設施',
         groupLayers: [
@@ -705,6 +710,10 @@ export const useDataStore = defineStore(
           },
         ],
       },
+    ]);
+
+    // 🗺️ 地理資料圖層 (Geographic Data Layers)
+    const layersGeographicData = ref([
       {
         groupName: '地理統計資料',
         groupLayers: [
@@ -1061,6 +1070,10 @@ export const useDataStore = defineStore(
           },
         ],
       },
+    ]);
+
+    // 📊 數據分析圖層 (Data Analysis Layers)
+    const layersDataAnalysis = ref([
       {
         groupName: '數據分析',
         groupLayers: [
@@ -1248,6 +1261,14 @@ export const useDataStore = defineStore(
           },
         ],
       },
+    ]);
+
+    // 🔄 合併所有圖層陣列為一個計算屬性 (Combine all layer arrays into a computed property)
+    const layers = computed(() => [
+      ...layersLongTermCare.value,
+      ...layersInfrastructure.value,
+      ...layersGeographicData.value,
+      ...layersDataAnalysis.value,
     ]);
 
     // 在新的分組結構中搜尋指定 ID 的圖層
@@ -3731,14 +3752,44 @@ export const useDataStore = defineStore(
         });
       }
 
-      layers.value = newLayers;
+      // 🔄 根據圖層分組名稱分配到對應的陣列中
+      const newLayersLongTermCare = [];
+      const newLayersInfrastructure = [];
+      const newLayersGeographicData = [];
+      const newLayersDataAnalysis = [];
+
+      for (const group of newLayers) {
+        const groupName = group.groupName;
+
+        // 根據 groupName 分配到對應的陣列
+        if (groupName.includes('長照機構')) {
+          newLayersLongTermCare.push(group);
+        } else if (groupName === '基礎設施') {
+          newLayersInfrastructure.push(group);
+        } else if (groupName === '地理統計資料' || groupName === '基礎地理資料') {
+          newLayersGeographicData.push(group);
+        } else if (groupName === '數據分析') {
+          newLayersDataAnalysis.push(group);
+        }
+      }
+
+      // 更新各個圖層陣列
+      layersLongTermCare.value = newLayersLongTermCare;
+      layersInfrastructure.value = newLayersInfrastructure;
+      layersGeographicData.value = newLayersGeographicData;
+      layersDataAnalysis.value = newLayersDataAnalysis;
     };
 
     // 在初始化時執行
     initializeAndExpandLayers();
 
     return {
-      layers,
+      // 📁 圖層相關 (Layer-related)
+      layersLongTermCare, // 長照圖層
+      layersInfrastructure, // 基礎設施圖層
+      layersGeographicData, // 地理資料圖層
+      layersDataAnalysis, // 數據分析圖層
+      layers, // 合併後的所有圖層 (computed property)
       findLayerById, // 根據 ID 尋找圖層
       getAllLayers, // 獲取所有圖層的扁平陣列
       toggleLayerVisibility,
