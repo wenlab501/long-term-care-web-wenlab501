@@ -123,8 +123,6 @@
 
       // 🗺️ 地圖和圖層狀態 (Map and Layer States)
       // 大部分狀態由 Pinia store 管理，此處保留 UI 控制相關狀態
-      /** 🗺️ 台南圖層顯示狀態（從 store 計算） */
-      const showTainanLayer = computed(() => dataStore.findLayerById('tainan')?.visible || false);
       /** 🔍 選定的資料篩選器 */
       const selectedFilter = ref(null);
       /** 🔍 地圖縮放等級 */
@@ -750,7 +748,6 @@
         loadingSubText, // 載入子文字
 
         // 🗺️ 圖層狀態
-        showTainanLayer, // 台南圖層顯示狀態
         selectedFilter, // 選定篩選器
 
         // 🗺️ 地圖狀態
@@ -1001,7 +998,6 @@
             :activeUpperTab="activeUpperTab"
             :activeBottomTab="activeBottomTab"
             :mainPanelWidth="mainPanelWidth"
-            :showTainanLayer="showTainanLayer"
             :selectedFilter="selectedFilter"
             :zoomLevel="zoomLevel"
             :currentCoords="currentCoords"
@@ -1062,7 +1058,6 @@
               :activeUpperTab="activeUpperTab"
               :mainPanelWidth="100"
               :contentHeight="(100 - mobileBottomViewHeight) * windowHeight * 0.01"
-              :showTainanLayer="showTainanLayer"
               :selectedFilter="selectedFilter"
               :zoomLevel="zoomLevel"
               :isPanelDragging="isVerticalDragging"

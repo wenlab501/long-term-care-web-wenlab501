@@ -4761,6 +4761,118 @@ export async function loadIncomeGeoJson(layer) {
   }
 }
 
+// 113年1-12月各里人口數戶數
+export async function loadVillagePopulationGeoJson(layer) {
+  try {
+    const layerId = layer.layerId;
+    const activeIndex = layer.activeFieldIndex ?? 0;
+    const fieldName = layer.layerFields?.[activeIndex]?.fieldName;
+
+    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
+    const a = fieldName || null;
+    console.log(a);
+
+    const response = await fetch(filePath);
+
+    if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const geoJsonData = await response.json();
+
+    // ----------------------------
+
+    const values = geoJsonData.features
+      .map((f) => parseFloat(f.properties[fieldName]))
+      .filter((v) => !isNaN(v));
+
+    // ----------------------------
+
+    // 使用 Natural Breaks 分類
+    const numColors = 5;
+    const colorInterpolator = getColorInterpolator(layer.colorName);
+    const colors = d3.range(numColors).map((i) => colorInterpolator(i / (numColors - 1)));
+
+    // 計算 Natural Breaks 閾值
+    const thresholds = calculateNaturalBreaks(values, numColors);
+
+    const colorScale = d3.scaleThreshold().domain(thresholds).range(colors);
+
+    // ----------------------------
+
+    geoJsonData.features.forEach((feature, index) => {
+      feature.properties.id = index + 1;
+      feature.properties.layerId = layerId;
+      feature.properties.layerName =
+        layer.layerTitle +
+        (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '');
+      feature.properties.name = feature.properties.TNAME;
+      feature.properties.value = parseFloat(feature.properties[fieldName]);
+      feature.properties.color = 'var(--my-color-white)';
+      feature.properties.fillColor = colorScale(feature.properties.value);
+
+      const propertyData = {
+        區名: feature.properties.name,
+        ...feature.properties,
+      };
+
+      const popupData = {
+        區名: feature.properties.name,
+      };
+
+      const tableData = {
+        '#': feature.properties.id,
+        color: colorScale(feature.properties.value),
+        區名: feature.properties.name,
+        [fieldName]: feature.properties[fieldName],
+      };
+
+      feature.properties.propertyData = propertyData;
+      feature.properties.popupData = popupData;
+      feature.properties.tableData = tableData;
+    });
+
+    // 包含為表格量身打造的數據陣列
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
+
+    // 包含摘要資訊
+    const summaryData = {
+      totalCount: geoJsonData.features.length,
+    };
+
+    // 使用 Natural Breaks 統計生成圖例
+    const naturalBreaksStats = getNaturalBreaksStats(values, thresholds);
+
+    const legendData = naturalBreaksStats.classes.map((cls) => {
+      return {
+        color: colorScale(cls.min + (cls.max - cls.min) / 2), // 使用與圖層相同的顏色計算方式
+        // 在圖例標籤後方加上數量
+        label: `${cls.range} (${cls.count})`,
+        extent: [cls.min, cls.max],
+        count: cls.count,
+        percentage: cls.percentage.toFixed(1),
+      };
+    });
+
+    return {
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
+      tableData, // 包含為表格量身打造的數據陣列
+      summaryData, // 包含摘要資訊
+      legendData, // 包含圖例資訊
+    };
+  } catch (error) {
+    console.error('❌ GeoJSON 數據載入或處理失敗:', error);
+    throw error;
+  }
+}
+
 // 台北里級社區原始數據 - Reinf_eeds欄位 (需求強化)
 export async function loadReinfEedsGeoJson(layer) {
   try {

@@ -27,7 +27,6 @@
     dynamicMainAreaHeight: { type: Number, default: 500 },
 
     // 🗺️ 圖層和地圖設定 (Layer and Map Settings)
-    showTainanLayer: { type: Boolean, default: false },
     selectedFilter: { type: String, default: '' },
 
     // 🔧 其他設定 (Other Settings)
@@ -230,18 +229,6 @@
   };
 
   /**
-   * 🗺️ 適應台南邊界 (Fit to Tainan Bounds)
-   * 透過 mainContentRef 呼叫地圖適應邊界功能
-   * 將地圖視圖調整到顯示完整的台南市範圍
-   */
-  const fitToTainanBounds = () => {
-    if (mainContentRef.value) {
-      console.log('🗺️ MiddleView: 呼叫 fitToTainanBounds');
-      mainContentRef.value.fitToTainanBounds();
-    }
-  };
-
-  /**
    * 🔄 重設地圖視圖 (Reset Map View)
    * 透過 mainContentRef 呼叫地圖重設功能
    * 將地圖恢復到預設的縮放等級和中心位置
@@ -304,7 +291,6 @@
    */
   defineExpose({
     highlightFeature, // 高亮顯示功能
-    fitToTainanBounds, // 地圖邊界適應
     resetMapTab, // 地圖視圖重設
     invalidateMapSize, // 地圖尺寸刷新
     stopMapClickMode, // 停止地圖點擊模式
@@ -338,7 +324,6 @@
         :activeUpperTab="activeUpperTab"
         :mainPanelWidth="mainPanelWidth"
         :contentHeight="contentHeight"
-        :showTainanLayer="showTainanLayer"
         :selectedFilter="selectedFilter"
         :zoomLevel="zoomLevel"
         :isPanelDragging="isOverallDragging"

@@ -27,7 +27,6 @@
       activeUpperTab: { type: String, default: 'map' },
       mainPanelWidth: { type: Number, default: 60 },
       contentHeight: { type: Number, default: 500 },
-      showTainanLayer: { type: Boolean, default: false },
       selectedFilter: { type: String, default: '' },
       zoomLevel: { type: Number, default: 11 },
       isPanelDragging: { type: Boolean, default: false },
@@ -172,16 +171,6 @@
       };
 
       /**
-       * 🗺️ 適應台南地區邊界 (Fit to Tainan Bounds)
-       * 調整地圖視圖以完整顯示台南地區
-       */
-      const fitToTainanBounds = () => {
-        if (props.activeUpperTab === 'map' && MapTab.value) {
-          MapTab.value.fitToTainanBounds();
-        }
-      };
-
-      /**
        * 📏 手動刷新地圖尺寸 (Manually Refresh Map Size)
        * 當容器大小變化但自動偵測失效時使用
        */
@@ -217,7 +206,6 @@
         dashboardContainerRef, // 儀表板容器引用
         highlightFeature, // 高亮顯示功能
         resetView, // 重設視圖功能
-        fitToTainanBounds, // 適應邊界功能
         invalidateMapSize, // 刷新地圖尺寸功能
         stopClickMode, // 停止數據分析點擊模式
         stopIsochroneClickMode, // 停止等時圈分析點擊模式
@@ -262,7 +250,6 @@
       <div v-show="activeUpperTab === 'map'" class="h-100">
         <MapTab
           ref="MapTab"
-          :showTainanLayer="showTainanLayer"
           :selectedFilter="selectedFilter"
           :zoomLevel="zoomLevel"
           :maxCount="maxCount"
