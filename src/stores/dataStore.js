@@ -33,8 +33,8 @@ import {
   loadDeathPopulationByYearGeoJson,
   loadMarriagePopulationByYearGeoJson,
   loadIncomeGeoJson,
-  loadDistrictPopulationGeoJson,
-  loadVillagePopulationGeoJson,
+  // loadDistrictPopulationGeoJson,
+  // loadVillagePopulationGeoJson,
   loadEmergencyStopHeartGeoJson,
   loadSuperMarketCSV,
   loadVillageCommunityData,
@@ -675,6 +675,23 @@ export const useDataStore = defineStore(
             display: true,
           },
           {
+            layerTitle: '超級市場',
+            layerFields: null,
+            visible: false,
+            isLoading: false,
+            isLoaded: false,
+            type: 'point',
+            shape: 'circle',
+            colorName: 'cyan',
+            geoJsonData: null,
+            summaryData: null,
+            tableData: null,
+            legendData: null,
+            loader: loadSuperMarketCSV,
+            fileName: '超級市場 (臺北市資料開放大平台)1121127-新增花木、修正統康名稱_new.csv',
+            display: true,
+          },
+          {
             layerTitle: '捷運站點',
             layerFields: null,
             visible: false,
@@ -708,24 +725,6 @@ export const useDataStore = defineStore(
             fileName: 'busstop.geojson',
             display: true,
           },
-
-          {
-            layerTitle: '超級市場',
-            layerFields: null,
-            visible: false,
-            isLoading: false,
-            isLoaded: false,
-            type: 'point',
-            shape: 'circle',
-            colorName: 'purple',
-            geoJsonData: null,
-            summaryData: null,
-            tableData: null,
-            legendData: null,
-            loader: loadSuperMarketCSV,
-            fileName: '超級市場 (臺北市資料開放大平台)1121127-新增花木、修正統康名稱_new.csv',
-            display: true,
-          },
         ],
       },
     ]);
@@ -735,8 +734,9 @@ export const useDataStore = defineStore(
       {
         groupName: '地理統計資料',
         groupLayers: [
+          // 人口統計
           {
-            layerTitle: '人口統計',
+            layerTitle: '人口數',
             layerFields: [
               {
                 layerSubtitle: '14歲以下',
@@ -767,8 +767,9 @@ export const useDataStore = defineStore(
             loader: null,
             fileName: '113年12月行政區三段年齡組性別人口統計_村里_WGS84_臺北市.geojson',
           },
+          // 各行政區死亡人口數
           {
-            layerTitle: '各行政區死亡人口數',
+            layerTitle: '死亡人數',
             layerFields: [
               {
                 layerSubtitle: '112年',
@@ -899,6 +900,7 @@ export const useDataStore = defineStore(
             loader: null,
             fileName: '12-4各行政區死亡人口數(按年分).geojson',
           },
+          // 結婚、離婚及終止結婚對數
           {
             layerTitle: '結婚、離婚及終止結婚對數',
             layerFields: [
@@ -1027,6 +1029,7 @@ export const useDataStore = defineStore(
             loader: null,
             fileName: '臺北市_村里_綜稅綜合所得總額.geojson',
           },
+          /*
           {
             layerTitle: '113年1-12月各里人口數戶數_區',
             layerFields: [
@@ -1133,8 +1136,10 @@ export const useDataStore = defineStore(
             loader: null,
             fileName: '113年1-12月各里人口數戶數_里.geojson',
           },
+          */
+          // 113年8月消防緊急救護到院前心肺功能停止傷病患統計
           {
-            layerTitle: '113年1-113年8月消防緊急救護到院前心肺功能停止傷病患統計',
+            layerTitle: 'OHCA傷病患',
             layerFields: [
               {
                 layerSubtitle: '到院前心肺功能停止人數',
@@ -1235,8 +1240,9 @@ export const useDataStore = defineStore(
             loader: null,
             fileName: '113年8月消防緊急救護到院前心肺功能停止傷病患統計.geojson',
           },
+          // 台北里級社區原始數據
           {
-            layerTitle: '台北里級社區原始數據-社會量表',
+            layerTitle: '社區量表',
             layerFields: [
               {
                 layerSubtitle: '需求強化',
@@ -1254,11 +1260,6 @@ export const useDataStore = defineStore(
                 fieldName: 'total_sci',
                 loader: loadVillageCommunityData,
               },
-              {
-                layerSubtitle: 'total_beh',
-                fieldName: 'total__beh',
-                loader: loadVillageCommunityData,
-              },
             ],
             visible: false,
             isLoading: false,
@@ -1273,11 +1274,25 @@ export const useDataStore = defineStore(
             loader: null,
             fileName: '台北里級社區原始數據.geojson',
           },
+          // 台北里級社區原始數據
           {
-            layerTitle: '台北里級社區原始數據-助人意願',
+            layerTitle: '急救助人',
             layerFields: [
-              { layerSubtitle: 'CPR意願', fieldName: 'tot_CPR', loader: loadVillageCommunityData },
-              { layerSubtitle: 'AED意願', fieldName: 'tot_AED', loader: loadVillageCommunityData },
+              {
+                layerSubtitle: '助人意願',
+                fieldName: 'total__beh',
+                loader: loadVillageCommunityData,
+              },
+              {
+                layerSubtitle: '協助執行CPR意願',
+                fieldName: 'tot_CPR',
+                loader: loadVillageCommunityData,
+              },
+              {
+                layerSubtitle: '協助執行AED意願',
+                fieldName: 'tot_AED',
+                loader: loadVillageCommunityData,
+              },
             ],
             visible: false,
             isLoading: false,

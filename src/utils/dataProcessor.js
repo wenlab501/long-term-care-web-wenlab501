@@ -4230,7 +4230,7 @@ export async function loadPopulation3LevelsGeoJson(layer) {
       // 取得人口數
       const population = parseFloat(properties[fieldName]);
 
-      // 計算人口密度 (人/km²)
+      // 計算人口密度 (人口數/km²)
       // 避免除以 0 或無效數字
       let density = 0;
       if (areaInSqKm > 0 && !isNaN(population) && population > 0) {
@@ -4280,7 +4280,7 @@ export async function loadPopulation3LevelsGeoJson(layer) {
 
       const propertyData = {
         里名: properties.name,
-        人口密度: `${properties.value.toFixed(1)} 人/km²`,
+        人口密度: `${properties.value.toFixed(1)} 人口數/km²`,
         [fieldName]: properties[fieldName], // 原始人口數
         '面積(km²)': properties.area.toFixed(3),
         ...properties, // 包含所有原始屬性
@@ -4288,7 +4288,7 @@ export async function loadPopulation3LevelsGeoJson(layer) {
 
       const popupData = {
         里名: properties.name,
-        人口密度: `${properties.value.toFixed(1)} 人/km²`,
+        人口密度: `${properties.value.toFixed(1)} 人口數/km²`,
       };
 
       const tableData = {
@@ -4296,7 +4296,7 @@ export async function loadPopulation3LevelsGeoJson(layer) {
         color: colorScale(properties.value),
         里名: properties.name,
         [fieldName]: properties[fieldName], // 顯示原始人口數
-        '人口密度 (人/km²)': properties.value.toFixed(1), // 新增密度欄位
+        '人口密度 (人口數/km²)': properties.value.toFixed(1), // 新增密度欄位
       };
 
       properties.propertyData = propertyData;
@@ -4325,7 +4325,7 @@ export async function loadPopulation3LevelsGeoJson(layer) {
       return {
         color: legendColor, // 使用與圖層相同的顏色計算方式
         // 在圖例標籤後方加上單位和數量
-        label: `${cls.range} (人/km²) (${cls.count})`,
+        label: `${cls.range} (人口數/km²) (${cls.count})`,
         extent: [cls.min, cls.max],
         count: cls.count,
         percentage: cls.percentage.toFixed(1),
@@ -4382,7 +4382,7 @@ export async function loadDeathPopulationByYearGeoJson(layer) {
       // 取得人口數
       const population = parseFloat(properties[fieldName]);
 
-      // 計算人口密度 (人/km²)
+      // 計算人口密度 (人口數/km²)
       // 避免除以 0 或無效數字
       let density = 0;
       if (areaInSqKm > 0 && !isNaN(population) && population > 0) {
@@ -4432,7 +4432,7 @@ export async function loadDeathPopulationByYearGeoJson(layer) {
 
       const propertyData = {
         行政區: properties.行政區,
-        人口密度: `${properties.value.toFixed(1)} 人/km²`,
+        人口密度: `${properties.value.toFixed(1)} 人口數/km²`,
         [fieldName]: properties[fieldName], // 原始人口數
         '面積(km²)': properties.area.toFixed(3),
         ...properties, // 包含所有原始屬性
@@ -4440,7 +4440,7 @@ export async function loadDeathPopulationByYearGeoJson(layer) {
 
       const popupData = {
         行政區: properties.行政區,
-        人口密度: `${properties.value.toFixed(1)} 人/km²`,
+        人口密度: `${properties.value.toFixed(1)} 人口數/km²`,
       };
 
       const tableData = {
@@ -4448,7 +4448,7 @@ export async function loadDeathPopulationByYearGeoJson(layer) {
         color: colorScale(properties.value),
         行政區: properties.行政區,
         [fieldName]: properties[fieldName], // 顯示原始人口數
-        '人口密度 (人/km²)': properties.value.toFixed(1), // 新增密度欄位
+        '人口密度 (人口數/km²)': properties.value.toFixed(1), // 新增密度欄位
       };
 
       properties.propertyData = propertyData;
@@ -4477,7 +4477,7 @@ export async function loadDeathPopulationByYearGeoJson(layer) {
       return {
         color: legendColor, // 使用與圖層相同的顏色計算方式
         // 在圖例標籤後方加上單位和數量
-        label: `${cls.range} (人/km²) (${cls.count})`,
+        label: `${cls.range} (人口數/km²) (${cls.count})`,
         extent: [cls.min, cls.max],
         count: cls.count,
         percentage: cls.percentage.toFixed(1),
@@ -4534,7 +4534,7 @@ export async function loadMarriagePopulationByYearGeoJson(layer) {
       // 取得人口數
       const population = parseFloat(properties[fieldName]);
 
-      // 計算人口密度 (人/km²)
+      // 計算人口密度 (人口數/km²)
       // 避免除以 0 或無效數字
       let density = 0;
       if (areaInSqKm > 0 && !isNaN(population) && population > 0) {
@@ -4584,7 +4584,7 @@ export async function loadMarriagePopulationByYearGeoJson(layer) {
 
       const propertyData = {
         行政區: properties.行政區,
-        人口密度: `${properties.value.toFixed(1)} 人/km²`,
+        人口密度: `${properties.value.toFixed(1)} 人口數/km²`,
         [fieldName]: properties[fieldName], // 原始人口數
         '面積(km²)': properties.area.toFixed(3),
         ...properties, // 包含所有原始屬性
@@ -4592,7 +4592,7 @@ export async function loadMarriagePopulationByYearGeoJson(layer) {
 
       const popupData = {
         行政區: properties.行政區,
-        人口密度: `${properties.value.toFixed(1)} 人/km²`,
+        人口密度: `${properties.value.toFixed(1)} 人口數/km²`,
       };
 
       const tableData = {
@@ -4600,7 +4600,7 @@ export async function loadMarriagePopulationByYearGeoJson(layer) {
         color: colorScale(properties.value),
         行政區: properties.行政區,
         [fieldName]: properties[fieldName], // 顯示原始人口數
-        '人口密度 (人/km²)': properties.value.toFixed(1), // 新增密度欄位
+        '人口密度 (人口數/km²)': properties.value.toFixed(1), // 新增密度欄位
       };
 
       properties.propertyData = propertyData;
@@ -4629,7 +4629,7 @@ export async function loadMarriagePopulationByYearGeoJson(layer) {
       return {
         color: legendColor, // 使用與圖層相同的顏色計算方式
         // 在圖例標籤後方加上單位和數量
-        label: `${cls.range} (人/km²) (${cls.count})`,
+        label: `${cls.range} (人口數/km²) (${cls.count})`,
         extent: [cls.min, cls.max],
         count: cls.count,
         percentage: cls.percentage.toFixed(1),

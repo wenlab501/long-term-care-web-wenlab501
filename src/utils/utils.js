@@ -57,7 +57,7 @@ export const ICONS = {
 
   // 🗺️ 地圖相關 (Map Icons)
   map: { zh: '地圖', en: 'Map', icon: '<i class="fas fa-map"></i>' },
-  geodata: { zh: '地理資料', en: 'Geo Data', icon: '<i class="fa-solid fa-map-location"></i>' },
+  popdata: { zh: '社會人口', en: 'Geo Data', icon: '<i class="fa-solid fa-users"></i>' },
   data_analysis: {
     zh: '數據分析',
     en: 'Data Analysis',
