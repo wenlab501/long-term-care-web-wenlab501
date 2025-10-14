@@ -4761,8 +4761,8 @@ export async function loadIncomeGeoJson(layer) {
   }
 }
 
-// 113年1-12月各里人口數戶數
-export async function loadVillagePopulationGeoJson(layer) {
+// 113年1-12月各里人口數戶數_區
+export async function loadDistrictPopulationGeoJson(layer) {
   try {
     const layerId = layer.layerId;
     const activeIndex = layer.activeFieldIndex ?? 0;
@@ -4869,6 +4869,374 @@ export async function loadVillagePopulationGeoJson(layer) {
     };
   } catch (error) {
     console.error('❌ GeoJSON 數據載入或處理失敗:', error);
+    throw error;
+  }
+}
+
+// 113年1-12月各里人口數戶數_里
+export async function loadVillagePopulationGeoJson(layer) {
+  try {
+    const layerId = layer.layerId;
+    const activeIndex = layer.activeFieldIndex ?? 0;
+    const fieldName = layer.layerFields?.[activeIndex]?.fieldName;
+
+    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
+    const a = fieldName || null;
+    console.log(a);
+
+    const response = await fetch(filePath);
+
+    if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const geoJsonData = await response.json();
+
+    // ----------------------------
+
+    const values = geoJsonData.features
+      .map((f) => parseFloat(f.properties[fieldName]))
+      .filter((v) => !isNaN(v));
+
+    // ----------------------------
+
+    // 使用 Natural Breaks 分類
+    const numColors = 5;
+    const colorInterpolator = getColorInterpolator(layer.colorName);
+    const colors = d3.range(numColors).map((i) => colorInterpolator(i / (numColors - 1)));
+
+    // 計算 Natural Breaks 閾值
+    const thresholds = calculateNaturalBreaks(values, numColors);
+
+    const colorScale = d3.scaleThreshold().domain(thresholds).range(colors);
+
+    // ----------------------------
+
+    geoJsonData.features.forEach((feature, index) => {
+      feature.properties.id = index + 1;
+      feature.properties.layerId = layerId;
+      feature.properties.layerName =
+        layer.layerTitle +
+        (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '');
+      feature.properties.name = feature.properties.VNAME;
+      feature.properties.value = parseFloat(feature.properties[fieldName]);
+      feature.properties.color = 'var(--my-color-white)';
+      feature.properties.fillColor = colorScale(feature.properties.value);
+
+      const propertyData = {
+        里名: feature.properties.name,
+        ...feature.properties,
+      };
+
+      const popupData = {
+        里名: feature.properties.name,
+      };
+
+      const tableData = {
+        '#': feature.properties.id,
+        color: colorScale(feature.properties.value),
+        里名: feature.properties.name,
+        [fieldName]: feature.properties[fieldName],
+      };
+
+      feature.properties.propertyData = propertyData;
+      feature.properties.popupData = popupData;
+      feature.properties.tableData = tableData;
+    });
+
+    // 包含為表格量身打造的數據陣列
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
+
+    // 包含摘要資訊
+    const summaryData = {
+      totalCount: geoJsonData.features.length,
+    };
+
+    // 使用 Natural Breaks 統計生成圖例
+    const naturalBreaksStats = getNaturalBreaksStats(values, thresholds);
+
+    const legendData = naturalBreaksStats.classes.map((cls) => {
+      return {
+        color: colorScale(cls.min + (cls.max - cls.min) / 2), // 使用與圖層相同的顏色計算方式
+        // 在圖例標籤後方加上數量
+        label: `${cls.range} (${cls.count})`,
+        extent: [cls.min, cls.max],
+        count: cls.count,
+        percentage: cls.percentage.toFixed(1),
+      };
+    });
+
+    return {
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
+      tableData, // 包含為表格量身打造的數據陣列
+      summaryData, // 包含摘要資訊
+      legendData, // 包含圖例資訊
+    };
+  } catch (error) {
+    console.error('❌ GeoJSON 數據載入或處理失敗:', error);
+    throw error;
+  }
+}
+
+// 113年8月消防緊急救護到院前心肺功能停止傷病患統計
+export async function loadEmergencyStopHeartGeoJson(layer) {
+  try {
+    const layerId = layer.layerId;
+    const activeIndex = layer.activeFieldIndex ?? 0;
+    const fieldName = layer.layerFields?.[activeIndex]?.fieldName;
+
+    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
+    const a = fieldName || null;
+    console.log(a);
+
+    const response = await fetch(filePath);
+
+    if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const geoJsonData = await response.json();
+
+    // ----------------------------
+
+    const values = geoJsonData.features
+      .map((f) => parseFloat(f.properties[fieldName]))
+      .filter((v) => !isNaN(v));
+
+    // ----------------------------
+
+    // 使用 Natural Breaks 分類
+    const numColors = 5;
+    const colorInterpolator = getColorInterpolator(layer.colorName);
+    const colors = d3.range(numColors).map((i) => colorInterpolator(i / (numColors - 1)));
+
+    // 計算 Natural Breaks 閾值
+    const thresholds = calculateNaturalBreaks(values, numColors);
+
+    const colorScale = d3.scaleThreshold().domain(thresholds).range(colors);
+
+    // ----------------------------
+
+    geoJsonData.features.forEach((feature, index) => {
+      feature.properties.id = index + 1;
+      feature.properties.layerId = layerId;
+      feature.properties.layerName =
+        layer.layerTitle +
+        (layer.layerFields?.[0]?.layerSubtitle ? ' - ' + layer.layerFields[0].layerSubtitle : '');
+      feature.properties.name = feature.properties.TNAME;
+      feature.properties.value = parseFloat(feature.properties[fieldName]);
+      feature.properties.color = 'var(--my-color-white)';
+      feature.properties.fillColor = colorScale(feature.properties.value);
+
+      const propertyData = {
+        區名: feature.properties.name,
+        ...feature.properties,
+      };
+
+      const popupData = {
+        區名: feature.properties.name,
+      };
+
+      const tableData = {
+        '#': feature.properties.id,
+        color: colorScale(feature.properties.value),
+        區名: feature.properties.name,
+        [fieldName]: feature.properties[fieldName],
+      };
+
+      feature.properties.propertyData = propertyData;
+      feature.properties.popupData = popupData;
+      feature.properties.tableData = tableData;
+    });
+
+    // 包含為表格量身打造的數據陣列
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
+
+    // 包含摘要資訊
+    const summaryData = {
+      totalCount: geoJsonData.features.length,
+    };
+
+    // 使用 Natural Breaks 統計生成圖例
+    const naturalBreaksStats = getNaturalBreaksStats(values, thresholds);
+
+    const legendData = naturalBreaksStats.classes.map((cls) => {
+      return {
+        color: colorScale(cls.min + (cls.max - cls.min) / 2), // 使用與圖層相同的顏色計算方式
+        // 在圖例標籤後方加上數量
+        label: `${cls.range} (${cls.count})`,
+        extent: [cls.min, cls.max],
+        count: cls.count,
+        percentage: cls.percentage.toFixed(1),
+      };
+    });
+
+    return {
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
+      tableData, // 包含為表格量身打造的數據陣列
+      summaryData, // 包含摘要資訊
+      legendData, // 包含圖例資訊
+    };
+  } catch (error) {
+    console.error('❌ GeoJSON 數據載入或處理失敗:', error);
+    throw error;
+  }
+}
+
+// 超級市場 (臺北市資料開放大平台)1121127-新增花木、修正統康名稱
+export async function loadSuperMarketCSV(layer) {
+  try {
+    const layerId = layer.layerId;
+    const colorName = layer.colorName;
+
+    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+
+    const response = await fetch(filePath);
+
+    if (!response.ok) {
+      console.error('HTTP 錯誤:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const csvText = await response.text();
+
+    // 將完整的 CSV 文字內容，首先按換行符號('\n')分割成陣列的每一行
+    // 然後對每一行再用逗號(',')分割成欄位，最終形成一個二維陣列
+    const rows = csvText.split('\n').map((row) => row.split(','));
+
+    // 取得二維陣列的第一行(rows[0])作為標頭，並對每個標頭使用 trim() 去除前後可能存在的空白字元
+    const headers = rows[0].map((h) => h.trim());
+
+    const headerIndices = {
+      seqno: headers.indexOf('seqno'),
+      stitle: headers.indexOf('stitle'),
+      xbody: headers.indexOf('xbody'),
+      xcreatedDate: headers.indexOf('xcreatedDate'),
+      xAddress: headers.indexOf('xAddress'),
+      lat: headers.indexOf('GTag_latitude'),
+      lon: headers.indexOf('GTag_longitude'),
+      行政區: headers.indexOf('行政區'),
+    };
+
+    const geoJsonData = {
+      type: 'FeatureCollection',
+      features: rows
+        .slice(1) // 使用 .slice(1) 方法，從索引 1 開始提取所有元素，即跳過第一行(標頭)
+        .map((row, index) => {
+          const lat = parseFloat(row[headerIndices.lat]);
+          const lon = parseFloat(row[headerIndices.lon]);
+
+          const id = index + 1;
+
+          if (isNaN(lat) || isNaN(lon)) {
+            console.warn(`第 ${id} 行 ${row[headerIndices.address]} 的座標無效:`, {
+              lat: row[headerIndices.lat],
+              lon: row[headerIndices.lon],
+            });
+            return null;
+          }
+
+          const propertyData = {
+            seqno: row[headerIndices.seqno],
+            stitle: row[headerIndices.stitle],
+            xAddress: row[headerIndices.xAddress],
+          };
+
+          const popupData = {
+            name: row[headerIndices.stitle],
+          };
+
+          const tableData = {
+            '#': id,
+            color: getComputedStyle(document.documentElement)
+              .getPropertyValue(`--my-color-${colorName}`)
+              .trim(),
+            stitle: row[headerIndices.stitle],
+            xAddress: row[headerIndices.xAddress],
+          };
+
+          return {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [lon, lat],
+            },
+            properties: {
+              id: id,
+              layerId: layerId,
+              layerName:
+                layer.layerTitle +
+                (layer.layerFields?.[0]?.layerSubtitle
+                  ? ' - ' + layer.layerFields[0].layerSubtitle
+                  : ''),
+              name: row[headerIndices.stitle],
+              fillColor: getComputedStyle(document.documentElement)
+                .getPropertyValue(`--my-color-${colorName}`)
+                .trim(),
+              propertyData: propertyData,
+              popupData: popupData,
+              tableData: tableData,
+            },
+          };
+        })
+        .filter((feature) => feature !== null), // 使用 .filter() 方法過濾掉陣列中所有為 null 的項目 (即那些因座標無效而返回 null 的資料)
+    };
+
+    // 包含為表格量身打造的數據陣列
+    const tableData = geoJsonData.features.map((feature) => ({
+      ...feature.properties.tableData,
+    }));
+
+    // 統計各行政區的數量 - 從地址中提取行政區
+    const districtCounts = {};
+    geoJsonData.features.forEach((feature) => {
+      const address = feature.properties.propertyData.xAddress;
+      if (address) {
+        // 從地址中提取行政區（假設地址格式為：臺北市XX區...）
+        const districtMatch = address.match(/臺北市([^市]*?區)/);
+        if (districtMatch) {
+          const district = districtMatch[1];
+          districtCounts[district] = (districtCounts[district] || 0) + 1;
+        }
+      }
+    });
+
+    // 轉換為陣列格式並排序
+    const districtCount = Object.entries(districtCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count); // 按數量降序排列
+
+    // 包含摘要資訊
+    const summaryData = {
+      totalCount: geoJsonData.features.length,
+      districtCount: districtCount,
+    };
+
+    return {
+      geoJsonData, // 包含原始且完整的 GeoJSON 數據
+      tableData, // 包含為表格量身打造的數據陣列
+      summaryData, // 包含摘要資訊
+    };
+  } catch (error) {
+    console.error('❌ 數據載入失敗:', error);
     throw error;
   }
 }
