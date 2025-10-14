@@ -9,8 +9,8 @@ import {
   loadElderlyWelfareInstitutionData,
   loadCommunityIntegrationServiceCenterData,
   loadGeneralNursingHomeData,
-  loadResidentialLongTermCareData,
-  load66Data,
+  // loadResidentialLongTermCareData,
+  // load66Data,
   load01_01,
   load01_02,
   load01_03,
@@ -558,7 +558,7 @@ export const useDataStore = defineStore(
             display: true,
           },
         ],
-      },
+      } /*,
       {
         groupName: '機構式長照機構 - 法人長照機構',
         groupLayers: [
@@ -599,6 +599,7 @@ export const useDataStore = defineStore(
           },
         ],
       },
+      */,
     ]);
 
     // 🏢 基礎設施圖層 (Infrastructure Layers)
