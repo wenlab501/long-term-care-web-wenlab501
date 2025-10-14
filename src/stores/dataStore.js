@@ -1256,6 +1256,11 @@ export const useDataStore = defineStore(
               },
               { layerSubtitle: '影響力', fieldName: 'Influence', loader: loadVillageCommunityData },
               {
+                layerSubtitle: '凝聚力',
+                fieldName: 'Emo_C_tion',
+                loader: loadVillageCommunityData,
+              },
+              {
                 layerSubtitle: '總體分數',
                 fieldName: 'total_sci',
                 loader: loadVillageCommunityData,

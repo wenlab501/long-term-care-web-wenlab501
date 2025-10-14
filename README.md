@@ -194,7 +194,7 @@
 
 ```bash
 git clone [專案網址]
-cd long-term-care-web-wenlab501
+cd long-term-care-web
 ```
 
 2. **安裝依賴**
@@ -1033,10 +1033,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 - **專案維護者**: [Kevin Cheng](https://github.com/kevin7261)
 - **專案首頁**:
-  [GitHub Repository](https://github.com/github/long-term-care-web-wenlab501)
-- **線上展示**: [GitHub Pages](https://github.com/long-term-care-web-wenlab501)
+  [GitHub Repository](https://github.com/github/long-term-care-web)
+- **線上展示**: [GitHub Pages](https://github.com/long-term-care-web)
 - **問題回報**:
-  [GitHub Issues](https://github.com/github/long-term-care-web-wenlab501/issues)
+  [GitHub Issues](https://github.com/github/long-term-care-web/issues)
 
 ## 🙏 致謝
 
