@@ -155,7 +155,7 @@ export async function loadCommunityCareCenterData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -304,7 +304,7 @@ export async function loadCLevelUnitData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -451,7 +451,7 @@ export async function loadRespiteCareCPlusUnitData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -596,7 +596,7 @@ export async function loadPublicElderlyWelfareInstitutionData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -749,7 +749,7 @@ export async function loadElderlyWelfareInstitutionData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -908,7 +908,7 @@ export async function loadCommunityIntegrationServiceCenterData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -1053,7 +1053,7 @@ export async function loadGeneralNursingHomeData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -1198,7 +1198,7 @@ export async function loadResidentialLongTermCareData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -1346,7 +1346,7 @@ export async function load66Data(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -1497,7 +1497,7 @@ export async function load01_01(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -1650,7 +1650,7 @@ export async function load01_02(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -1793,7 +1793,7 @@ export async function load01_03(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -1941,7 +1941,7 @@ export async function load01_04_07(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -2106,7 +2106,7 @@ export async function load02_01(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -2253,7 +2253,7 @@ export async function load02_02(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -2408,7 +2408,7 @@ export async function load02_03(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -2553,7 +2553,7 @@ export async function load02_04(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -2698,7 +2698,7 @@ export async function load02_06(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -2841,7 +2841,7 @@ export async function load03_02(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -2990,7 +2990,7 @@ export async function load03_03(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -3133,7 +3133,7 @@ export async function load03_05(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -3280,7 +3280,7 @@ export async function load03_06(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -3433,7 +3433,7 @@ export async function load142Data(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -3584,7 +3584,7 @@ export async function load25Data(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -3735,7 +3735,7 @@ export async function load41Data(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -3896,7 +3896,7 @@ export async function loadHospitalClinicData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -4036,7 +4036,7 @@ export async function loadHealthcareFacilityPharmacyData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -4200,7 +4200,7 @@ export async function loadPopulation3LevelsGeoJson(layer) {
     const activeIndex = layer.activeFieldIndex ?? 0;
     const fieldName = layer.layerFields?.[activeIndex]?.fieldName; // fieldName 現在代表「人口數」
 
-    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/geojson/${layer.fileName}`;
 
     // 省略 console.log(a)
 
@@ -4352,7 +4352,7 @@ export async function loadDeathPopulationByYearGeoJson(layer) {
     const activeIndex = layer.activeFieldIndex ?? 0;
     const fieldName = layer.layerFields?.[activeIndex]?.fieldName; // fieldName 現在代表「人口數」
 
-    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/geojson/${layer.fileName}`;
 
     // 省略 console.log(a)
 
@@ -4504,7 +4504,7 @@ export async function loadMarriagePopulationByYearGeoJson(layer) {
     const activeIndex = layer.activeFieldIndex ?? 0;
     const fieldName = layer.layerFields?.[activeIndex]?.fieldName; // fieldName 現在代表「人口數」
 
-    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/geojson/${layer.fileName}`;
 
     // 省略 console.log(a)
 
@@ -4656,7 +4656,7 @@ export async function loadIncomeGeoJson(layer) {
     const activeIndex = layer.activeFieldIndex ?? 0;
     const fieldName = layer.layerFields?.[activeIndex]?.fieldName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/geojson/${layer.fileName}`;
     const a = fieldName || null;
     console.log(a);
 
@@ -4768,7 +4768,7 @@ export async function loadDistrictPopulationGeoJson(layer) {
     const activeIndex = layer.activeFieldIndex ?? 0;
     const fieldName = layer.layerFields?.[activeIndex]?.fieldName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/geojson/${layer.fileName}`;
     const a = fieldName || null;
     console.log(a);
 
@@ -4880,7 +4880,7 @@ export async function loadVillagePopulationGeoJson(layer) {
     const activeIndex = layer.activeFieldIndex ?? 0;
     const fieldName = layer.layerFields?.[activeIndex]?.fieldName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/geojson/${layer.fileName}`;
     const a = fieldName || null;
     console.log(a);
 
@@ -4992,7 +4992,7 @@ export async function loadEmergencyStopHeartGeoJson(layer) {
     const activeIndex = layer.activeFieldIndex ?? 0;
     const fieldName = layer.layerFields?.[activeIndex]?.fieldName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/geojson/${layer.fileName}`;
     const a = fieldName || null;
     console.log(a);
 
@@ -5103,7 +5103,7 @@ export async function loadSuperMarketCSV(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -5244,7 +5244,7 @@ export async function loadVillageCommunityData(layer) {
     const activeIndex = layer.activeFieldIndex ?? 0;
     const fieldName = layer.layerFields?.[activeIndex]?.fieldName; // 應該是 'Reinf_eeds' (需求強化)
 
-    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/geojson/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -5354,7 +5354,7 @@ export async function loadConvenienceStoreData(layer) {
     const layerId = layer.layerId;
     const colorName = layer.colorName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/csv/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/csv/${layer.fileName}`;
 
     const response = await fetch(filePath);
 
@@ -5506,7 +5506,7 @@ export async function loadMRTStationGeoJson(layer) {
     const activeIndex = layer.activeFieldIndex ?? 0;
     const fieldName = layer.layerFields?.[activeIndex]?.fieldName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/geojson/${layer.fileName}`;
     const a = fieldName || null;
     console.log(a);
 
@@ -5586,7 +5586,7 @@ export async function loadBusStopGeoJson(layer) {
     const activeIndex = layer.activeFieldIndex ?? 0;
     const fieldName = layer.layerFields?.[activeIndex]?.fieldName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/geojson/${layer.fileName}`;
     const a = fieldName || null;
     console.log(a);
 
@@ -5666,7 +5666,7 @@ export async function loadLanduseGeoJson(layer) {
     const activeIndex = layer.activeFieldIndex ?? 0;
     const fieldName = layer.layerFields?.[activeIndex]?.fieldName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/geojson/${layer.fileName}`;
     const a = fieldName || null;
     console.log(a);
 
@@ -5778,7 +5778,7 @@ export async function loadTaipeiDistrictGeoJson(layer) {
     const activeIndex = layer.activeFieldIndex ?? 0;
     const fieldName = layer.layerFields?.[activeIndex]?.fieldName;
 
-    const filePath = `/long-term-care-web-wenlab501/data/geojson/${layer.fileName}`;
+    const filePath = `/long-term-care-web/data/geojson/${layer.fileName}`;
     const a = fieldName || null;
     console.log(a);
 
