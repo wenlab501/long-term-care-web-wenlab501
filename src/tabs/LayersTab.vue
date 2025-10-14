@@ -43,7 +43,7 @@
       const layerCategories = [
         { id: 'longTermCare', name: '長照設施', icon: ICONS.elderly_care.icon },
         { id: 'infrastructure', name: '基礎設施', icon: ICONS.building.icon },
-        { id: 'geographicData', name: '地理資料', icon: ICONS.geodata.icon },
+        { id: 'geographicData', name: '社會人口', icon: ICONS.geodata.icon },
         { id: 'dataAnalysis', name: '數據分析', icon: ICONS.data_analysis.icon },
       ];
 
