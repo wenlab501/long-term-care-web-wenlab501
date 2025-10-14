@@ -37,11 +37,7 @@ import {
   loadVillagePopulationGeoJson,
   loadEmergencyStopHeartGeoJson,
   loadSuperMarketCSV,
-  loadReinfEedsGeoJson,
-  loadMembershipGeoJson,
-  loadInfluenceGeoJson,
-  loadCPRGeoJson,
-  loadAEDGeoJson,
+  loadVillageCommunityData,
   loadConvenienceStoreData,
   loadMRTStationGeoJson,
   loadBusStopGeoJson,
@@ -1242,11 +1238,27 @@ export const useDataStore = defineStore(
           {
             layerTitle: '台北里級社區原始數據-社會量表',
             layerFields: [
-              { layerSubtitle: '需求強化', fieldName: 'Reinf_eeds', loader: loadReinfEedsGeoJson },
-              { layerSubtitle: '群體感', fieldName: 'Membership', loader: loadMembershipGeoJson },
-              { layerSubtitle: '影響力', fieldName: 'Influence', loader: loadInfluenceGeoJson },
-              { layerSubtitle: '總合', fieldName: 'total_sci', loader: loadReinfEedsGeoJson },
-              { layerSubtitle: 'total_beh', fieldName: 'total_beh', loader: loadMembershipGeoJson },
+              {
+                layerSubtitle: '需求強化',
+                fieldName: 'Reinf_eeds',
+                loader: loadVillageCommunityData,
+              },
+              {
+                layerSubtitle: '群體感',
+                fieldName: 'Membership',
+                loader: loadVillageCommunityData,
+              },
+              { layerSubtitle: '影響力', fieldName: 'Influence', loader: loadVillageCommunityData },
+              {
+                layerSubtitle: '總體分數',
+                fieldName: 'total_sci',
+                loader: loadVillageCommunityData,
+              },
+              {
+                layerSubtitle: 'total_beh',
+                fieldName: 'total__beh',
+                loader: loadVillageCommunityData,
+              },
             ],
             visible: false,
             isLoading: false,
@@ -1264,8 +1276,8 @@ export const useDataStore = defineStore(
           {
             layerTitle: '台北里級社區原始數據-助人意願',
             layerFields: [
-              { layerSubtitle: 'CPR意願', fieldName: 'tot_CPR', loader: loadCPRGeoJson },
-              { layerSubtitle: 'AED意願', fieldName: 'tot_AED', loader: loadAEDGeoJson },
+              { layerSubtitle: 'CPR意願', fieldName: 'tot_CPR', loader: loadVillageCommunityData },
+              { layerSubtitle: 'AED意願', fieldName: 'tot_AED', loader: loadVillageCommunityData },
             ],
             visible: false,
             isLoading: false,
